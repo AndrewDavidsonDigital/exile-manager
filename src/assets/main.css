@@ -17,6 +17,7 @@ p,li,figcaption {
 }
 
 /* Container query bounds */
-header, footer, main, section, article {
+/* section, article, */
+header, footer, main {
   container-type: inline-size;
 }

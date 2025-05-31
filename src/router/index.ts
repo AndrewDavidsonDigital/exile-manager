@@ -1,12 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { IRoute } from '@/lib/interfaces';
-import Landing from '../views/Landing.vue'
+import Landing from '../views/LandingView.vue'
+import Game from '@/views/GameView.vue';
 
 export const routes: IRoute[] = [
   {
     path: '/',
     name: 'home',
     component: Landing
+  },
+  {
+    path: '/game-state',
+    name: 'Game',
+    title: 'New Game',
+    component: Game
   },
 ];
 

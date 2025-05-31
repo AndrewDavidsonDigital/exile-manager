@@ -1,5 +1,11 @@
 /* RESET */
+:root {
+  --content: 1200px;
+}
+
 @theme {
+  --spacing-content: 1200px;
+  
   --text-mlg: 0.75rem;
   --text-mlg--line-height: calc(--text-mlg * 1.25); 
   --text-mlg--letter-spacing: calc(--text-mlg / 10); 

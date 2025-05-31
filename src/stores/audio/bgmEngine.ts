@@ -92,14 +92,14 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
       }
     },
     fadeIn(start = false){
-      logger(`FadeIn Called`);
       if (!this.el) return;
+      logger(`FadeIn Called: ${this.el.volume.toFixed(4)}`);
       if (start){
         this.el.volume = 0;
         this.play();
       }
 
-      logger(`testing: ${this.el.volume} < ${this.volumeRaw * this.volumeMultiplier} (${this.volumeRaw} * ${this.volumeMultiplier})`);
+      // logger(`testing: ${this.el.volume} < ${this.volumeRaw * this.volumeMultiplier} (${this.volumeRaw} * ${this.volumeMultiplier})`);
       if (this.el.volume < (this.volumeRaw * this.volumeMultiplier)){
         setTimeout(() => {
           this._volumeUp();
