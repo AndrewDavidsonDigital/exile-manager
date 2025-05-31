@@ -4,12 +4,14 @@ import type {
   DifficultyType, 
   IDifficulty, 
   ICharacter, 
-  ICharacterStats 
+  ICharacterStats,
+  ICharacterEquipment
 } from '@/lib/game';
 import { 
   DIFFICULTY_SETTINGS, 
   generateClassStats 
 } from '@/lib/game';
+import { useGameState } from '@/lib/storage';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 
@@ -21,9 +23,18 @@ interface IGameEngine {
 
 export const useGameEngine = defineStore('gameEngine', {
   state: () => {
+    const gameState = useGameState();
+    const savedState = gameState.get();
+    
+    // Initialize state from storage if it exists
+    if (savedState) {
+      return savedState as IGameEngine;
+    }
+    
     return { 
       runs: 0,
       difficulty: 'Easy',
+      character: undefined,
     } as IGameEngine
   },
 
@@ -97,8 +108,43 @@ export const useGameEngine = defineStore('gameEngine', {
      */
     init(character: ICharacter) {
       logger(`Initializing game with character: ${character.name} (${character.class})`);
+      
       this.runs = 0;
-      this.character = character;
+      this.character = { ...character }; // Create a new object to ensure reactivity
+      this.saveState();
+    },
+
+    /**
+     * Updates character equipment
+     * @param {Partial<ICharacterEquipment>} equipment - The equipment to update
+     */
+    updateEquipment(equipment: Partial<ICharacterEquipment>) {
+      if (!this.character) return;
+      logger(`Updating equipment for ${this.character.name}`);
+      this.character.equipment = { ...this.character.equipment, ...equipment };
+      this.saveState();
+    },
+
+    /**
+     * Updates character stats
+     * @param {Partial<ICharacterStats>} stats - The stats to update
+     */
+    updateStats(stats: Partial<ICharacterStats>) {
+      if (!this.character) return;
+      logger(`Updating stats for ${this.character.name}`);
+      this.character.stats = { ...this.character.stats, ...stats };
+      this.saveState();
+    },
+
+    /**
+     * Updates character gold
+     * @param {number} amount - Amount to add (can be negative)
+     */
+    updateGold(amount: number) {
+      if (!this.character) return;
+      logger(`Updating gold for ${this.character.name}: ${amount}`);
+      this.character.gold += amount;
+      this.saveState();
     },
 
     /**
@@ -115,6 +161,8 @@ export const useGameEngine = defineStore('gameEngine', {
       if (this.character.experience >= expNeeded) {
         this.levelUp();
       }
+      
+      this.saveState();
     },
 
     /**
@@ -136,6 +184,7 @@ export const useGameEngine = defineStore('gameEngine', {
       });
       
       logger(`Character leveled up to ${this.character.level}`);
+      this.saveState();
     },
 
     /**
@@ -145,10 +194,19 @@ export const useGameEngine = defineStore('gameEngine', {
     incrementRuns(value: number = 1) {
       logger(`New run(s): ${value}`);
       this.runs += value;
+      this.saveState();
+    },
+
+    /**
+     * Saves the current game state to storage
+     */
+    saveState() {
+      logger('Saving game state');
+      useGameState().$set(this.$state);
     },
   },
 });
 
 function logger(message: string) {
-  trace(`${Date.now()} ${LOGGING_PREFIX}${message}`);
+  trace(`${LOGGING_PREFIX}${message}`);
 }

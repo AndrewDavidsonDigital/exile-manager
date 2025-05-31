@@ -1,7 +1,7 @@
 export type StorageKeys = 
     'exileManagerEngine_logging'  
   | 'exileManagerEngine_config'  
-  // | 'illusionEngine_state'  
+  | 'exileManagerEngine_state'
   // | 'illusionEngine_CG'  
   // | 'illusionEngine_complete'
 ;
@@ -65,5 +65,17 @@ export function useConfig() {
   return {
     'get': () => get('exileManagerEngine_config'),
     'set': (value: string) => set('exileManagerEngine_config', value)
+  }
+}
+
+export function useGameState() {
+  return {
+    'get': () => {
+      const state = get('exileManagerEngine_state');
+      return state ? JSON.parse(state) : null;
+    },
+    'set': (value: string) => set('exileManagerEngine_state', value),
+    '$set': (value: object) => set('exileManagerEngine_state', JSON.stringify(value)),
+    'clear': () => set('exileManagerEngine_state', '{}')
   }
 }

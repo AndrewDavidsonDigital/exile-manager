@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useGameEngine } from '@/stores/game';
-import type { ExileClassType } from '@/lib/game';
+import type { ExileClassType, DifficultyType } from '@/lib/game';
 import { 
   EXILE_CLASSES, 
   CLASS_DESCRIPTIONS, 
   BASE_STATS,
-  generateClassStats
+  generateClassStats,
+  DIFFICULTY_SETTINGS
 } from '@/lib/game';
 
 const gameEngine = useGameEngine();
 const characterName = ref('');
 const selectedClass = ref<ExileClassType>('Spellsword');
+const selectedDifficulty = ref<DifficultyType>('Normal');
 
 // Randomly select initial class
 onMounted(() => {
@@ -29,6 +31,9 @@ const createCharacter = () => {
   Object.entries(classBonus).forEach(([stat, bonus]) => {
     baseStats[stat as keyof typeof baseStats] += bonus;
   });
+
+  // Set the difficulty first
+  gameEngine.difficulty = selectedDifficulty.value;
 
   gameEngine.init({
     name: characterName.value.trim(),
@@ -104,6 +109,36 @@ const createCharacter = () => {
         <p class="text-gray-300 text-sm">
           {{ CLASS_DESCRIPTIONS[selectedClass] }}
         </p>
+      </div>
+
+      <!-- Difficulty Selection -->
+      <div class="flex flex-col gap-2">
+        <label
+          id="difficulty-selection-label"
+          class="text-gray-300"
+        >Choose Difficulty</label>
+        <div 
+          class="grid grid-cols-3 gap-2" 
+          role="radiogroup" 
+          aria-labelledby="difficulty-selection-label"
+        >
+          <button
+            v-for="[difficulty] in DIFFICULTY_SETTINGS"
+            :key="difficulty"
+            class="px-4 py-2 rounded-lg transition-colors"
+            :class="[
+              selectedDifficulty === difficulty
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            ]"
+            :aria-label="`Select ${difficulty} difficulty`"
+            :aria-checked="selectedDifficulty === difficulty"
+            role="radio"
+            @click="selectedDifficulty = difficulty"
+          >
+            {{ difficulty }}
+          </button>
+        </div>
       </div>
 
       <!-- Create Button -->

@@ -89,6 +89,12 @@ export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   }
 };
 
+export const CLASS_ALIGNED_STATS: Record<ExileClassType, (keyof ICharacterStats)[]> = {
+  'Spellsword': ['affinity', 'wrath'],
+  'Chaos Mage': ['affinity', 'fortune'],
+  'Reaver': ['wrath', 'fortitude']
+};
+
 /**
  * Generates random stat bonuses for a given class
  * @param classType The class to generate stats for

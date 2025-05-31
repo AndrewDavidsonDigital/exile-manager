@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="p-5 bg-neutral-900 border border-emerald-700 rounded-lg">
+  <div class="p-5 bg-neutral-900 border-2 border-emerald-700 rounded-lg">
     <slot></slot>
   </div>
 </template>

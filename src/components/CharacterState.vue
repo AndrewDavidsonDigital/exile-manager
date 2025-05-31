@@ -1,15 +1,37 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
+import { CLASS_ALIGNED_STATS } from '@/lib/game';
+import { computed } from 'vue';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
+
+const orderedStats = computed(() => {
+  if (char === -1) return [];
+  
+  const alignedStats = CLASS_ALIGNED_STATS[char.class];
+  const allStats = ['fortitude', 'fortune', 'wrath', 'affinity'] as const;
+  const nonAlignedStats = allStats.filter(stat => !alignedStats.includes(stat));
+  
+  return [...alignedStats, ...nonAlignedStats];
+});
+
+const getStatColor = (stat: string) => {
+  switch (stat) {
+    case 'fortitude': return 'text-yellow-400';
+    case 'fortune': return 'text-purple-400';
+    case 'wrath': return 'text-red-400';
+    case 'affinity': return 'text-cyan-400';
+    default: return 'text-gray-400';
+  }
+};
 </script>
 
 <template>
   <div class="flex flex-col gap-4 p-4 bg-gray-800 rounded-lg">
     <template v-if="char !== -1">
       <div class="flex flex-col gap-2">
-        <div class="text-xl font-bold text-white">
+        <div class="text-xl font-bold text-white capitalize">
           {{ char.name }}
         </div>
         <div class="text-sm text-gray-300">
@@ -18,31 +40,24 @@ const char = gameEngine.getCharacter;
       </div>
 
       <!-- Stats Section -->
-      <div class="grid grid-cols-2 gap-2">
-        <div class="text-sm">
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <div>
           <span class="text-gray-400">Health:</span>
           <span class="text-green-400 ml-2">{{ char.stats.health }}</span>
         </div>
-        <div class="text-sm">
+        <div>
           <span class="text-gray-400">Mana:</span>
           <span class="text-blue-400 ml-2">{{ char.stats.mana }}</span>
         </div>
-        <div class="text-sm">
-          <span class="text-gray-400">Fortitude:</span>
-          <span class="text-yellow-400 ml-2">{{ char.stats.fortitude }}</span>
-        </div>
-        <div class="text-sm">
-          <span class="text-gray-400">Fortune:</span>
-          <span class="text-purple-400 ml-2">{{ char.stats.fortune }}</span>
-        </div>
-        <div class="text-sm">
-          <span class="text-gray-400">Wrath:</span>
-          <span class="text-red-400 ml-2">{{ char.stats.wrath }}</span>
-        </div>
-        <div class="text-sm">
-          <span class="text-gray-400">Affinity:</span>
-          <span class="text-cyan-400 ml-2">{{ char.stats.affinity }}</span>
-        </div>
+        <template
+          v-for="stat in orderedStats"
+          :key="stat"
+        >
+          <div>
+            <span class="text-gray-400">{{ stat.charAt(0).toUpperCase() + stat.slice(1) }}:</span>
+            <span :class="[getStatColor(stat), 'ml-2']">{{ char.stats[stat] }}</span>
+          </div>
+        </template>
       </div>
 
       <!-- Gold and Experience -->
