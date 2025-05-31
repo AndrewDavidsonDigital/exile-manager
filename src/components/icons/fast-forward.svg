@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" 
+  width="15" height="20"
+  fill="teal" 
+  stroke="none"
+  stroke-width="0"
+  style="background: black;"
+>
+    <polygon
+      points="
+      0 20
+      8 20
+      15 10
+      8 0
+      0 0
+      6 10
+      0 20
+      8 20
+    "
+    >
+    </polygon>
+</svg>

@@ -1,0 +1,15 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    fill="currentColor"
+  >
+    <line
+      x1="2"
+      y1="8"
+      x2="14"
+      y2="8"
+    ></line>
+  </svg>
+</template>
