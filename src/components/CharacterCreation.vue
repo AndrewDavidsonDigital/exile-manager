@@ -61,7 +61,10 @@ const createCharacter = () => {
       Create Your Character
     </h2>
     
-    <div class="flex flex-col gap-4">
+    <form
+      class="flex flex-col gap-4" 
+      autocomplete="off"
+    >
       <!-- Name Input -->
       <div class="flex flex-col gap-2">
         <label
@@ -75,6 +78,7 @@ const createCharacter = () => {
           class="px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
           placeholder="Enter your name"
           aria-label="Character name"
+          auto
         />
       </div>
 
@@ -156,6 +160,6 @@ const createCharacter = () => {
       >
         Begin Your Journey
       </button>
-    </div>
+    </form>
   </div>
 </template> 

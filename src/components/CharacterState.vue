@@ -16,6 +16,8 @@ const orderedStats = computed(() => {
   return [...alignedStats, ...nonAlignedStats];
 });
 
+const experienceWidth = computed(() =>  char !== -1 ? `${ Math.round((char.experience / (char.level * 100)) * 100) }%` : '0%');
+
 const getStatColor = (stat: string) => {
   switch (stat) {
     case 'fortitude': return 'text-yellow-400';
@@ -39,8 +41,13 @@ const getStatColor = (stat: string) => {
             Level {{ char.level }} {{ char.class }}
           </div>
         </div>
-        <div class="text-xl font-bold text-white capitalize">
-          Loot: {{ char.loot?.length }}
+        <div class="text-right font-bold text-white capitalize">
+          <h3 class="text-xl">
+            Loot: {{ char.loot?.length }}
+          </h3>
+          <div class="text-yellow-400">
+            Gold: {{ char.gold }}
+          </div>
         </div>
       </div>
 
@@ -65,15 +72,50 @@ const getStatColor = (stat: string) => {
         </template>
       </div>
 
-      <!-- Gold and Experience -->
-      <div class="flex justify-between text-sm">
-        <div class="text-yellow-400">
-          Gold: {{ char.gold }}
-        </div>
-        <div class="text-blue-400">
-          XP: {{ char.experience }}/{{ char.level * 100 }}
-        </div>
+      <div 
+        class="
+          w-full h-3.5
+          bg-emerald-700/30
+          self-end
+          mx-auto 
+          relative
+          border border-slate-600/50 rounded-full
+          
+          after:bg-emerald-700
+          after:bg-gradient-to-tr after:via-40%
+          after:from-emerald-900 after:via-emerald-800/50 after:to-teal-500/50
+          after:absolute
+          after_w-dynamic after:h-full after:rounded-full after:transition-all after:duration-500 after:ease-in-out
+
+          before:absolute before:size-full
+          before_current-percent before:text-slate-300 before:z-10 
+          before:text-center before:text-xs
+        "
+        :style="`--num:${Math.round((char.experience / (char.level * 100)) * 100)};`"
+      >
       </div>
     </template>
   </div>
 </template> 
+
+<style lang="css" scoped>
+  @property --num {
+    syntax: "<integer>";
+    initial-value: 0;
+    inherits: false;
+  }
+  .before_current-percent {
+    animation-fill-mode: forwards;
+    animation-name: counter;
+    animation-duration: 100ms;
+    counter-reset: num var(--num);
+  }
+
+  .before_current-percent::before {
+    content: counter(num) "%";
+  }
+
+  .after_w-dynamic::after {
+    width: v-bind(experienceWidth);
+  }
+</style>
