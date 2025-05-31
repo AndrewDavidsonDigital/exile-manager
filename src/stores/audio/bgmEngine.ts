@@ -11,8 +11,8 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
       el: null,
       count: 0,
       status: 'off',
-      volumeMultiplier: 0.7,
-      volumeRaw: 1,
+      volumeMultiplier: 0.5,
+      volumeRaw: 0.3,
     } as IAudioEngine
   },
 

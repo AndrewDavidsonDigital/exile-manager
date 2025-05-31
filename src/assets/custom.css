@@ -22,12 +22,12 @@ input[type=range].thin-slider:hover{
 
 input[type=range].thin-slider{
   &::-webkit-slider-runnable-track{
-    @apply bg-orange-300;
+    @apply bg-emerald-300;
     @apply h-1;
     @apply shadow-none border-none;
   }
   &::-moz-range-track{
-    @apply bg-orange-300;
+    @apply bg-emerald-300;
     @apply h-1;
     @apply shadow-none border-none;
   }
@@ -37,7 +37,7 @@ input[type=range].thin-slider{
   &::-webkit-slider-thumb{
     @apply appearance-none;
 
-    @apply bg-orange-400/80;
+    @apply bg-emerald-400/80;
     @apply shadow-none border-none;
     @apply h-4 w-1.5;
     @apply rotate-[30deg];
@@ -46,7 +46,7 @@ input[type=range].thin-slider{
   &::-moz-range-thumb{
     @apply appearance-none;
 
-    @apply bg-orange-400/80;
+    @apply bg-emerald-400/80;
     @apply shadow-none border-none;
     @apply h-4 w-1.5;
     @apply rotate-[30deg];

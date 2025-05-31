@@ -8,10 +8,9 @@ import { IconPlay, IconPause } from './icons';
   const isPaused = ref<boolean>(false);
   const playingFile = ref('');
 
-  // bgmEngine.el?.src.split('/')[] || ''
   bgmEngine.$onAction((el)=> {
     const startTime = Date.now()
-    console.log(`NAV $onAction: \t[${el.name}]` );
+    // console.log(`NAV $onAction: \t[${el.name}]` );
     el.onError((error) => {
       console.warn(
         `Failed "${el.name}" after ${Date.now() - startTime}ms.\nError: ${error}.`
@@ -20,7 +19,7 @@ import { IconPlay, IconPause } from './icons';
 
     if (el.name === 'pause'){
       el.after((_result) => {
-        console.log('pause-triggered');
+        // console.log('pause-triggered');
         isPaused.value = true;
       })
     }

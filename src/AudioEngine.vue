@@ -2,7 +2,7 @@
 <script setup lang="ts">
   import { onMounted } from 'vue';
   import { useBgmEngine } from '&audio'
-import { useConfiguration } from './stores/configuration';
+  import { useConfiguration } from './stores/configuration';
 
 
   const bgmEngine = useBgmEngine();

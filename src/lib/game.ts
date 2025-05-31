@@ -1,0 +1,109 @@
+export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
+export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
+
+export interface IDifficulty {
+  name: DifficultyType;
+  dangerMultiplier: number;
+  lootMultiplier: number;
+}
+
+export interface ICharacterStats {
+  health: number;
+  mana: number;
+  fortitude: number;     // Mental and physical endurance
+  fortune: number;       // Luck and chance-based outcomes
+  wrath: number;         // Combat prowess and rage
+  affinity: number;      // Connection to magical forces
+}
+
+export interface ICharacterEquipment {
+  weapon?: string;
+  armor?: string;
+  accessory?: string;
+}
+
+export interface ICharacter {
+  name: string;
+  class: ExileClassType;
+  level: number;
+  experience: number;
+  stats: ICharacterStats;
+  equipment: ICharacterEquipment;
+  skills: string[];
+  gold: number;
+}
+
+export const DIFFICULTY_SETTINGS: ReadonlyMap<DifficultyType, IDifficulty> = new Map<DifficultyType, IDifficulty>([
+  ['Easy', { name: 'Easy', dangerMultiplier: 0.5, lootMultiplier: 1.0 }],
+  ['Normal', { name: 'Normal', dangerMultiplier: 1.0, lootMultiplier: 1.0 }],
+  ['Hard', { name: 'Hard', dangerMultiplier: 2.0, lootMultiplier: 0.8 }]
+]);
+
+export const EXILE_CLASSES: ExileClassType[] = ['Spellsword', 'Chaos Mage', 'Reaver'];
+
+export const CLASS_DESCRIPTIONS: Record<ExileClassType, string> = {
+  'Spellsword': 'A master of both blade and magic, combining physical prowess with arcane abilities.',
+  'Chaos Mage': 'A wielder of unpredictable and powerful magic, harnessing the forces of chaos.',
+  'Reaver': 'A fierce warrior who channels their rage into devastating combat abilities.'
+};
+
+export const BASE_STATS: ICharacterStats = {
+  health: 100,
+  mana: 100,
+  fortitude: 10,
+  fortune: 10,
+  wrath: 10,
+  affinity: 10
+};
+
+export interface IStatRange {
+  min: number;
+  max: number;
+}
+
+export interface IClassStatRanges {
+  affinity: IStatRange;
+  wrath: IStatRange;
+  fortune: IStatRange;
+  fortitude: IStatRange;
+}
+
+export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
+  'Spellsword': {
+    affinity: { min: 3, max: 5 },    // Reduced from 4-7 to maintain relative difference
+    wrath: { min: 1, max: 3 },       // Reduced from 2-4
+    fortune: { min: -2, max: 0 },    // Non-aligned
+    fortitude: { min: -2, max: 0 }   // Non-aligned
+  },
+  'Chaos Mage': {
+    affinity: { min: 4, max: 6 },    // Reduced from 6-9
+    fortune: { min: 1, max: 3 },     // Reduced from 2-5
+    wrath: { min: -3, max: -1 },     // Non-aligned
+    fortitude: { min: -3, max: -1 }  // Non-aligned
+  },
+  'Reaver': {
+    wrath: { min: 4, max: 6 },       // Reduced from 6-9
+    fortitude: { min: 1, max: 3 },   // Reduced from 2-5
+    affinity: { min: -3, max: -1 },  // Non-aligned
+    fortune: { min: -2, max: 0 }     // Non-aligned
+  }
+};
+
+/**
+ * Generates random stat bonuses for a given class
+ * @param classType The class to generate stats for
+ * @returns Partial<ICharacterStats> with random bonuses within the class's ranges
+ */
+export function generateClassStats(classType: ExileClassType): Partial<ICharacterStats> {
+  const ranges = CLASS_STAT_RANGES[classType];
+  const stats: Partial<ICharacterStats> = {};
+
+  // Generate random value within range for each stat
+  Object.entries(ranges).forEach(([stat, range]) => {
+    stats[stat as keyof ICharacterStats] = Math.floor(
+      Math.random() * (range.max - range.min + 1) + range.min
+    );
+  });
+
+  return stats;
+} 
