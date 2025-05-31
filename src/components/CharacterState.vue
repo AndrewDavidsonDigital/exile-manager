@@ -37,6 +37,9 @@ const getStatColor = (stat: string) => {
         <div class="text-sm text-gray-300">
           Level {{ char.level }} {{ char.class }}
         </div>
+        <div class="text-xl font-bold text-white capitalize">
+          Loot: {{ char.loot?.length }}
+        </div>
       </div>
 
       <!-- Stats Section -->

@@ -1,6 +1,21 @@
 export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
 export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
 
+// affixes [embedded | pre | suf]:
+export type ItemTierType = 
+    'basic' //            0|0|0
+  | 'enhanced' //         1|0|1
+  | 'exceptional' //      2|1|1
+  | 'abstract' //         1|3|0
+  | 'infused'//           1|0|3
+;
+
+export type ItemMutationType = 
+    'crystallized'  // 
+  | 'corrupted'     //
+  | 'voided'        //
+;
+
 export interface IDifficulty {
   name: DifficultyType;
   dangerMultiplier: number;
@@ -22,6 +37,24 @@ export interface ICharacterEquipment {
   accessory?: string;
 }
 
+export interface IItem {
+  tier: ItemTierType;              // magic common .... (total affix configuration)
+  mutations: ItemMutationType[];   // types of affix subsets to allow
+  affixes: {
+    embedded: string[];
+    prefix: string[];
+    suffix: string[];
+  }
+}
+
+export interface ILoot {
+  identified: boolean;
+  cursed: boolean;              // de-equipable??
+  corrupted: boolean;           // 
+  name: string;
+  itemDetails?: IItem;
+}
+
 export interface ICharacter {
   name: string;
   class: ExileClassType;
@@ -31,6 +64,7 @@ export interface ICharacter {
   equipment: ICharacterEquipment;
   skills: string[];
   gold: number;
+  loot: ILoot[];
 }
 
 export const DIFFICULTY_SETTINGS: ReadonlyMap<DifficultyType, IDifficulty> = new Map<DifficultyType, IDifficulty>([

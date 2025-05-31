@@ -5,7 +5,9 @@ import type {
   IDifficulty, 
   ICharacter, 
   ICharacterStats,
-  ICharacterEquipment
+  ICharacterEquipment,
+  ILoot,
+  ItemTierType
 } from '@/lib/game';
 import { 
   DIFFICULTY_SETTINGS, 
@@ -238,6 +240,45 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Character leveled up to ${this.character.level}`);
       this.saveState();
     },
+    addSpecificLoot(_loot: { type: string; amount: number }[]){
+      if (!this.character) return;
+      logger(`Adding custom loot for char.`);
+
+      this.saveState();
+    },
+
+    addLoot(amount: number){
+      if (!this.character) return;
+      logger(`Adding ${amount} loot items for ${this.character.name}`);
+
+      // Initialize loot array if it doesn't exist
+      if (!this.character.loot) {
+        this.character.loot = [];
+      }
+
+      // Generate random loot items
+      for (let i = 0; i < amount; i++) {
+        const newLoot: ILoot = {
+          identified: false,
+          cursed: Math.random() < 0.1, // 10% chance to be cursed
+          corrupted: Math.random() < 0.05, // 5% chance to be corrupted
+          name: `Mysterious Item ${generateRandomId()}`,
+          itemDetails: {
+            tier: ['basic', 'enhanced', 'exceptional', 'abstract', 'infused'][Math.floor(Math.random() * 5)] as ItemTierType,
+            mutations: [],
+            affixes: {
+              embedded: [],
+              prefix: [],
+              suffix: []
+            }
+          }
+        };
+        
+        this.character.loot.push(newLoot);
+      }
+
+      this.saveState();
+    },
 
     /**
      * Increments the number of completed runs
@@ -261,4 +302,12 @@ export const useGameEngine = defineStore('gameEngine', {
 
 function logger(message: string) {
   trace(`${LOGGING_PREFIX}${message}`);
+}
+
+/**
+ * Generates a random string using the first segment of a UUID
+ * @returns {string} Random string from UUID's first segment
+ */
+function generateRandomId(): string {
+  return crypto.randomUUID().split('-')[0];
 }
