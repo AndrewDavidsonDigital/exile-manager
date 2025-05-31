@@ -76,7 +76,7 @@ export const useGameEngine = defineStore('gameEngine', {
       if (!this.character) return -1;
       let retval: ICombatStat = {
         accuracy: 100,
-        damagePerTick: 5,
+        damagePerTick: 15,
         health: this.character.stats.health,
         mitigation: resolveMitigation(this.character),
       };
