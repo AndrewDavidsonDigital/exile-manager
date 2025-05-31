@@ -176,15 +176,19 @@ export const useGameEngine = defineStore('gameEngine', {
     takeDamage(amount: number, applyReduction: boolean = true) {
       if (!this.character) return;
       logger(`Taking ${amount} damage`);
+      console.log('takeDamage: Initial health', this.character.stats.health);
       
       let finalDamage = amount;
       if (applyReduction) {
         const reduction = this.getDamageReduction;
         finalDamage = Math.floor(amount * (1 - reduction));
       }
+      console.log('takeDamage: finalDamage', finalDamage);
       
       const newHealth = Math.max(0, this.character.stats.health - finalDamage);
+      console.log('takeDamage: newHealth calculated', newHealth);
       this.updateStats({ health: newHealth });
+      console.log('takeDamage: health after updateStats', this.character.stats.health);
       
       // Check if character died from this damage
       if (newHealth <= 0) {

@@ -369,8 +369,20 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         const combatResult = simulateCombat(char, exileStats, simMonster, areaLevel, difficulty, mobTier);
 
-        // Apply final damage to exile
-        gameEngine.takeDamage(exileStats.health - combatResult.exileHealth);
+        // Apply combat outcome to exile's health
+        if (combatResult.combatOutcome.startsWith('Miraculous Escape!')) {
+          gameEngine.updateStats({ health: 1 }); // Set health to 1 on miraculous escape
+        } else if (combatResult.combatOutcome.startsWith('Defeat!')) {
+          gameEngine.updateStats({ health: 0 }); // Set health to 0 on defeat
+          gameEngine.isDead = true; // Also set isDead to true on defeat
+        } else {
+          // Apply final damage to exile for other outcomes (e.g., victory)
+          // Calculate damage taken during the simulation
+          const damageTaken = exileStats.health - combatResult.exileHealth;
+          if (damageTaken > 0) {
+            gameEngine.takeDamage(damageTaken);
+          }
+        }
         
         // Collect only the mitigations that were used during combat
         const activeMitigations = Array.from(combatResult.usedMitigations)
