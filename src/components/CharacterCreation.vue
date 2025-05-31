@@ -10,6 +10,10 @@ import {
   DIFFICULTY_SETTINGS
 } from '@/lib/game';
 
+const emit = defineEmits<{
+  (_e: 'character-created'): void
+}>();
+
 const gameEngine = useGameEngine();
 const characterName = ref('');
 const selectedClass = ref<ExileClassType>('Spellsword');
@@ -43,13 +47,16 @@ const createCharacter = () => {
     stats: baseStats,
     equipment: {},
     skills: [],
-    gold: 100
+    gold: 100,
+    loot: []
   });
+
+  emit('character-created');
 };
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 p-6 bg-gray-800 rounded-lg max-w-md mx-auto">
+  <div class="flex flex-col gap-6 py-6 bg-gray-800 rounded-lg max-w-md mx-auto">
     <h2 class="text-2xl font-bold text-white text-center">
       Create Your Character
     </h2>
@@ -65,7 +72,7 @@ const createCharacter = () => {
           id="character-name"
           v-model="characterName"
           type="text"
-          class="px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
           placeholder="Enter your name"
           aria-label="Character name"
         />
@@ -88,7 +95,7 @@ const createCharacter = () => {
             class="px-4 py-2 rounded-lg transition-colors"
             :class="[
               selectedClass === classType
-                ? 'bg-blue-600 text-white'
+                ? 'bg-emerald-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             ]"
             :aria-label="`Select ${classType} class`"
@@ -128,7 +135,7 @@ const createCharacter = () => {
             class="px-4 py-2 rounded-lg transition-colors"
             :class="[
               selectedDifficulty === difficulty
-                ? 'bg-blue-600 text-white'
+                ? 'bg-emerald-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             ]"
             :aria-label="`Select ${difficulty} difficulty`"
@@ -144,7 +151,7 @@ const createCharacter = () => {
       <!-- Create Button -->
       <button
         :disabled="!characterName.trim()"
-        class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-700"
+        class="px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-emerald-700"
         @click="createCharacter"
       >
         Begin Your Journey

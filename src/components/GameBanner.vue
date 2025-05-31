@@ -9,6 +9,6 @@
     <span
       v-if="gameEngine.character"
       class="capitalize"
-    >{{ gameEngine.character.name }} ({{ gameEngine.character.level }}) - </span>{{ gameEngine.difficulty }}
+    >{{ gameEngine.character.name }} the {{ gameEngine.character.class }} ({{ gameEngine.character.level }}) - </span>{{ gameEngine.difficulty }}
   </section>
 </template>

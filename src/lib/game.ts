@@ -1,5 +1,67 @@
 export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
 export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
+export type LootType = 'armor' | 'weapons' | 'jewelry' | 'currency';
+export type MonsterType = 'undead' | 'beast' | 'humanoid' | 'elemental' | 'abomination';
+
+export interface ILevel {
+  areaLevel: number;
+  name: string;
+  description: string;
+  lootTags: LootType[];
+  areaLuckDelta?: number;
+  encounterBase: number;
+  encounterRangeDeltas: number;
+  monsterTypes: MonsterType[];
+} 
+
+export const levels: ILevel[] = [
+  {
+    areaLevel: 0,
+    description: "Washed up on the edge of a reef.",
+    name: "The first last stand",
+    lootTags: ['armor', 'weapons'],
+    areaLuckDelta: 0.3,
+    encounterBase: 4,
+    encounterRangeDeltas: 1,
+    monsterTypes: ['undead']
+  },
+  {
+    areaLevel: 1,
+    description: "Having survived the last stand you progress on towards tomorrow",
+    name: "Beach",
+    lootTags: ['armor', 'weapons'],
+    encounterBase: 5,
+    encounterRangeDeltas: 1,
+    monsterTypes: ['beast', 'humanoid']
+  },
+  {
+    areaLevel: 2,
+    description: "LORE TBD",
+    name: "Mini Boss",
+    lootTags: ['currency', 'jewelry'],
+    encounterBase: 6,
+    encounterRangeDeltas: 2,
+    monsterTypes: ['beast', 'elemental']
+  },
+  {
+    areaLevel: 3,
+    description: "LORE TBD",
+    name: "Beach3",
+    lootTags: ['weapons'],
+    encounterBase: 7,
+    encounterRangeDeltas: 2,
+    monsterTypes: ['undead', 'abomination']
+  },
+  {
+    areaLevel: 4,
+    description: "LORE TBD",
+    name: "Boss",
+    lootTags: ['currency', 'jewelry'],
+    encounterBase: 8,
+    encounterRangeDeltas: 3,
+    monsterTypes: ['abomination']
+  },
+];
 
 // affixes [embedded | pre | suf]:
 export type ItemTierType = 

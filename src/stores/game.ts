@@ -21,6 +21,7 @@ interface IGameEngine {
   runs: number;
   character?: ICharacter;
   difficulty: DifficultyType;
+  isDead: boolean;
 }
 
 export const useGameEngine = defineStore('gameEngine', {
@@ -37,6 +38,7 @@ export const useGameEngine = defineStore('gameEngine', {
       runs: 0,
       difficulty: 'Easy',
       character: undefined,
+      isDead: false,
     } as IGameEngine
   },
 
@@ -109,6 +111,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.runs = 0;
       this.difficulty = 'Easy';
       this.character = undefined;
+      this.isDead = false;
       this.saveState();
     },
     /**
@@ -120,6 +123,7 @@ export const useGameEngine = defineStore('gameEngine', {
       
       this.runs = 0;
       this.character = { ...character }; // Create a new object to ensure reactivity
+      this.isDead = false;
       this.saveState();
     },
 
@@ -162,6 +166,12 @@ export const useGameEngine = defineStore('gameEngine', {
       
       const newHealth = Math.max(0, this.character.stats.health - finalDamage);
       this.updateStats({ health: newHealth });
+      
+      // Check if character died from this damage
+      if (newHealth <= 0) {
+        this.isDead = true;
+        this.saveState();
+      }
     },
 
     /**
@@ -256,8 +266,13 @@ export const useGameEngine = defineStore('gameEngine', {
         this.character.loot = [];
       }
 
+      // Calculate fortune multiplier (10 is baseline, exponential scaling capped at 2x)
+      const fortuneDelta = this.character.stats.fortune - 10;
+      const fortuneMultiplier = Math.min(2, Math.max(0.5, 1 + (Math.pow(Math.abs(fortuneDelta), 1.5) / 100) * Math.sign(fortuneDelta)));
+      const totalLoot = Math.floor(amount * fortuneMultiplier);
+
       // Generate random loot items
-      for (let i = 0; i < amount; i++) {
+      for (let i = 0; i < totalLoot; i++) {
         const newLoot: ILoot = {
           identified: false,
           cursed: Math.random() < 0.1, // 10% chance to be cursed

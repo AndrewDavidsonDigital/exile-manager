@@ -30,12 +30,14 @@ const getStatColor = (stat: string) => {
 <template>
   <div class="flex flex-col gap-4 p-4 bg-gray-800 rounded-lg">
     <template v-if="char !== -1">
-      <div class="flex flex-col gap-2">
-        <div class="text-xl font-bold text-white capitalize">
-          {{ char.name }}
-        </div>
-        <div class="text-sm text-gray-300">
-          Level {{ char.level }} {{ char.class }}
+      <div class="flex justify-between">
+        <div class="flex flex-col gap-2">
+          <div class="text-xl font-bold text-white capitalize">
+            {{ char.name }}
+          </div>
+          <div class="text-sm text-gray-300">
+            Level {{ char.level }} {{ char.class }}
+          </div>
         </div>
         <div class="text-xl font-bold text-white capitalize">
           Loot: {{ char.loot?.length }}
