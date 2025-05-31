@@ -1,0 +1,58 @@
+/* RESET */
+@theme {
+  --text-mlg: 0.75rem;
+  --text-mlg--line-height: calc(--text-mlg * 1.25); 
+  --text-mlg--letter-spacing: calc(--text-mlg / 10); 
+  --text-mlg--font-weight: 400; 
+
+  --text-xs: 0.5rem;
+  --text-xs--line-height: calc(--text-tiny * 1.25); 
+  --text-xs--letter-spacing: calc(--text-tiny / 10); 
+  --text-xs--font-weight: 400; 
+
+  --text-tiny: 0.25rem;
+  --text-tiny--line-height: calc(--text-tiny * 1.5); 
+  --text-tiny--letter-spacing: calc(--text-tiny / 10); 
+  --text-tiny--font-weight: 400; 
+}
+
+.container-inline {
+  container-type: inline-size;
+}
+.container-normal {
+  container-type: normal;
+}
+
+button,
+details > summary {
+  @apply cursor-pointer;
+}
+
+/**********/
+
+.grid-area-stack {
+  display: grid;
+  grid-template-areas: "stack";
+  >* {
+    grid-area: stack;
+  }      
+}
+
+.grid-area-stack-inner {
+  display: grid;
+  grid-template-areas: "innerStack";
+  >* {
+    grid-area: innerStack;
+  }      
+}
+
+.animation-pause {
+  animation-play-state: paused;
+}
+.animation-play {
+  animation-play-state: running;
+}
+
+.z-nav{
+  z-index: 10000;
+}

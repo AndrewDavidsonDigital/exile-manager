@@ -1,0 +1,54 @@
+
+/* Text Glow */
+
+.text-glow {
+  text-shadow: rgb(255, 242, 194) 1px 0 5px;
+}
+.text-darken-glow {
+  text-shadow: rgb(41, 40, 36) 1px 0 5px;
+}
+
+/* Custom Sliders */
+
+input[type=range].thin-slider{
+  @apply appearance-none;
+  @apply bg-transparent;
+}
+
+input[type=range].thin-slider:focus,
+input[type=range].thin-slider:hover{
+  @apply outline-none;
+}
+
+input[type=range].thin-slider{
+  &::-webkit-slider-runnable-track{
+    @apply bg-orange-300;
+    @apply h-1;
+    @apply shadow-none border-none;
+  }
+  &::-moz-range-track{
+    @apply bg-orange-300;
+    @apply h-1;
+    @apply shadow-none border-none;
+  }
+}
+
+input[type=range].thin-slider{
+  &::-webkit-slider-thumb{
+    @apply appearance-none;
+
+    @apply bg-orange-400/80;
+    @apply shadow-none border-none;
+    @apply h-4 w-1.5;
+    @apply rotate-[30deg];
+    @apply -mt-1.5;
+  }
+  &::-moz-range-thumb{
+    @apply appearance-none;
+
+    @apply bg-orange-400/80;
+    @apply shadow-none border-none;
+    @apply h-4 w-1.5;
+    @apply rotate-[30deg];
+  }
+}

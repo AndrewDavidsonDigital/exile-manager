@@ -34,7 +34,7 @@ export default defineConfig([
     rules: {
       'vuejs-accessibility/tabindex-no-positive' : 'off',   // this rules makes no sense
       'vuejs-accessibility/label-has-for': 'off',          // currently broken
-      'vuejs-accessibility/media-has-caption': 'warn',      // this is an audio product thus this isn't a valid
+      'vuejs-accessibility/media-has-caption': 'off',      // this is an audio product thus this isn't a valid
       'vue/multi-word-component-names': 'off',
       'vue/html-self-closing' : 'off',
       'no-unused-vars': ['error', { 

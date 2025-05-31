@@ -9,7 +9,8 @@
     "lib": ["ESNext", "DOM"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "&audio": ["./src/stores/audio"],
     }
   }
 }
