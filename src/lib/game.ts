@@ -84,6 +84,63 @@ export type ItemMutationType =
   | 'voided'        //
 ;
 
+export interface IMitigation {
+  key: MitigationType;
+  value: number;
+}
+
+export const DEFAULT_MITIGATION: IMitigation[] = [
+  {
+    key: 'evasion',
+    value: 5,
+  },
+  {
+    key: 'physical',
+    value: 0,
+  },
+  {
+    key: 'block',
+    value: 0,
+  },
+  {
+    key: 'elemental_fire',
+    value: 15,
+  },
+  {
+    key: 'elemental_cold',
+    value: 15,
+  },
+  {
+    key: 'elemental_lightning',
+    value: 15,
+  },
+  {
+    key: 'corruption_void',
+    value: -10,
+  },
+  {
+    key: 'corruption_mental',
+    value: -10,
+  }
+];
+
+export type MitigationType = 
+  'evasion' 
+| 'block'
+| 'physical'
+| 'elemental_fire'
+| 'elemental_cold'
+| 'elemental_lightning'
+| 'corruption_void'
+| 'corruption_mental'
+
+export interface ICombatStat {
+  damagePerTick: number;
+  accuracy: number;
+  health: number;
+  mitigation: IMitigation[];
+}
+
 export interface IDifficulty {
   name: DifficultyType;
   dangerMultiplier: number;
@@ -214,4 +271,42 @@ export function generateClassStats(classType: ExileClassType): Partial<ICharacte
   });
 
   return stats;
-} 
+}
+
+export interface IMonsterDamage {
+  primary: MitigationType;
+  secondary?: MitigationType;
+  damageMultiplier: number;
+  damageSplit?: number; // Percentage of damage that comes from primary source (0-100)
+}
+
+export const MONSTER_DAMAGE_TYPES: Record<MonsterType, IMonsterDamage> = {
+  'undead': {
+    primary: 'physical',
+    secondary: 'corruption_void',
+    damageMultiplier: 1.2,
+    damageSplit: 70 // 70% physical, 30% void corruption
+  },
+  'beast': {
+    primary: 'physical',
+    damageMultiplier: 1.0
+  },
+  'humanoid': {
+    primary: 'physical',
+    secondary: 'block',
+    damageMultiplier: 0.9,
+    damageSplit: 85 // 85% physical, 15% block
+  },
+  'elemental': {
+    primary: 'elemental_fire',
+    secondary: 'elemental_cold',
+    damageMultiplier: 1.3,
+    damageSplit: 60 // 60% fire, 40% cold
+  },
+  'abomination': {
+    primary: 'corruption_mental',
+    secondary: 'corruption_void',
+    damageMultiplier: 1.5,
+    damageSplit: 50 // 50% mental, 50% void corruption
+  }
+}; 

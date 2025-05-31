@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useGameEngine } from './game';
-import type { IDifficulty, IJournalEntry, ILevel, JournalEntryType } from '@/lib/game';
+import type { IDifficulty, IJournalEntry, ILevel, JournalEntryType, MonsterType, IMonsterDamage } from '@/lib/game';
+import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 
 interface IEncounter {
   type: string;
@@ -99,33 +100,131 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     const character = gameEngine.getCharacter;
     if (typeof character === 'number') return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: ''};
 
-    return processEncounter(selectedEncounter, character.level, level.areaLevel, difficulty);
+    return processEncounter(selectedEncounter, character.level, level, difficulty);
   }
 
   function processEncounter(
     encounter: IEncounter, 
     charLevel: number, 
-    areaLevel: number, 
+    level: ILevel, 
     difficulty: IDifficulty
   ): { encounter: string, encounterType: JournalEntryType, encounterIcon: string} {
     let encounterType: JournalEntryType = 'Safe';
     let encounterIcon: string = '';
+    const areaLevel = level.areaLevel;
+
+    type MobTierType = ['basic', 1.0] | ['elite', 2.5] | ['boss', 5];
+    interface ISimMonster {
+      type: MonsterType,
+      health: number,
+      experience: number,
+      damageInfo: IMonsterDamage
+    }
+
     switch (encounter.type) {
       case 'combat': {
-        const damage = Math.floor(Math.random() * 20) * difficulty.dangerMultiplier;
-        gameEngine.takeDamage(damage);
-        gameEngine.addExperience(calculateScaledExperience(10, charLevel, areaLevel));
-        gameEngine.addLoot(Math.floor(Math.random() * 2)); // 50% chance of loot
+        const encounteredMonster = level.monsterTypes[Math.floor(Math.random() * level.monsterTypes.length)];
+        const mobTier: MobTierType = ['basic', 1.0];
+        const char = gameEngine.getCharacter;
+        const exileStats = gameEngine.getCombatStats;
+
+        if (char === -1 || exileStats === -1) break;
+
+        const monsterDamageInfo = MONSTER_DAMAGE_TYPES[encounteredMonster];
+        const simMonster: ISimMonster = {
+          type: encounteredMonster,
+          health: 10 * areaLevel * mobTier[1],
+          experience: 1 * areaLevel * mobTier[1],
+          damageInfo: monsterDamageInfo
+        }
+
+        // Calculate monster's attack damage based on area level, tier, and damage type
+        const baseMonsterDamage = Math.floor((5 + Math.random() * 10) * areaLevel * mobTier[1] * difficulty.dangerMultiplier);
+        const monsterDamage = Math.floor(baseMonsterDamage * monsterDamageInfo.damageMultiplier);
+        
+        // Calculate exile's attack damage based on combat stats
+        const exileDamage = Math.floor(exileStats.damagePerTick * (0.8 + Math.random() * 0.4)); // 80-120% of base damage
+        
+        // Apply damage to exile, considering specific damage type mitigation
+        let mitigatedDamage = 0;
+        let damageTypeDesc = '';
+        
+        // First check for evasion (complete damage negation)
+        const evasionMitigation = exileStats.mitigation.find(m => m.key === 'evasion')?.value || 0;
+        const evasionRoll = Math.random() * 100;
+        const evaded = evasionRoll < evasionMitigation;
+        
+        if (!evaded) {
+          if (monsterDamageInfo.secondary && monsterDamageInfo.damageSplit) {
+            // Split damage between primary and secondary types
+            const primaryDamage = Math.floor(monsterDamage * (monsterDamageInfo.damageSplit / 100));
+            const secondaryDamage = monsterDamage - primaryDamage;
+            
+            // Check for block (80% damage reduction)
+            const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
+            const blockRoll = Math.random() * 100;
+            const blocked = blockRoll < blockMitigation;
+            
+            // Get percentage-based mitigations
+            const primaryMitigation = exileStats.mitigation.find(m => m.key === monsterDamageInfo.primary)?.value || 0;
+            const secondaryMitigation = exileStats.mitigation.find(m => m.key === monsterDamageInfo.secondary)?.value || 0;
+            
+            // Apply block if successful
+            const blockMultiplier = blocked ? 0.2 : 1.0; // 80% reduction if blocked
+            
+            // Calculate final damage with all mitigations
+            const mitigatedPrimaryDamage = Math.max(1, Math.floor(primaryDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
+            const mitigatedSecondaryDamage = Math.max(1, Math.floor(secondaryDamage * blockMultiplier * (1 - (secondaryMitigation / 100))));
+            
+            mitigatedDamage = mitigatedPrimaryDamage + mitigatedSecondaryDamage;
+            
+            // Update damage description with all mitigation info
+            const blockText = blocked ? ' (80% blocked)' : '';
+            damageTypeDesc = `attacks with ${monsterDamageInfo.primary} (${primaryDamage}, ${primaryMitigation}% mitigated) and ${monsterDamageInfo.secondary} (${secondaryDamage}, ${secondaryMitigation}% mitigated)${blockText}`;
+          } else {
+            // Single damage type
+            const primaryMitigation = exileStats.mitigation.find(m => m.key === monsterDamageInfo.primary)?.value || 0;
+            
+            // Check for block (80% damage reduction)
+            const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
+            const blockRoll = Math.random() * 100;
+            const blocked = blockRoll < blockMitigation;
+            
+            // Apply block if successful
+            const blockMultiplier = blocked ? 0.2 : 1.0; // 80% reduction if blocked
+            
+            mitigatedDamage = Math.max(1, Math.floor(monsterDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
+            
+            // Update damage description with all mitigation info
+            const blockText = blocked ? ' (80% blocked)' : '';
+            damageTypeDesc = `attacks with ${monsterDamageInfo.primary} (${monsterDamage}, ${primaryMitigation}% mitigated)${blockText}`;
+          }
+        } else {
+          mitigatedDamage = 0;
+          damageTypeDesc = 'attacks but misses (evaded)';
+        }
+        
+        gameEngine.takeDamage(mitigatedDamage);
+
+        // Reduce monster health
+        simMonster.health -= exileDamage;
+        
+        // Add experience and loot if monster is defeated
+        if (simMonster.health <= 0) {
+          gameEngine.addExperience(calculateScaledExperience(simMonster.experience, charLevel, areaLevel));
+          gameEngine.addLoot(Math.floor(Math.random() * 2)); // 50% chance of loot
+        }
 
         encounterType = 'Danger';
         encounterIcon = '⚔️';
+        encounter.description = `A ${encounteredMonster} appears and ${damageTypeDesc}!\n\tYou deal ${exileDamage} damage and take ${mitigatedDamage} damage.`;
         break;
       }
       
       case 'treasure': {
         const gold = Math.floor(Math.random() * 50) * difficulty.lootMultiplier;
         gameEngine.updateGold(gold);
-        gameEngine.addExperience(calculateScaledExperience(15, charLevel, areaLevel));
+        gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
         gameEngine.addLoot(Math.floor(Math.random() * 5)); // 20% chance of 0 loot
 
         encounterType = 'Treasure';
@@ -137,7 +236,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         const trapDamage = Math.floor(Math.random() * 15) * difficulty.dangerMultiplier;
         gameEngine.takeDamage(trapDamage);
         // gameEngine.modifyStat('fortitude', -1);
-        gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
+        gameEngine.addExperience(calculateScaledExperience(2, charLevel, areaLevel));
         
         encounterType = 'Danger';
         encounterIcon = '🏹';
@@ -158,7 +257,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       
       case 'none': {
         gameEngine.heal(10);
-        gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
+        gameEngine.addExperience(calculateScaledExperience(1, charLevel, areaLevel));
         
         encounterType = 'Generic';
         encounterIcon = '🔎';

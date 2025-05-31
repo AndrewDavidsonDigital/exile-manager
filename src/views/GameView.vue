@@ -74,7 +74,15 @@
                   { 'text-teal-500': log.type === 'Safe' },
                 ]"
               >
-                {{ log.message }}
+                <p
+                  v-for="msg, mIndex in log.message.split('\n')"
+                  :key="`message_line_${index}-${mIndex}`"
+                  :class="[
+                    {'pl-4': msg.startsWith('\t')}
+                  ]"
+                >
+                  {{ msg }}
+                </p>
               </li>
             </template>
           </TransitionGroup>
@@ -104,7 +112,7 @@
           >
             <template
               v-for="log, index in adventuringStore.adventureJournal.toReversed()"
-              :key="`journal_${index}`"
+              :key="`modal_journal_${index}`"
             >
               <li 
                 :class="[
@@ -114,7 +122,15 @@
                   { 'text-teal-500': log.type === 'Safe' },
                 ]"
               >
-                {{ log.message }}
+                <p
+                  v-for="msg, mIndex in log.message.split('\n')"
+                  :key="`modal_message_line_${index}-${mIndex}`"
+                  :class="[
+                    {'pl-4': msg.startsWith('\t')}
+                  ]"
+                >
+                  {{ msg }}
+                </p>
               </li>
             </template>
           </TransitionGroup>

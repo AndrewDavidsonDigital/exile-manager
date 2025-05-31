@@ -7,9 +7,12 @@ import type {
   ICharacterStats,
   ICharacterEquipment,
   ILoot,
-  ItemTierType
+  ItemTierType,
+  ICombatStat,
+  IMitigation
 } from '@/lib/game';
 import { 
+  DEFAULT_MITIGATION,
   DIFFICULTY_SETTINGS, 
   generateClassStats 
 } from '@/lib/game';
@@ -62,6 +65,22 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Retrieving character: ${this.character?.name || 'none'}`);
       if (!this.character) return -1;
       return this.character;
+    },
+
+    /**
+     * Retrieves the current character
+     * @returns {ICharacter | -1} The current character or -1 if none exists
+     */
+    getCombatStats(): ICombatStat | -1 {
+      logger(`Retrieving character: ${this.character?.name || 'none'}`);
+      if (!this.character) return -1;
+      let retval: ICombatStat = {
+        accuracy: 100,
+        damagePerTick: 5,
+        health: this.character.stats.health,
+        mitigation: resolveMitigation(this.character),
+      };
+      return retval;
     },
 
     /**
@@ -325,4 +344,12 @@ function logger(message: string) {
  */
 function generateRandomId(): string {
   return crypto.randomUUID().split('-')[0];
+}
+
+function resolveMitigation(_character: ICharacter): IMitigation[]{
+  const retval: IMitigation[] = [
+    ...DEFAULT_MITIGATION,
+  ];
+
+  return retval;
 }
