@@ -69,7 +69,8 @@
               <li 
                 :class="[
                   { 'text-amber-300': log.type === 'Treasure' },
-                  { 'text-red-500': log.type === 'Danger' },
+                  { 'text-red-600': log.type === 'Danger' },
+                  { 'text-red-400': log.type === 'DangerLite' },
                   { 'text-blue-400': log.type === 'Generic' },
                   { 'text-teal-500': log.type === 'Safe' },
                 ]"
@@ -117,7 +118,8 @@
               <li 
                 :class="[
                   { 'text-amber-300': log.type === 'Treasure' },
-                  { 'text-red-500': log.type === 'Danger' },
+                  { 'text-red-600': log.type === 'Danger' },
+                  { 'text-red-400': log.type === 'DangerLite' },
                   { 'text-blue-400': log.type === 'Generic' },
                   { 'text-teal-500': log.type === 'Safe' },
                 ]"

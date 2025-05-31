@@ -189,6 +189,7 @@ export const useGameEngine = defineStore('gameEngine', {
       // Check if character died from this damage
       if (newHealth <= 0) {
         this.isDead = true;
+        this.character.stats.health = 0; // Ensure health is set to 0 when dead
         this.saveState();
       }
     },
