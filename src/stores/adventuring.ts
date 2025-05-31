@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useGameEngine } from './game';
-import type { IDifficulty, ILevel } from '@/lib/game';
+import type { IDifficulty, IJournalEntry, ILevel, JournalEntryType } from '@/lib/game';
 
 interface IEncounter {
   type: string;
@@ -54,8 +54,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   const isAdventuring = ref(false);
   const adventureIntervalId = ref<ReturnType<typeof setInterval> | -1>();
   const adventureInterval = ref<number>(0);
-  const adventureJournal = ref<string[]>([]);
+  const adventureJournal = ref<IJournalEntry[]>([]);
   const ADVENTURE_TICK_DELTA = 1000;
+
 
   function calculateScaledExperience(baseExp: number, characterLevel: number, areaLevel: number): number {
     const levelDiff = areaLevel - characterLevel;
@@ -63,9 +64,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     return Math.floor(baseExp * scaleFactor);
   }
 
-  function generateEncounter(level: ILevel): string {
+  function generateEncounter(level: ILevel): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
     const difficulty = gameEngine.getDifficulty;
-    if (difficulty === -1) return 'Something went wrong...';
+    if (difficulty === -1) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '' };
 
     const availableEncounters = ENCOUNTERS
       .filter(enc => enc.minLevel <= level.areaLevel)
@@ -96,18 +97,28 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     }
 
     const character = gameEngine.getCharacter;
-    if (typeof character === 'number') return 'Something went wrong...';
+    if (typeof character === 'number') return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: ''};
 
     return processEncounter(selectedEncounter, character.level, level.areaLevel, difficulty);
   }
 
-  function processEncounter(encounter: IEncounter, charLevel: number, areaLevel: number, difficulty: IDifficulty){
+  function processEncounter(
+    encounter: IEncounter, 
+    charLevel: number, 
+    areaLevel: number, 
+    difficulty: IDifficulty
+  ): { encounter: string, encounterType: JournalEntryType, encounterIcon: string} {
+    let encounterType: JournalEntryType = 'Safe';
+    let encounterIcon: string = '';
     switch (encounter.type) {
       case 'combat': {
         const damage = Math.floor(Math.random() * 20) * difficulty.dangerMultiplier;
         gameEngine.takeDamage(damage);
         gameEngine.addExperience(calculateScaledExperience(10, charLevel, areaLevel));
         gameEngine.addLoot(Math.floor(Math.random() * 2)); // 50% chance of loot
+
+        encounterType = 'Danger';
+        encounterIcon = '⚔️';
         break;
       }
       
@@ -116,6 +127,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         gameEngine.updateGold(gold);
         gameEngine.addExperience(calculateScaledExperience(15, charLevel, areaLevel));
         gameEngine.addLoot(Math.floor(Math.random() * 5)); // 20% chance of 0 loot
+
+        encounterType = 'Treasure';
+        encounterIcon = '🪙';
         break;
       }
       
@@ -124,6 +138,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         gameEngine.takeDamage(trapDamage);
         // gameEngine.modifyStat('fortitude', -1);
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
+        
+        encounterType = 'Danger';
+        encounterIcon = '🏹';
         break;
       }
       
@@ -133,17 +150,23 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         // gameEngine.modifyStat('affinity', -2);
         // gameEngine.modifyStat('fortitude', -2);
         gameEngine.addExperience(calculateScaledExperience(25, charLevel, areaLevel));
+
+        encounterType = 'Danger';
+        encounterIcon = '🌋';
         break;
       }
       
       case 'none': {
         gameEngine.heal(10);
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
+        
+        encounterType = 'Generic';
+        encounterIcon = '🔎';
         break;
       }
     }
     
-    return encounter.description;
+    return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
   }
 
   function startAdventuring(selectedLevel: ILevel) {
@@ -157,7 +180,11 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     console.log(`Encounters: ${encounters}`);
     adventureInterval.value = encounters;
     
-    adventureJournal.value.push(`[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] You embark on your adventure at ${selectedLevel.name}`);
+    const entry: IJournalEntry = {
+      message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] 🤺 You embark on your adventure at ${selectedLevel.name}`,
+      type: 'Safe',
+    }
+    adventureJournal.value.push(entry);
     adventureIntervalId.value = setInterval(
       () => doAdventuring(selectedLevel),
       ADVENTURE_TICK_DELTA,
@@ -166,7 +193,12 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
   function doAdventuring(selectedLevel: ILevel) {
     if (adventureInterval.value <= 0) {
-      adventureJournal.value.push(`[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] You returned from your adventure`);
+    
+      const entry: IJournalEntry = {
+        message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] 🏘️ You returned from your adventure`,
+        type: 'Safe',
+      }
+      adventureJournal.value.push(entry);
       clearInterval(adventureIntervalId.value);
       adventureIntervalId.value = -1;
       isAdventuring.value = false;
@@ -174,12 +206,22 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     }
 
     const tickResult = generateEncounter(selectedLevel);
-    adventureJournal.value.push(`[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] ${tickResult}`);
+    
+    const entry: IJournalEntry = {
+      message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] ${tickResult.encounterIcon} ${tickResult.encounter}`,
+      type: tickResult.encounterType,
+    }
+    adventureJournal.value.push(entry);
     adventureInterval.value--;
 
     // Check if character is dead
     if (gameEngine.isDead) {
-      adventureJournal.value.push(`[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] You have fallen in battle!`);
+    
+      const entry: IJournalEntry = {
+        message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] 💀 You have fallen in battle!`,
+        type: 'Danger',
+      }
+      adventureJournal.value.push(entry);
       clearInterval(adventureIntervalId.value);
       adventureIntervalId.value = -1;
       isAdventuring.value = false;

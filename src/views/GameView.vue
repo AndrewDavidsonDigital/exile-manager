@@ -66,7 +66,16 @@
               v-for="log, index in adventuringStore.adventureJournal.toReversed()"
               :key="`journal_${index}`"
             >
-              <li>{{ log }}</li>
+              <li 
+                :class="[
+                  { 'text-amber-300': log.type === 'Treasure' },
+                  { 'text-red-500': log.type === 'Danger' },
+                  { 'text-blue-400': log.type === 'Generic' },
+                  { 'text-teal-500': log.type === 'Safe' },
+                ]"
+              >
+                {{ log.message }}
+              </li>
             </template>
           </TransitionGroup>
         </div>
@@ -88,7 +97,7 @@
         <p>{{ gameEngine.character?.name }} has perished hoarding {{ gameEngine.character?.loot.length }} valuables</p>
       </div>
       <FluidElement class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip ">
-        <div class="mask-b ">
+        <div class="mask-b">
           <TransitionGroup
             tag="ul" 
             class="flex flex-col last:pb-2"
@@ -97,7 +106,16 @@
               v-for="log, index in adventuringStore.adventureJournal.toReversed()"
               :key="`journal_${index}`"
             >
-              <li>{{ log }}</li>
+              <li 
+                :class="[
+                  { 'text-amber-300': log.type === 'Treasure' },
+                  { 'text-red-500': log.type === 'Danger' },
+                  { 'text-blue-400': log.type === 'Generic' },
+                  { 'text-teal-500': log.type === 'Safe' },
+                ]"
+              >
+                {{ log.message }}
+              </li>
             </template>
           </TransitionGroup>
         </div>

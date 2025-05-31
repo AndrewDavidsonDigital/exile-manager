@@ -2,6 +2,12 @@ export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
 export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
 export type LootType = 'armor' | 'weapons' | 'jewelry' | 'currency';
 export type MonsterType = 'undead' | 'beast' | 'humanoid' | 'elemental' | 'abomination';
+export type JournalEntryType = 'Danger' | 'Generic' | 'Safe' | 'Treasure';
+
+export interface IJournalEntry {
+  type: JournalEntryType;
+  message: string;
+}
 
 export interface ILevel {
   areaLevel: number;
