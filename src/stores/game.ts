@@ -102,6 +102,13 @@ export const useGameEngine = defineStore('gameEngine', {
   },
 
   actions: {
+    restart(){
+      logger('Restarting game state');
+      this.runs = 0;
+      this.difficulty = 'Easy';
+      this.character = undefined;
+      this.saveState();
+    },
     /**
      * Initializes a new game run with the specified character
      * @param {ICharacter} character - The character to initialize the game with
@@ -134,6 +141,51 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Updating stats for ${this.character.name}`);
       this.character.stats = { ...this.character.stats, ...stats };
       this.saveState();
+    },
+
+    /**
+     * Takes damage from the character's health
+     * @param {number} amount - Amount of damage to take
+     * @param {boolean} [applyReduction=true] - Whether to apply damage reduction from fortitude
+     */
+    takeDamage(amount: number, applyReduction: boolean = true) {
+      if (!this.character) return;
+      logger(`Taking ${amount} damage`);
+      
+      let finalDamage = amount;
+      if (applyReduction) {
+        const reduction = this.getDamageReduction;
+        finalDamage = Math.floor(amount * (1 - reduction));
+      }
+      
+      const newHealth = Math.max(0, this.character.stats.health - finalDamage);
+      this.updateStats({ health: newHealth });
+    },
+
+    /**
+     * Heals the character's health
+     * @param {number} amount - Amount of health to restore
+     */
+    heal(amount: number) {
+      if (!this.character) return;
+      logger(`Healing ${amount} health`);
+      
+      const newHealth = Math.min(100, this.character.stats.health + amount);
+      this.updateStats({ health: newHealth });
+    },
+
+    /**
+     * Modifies a stat by a relative amount
+     * @param {keyof ICharacterStats} stat - The stat to modify
+     * @param {number} amount - Amount to modify the stat by (can be negative)
+     */
+    modifyStat(stat: keyof ICharacterStats, amount: number) {
+      if (!this.character) return;
+      logger(`Modifying ${stat} by ${amount}`);
+      
+      const currentValue = this.character.stats[stat];
+      const newValue = Math.max(0, currentValue + amount);
+      this.updateStats({ [stat]: newValue });
     },
 
     /**

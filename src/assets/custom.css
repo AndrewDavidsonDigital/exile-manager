@@ -52,3 +52,13 @@ input[type=range].thin-slider{
     @apply rotate-[30deg];
   }
 }
+
+
+.scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-emerald-400;
+  @apply rounded-lg;
+}
+.scrollbar::-webkit-scrollbar {
+  @apply bg-slate-700/50;
+  @apply w-[0.5em];
+}
