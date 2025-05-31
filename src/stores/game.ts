@@ -19,7 +19,7 @@ const LOGGING_PREFIX = '🎮 Game Engine:\t';
 
 interface IGameEngine {
   runs: number;
-  character?: ICharacter;
+  character: ICharacter | undefined;
   difficulty: DifficultyType;
   isDead: boolean;
 }

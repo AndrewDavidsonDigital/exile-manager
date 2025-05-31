@@ -61,10 +61,7 @@ const createCharacter = () => {
       Create Your Character
     </h2>
     
-    <form
-      class="flex flex-col gap-4" 
-      autocomplete="off"
-    >
+    <div class="flex flex-col gap-4">
       <!-- Name Input -->
       <div class="flex flex-col gap-2">
         <label
@@ -160,6 +157,6 @@ const createCharacter = () => {
       >
         Begin Your Journey
       </button>
-    </form>
+    </div>
   </div>
 </template> 
