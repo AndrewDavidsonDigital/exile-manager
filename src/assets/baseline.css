@@ -1,6 +1,7 @@
 /* RESET */
 :root {
   --content: 1200px;
+  transition-behavior: allow-discrete;
 }
 
 @theme {

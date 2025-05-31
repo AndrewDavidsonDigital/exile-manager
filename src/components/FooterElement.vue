@@ -1,9 +1,12 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
+import BgmBar from './BgmBar.vue';
+
 </script>
 
 <template>
   <footer class="mt-auto bg-slate-800 text-white flex flex-col items-center gap-x-2 justify-center pb-4 pt-2 px-2 max-w-content mx-auto [&>*]:whitespace-nowrap">
+    <BgmBar />
     <div>© {{ (new Date()).getFullYear() }}</div>
     <div>
       Contact: 
