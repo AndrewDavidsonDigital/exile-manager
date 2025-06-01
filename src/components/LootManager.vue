@@ -192,34 +192,31 @@ const canAffordIdentification = (loot: ILoot): boolean => {
     </FluidElement>
 
     <!-- Loot Details Side Panel -->
-    <FluidElement
-      v-if="selectedLoot"
-      class="w-1/3 flex flex-col gap-2"
-    >
+    <FluidElement class="w-1/3 flex flex-col gap-2">
       <h2 class="text-lg">
         Item Details
       </h2>
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2 h-full">
         <div>
           <p class="font-bold">
-            {{ selectedLoot.name }}
+            {{ selectedLoot?.name }}
           </p>
           <p
             class="text-sm"
             :class="[
-              { 'text-amber-600': selectedLoot.cursed },
-              { 'text-red-600': selectedLoot.corrupted }
+              { 'text-amber-600': selectedLoot?.cursed },
+              { 'text-red-600': selectedLoot?.corrupted }
             ]"
           >
-            {{ selectedLoot.cursed ? 'Cursed' : '' }}
-            {{ selectedLoot.corrupted ? 'Corrupted' : '' }}
+            {{ selectedLoot?.cursed ? 'Cursed' : '' }}
+            {{ selectedLoot?.corrupted ? 'Corrupted' : '' }}
           </p>
         </div>
         
-        <template v-if="selectedLoot.itemDetails">
+        <template v-if="selectedLoot?.itemDetails">
           <div>
             <p class="text-sm opacity-50">
-              Tier: {{ selectedLoot.itemDetails.tier }}
+              Tier: {{ selectedLoot?.itemDetails.tier }}
             </p>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
@@ -244,9 +241,14 @@ const canAffordIdentification = (loot: ILoot): boolean => {
             </div>
           </div>
         </template>
-        <template v-else>
+        <template v-else-if="selectedLoot">
           <p class="text-sm opacity-50">
             Item not identified
+          </p>
+        </template>
+        <template v-else>
+          <p class="text-sm opacity-50">
+            Select an Item
           </p>
         </template>
 
@@ -254,6 +256,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
         <button
           v-if="selectedLoot && !selectedLoot.identified"
           :disabled="!selectedLoot || !canAffordIdentification(selectedLoot)"
+          class="mt-auto"
           :class="{ 'opacity-50 pointer-events-none': !selectedLoot || !canAffordIdentification(selectedLoot) }"
           @click="identifySelectedLoot"
         >
@@ -272,6 +275,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
         <!-- Equip Button -->
         <button
           v-if="selectedLoot && selectedLoot.identified"
+          class="mt-auto"
           @click="equipSelectedLoot"
         >
           <FluidElement class="w-fit !p-2 mt-auto">
