@@ -66,7 +66,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   const adventureIntervalId = ref<ReturnType<typeof setInterval> | -1>();
   const adventureInterval = ref<number>(0);
   const adventureJournal = ref<IJournalEntry[]>([]);
-  const ADVENTURE_TICK_DELTA = 1000;
+  const ADVENTURE_TICK_DELTA = 2000;
 
 
   function calculateScaledExperience(baseExp: number, characterLevel: number, areaLevel: number): number {

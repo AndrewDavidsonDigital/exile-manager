@@ -24,8 +24,6 @@ const CONFIG_KEYS = Object.freeze([
 export interface IConfiguration {
   audio: IAudioConfiguration;
   text: ITextConfiguration;
-  bar: string;
-  baz: string;
 }
 export interface ITextConfiguration {
   displayRatio: number,
@@ -40,8 +38,8 @@ export interface IAudioConfiguration {
 }
 const DEFAULT_STATE: IConfiguration = Object.freeze({
   audio: {
-    master: 1,
-    bgm: 0.7,
+    master: 0.5,
+    bgm: 0.5,
     sfx: 0.7,
     voice: 0.7,
   },
@@ -49,8 +47,6 @@ const DEFAULT_STATE: IConfiguration = Object.freeze({
     displayRatio: 1,
     autoWaitRatio: 1,
   },
-  bar: '',
-  baz: '',
 });
 
 export const useConfiguration = defineStore('configuration', {
