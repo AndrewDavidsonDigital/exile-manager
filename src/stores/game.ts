@@ -217,6 +217,23 @@ export const useGameEngine = defineStore('gameEngine', {
     },
 
     /**
+     * Heals the character's health
+     * @param {number} amount - Amount of health to restore
+     */
+    recoverMana(amount: number, isPercent: boolean = false) {
+      if (!this.character) return;
+      logger(`Recovering ${amount} mana${isPercent ? ' %' : ''}`);
+      
+      let newMana;
+      if (isPercent) {
+        newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + (this.character.stats.mana * (100 / amount)));
+      }else{
+        newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + amount);
+      }
+      this.updateStats({ currentMana: newMana });
+    },
+
+    /**
      * Updates character gold
      * @param {number} amount - Amount to add (can be negative)
      */

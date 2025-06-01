@@ -476,7 +476,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       case 'none': {
-        gameEngine.heal(10);
+        gameEngine.heal(10, true);
+        gameEngine.recoverMana(10, true);
         gameEngine.addExperience(calculateScaledExperience(1, charLevel, areaLevel));
         
         encounterType = 'Generic';
@@ -521,7 +522,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       clearInterval(adventureIntervalId.value);
       adventureIntervalId.value = -1;
       isAdventuring.value = false;
-      gameEngine.heal(100, true);
+      gameEngine.heal(50, true);
+      gameEngine.recoverMana(50, true);
       return;
     }
 

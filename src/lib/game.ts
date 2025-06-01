@@ -296,6 +296,9 @@ export function generateClassStats(classType: ExileClassType): Partial<ICharacte
     }
   });
 
+  stats.currentHealth = stats.health;
+  stats.currentMana = stats.mana;
+
   return stats;
 }
 
