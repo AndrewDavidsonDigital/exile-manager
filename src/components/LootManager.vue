@@ -298,7 +298,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
 }
 
 .loot-item {
-  border-color: var(--loot-border-color) !important;
+  border-color: var(--loot-border-color);
   border-width: 2px !important;
   transition: border-color 0.2s ease-in-out;
 }
@@ -322,14 +322,14 @@ const canAffordIdentification = (loot: ILoot): boolean => {
 }
 
 .loot-item[data-cursed="true"] {
-  border-color: var(--loot-border-color-cursed) !important;
+  border-color: var(--loot-border-color-cursed);
 }
 
 .loot-item[data-corrupted="true"] {
-  border-color: var(--loot-border-color-corrupted) !important;
+  border-color: var(--loot-border-color-corrupted);
 }
 
 .loot-item[data-selected="true"] {
-  border-color: var(--loot-border-color-selected) !important;
+  border-color: var(--loot-border-color-selected);
 }
 </style> 
