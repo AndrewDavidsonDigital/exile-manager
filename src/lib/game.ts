@@ -262,10 +262,10 @@ export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   }
 };
 
-export const CLASS_ALIGNED_STATS: Record<ExileClassType, (keyof ICharacterStats)[]> = {
-  'Spellsword': ['affinity', 'wrath'],
-  'Chaos Mage': ['affinity', 'fortune'],
-  'Reaver': ['wrath', 'fortitude']
+export const CLASS_ALIGNED_STATS: Record<ExileClassType, (keyof IClassStatRanges)[]> = {
+  'Spellsword': ['health','mana','affinity', 'wrath'],
+  'Chaos Mage': ['health','mana','affinity', 'fortune'],
+  'Reaver': ['health','mana','wrath', 'fortitude']
 };
 
 /**
@@ -275,13 +275,25 @@ export const CLASS_ALIGNED_STATS: Record<ExileClassType, (keyof ICharacterStats)
  */
 export function generateClassStats(classType: ExileClassType): Partial<ICharacterStats> {
   const ranges = CLASS_STAT_RANGES[classType];
+  const alignedStats = CLASS_ALIGNED_STATS[classType];
   const stats: Partial<ICharacterStats> = {};
 
-  // Generate random value within range for each stat
-  Object.entries(ranges).forEach(([stat, range]) => {
-    stats[stat as keyof ICharacterStats] = Math.floor(
+  // Generate random value within range only for aligned stats
+  alignedStats.forEach((stat) => {
+    const range = ranges[stat as keyof IClassStatRanges];
+    stats[stat] = Math.floor(
       Math.random() * (range.max - range.min + 1) + range.min
     );
+  });
+
+  // Handle non-aligned stats with 30% chance of +1
+  const allStats = Object.keys(ranges) as (keyof IClassStatRanges)[];
+  const nonAlignedStats = allStats.filter(stat => !alignedStats.includes(stat));
+  
+  nonAlignedStats.forEach(stat => {
+    if (Math.random() < 0.3) { // 30% chance
+      stats[stat] = 1;
+    }
   });
 
   return stats;
