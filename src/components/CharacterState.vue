@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS } from '@/lib/game';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix } from '@/lib/game';
 import { computed, ref, watch } from 'vue';
+import { allAffixes } from '@/lib/affixTypes';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
@@ -12,6 +13,7 @@ const isGoldPulsing = ref(false);
 const isLevelingUp = ref(false);
 const healthPulseType = ref<'damage' | 'heal'>('damage');
 const manaPulseType = ref<'gain' | 'loss'>('gain');
+const showDetailedStats = ref(false);
 
 const PULSE_DURATION = 500;
 const LEVEL_UP_DURATION = 2000;
@@ -98,6 +100,60 @@ const getStatColor = (stat: string) => {
     default: return 'text-gray-400';
   }
 };
+
+const consolidateAffixes = (affixes: Array<{ id: string; category: string; value: number }>) => {
+  const consolidated = new Map<string, {
+    value: number;
+    originalAffix: typeof allAffixes[0];
+  }>();
+  
+  affixes.forEach(affix => {
+    const key = affix.id.split('_')[1]; // Get the category part of the ID
+    const originalAffix = allAffixes.find(a => a.id === affix.id);
+    if (!originalAffix) return;
+
+    if (consolidated.has(key)) {
+      consolidated.get(key)!.value += affix.value;
+    } else {
+      consolidated.set(key, {
+        value: affix.value,
+        originalAffix
+      });
+    }
+  });
+
+  return Array.from(consolidated.entries()).map(([category, { value, originalAffix }]) => ({
+    ...originalAffix,
+    id: `${originalAffix.type}_${category}_-1`, // Create new ID with tier -1
+    value
+  }));
+};
+
+const groupedAffixes = computed(() => {
+  if (char === -1) return { embedded: [], prefix: [], suffix: [] };
+  
+  const affixes = {
+    embedded: [] as Array<{ id: string; category: string; value: number }>,
+    prefix: [] as Array<{ id: string; category: string; value: number }>,
+    suffix: [] as Array<{ id: string; category: string; value: number }>
+  };
+
+  // Collect all affixes from equipped items
+  Object.values(char.equipment).forEach(item => {
+    if (item?.itemDetails?.affixes) {
+      affixes.embedded.push(...item.itemDetails.affixes.embedded);
+      affixes.prefix.push(...item.itemDetails.affixes.prefix);
+      affixes.suffix.push(...item.itemDetails.affixes.suffix);
+    }
+  });
+
+  // Consolidate affixes by category
+  return {
+    embedded: consolidateAffixes(affixes.embedded),
+    prefix: consolidateAffixes(affixes.prefix),
+    suffix: consolidateAffixes(affixes.suffix)
+  };
+});
 </script>
 
 <template>
@@ -195,127 +251,207 @@ const getStatColor = (stat: string) => {
         :style="`--num:${Math.min(100, Math.round((char.experience / (char.level * 100)) * 100))};`"
       >
       </div>
+
+      <div class="text-gray-300 text-sm">
+        <button 
+          class="flex items-center gap-2 cursor-pointer hover:text-gray-300"
+          @click="showDetailedStats = !showDetailedStats"
+        >
+          <span 
+            class="transform transition-transform duration-300 ease-in-out text-gray-400"
+            :class="{ 'rotate-90': showDetailedStats }"
+          >></span>
+          Detailed Stats
+        </button>
+        <Transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="transform -translate-y-2 opacity-0"
+          enter-to-class="transform translate-y-0 opacity-100"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="transform translate-y-0 opacity-100"
+          leave-to-class="transform -translate-y-2 opacity-0"
+        >
+          <div
+            v-show="showDetailedStats"
+            class="mt-2 bg-gray-900/50 p-3 rounded-lg"
+          >
+            <div class="space-y-4">
+              <template v-if="groupedAffixes.embedded.length > 0">
+                <div class="space-y-2">
+                  <h4 class="text-cyan-400 font-medium">
+                    Embedded Affixes
+                  </h4>
+                  <div class="pl-4 space-y-1">
+                    <div
+                      v-for="affix in groupedAffixes.embedded"
+                      :key="affix.id"
+                      class="text-gray-300"
+                    >
+                      {{ formatConsolidatedAffix(affix) }}
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <template v-if="groupedAffixes.prefix.length > 0">
+                <div class="space-y-2">
+                  <h4 class="text-purple-400 font-medium">
+                    Prefix Affixes
+                  </h4>
+                  <div class="pl-4 space-y-1">
+                    <div
+                      v-for="affix in groupedAffixes.prefix"
+                      :key="affix.id"
+                      class="text-gray-300"
+                    >
+                      {{ formatConsolidatedAffix(affix) }}
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <template v-if="groupedAffixes.suffix.length > 0">
+                <div class="space-y-2">
+                  <h4 class="text-yellow-400 font-medium">
+                    Suffix Affixes
+                  </h4>
+                  <div class="pl-4 space-y-1">
+                    <div
+                      v-for="affix in groupedAffixes.suffix"
+                      :key="affix.id"
+                      class="text-gray-300"
+                    >
+                      {{ formatConsolidatedAffix(affix) }}
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </Transition>
+      </div>
     </template>
   </div>
 </template> 
 
 <style lang="css" scoped>
-* {
-  --pulse-color-loot: rgba(255, 215, 0, 0.1);
-  --pulse-color-damage: rgba(255, 0, 0, 0.1);
-  --pulse-color-heal: rgba(0, 255, 255, 0.1);
-  --level-up-color: rgb(255, 213, 0);
-}
-
-@property --num {
-  syntax: "<integer>";
-  initial-value: 0;
-  inherits: false;
-}
-
-.health-color {
-  transition: color 0.3s ease, opacity 0.3s ease;
-  color: color-mix(in srgb, rgb(74, 222, 128) var(--health-percent), rgb(163, 163, 163));
-  opacity: calc(0.5 + (var(--health-percent) * 0.5 / 100));
-}
-
-.before_current-percent {
-  animation-fill-mode: forwards;
-  animation-name: counter;
-  animation-duration: 100ms;
-  counter-reset: num var(--num);
-}
-
-.before_current-percent::before {
-  content: counter(num) "%";
-}
-
-.after_w-dynamic::after {
-  width: v-bind(experienceWidth);
-  max-width: 100%;
-}
-
-.pulse-dynamic {
-  position: relative;
-  animation: pulse-dynamic v-bind(pulseDurationMs) ease-in-out;
-}
-
-.pulse-dynamic::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  background: radial-gradient(
-    var(--pulse-color, rgba(255, 215, 0, 0.2)),
-    transparent 70%,
-    transparent 100%
-  );
-  opacity: 0;
-  animation: pulse-dynamic-bg v-bind(pulseDurationMs) ease-in-out;
-  z-index: -1;
-}
-
-@keyframes pulse-dynamic {
-  0% {
-    transform: scale(1);
+  * {
+    --pulse-color-loot: rgba(255, 215, 0, 0.1);
+    --pulse-color-damage: rgba(255, 0, 0, 0.1);
+    --pulse-color-heal: rgba(0, 255, 255, 0.1);
+    --level-up-color: rgb(255, 213, 0);
   }
-  30%, 70% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
 
-@keyframes pulse-dynamic-bg {
-  0% {
+  @property --num {
+    syntax: "<integer>";
+    initial-value: 0;
+    inherits: false;
+  }
+
+  .health-color {
+    transition: color 0.3s ease, opacity 0.3s ease;
+    color: color-mix(in srgb, rgb(74, 222, 128) var(--health-percent), rgb(163, 163, 163));
+    opacity: calc(0.5 + (var(--health-percent) * 0.5 / 100));
+  }
+
+  .before_current-percent {
+    animation-fill-mode: forwards;
+    animation-name: counter;
+    animation-duration: 100ms;
+    counter-reset: num var(--num);
+  }
+
+  .before_current-percent::before {
+    content: counter(num) "%";
+  }
+
+  .after_w-dynamic::after {
+    width: v-bind(experienceWidth);
+    max-width: 100%;
+  }
+
+  .pulse-dynamic {
+    position: relative;
+    animation: pulse-dynamic v-bind(pulseDurationMs) ease-in-out;
+  }
+
+  .pulse-dynamic::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: radial-gradient(
+      var(--pulse-color, rgba(255, 215, 0, 0.2)),
+      transparent 70%,
+      transparent 100%
+    );
     opacity: 0;
+    animation: pulse-dynamic-bg v-bind(pulseDurationMs) ease-in-out;
+    z-index: -1;
   }
-  30%, 70% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
 
-@keyframes snake-border {
-  0% {
-    background-position: 0% 0;
+  @keyframes pulse-dynamic {
+    0% {
+      transform: scale(1);
+    }
+    30%, 70% {
+      transform: scale(1.02);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
-  100% {
-    background-position: 150% 0;
+
+  @keyframes pulse-dynamic-bg {
+    0% {
+      opacity: 0;
+    }
+    30%, 70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
-}
 
-.animate-snake-border {
-  position: relative;
-  border: 4px solid transparent;
-}
+  @keyframes snake-border {
+    0% {
+      background-position: 0% 0;
+    }
+    100% {
+      background-position: 150% 0;
+    }
+  }
 
-.animate-snake-border::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  padding: 4px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    transparent 25%,
-    color-mix(in srgb, var(--level-up-color) 20%, transparent) 30%,
-    var(--level-up-color) 40%,
-    var(--level-up-color) 60%,
-    color-mix(in srgb, var(--level-up-color) 20%, transparent) 70%,
-    transparent 75%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: snake-border v-bind(LEVEL_UP_DURATION + 'ms') linear forwards;
-}
+  .animate-snake-border {
+    position: relative;
+    border: 4px solid transparent;
+  }
+
+  .animate-snake-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    padding: 4px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 25%,
+      color-mix(in srgb, var(--level-up-color) 20%, transparent) 30%,
+      var(--level-up-color) 40%,
+      var(--level-up-color) 60%,
+      color-mix(in srgb, var(--level-up-color) 20%, transparent) 70%,
+      transparent 75%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: snake-border v-bind(LEVEL_UP_DURATION + 'ms') linear forwards;
+  }
+
 </style>

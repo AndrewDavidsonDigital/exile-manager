@@ -465,39 +465,71 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
 }
 
 /**
+ * Core logic for formatting affix descriptions
+ * @param affix The affix object containing id, category, and value
+ * @param options Configuration options for formatting
+ * @returns Formatted description string
+ */
+function formatAffixCore(
+  affix: { id: string; category: string; value: number },
+  options: { showRange?: boolean } = {}
+): string {
+  // Find the matching affix definition to get min/max values and original description
+  let affixDef = allAffixes.find(a => a.id === affix.id);
+  
+  // If not found and it's a tier -1 affix, try to find the original affix by type and category
+  if (!affixDef && affix.id.endsWith('_-1')) {
+    const [type, category] = affix.id.split('_');
+    affixDef = allAffixes.find(a => a.type === type && a.category === category);
+  }
+  
+  if (!affixDef) return 'Unknown Affix';
+
+  let description = affixDef.description;
+
+  // Check how many times {value} appears in the description template
+  const valuePlaceholderCount = (description.match(/\{\s*value\s*\}/gi) || []).length;
+
+  if (valuePlaceholderCount === 1) {
+    // If {value} appears once, replace it with the value
+    description = description.replace(/\{\s*value\s*\}/gi, affix.value.toString());
+  } else if (valuePlaceholderCount === 2) {
+    if (options.showRange) {
+      // If showing range, replace first with value and second with maxValue
+      let replacedOnce = false;
+      description = description.replace(/\{\s*value\s*\}/gi, (_match) => {
+        if (!replacedOnce) {
+          replacedOnce = true;
+          return affix.value.toString();
+        } else {
+          return affixDef.maxValue.toString();
+        }
+      });
+      // Append the full range in parentheses
+      description += ` (${affixDef.minValue}-${affixDef.maxValue})`;
+    } else {
+      // If not showing range, use the same value for both placeholders
+      description = description.replace(/\{\s*value\s*\}/gi, affix.value.toString());
+    }
+  }
+
+  return description;
+}
+
+/**
  * Formats an affix description by replacing the {value} placeholder with the actual value and showing the range if applicable.
  * @param affix The affix object containing id, category, and value (the rolled value).
  * @returns Formatted description string.
  */
 export function formatAffixDescription(affix: { id: string; category: string; value: number }): string {
-  // Find the matching affix definition to get min/max values and original description.
-  const affixDef = allAffixes.find(a => a.id === affix.id);
-  if (!affixDef) return 'Unknown Affix';
+  return formatAffixCore(affix, { showRange: true });
+}
 
-  let description = affixDef.description;
-
-  // Check how many times {value} appears in the description template.
-  const valuePlaceholderCount = (description.match(/\{\s*value\s*\}/gi) || []).length;
-
-  if (valuePlaceholderCount === 1) {
-    // If {value} appears once, replace it with the rolled value.
-    description = description.replace(/\{\s*value\s*\}/gi, affix.value.toString());
-  } else if (valuePlaceholderCount === 2) {
-    // If {value} appears twice, replace the first with rolled value and the second with maxValue.
-    // Then append the full range.
-    let replacedOnce = false;
-    description = description.replace(/\{\s*value\s*\}/gi, (_match) => {
-      if (!replacedOnce) {
-        replacedOnce = true;
-        return affix.value.toString();
-      } else {
-        return affixDef.maxValue.toString();
-      }
-    });
-    // Append the full range in parentheses
-    description += ` (${affixDef.minValue}-${affixDef.maxValue})`;
-  }
-  // If valuePlaceholderCount is 0 or > 2, just use the description template as is (shouldn't happen with current data)
-
-  return description;
+/**
+ * Formats a consolidated affix description, showing only the total value without ranges.
+ * @param affix The affix object containing id, category, and value (the total value).
+ * @returns Formatted description string.
+ */
+export function formatConsolidatedAffix(affix: { id: string; category: string; value: number }): string {
+  return formatAffixCore(affix, { showRange: false });
 } 
