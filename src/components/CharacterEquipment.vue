@@ -3,43 +3,96 @@ import { useGameEngine } from '@/stores/game';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
+
 </script>
 
 <template>
   <div class="flex flex-col gap-2">
-    <div class="text-sm font-semibold text-gray-300">
-      Equipment
-    </div>
     <template v-if="char !== -1">
-      <div class="flex flex-col gap-1">
-        <div
-          v-if="char.equipment.weapon"
-          class="text-sm text-gray-400"
-        >
-          <span class="text-gray-500">Weapon:</span>
-          <span class="ml-2">{{ char.equipment.weapon }}</span>
+      <!-- Armor -->
+      <details class="group">
+        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
+          <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+          Armor
+        </summary>
+        <div class="mt-2 grid grid-cols-3 gap-2">
+          <div 
+            v-for="(item, slot) in { 
+              head: char.equipment.head, 
+              shoulders: char.equipment.shoulders,
+              arms: char.equipment.arms,
+              chest: char.equipment.chest, 
+              legs: char.equipment.legs, 
+              feet: char.equipment.feet 
+            }"
+            :key="slot"
+            class="bg-gray-800/80 rounded-lg border border-gray-600 p-2 text-center"
+            :class="{ 'bg-emerald-900/80': item }"
+          >
+            <span class="text-sm text-gray-400">{{ item || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+          </div>
         </div>
-        <div
-          v-if="char.equipment.armor"
-          class="text-sm text-gray-400"
-        >
-          <span class="text-gray-500">Armor:</span>
-          <span class="ml-2">{{ char.equipment.armor }}</span>
+      </details>
+
+      <!-- Weapons -->
+      <details class="group">
+        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
+          <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+          Weapons
+        </summary>
+        <div class="mt-2 grid grid-cols-1 gap-2">
+          <div 
+            v-for="(item, slot) in { weapon: char.equipment.weapon }"
+            :key="slot"
+            class="bg-gray-800/80 rounded-lg border border-gray-600 p-2 text-center"
+            :class="{ 'bg-emerald-900/80': item }"
+          >
+            <span class="text-sm text-gray-400">{{ item || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+          </div>
         </div>
-        <div
-          v-if="char.equipment.accessory"
-          class="text-sm text-gray-400"
-        >
-          <span class="text-gray-500">Accessory:</span>
-          <span class="ml-2">{{ char.equipment.accessory }}</span>
+      </details>
+
+      <!-- Accessories -->
+      <details class="group">
+        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
+          <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+          Accessories
+        </summary>
+        <div class="mt-2 grid grid-cols-3 gap-2">
+          <div 
+            v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
+            :key="slot"
+            class="bg-gray-800/80 rounded-lg border border-gray-600 p-2 text-center"
+            :class="{ 'bg-emerald-900/80': item }"
+          >
+            <span class="text-sm text-gray-400">{{ item || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
+          </div>
         </div>
-        <div
-          v-if="!char.equipment.weapon && !char.equipment.armor && !char.equipment.accessory" 
-          class="text-sm text-gray-500 italic"
-        >
-          No equipment equipped
-        </div>
-      </div>
+      </details>
     </template>
   </div>
-</template> 
+</template>
+
+<style scoped>
+.bg-emerald-900\/80 {
+  background-color: rgba(16, 185, 129, 0.8);
+}
+
+details {
+  border: 1px solid rgba(75, 85, 99, 0.4);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+details summary {
+  list-style: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] {
+  background-color: rgba(31, 41, 55, 0.4);
+}
+</style> 

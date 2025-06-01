@@ -524,6 +524,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       isAdventuring.value = false;
       gameEngine.heal(50, true);
       gameEngine.recoverMana(50, true);
+
+      gameEngine.incrementRuns();
       return;
     }
 

@@ -71,9 +71,10 @@ watch(() => char !== -1 ? char.level : 0, (newLevel, oldLevel) => {
 const orderedStats = computed(() => {
   if (char === -1) return [];
   
-  const alignedStats = CLASS_ALIGNED_STATS[char.class];
-  const allStats = ['fortitude', 'fortune', 'wrath', 'affinity'] as const;
-  const nonAlignedStats = allStats.filter(stat => !alignedStats.includes(stat));
+  const allStats = CLASS_ALIGNED_STATS[char.class];
+  const baseStats = ['fortitude', 'fortune', 'wrath', 'affinity'] as const;
+  const alignedStats = baseStats.filter(stat => allStats.includes(stat));
+  const nonAlignedStats = baseStats.filter(stat => !allStats.includes(stat));
   
   return [...alignedStats, ...nonAlignedStats];
 });
@@ -116,9 +117,6 @@ const getStatColor = (stat: string) => {
             Level {{ char.level }} {{ char.class }}
           </div>
         </div>
-        <button @click="gameEngine.levelUp()">
-          LEVEL UP
-        </button>
         <div class="text-right font-bold text-white capitalize">
           <h3
             class="text-xl px-2 py-1"

@@ -5,6 +5,7 @@
   import WorldState from '@/components/WorldState.vue';
   import CharacterCreation from '@/components/CharacterCreation.vue';
   import LevelSelection from '@/components/LevelSelection.vue';
+  import LootManager from '@/components/LootManager.vue';
   import { useGameEngine } from '@/stores/game';
   import { useAdventuringStore } from '@/stores/adventuring';
   import { computed, ref, watch } from 'vue';
@@ -17,7 +18,9 @@
   const isCharAlive = computed(() => gameEngine.getCharacter !== -1 && !(gameEngine.isDead));
   const selectedLevel = ref<ILevel>();
   const levelDelta = computed(() => gameEngine.getCharacter !== -1 ? gameEngine.getCharacter.level : 0);
+  const activeTab = ref<TabType>('adventuring');
   
+  type TabType = 'adventuring' | 'loot' | 'town';
   const modalShown = ref<boolean>(false);
 
   function startAdventuring() {
@@ -48,46 +51,88 @@
           <CharacterEquipment />
         </FluidElement>
       </div>
-      <LevelSelection
-        v-model="selectedLevel"
-        :class="isCharAlive ? '' : 'pointer-events-none opacity-50'"
-        :levels="levels"
-        :character-level="levelDelta"
-        :is-adventuring="adventuringStore.isAdventuring"
-        @start-adventuring="() => startAdventuring()"
-      />
-      <FluidElement class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip">
-        <div class="mask-b ">
-          <TransitionGroup
-            tag="ul" 
-            class="flex flex-col last:pb-2"
+      <article class="flex gap-2 justify-center">
+        <FluidElement class="w-fit">
+          <button @click="activeTab = 'adventuring'">
+            Go Adventuring
+          </button>
+        </FluidElement>
+        <FluidElement class="w-fit">
+          <button @click="activeTab = 'loot'">
+            Manage Loot - NYI
+          </button>
+        </FluidElement>
+        <FluidElement class="w-fit">
+          <button @click="activeTab = 'town'">
+            Goto Town - NYI
+          </button>
+        </FluidElement>
+      </article>
+      <section
+        class="grid-area-stack"
+        :class="[
+          { 'opacity-50' : adventuringStore.isAdventuring },
+        ]"
+      >
+        <article
+          v-show="activeTab === 'adventuring'"
+        >
+          <LevelSelection
+            v-model="selectedLevel"
+            :class="isCharAlive ? '' : 'pointer-events-none opacity-50'"
+            :levels="levels"
+            :character-level="levelDelta"
+            :is-adventuring="adventuringStore.isAdventuring"
+            @start-adventuring="() => startAdventuring()"
+          />
+        </article>
+        <article v-show="activeTab === 'loot'">
+          <FluidElement class="w-full">
+            LOOT
+          </FluidElement>
+        </article>
+        <article v-show="activeTab === 'town'">
+          <FluidElement class="w-full">
+            TOWN
+          </FluidElement>
+        </article>
+      </section>
+      <FluidElement class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b">
+        <TransitionGroup
+          tag="ul" 
+          class="flex flex-col last:pb-2"
+        >
+          <li key="log_1st">
+            <h2 class="text-lg">
+              Activity Log:
+            </h2>
+          </li>
+          <template
+            v-for="log, index in adventuringStore.adventureJournal.toReversed()"
+            :key="`journal_${index}`"
           >
-            <template
-              v-for="log, index in adventuringStore.adventureJournal.toReversed()"
-              :key="`journal_${index}`"
+            <li 
+              class="ml-2 md:ml-4"
+              :class="[
+                { 'text-amber-300': log.type === 'Treasure' },
+                { 'text-red-600': log.type === 'Danger' },
+                { 'text-red-400': log.type === 'DangerLite' },
+                { 'text-blue-400': log.type === 'Generic' },
+                { 'text-teal-500': log.type === 'Safe' },
+              ]"
             >
-              <li 
+              <p
+                v-for="msg, mIndex in log.message.split('\n')"
+                :key="`message_line_${index}-${mIndex}`"
                 :class="[
-                  { 'text-amber-300': log.type === 'Treasure' },
-                  { 'text-red-600': log.type === 'Danger' },
-                  { 'text-red-400': log.type === 'DangerLite' },
-                  { 'text-blue-400': log.type === 'Generic' },
-                  { 'text-teal-500': log.type === 'Safe' },
+                  {'pl-4': msg.startsWith('\t')}
                 ]"
               >
-                <p
-                  v-for="msg, mIndex in log.message.split('\n')"
-                  :key="`message_line_${index}-${mIndex}`"
-                  :class="[
-                    {'pl-4': msg.startsWith('\t')}
-                  ]"
-                >
-                  {{ msg }}
-                </p>
-              </li>
-            </template>
-          </TransitionGroup>
-        </div>
+                {{ msg }}
+              </p>
+            </li>
+          </template>
+        </TransitionGroup>
       </FluidElement>
     </template>
     <template v-else>
@@ -150,7 +195,18 @@
   </ModalDialog>
 </template>
 <style scoped>
-  .mask-b {
-    mask-image: linear-gradient(to bottom, black 0, black calc(100% - 2rem), transparent 100%);
+  @reference "@/assets/main.css";
+  .mask-b{
+    @apply relative;
+    @apply before:absolute before:size-[calc(100%_-_1px)] before:top-0 before:left-[1px];
+  }
+  .mask-b::before {
+    mask-image: linear-gradient(
+      to bottom, 
+      black 0, 
+      black calc(100% - 2px), 
+      transparent 100%
+    );
+    @apply z-10;
   }
 </style>

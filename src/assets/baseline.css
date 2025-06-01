@@ -42,7 +42,7 @@ details > summary {
   grid-template-areas: "stack";
   >* {
     grid-area: stack;
-  }      
+  }
 }
 
 .grid-area-stack-inner {

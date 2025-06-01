@@ -162,8 +162,15 @@ export interface ICharacterStats {
 
 export interface ICharacterEquipment {
   weapon?: string;
-  armor?: string;
-  accessory?: string;
+  head?: string;
+  shoulders?: string;
+  arms?: string;
+  chest?: string;
+  legs?: string;
+  feet?: string;
+  neck?: string;
+  leftHand?: string;
+  rightHand?: string;
 }
 
 export interface IItem {
