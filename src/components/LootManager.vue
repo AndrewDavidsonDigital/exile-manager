@@ -3,6 +3,8 @@ import FluidElement from '@/components/FluidElement.vue';
 import { useGameEngine } from '@/stores/game';
 import { computed, ref } from 'vue';
 import type { ILoot, ItemTierType } from '@/lib/game';
+import { ITEM_TIER_COSTS } from '@/lib/game';
+import { formatAffixDescription } from '@/lib/game';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
@@ -35,6 +37,18 @@ const getTierColor = (tier: ItemTierType | undefined, isIdentified: boolean): st
   const color = colorMap[tier];
   return isIdentified ? color : `${color} / 0.3`;
 };
+
+const getIdentificationCost = (loot: ILoot): number => {
+  if (!loot.itemDetails) return 0;
+  
+  const tier = loot.itemDetails.tier;
+  return ITEM_TIER_COSTS[tier];
+};
+
+const canAffordIdentification = (loot: ILoot): boolean => {
+  if (!character.value || character.value === -1) return false;
+  return character.value.gold >= getIdentificationCost(loot);
+};
 </script>
 
 <template>
@@ -56,12 +70,18 @@ const getTierColor = (tier: ItemTierType | undefined, isIdentified: boolean): st
             :data-cursed="loot.cursed"
             :data-corrupted="loot.corrupted"
             :data-selected="selectedLoot === loot"
+            :data-identified="loot.identified"
             @click="selectLoot(loot)"
           >
             <div class="flex flex-col">
-              <p>{{ loot.name }}</p>
-              <p class="text-sm opacity-50">
-                {{ loot.identified ? 'Identified' : 'Unidentified' }}
+              <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
+                <p>{{ loot.name }}</p>
+              </div>
+              <p 
+                v-if="!loot.identified"
+                class="text-sm opacity-50"
+              >
+                Unidentified
               </p>
             </div>
           </FluidElement>
@@ -125,45 +145,27 @@ const getTierColor = (tier: ItemTierType | undefined, isIdentified: boolean): st
             <p class="text-sm opacity-50">
               Tier: {{ selectedLoot.itemDetails.tier }}
             </p>
-            <template v-if="selectedLoot.itemDetails.affixes.embedded.length > 0">
-              <p class="text-sm">
-                Embedded Affixes:
-              </p>
-              <ul class="list-disc list-inside">
-                <li
-                  v-for="affix in selectedLoot.itemDetails.affixes.embedded"
-                  :key="affix"
-                >
-                  {{ affix }}
-                </li>
-              </ul>
-            </template>
-            <template v-if="selectedLoot.itemDetails.affixes.prefix.length > 0">
-              <p class="text-sm">
-                Prefixes:
-              </p>
-              <ul class="list-disc list-inside">
-                <li
-                  v-for="affix in selectedLoot.itemDetails.affixes.prefix"
-                  :key="affix"
-                >
-                  {{ affix }}
-                </li>
-              </ul>
-            </template>
-            <template v-if="selectedLoot.itemDetails.affixes.suffix.length > 0">
-              <p class="text-sm">
-                Suffixes:
-              </p>
-              <ul class="list-disc list-inside">
-                <li
-                  v-for="affix in selectedLoot.itemDetails.affixes.suffix"
-                  :key="affix"
-                >
-                  {{ affix }}
-                </li>
-              </ul>
-            </template>
+            <div
+              v-for="affix in selectedLoot.itemDetails.affixes.embedded"
+              :key="affix.id"
+              class="text-sm text-gray-400"
+            >
+              {{ formatAffixDescription(affix) }}
+            </div>
+            <div
+              v-for="affix in selectedLoot.itemDetails.affixes.prefix"
+              :key="affix.id"
+              class="text-sm text-blue-400"
+            >
+              {{ formatAffixDescription(affix) }}
+            </div>
+            <div
+              v-for="affix in selectedLoot.itemDetails.affixes.suffix"
+              :key="affix.id"
+              class="text-sm text-green-400"
+            >
+              {{ formatAffixDescription(affix) }}
+            </div>
           </div>
         </template>
         <template v-else>
@@ -174,13 +176,18 @@ const getTierColor = (tier: ItemTierType | undefined, isIdentified: boolean): st
 
         <!-- Identify Button -->
         <FluidElement class="w-fit !p-2 mt-auto">
-          <button
-            :disabled="!selectedLoot || selectedLoot.identified"
-            :class="{ 'opacity-50': !selectedLoot || selectedLoot.identified }"
-            @click="identifySelectedLoot"
-          >
-            Identify Item
-          </button>
+          <div class="flex flex-col gap-2">
+            <p class="text-sm opacity-50">
+              Identification Cost: {{ selectedLoot ? getIdentificationCost(selectedLoot) : 0 }} gold
+            </p>
+            <button
+              :disabled="!selectedLoot || selectedLoot.identified || !canAffordIdentification(selectedLoot)"
+              :class="{ 'opacity-50': !selectedLoot || selectedLoot.identified || !canAffordIdentification(selectedLoot) }"
+              @click="identifySelectedLoot"
+            >
+              {{ !canAffordIdentification(selectedLoot) ? 'Not Enough Gold' : 'Identify Item' }}
+            </button>
+          </div>
         </FluidElement>
       </div>
     </FluidElement>
@@ -199,6 +206,20 @@ const getTierColor = (tier: ItemTierType | undefined, isIdentified: boolean): st
   border-color: var(--loot-border-color) !important;
   border-width: 2px !important;
   transition: border-color 0.2s ease-in-out;
+}
+
+.item-content {
+  transition: filter 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.item-content.blurred {
+  filter: blur(1px);
+  opacity: 0.8;
+}
+
+.loot-item:hover .item-content.blurred {
+  filter: none;
+  opacity: 1;
 }
 
 .loot-item:hover {

@@ -1,3 +1,6 @@
+import type { IAffix } from './affixTypes';
+import { AffixType, allAffixes } from './affixTypes';
+
 export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
 export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
 export type LootType = 'armor' | 'weapons' | 'jewelry' | 'currency';
@@ -177,9 +180,21 @@ export interface IItem {
   tier: ItemTierType;              // magic common .... (total affix configuration)
   mutations: ItemMutationType[];   // types of affix subsets to allow
   affixes: {
-    embedded: string[];
-    prefix: string[];
-    suffix: string[];
+    embedded: Array<{
+      id: string;
+      category: string;
+      value: number;
+    }>;
+    prefix: Array<{
+      id: string;
+      category: string;
+      value: number;
+    }>;
+    suffix: Array<{
+      id: string;
+      category: string;
+      value: number;
+    }>;
   }
 }
 
@@ -345,4 +360,119 @@ export const MONSTER_DAMAGE_TYPES: Record<MonsterType, IMonsterDamage> = {
     damageMultiplier: 1.5,
     damageSplit: 50 // 50% mental, 50% void corruption
   }
+};
+
+export const ITEM_TIER_COSTS: Record<ItemTierType, number> = {
+  'basic': 10,
+  'enhanced': 25,
+  'exceptional': 50,
+  'abstract': 100,
+  'infused': 200
+};
+
+// Define affix counts per tier based on comments
+export const ITEM_AFFIX_COUNTS: Record<ItemTierType, { embedded: number, prefix: number, suffix: number }> = {
+  'basic': { embedded: 0, prefix: 0, suffix: 0 },
+  'enhanced': { embedded: 1, prefix: 0, suffix: 1 },
+  'exceptional': { embedded: 2, prefix: 1, suffix: 1 },
+  'abstract': { embedded: 1, prefix: 3, suffix: 0 },
+  'infused': { embedded: 1, prefix: 0, suffix: 3 }
 }; 
+
+/**
+ * Generates appropriate affixes for an item based on its tier and type
+ * @param tier The item's tier
+ * @param _type The item's type (currently unused but kept for future use)
+ * @returns Object containing arrays of generated affixes with their roll values
+ */
+export function generateAffixesForTier(tier: ItemTierType, _type: string) {
+  const affixes = {
+    embedded: [] as Array<{
+      id: string;
+      category: string;
+      value: number;
+    }>,
+    prefix: [] as Array<{
+      id: string;
+      category: string;
+      value: number;
+    }>,
+    suffix: [] as Array<{
+      id: string;
+      category: string;
+      value: number;
+    }>
+  };
+
+  // Get the expected affix counts for this tier
+  const affixCounts = ITEM_AFFIX_COUNTS[tier];
+
+  // Filter affixes that are allowed for this tier
+  const allowedAffixes = allAffixes.filter((affix: IAffix) => 
+    affix.allowedTiers.includes(tier)
+  );
+
+  // Generate embedded affixes
+  if (affixCounts.embedded > 0) {
+    const embeddedAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.EMBEDDED);
+    for (let i = 0; i < affixCounts.embedded; i++) {
+      if (embeddedAffixes.length > 0) {
+        const randomEmbedded = embeddedAffixes[Math.floor(Math.random() * embeddedAffixes.length)];
+        const rollValue = Math.floor(Math.random() * (randomEmbedded.maxValue - randomEmbedded.minValue + 1)) + randomEmbedded.minValue;
+        affixes.embedded.push({
+          id: randomEmbedded.id,
+          category: randomEmbedded.category,
+          value: rollValue
+        });
+      }
+    }
+  }
+
+  // Generate prefix affixes
+  if (affixCounts.prefix > 0) {
+    const prefixAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.PREFIX);
+    for (let i = 0; i < affixCounts.prefix; i++) {
+      if (prefixAffixes.length > 0) {
+        const randomPrefix = prefixAffixes[Math.floor(Math.random() * prefixAffixes.length)];
+        const rollValue = Math.floor(Math.random() * (randomPrefix.maxValue - randomPrefix.minValue + 1)) + randomPrefix.minValue;
+        affixes.prefix.push({
+          id: randomPrefix.id,
+          category: randomPrefix.category,
+          value: rollValue
+        });
+      }
+    }
+  }
+
+  // Generate suffix affixes
+  if (affixCounts.suffix > 0) {
+    const suffixAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.SUFFIX);
+    for (let i = 0; i < affixCounts.suffix; i++) {
+      if (suffixAffixes.length > 0) {
+        const randomSuffix = suffixAffixes[Math.floor(Math.random() * suffixAffixes.length)];
+        const rollValue = Math.floor(Math.random() * (randomSuffix.maxValue - randomSuffix.minValue + 1)) + randomSuffix.minValue;
+        affixes.suffix.push({
+          id: randomSuffix.id,
+          category: randomSuffix.category,
+          value: rollValue
+        });
+      }
+    }
+  }
+
+  return affixes;
+}
+
+/**
+ * Formats an affix description by replacing the {value} placeholder with the actual value
+ * @param affix The affix object containing id, category, and value
+ * @returns Formatted description string
+ */
+export function formatAffixDescription(affix: { id: string; category: string; value: number }): string {
+  // Find the matching affix definition
+  const affixDef = allAffixes.find(a => a.id === affix.id);
+  if (!affixDef) return 'Unknown Affix';
+
+  // Replace the {value} placeholder with the actual value
+  return affixDef.description.replace('{value}', affix.value.toString());
+} 

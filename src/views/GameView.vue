@@ -51,7 +51,12 @@
           <CharacterEquipment />
         </FluidElement>
       </div>
-      <article class="flex gap-2 justify-center">
+      <article
+        class="flex gap-2 justify-center"
+        :class="[
+          { 'opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
+        ]"
+      >
         <FluidElement class="w-fit">
           <button @click="activeTab = 'adventuring'">
             Go Adventuring
@@ -59,7 +64,7 @@
         </FluidElement>
         <FluidElement class="w-fit">
           <button @click="activeTab = 'loot'">
-            Manage Loot - NYI
+            Manage Loot
           </button>
         </FluidElement>
         <FluidElement class="w-fit">
@@ -71,7 +76,7 @@
       <section
         class="grid-area-stack"
         :class="[
-          { 'opacity-50' : adventuringStore.isAdventuring },
+          { 'opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
         ]"
       >
         <article

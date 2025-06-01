@@ -14,7 +14,9 @@ import type {
 import { 
   DEFAULT_MITIGATION,
   DIFFICULTY_SETTINGS, 
-  generateClassStats 
+  generateClassStats,
+  ITEM_TIER_COSTS,
+  generateAffixesForTier
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
 
@@ -310,7 +312,7 @@ export const useGameEngine = defineStore('gameEngine', {
           identified: false,
           cursed: Math.random() < 0.1, // 10% chance to be cursed
           corrupted: Math.random() < 0.05, // 5% chance to be corrupted
-          name: `Mysterious Item ${generateRandomId()}`,
+          name: generateRandomId(),
           itemDetails: {
             tier: ['basic', 'enhanced', 'exceptional', 'abstract', 'infused'][Math.floor(Math.random() * 5)] as ItemTierType,
             mutations: [],
@@ -335,10 +337,44 @@ export const useGameEngine = defineStore('gameEngine', {
       const loot = this.character.loot[lootIndex];
       if (loot.identified) return;
 
-      // Generate a proper name based on the item's properties
+      // Calculate identification cost based on tier
       const tier = loot.itemDetails?.tier || 'basic';
+      
+      // Use the tier cost directly as the total cost
+      const totalCost = ITEM_TIER_COSTS[tier];
+
+      // Check if character has enough gold
+      if (this.character.gold < totalCost) {
+        logger(`Not enough gold to identify item. Cost: ${totalCost}, Available: ${this.character.gold}`);
+        return;
+      }
+
+      // Deduct the cost
+      this.character.gold -= totalCost;
+
+      // Generate a proper name based on the item's properties
       const type = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor'][Math.floor(Math.random() * 8)];
-      loot.name = `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${type}`;
+      
+      // Generate affixes based on tier
+      const affixes = generateAffixesForTier(tier, type);
+      
+      // Update item details with generated affixes
+      loot.itemDetails = {
+        tier,
+        mutations: loot.itemDetails?.mutations || [],
+        affixes: {
+          embedded: affixes.embedded,
+          prefix: affixes.prefix,
+          suffix: affixes.suffix
+        }
+      };
+
+      // Generate item name based on affixes
+      const prefixName = affixes.prefix.length > 0 ? `${affixes.prefix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.prefix[0].id.split('_')[1].slice(1)} ` : '';
+      const suffixName = affixes.suffix.length > 0 ? ` of ${affixes.suffix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.suffix[0].id.split('_')[1].slice(1)}` : '';
+      const embeddedName = affixes.embedded.length > 0 ? `${affixes.embedded[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.embedded[0].id.split('_')[1].slice(1)} ` : '';
+      
+      loot.name = `${prefixName}${embeddedName}${tier.charAt(0).toUpperCase() + tier.slice(1)} ${type}${suffixName}`;
       
       // Mark as identified
       loot.identified = true;
@@ -371,11 +407,23 @@ function logger(message: string) {
 }
 
 /**
- * Generates a random string using the first segment of a UUID
- * @returns {string} Random string from UUID's first segment
+ * Generates a random string using the last segment of a UUID and replaces random characters with special symbols
+ * @returns {string} Random string with potential special characters
  */
 function generateRandomId(): string {
-  return crypto.randomUUID().split('-')[0];
+  const specialChars = '!@#$%^&*';
+  const baseId = crypto.randomUUID().split('-')[4]; // Get the last segment instead of first
+  const numReplacements = Math.floor(Math.random() * 5); // 0 to 4 replacements
+  
+  let result = baseId;
+  for (let i = 0; i < numReplacements; i++) {
+    // Pick a random index between 1 and length-2 to avoid first and last characters
+    const randomIndex = Math.floor(Math.random() * (result.length - 2)) + 1;
+    const randomSpecialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    result = result.substring(0, randomIndex) + randomSpecialChar + result.substring(randomIndex + 1);
+  }
+  
+  return result;
 }
 
 function resolveMitigation(_character: ICharacter): IMitigation[]{
