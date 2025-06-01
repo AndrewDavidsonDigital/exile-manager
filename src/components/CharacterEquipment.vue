@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
+import { getTierColor } from '@/lib/itemUtils';
+import { formatAffixDescription } from '@/lib/game';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
@@ -26,10 +28,53 @@ const char = gameEngine.getCharacter;
               feet: char.equipment.feet 
             }"
             :key="slot"
-            class="bg-gray-800/80 rounded-lg border border-gray-600 p-2 text-center"
-            :class="{ 'bg-emerald-900/80': item }"
+            class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
+            :class="{ 'opacity-50': !item }"
+            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-armour-${slot.replace(/([A-Z])/g, ' $1').trim()};`]"
           >
-            <span class="text-sm text-gray-400">{{ item || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+            <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+            <div
+              v-if="item"
+              class="tooltip"
+              :style="`position-anchor: --accessory-armour-${slot.replace(/([A-Z])/g, ' $1').trim()};`"
+            >
+              <div class="flex flex-col gap-1">
+                <p class="font-bold">
+                  {{ item.name }}
+                </p>
+                <template v-if="item.itemDetails">
+                  <p class="text-sm opacity-50">
+                    Tier: {{ item.itemDetails.tier }}
+                  </p>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.embedded"
+                    :key="affix.id"
+                    class="text-sm text-gray-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.prefix"
+                    :key="affix.id"
+                    class="text-sm text-blue-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.suffix"
+                    :key="affix.id"
+                    class="text-sm text-green-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="text-sm opacity-50">
+                    Item not identified
+                  </p>
+                </template>
+              </div>
+            </div>
           </div>
         </div>
       </details>
@@ -44,10 +89,53 @@ const char = gameEngine.getCharacter;
           <div 
             v-for="(item, slot) in { weapon: char.equipment.weapon }"
             :key="slot"
-            class="bg-gray-800/80 rounded-lg border border-gray-600 p-2 text-center"
-            :class="{ 'bg-emerald-900/80': item }"
+            class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
+            :class="{ 'opacity-50': !item }"
+            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-weapon-${slot.replace(/([A-Z])/g, ' $1').trim()};`]"
           >
-            <span class="text-sm text-gray-400">{{ item || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+            <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+            <div
+              v-if="item"
+              class="tooltip"
+              :style="`position-anchor: --accessory-weapon-${slot.replace(/([A-Z])/g, ' $1').trim()};`"
+            >
+              <div class="flex flex-col gap-1">
+                <p class="font-bold">
+                  {{ item.name }}
+                </p>
+                <template v-if="item.itemDetails">
+                  <p class="text-sm opacity-50">
+                    Tier: {{ item.itemDetails.tier }}
+                  </p>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.embedded"
+                    :key="affix.id"
+                    class="text-sm text-gray-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.prefix"
+                    :key="affix.id"
+                    class="text-sm text-blue-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.suffix"
+                    :key="affix.id"
+                    class="text-sm text-green-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="text-sm opacity-50">
+                    Item not identified
+                  </p>
+                </template>
+              </div>
+            </div>
           </div>
         </div>
       </details>
@@ -62,10 +150,53 @@ const char = gameEngine.getCharacter;
           <div 
             v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
             :key="slot"
-            class="bg-gray-800/80 rounded-lg border border-gray-600 p-2 text-center"
-            :class="{ 'bg-emerald-900/80': item }"
+            class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
+            :class="{ 'opacity-50': !item }"
+            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-anchor-${slot.replace(/([A-Z])/g, ' $1').trim()};`]"
           >
-            <span class="text-sm text-gray-400">{{ item || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
+            <span class="text-sm text-gray-400">{{ item?.name || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
+            <div
+              v-if="item"
+              class="tooltip"
+              :style="`position-anchor: --accessory-anchor-${slot.replace(/([A-Z])/g, ' $1').trim()};`"
+            >
+              <div class="flex flex-col gap-1">
+                <p class="font-bold">
+                  {{ item.name }}
+                </p>
+                <template v-if="item.itemDetails">
+                  <p class="text-sm opacity-50">
+                    Tier: {{ item.itemDetails.tier }}
+                  </p>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.embedded"
+                    :key="affix.id"
+                    class="text-sm text-gray-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.prefix"
+                    :key="affix.id"
+                    class="text-sm text-blue-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                  <div
+                    v-for="affix in item.itemDetails.affixes.suffix"
+                    :key="affix.id"
+                    class="text-sm text-green-400"
+                  >
+                    {{ formatAffixDescription(affix) }}
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="text-sm opacity-50">
+                    Item not identified
+                  </p>
+                </template>
+              </div>
+            </div>
           </div>
         </div>
       </details>
@@ -74,25 +205,35 @@ const char = gameEngine.getCharacter;
 </template>
 
 <style scoped>
-.bg-emerald-900\/80 {
-  background-color: rgba(16, 185, 129, 0.8);
-}
+  @reference "@/assets/main.css";
 
-details {
-  border: 1px solid rgba(75, 85, 99, 0.4);
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-}
+  details {
+    border: 1px solid rgba(75, 85, 99, 0.4);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
 
-details summary {
-  list-style: none;
-}
+  details summary {
+    list-style: none;
+  }
 
-details summary::-webkit-details-marker {
-  display: none;
-}
+  details summary::-webkit-details-marker {
+    display: none;
+  }
 
-details[open] {
-  background-color: rgba(31, 41, 55, 0.4);
-}
+  details[open] {
+    background-color: rgba(31, 41, 55, 0.4);
+  }
+
+  .tooltip {
+    @apply fixed hidden bg-gray-900 border border-gray-600/40 rounded-md;
+    @apply text-gray-200 text-sm whitespace-nowrap;
+    @apply p-2 z-50;
+    top: anchor(bottom);
+    justify-self: anchor-center;
+  }
+
+  .tooltip-parent:hover .tooltip {
+    @apply block;
+  }
 </style> 

@@ -285,12 +285,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           if (Math.random() * 100 < totalEscapeChance) {
             // Miraculous escape!
             exileHealth = 1;
-            const lootLossPercent = Math.floor(50 + Math.random() * 30); // 50-80% loot loss for near-death escape
-            const lootToLose = Math.floor(char.loot.length * (lootLossPercent / 100));
-            
-            if (lootToLose > 0) {
-              char.loot.splice(-lootToLose);
-            }
+            lootLossPercent = Math.floor(50 + Math.random() * 30); // 50-80% loot loss for near-death escape
             
             combatLog.push(
               `Round ${round}:\n` +
@@ -339,7 +334,10 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     } else if (monsterHealth <= 0) {
       combatOutcome = `Victory! The ${simMonster.type} has been defeated!`;
     } else if (exileHealth === 1) {
-      lootLossPercent = Math.floor(50 + Math.random() * 30);
+      if (lootLossPercent !> 0){
+        // how have we gotten an escape with no loot loss, re-roll loss
+        lootLossPercent = Math.floor(50 + Math.random() * 30);
+      }
       combatOutcome = `Miraculous Escape! Lost ${lootLossPercent}% of loot.`;
     }
 
@@ -408,6 +406,25 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           // Apply final damage to exile for other outcomes (e.g., victory)
           // Calculate damage taken during the simulation
           gameEngine.addExperience(simMonster.experience);
+
+          // Add loot and gold rewards for victory
+          if (typeof char !== 'number') {
+            // 30% chance for loot drop
+            if (Math.random() < 0.3) {
+              gameEngine.addLoot(1); // Add 1 loot item using existing function
+            }
+
+            // Gold reward based on monster exp and fortune
+            const baseGold = Math.floor(simMonster.experience * 2); // Base gold is 2x monster exp
+            const fortuneBonus = Math.min(1.5, 1 + (char.stats.fortune / 100)); // Fortune adds up to 50% more gold
+            const goldRange = Math.floor(baseGold * fortuneBonus);
+            const goldReward = Math.floor(Math.random() * goldRange);
+            
+            if (goldReward > 0) {
+              gameEngine.updateGold(goldReward);
+            }
+          }
+
           const damageTaken = exileStats.health - combatResult.exileHealth;
           if (damageTaken > 0) {
             gameEngine.takeDamage(damageTaken);

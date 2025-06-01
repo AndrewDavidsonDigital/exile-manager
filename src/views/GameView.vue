@@ -203,14 +203,13 @@
   @reference "@/assets/main.css";
   .mask-b{
     @apply relative;
-    @apply before:absolute before:size-[calc(100%_-_1px)] before:top-0 before:left-[1px];
+    @apply before:absolute before:w-[calc(100%_-_1px)] before:h-8 before:bottom-0 before:left-[1px];
   }
   .mask-b::before {
     mask-image: linear-gradient(
       to bottom, 
-      black 0, 
-      black calc(100% - 2px), 
-      transparent 100%
+      transparent,
+      black 100%
     );
     @apply z-10;
   }

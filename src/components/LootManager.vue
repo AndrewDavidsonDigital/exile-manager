@@ -2,13 +2,16 @@
 import FluidElement from '@/components/FluidElement.vue';
 import { useGameEngine } from '@/stores/game';
 import { computed, ref } from 'vue';
-import type { ILoot, ItemTierType } from '@/lib/game';
+import type { ILoot } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
+import { getTierColor } from '@/lib/itemUtils';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
 const character = computed(() => gameEngine.getCharacter);
+const activeTab = ref<ManageLootTabType>('inventory');
+type ManageLootTabType = 'inventory' | 'stash';
 
 const selectLoot = (loot: ILoot) => {
   selectedLoot.value = loot;
@@ -17,25 +20,43 @@ const selectLoot = (loot: ILoot) => {
 const identifySelectedLoot = () => {
   if (!selectedLoot.value || !character.value || character.value === -1) return;
   
-  const lootIndex = character.value.loot.findIndex(loot => loot === selectedLoot.value);
-  if (lootIndex !== -1) {
-    gameEngine.identifyLoot(lootIndex);
+  if (activeTab.value === 'inventory') {
+    const lootIndex = character.value.loot.findIndex(loot => loot === selectedLoot.value);
+    if (lootIndex !== -1) {
+      gameEngine.identifyLoot(lootIndex);
+    }
+  } else {
+    const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
+    if (stashIndex !== -1) {
+      gameEngine.identifyStashItem(stashIndex);
+    }
   }
 };
 
-const getTierColor = (tier: ItemTierType | undefined, isIdentified: boolean): string => {
-  if (!tier) return 'rgb(110 231 183 / 0.3)'; // emerald-300/30
+const stashSelectedLoot = () => {
+  if (!selectedLoot.value || !character.value || character.value === -1) return;
   
-  const colorMap: Record<ItemTierType, string> = {
-    'basic': 'rgb(110 231 183)', // emerald-400
-    'enhanced': 'rgb(96 165 250)', // blue-400
-    'exceptional': 'rgb(192 132 252)', // purple-400
-    'abstract': 'rgb(251 191 36)', // amber-400
-    'infused': 'rgb(34 211 238)' // cyan-400
-  };
+  const lootIndex = character.value.loot.findIndex(loot => loot === selectedLoot.value);
+  if (lootIndex !== -1) {
+    gameEngine.stashItem(lootIndex);
+    selectedLoot.value = undefined;
+  }
+};
+
+const unstashSelectedLoot = () => {
+  if (!selectedLoot.value) return;
   
-  const color = colorMap[tier];
-  return isIdentified ? color : `${color} / 0.3`;
+  const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
+  if (stashIndex !== -1) {
+    gameEngine.unstashItem(stashIndex);
+    selectedLoot.value = undefined;
+  }
+};
+
+const equipSelectedLoot = () => {
+  if (!selectedLoot.value) return;
+  gameEngine.equipItem(selectedLoot.value, activeTab.value === 'stash');
+  selectedLoot.value = undefined;
 };
 
 const getIdentificationCost = (loot: ILoot): number => {
@@ -55,14 +76,65 @@ const canAffordIdentification = (loot: ILoot): boolean => {
   <div class="flex gap-4 h-full">
     <!-- Main Loot List -->
     <FluidElement class="flex-1 flex flex-col gap-2">
-      <h2 class="text-lg">
-        Inventory
-      </h2>
+      <!-- Tab Navigation -->
+      <div class="flex gap-2 mb-4">
+        <button
+          :class="[
+            { 'opacity-50': activeTab !== 'inventory' },
+            { 'pointer-events-none': activeTab === 'inventory' }
+          ]"
+          @click="activeTab = 'inventory'"
+        >
+          <FluidElement class="w-fit !p-2">
+            Inventory
+          </FluidElement>
+        </button>
+        <button
+          :class="[
+            { 'opacity-50': activeTab !== 'stash' },
+            { 'pointer-events-none': activeTab === 'stash' }
+          ]"
+          @click="activeTab = 'stash'"
+        >
+          <FluidElement class="w-fit !p-2">
+            Stash
+          </FluidElement>
+        </button>
+      </div>
+
+      <!-- Loot List -->
       <div class="flex flex-wrap gap-2">
-        <template v-if="character !== -1 && character.loot.length > 0">
+        <template v-if="activeTab === 'inventory' && character !== -1 && character.loot.length > 0">
           <FluidElement
             v-for="(loot, index) in character.loot"
             :key="`loot_${index}`"
+            class="w-fit !p-2 !border cursor-pointer loot-item"
+            :style="{
+              '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
+            }"
+            :data-cursed="loot.cursed"
+            :data-corrupted="loot.corrupted"
+            :data-selected="selectedLoot === loot"
+            :data-identified="loot.identified"
+            @click="selectLoot(loot)"
+          >
+            <div class="flex flex-col">
+              <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
+                <p>{{ loot.name }}</p>
+              </div>
+              <p 
+                v-if="!loot.identified"
+                class="text-sm opacity-50"
+              >
+                Unidentified
+              </p>
+            </div>
+          </FluidElement>
+        </template>
+        <template v-else-if="activeTab === 'stash' && gameEngine.stash.length > 0">
+          <FluidElement
+            v-for="(loot, index) in gameEngine.stash"
+            :key="`stash_${index}`"
             class="w-fit !p-2 !border cursor-pointer loot-item"
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
@@ -90,28 +162,32 @@ const canAffordIdentification = (loot: ILoot): boolean => {
           v-else
           class="text-neutral-500"
         >
-          No loot in inventory
+          No items in {{ activeTab }}
         </p>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex gap-2 mt-4">
-        <FluidElement class="w-fit !p-2">
-          <button
-            disabled
-            class="opacity-50"
-          >
-            Stash Selected - Coming Soon
-          </button>
-        </FluidElement>
-        <FluidElement class="w-fit !p-2">
-          <button
-            disabled
-            class="opacity-50"
-          >
-            View Stash - Coming Soon
-          </button>
-        </FluidElement>
+        <button
+          v-if="activeTab === 'inventory'"
+          :disabled="!selectedLoot"
+          :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
+          @click="stashSelectedLoot"
+        >
+          <FluidElement class="w-fit !p-2">
+            Stash Selected
+          </FluidElement>
+        </button>
+        <button
+          v-else
+          :disabled="!selectedLoot"
+          :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
+          @click="unstashSelectedLoot"
+        >
+          <FluidElement class="w-fit !p-2">
+            Unstash Selected
+          </FluidElement>
+        </button>
       </div>
     </FluidElement>
 
@@ -175,26 +251,41 @@ const canAffordIdentification = (loot: ILoot): boolean => {
         </template>
 
         <!-- Identify Button -->
-        <FluidElement class="w-fit !p-2 mt-auto">
-          <div class="flex flex-col gap-2">
-            <p class="text-sm opacity-50">
-              Identification Cost: {{ selectedLoot ? getIdentificationCost(selectedLoot) : 0 }} gold
-            </p>
-            <button
-              :disabled="!selectedLoot || selectedLoot.identified || !canAffordIdentification(selectedLoot)"
-              :class="{ 'opacity-50': !selectedLoot || selectedLoot.identified || !canAffordIdentification(selectedLoot) }"
-              @click="identifySelectedLoot"
-            >
-              {{ !canAffordIdentification(selectedLoot) ? 'Not Enough Gold' : 'Identify Item' }}
-            </button>
-          </div>
-        </FluidElement>
+        <button
+          v-if="selectedLoot && !selectedLoot.identified"
+          :disabled="!selectedLoot || !canAffordIdentification(selectedLoot)"
+          :class="{ 'opacity-50 pointer-events-none': !selectedLoot || !canAffordIdentification(selectedLoot) }"
+          @click="identifySelectedLoot"
+        >
+          <FluidElement class="w-fit !p-2 mt-auto">
+            <div class="flex flex-col gap-2">
+              <p class="text-sm opacity-50">
+                Identification Cost: {{ selectedLoot ? getIdentificationCost(selectedLoot) : 0 }} gold
+              </p>
+              <span>
+                {{ !canAffordIdentification(selectedLoot) ? 'Not Enough Gold' : 'Identify Item' }}
+              </span>
+            </div>
+          </FluidElement>
+        </button>
+
+        <!-- Equip Button -->
+        <button
+          v-if="selectedLoot && selectedLoot.identified"
+          @click="equipSelectedLoot"
+        >
+          <FluidElement class="w-fit !p-2 mt-auto">
+            Equip Item
+          </FluidElement>
+        </button>
       </div>
     </FluidElement>
   </div>
 </template>
 
 <style scoped>
+  @reference "@/assets/main.css";
+
 * {
   --loot-border-color: oklch(69.6% 0.17 162.48);
   --loot-border-color-selected: rgb(255 255 255); /* white */

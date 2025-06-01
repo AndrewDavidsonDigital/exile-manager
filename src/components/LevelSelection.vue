@@ -63,7 +63,7 @@ const emit = defineEmits<{
   </FluidElement>
   <FluidElement
     v-if="modelValue !== undefined"
-    :class="props.class"
+    :class="`${props.class}mt-2`"
   >
     <div
       class="flex"

@@ -27,6 +27,7 @@ interface IGameEngine {
   character: ICharacter | undefined;
   difficulty: DifficultyType;
   isDead: boolean;
+  stash: ILoot[];
 }
 
 export const useGameEngine = defineStore('gameEngine', {
@@ -44,6 +45,7 @@ export const useGameEngine = defineStore('gameEngine', {
       difficulty: 'Easy',
       character: undefined,
       isDead: false,
+      stash: [],
     } as IGameEngine
   },
 
@@ -308,11 +310,15 @@ export const useGameEngine = defineStore('gameEngine', {
 
       // Generate random loot items
       for (let i = 0; i < totalLoot; i++) {
+        // Generate a random item type
+        const type = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor'][Math.floor(Math.random() * 8)];
+
         const newLoot: ILoot = {
           identified: false,
           cursed: Math.random() < 0.1, // 10% chance to be cursed
           corrupted: Math.random() < 0.05, // 5% chance to be corrupted
-          name: generateRandomId(),
+          name: generateRandomId(), // Temporary name until identified
+          type: type, // Set the type here
           itemDetails: {
             tier: ['basic', 'enhanced', 'exceptional', 'abstract', 'infused'][Math.floor(Math.random() * 5)] as ItemTierType,
             mutations: [],
@@ -352,8 +358,8 @@ export const useGameEngine = defineStore('gameEngine', {
       // Deduct the cost
       this.character.gold -= totalCost;
 
-      // Generate a proper name based on the item's properties
-      const type = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor'][Math.floor(Math.random() * 8)];
+      // The type is already set when the loot was created
+      const type = loot.type; // Get the type from the loot object
       
       // Generate affixes based on tier
       const affixes = generateAffixesForTier(tier, type);
@@ -374,7 +380,91 @@ export const useGameEngine = defineStore('gameEngine', {
       const suffixName = affixes.suffix.length > 0 ? ` of ${affixes.suffix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.suffix[0].id.split('_')[1].slice(1)}` : '';
       const embeddedName = affixes.embedded.length > 0 ? `${affixes.embedded[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.embedded[0].id.split('_')[1].slice(1)} ` : '';
       
-      loot.name = `${prefixName}${embeddedName}${tier.charAt(0).toUpperCase() + tier.slice(1)} ${type}${suffixName}`;
+      // Use the stored type in the name generation
+      loot.name = `${prefixName}${embeddedName}${tier.charAt(0).toUpperCase() + tier.slice(1)} ${loot.type}${suffixName}`;
+      
+      // Mark as identified
+      loot.identified = true;
+      
+      this.saveState();
+    },
+
+    /**
+     * Moves an item from inventory to stash
+     * @param {number} lootIndex - Index of the item in inventory
+     */
+    stashItem(lootIndex: number) {
+      if (!this.character || !this.character.loot[lootIndex]) return;
+      logger(`Stashing item at index ${lootIndex}`);
+      
+      const item = this.character.loot[lootIndex];
+      this.stash.push(item);
+      this.character.loot.splice(lootIndex, 1);
+      this.saveState();
+    },
+
+    /**
+     * Moves an item from stash to inventory
+     * @param {number} stashIndex - Index of the item in stash
+     */
+    unstashItem(stashIndex: number) {
+      if (!this.character || !this.stash[stashIndex]) return;
+      logger(`Unstashing item at index ${stashIndex}`);
+      
+      const item = this.stash[stashIndex];
+      this.character.loot.push(item);
+      this.stash.splice(stashIndex, 1);
+      this.saveState();
+    },
+
+    /**
+     * Identifies an item in the stash
+     * @param {number} stashIndex - Index of the item in stash
+     */
+    identifyStashItem(stashIndex: number) {
+      if (!this.stash[stashIndex]) return;
+      logger(`Identifying stash item at index ${stashIndex}`);
+      
+      const loot = this.stash[stashIndex];
+      if (loot.identified) return;
+
+      // Calculate identification cost based on tier
+      const tier = loot.itemDetails?.tier || 'basic';
+      const totalCost = ITEM_TIER_COSTS[tier];
+
+      // Check if character has enough gold
+      if (!this.character || this.character.gold < totalCost) {
+        logger(`Not enough gold to identify item. Cost: ${totalCost}, Available: ${this.character?.gold || 0}`);
+        return;
+      }
+
+      // Deduct the cost
+      this.character.gold -= totalCost;
+
+      // The type is already set when the loot was created
+      const type = loot.type; // Get the type from the loot object
+      
+      // Generate affixes based on tier
+      const affixes = generateAffixesForTier(tier, type);
+      
+      // Update item details with generated affixes
+      loot.itemDetails = {
+        tier,
+        mutations: loot.itemDetails?.mutations || [],
+        affixes: {
+          embedded: affixes.embedded,
+          prefix: affixes.prefix,
+          suffix: affixes.suffix
+        }
+      };
+
+      // Generate item name based on affixes
+      const prefixName = affixes.prefix.length > 0 ? `${affixes.prefix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.prefix[0].id.split('_')[1].slice(1)} ` : '';
+      const suffixName = affixes.suffix.length > 0 ? ` of ${affixes.suffix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.suffix[0].id.split('_')[1].slice(1)}` : '';
+      const embeddedName = affixes.embedded.length > 0 ? `${affixes.embedded[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.embedded[0].id.split('_')[1].slice(1)} ` : '';
+      
+      // Use the stored type in the name generation
+      loot.name = `${prefixName}${embeddedName}${tier.charAt(0).toUpperCase() + tier.slice(1)} ${loot.type}${suffixName}`;
       
       // Mark as identified
       loot.identified = true;
@@ -398,6 +488,61 @@ export const useGameEngine = defineStore('gameEngine', {
     saveState() {
       logger('Saving game state');
       useGameState().$set(this.$state);
+    },
+
+    /**
+     * Equips an item from inventory or stash
+     * @param {ILoot} item - The item to equip
+     * @param {boolean} fromStash - Whether the item is from stash
+     */
+    equipItem(item: ILoot, fromStash: boolean = false) {
+      if (!this.character || !item.itemDetails) return;
+      logger(`Equipping item: ${item.name}${fromStash ? ' from stash' : ''}`);
+      
+      // Use the item's explicit type field
+      const itemType = item.type.toLowerCase();
+
+      // Map item types to equipment slots
+      const slotMap: Record<string, keyof ICharacterEquipment> = {
+        'sword': 'weapon',
+        'shield': 'weapon',
+        'amulet': 'neck',
+        'ring': 'leftHand',
+        'boots': 'feet',
+        'gloves': 'arms',
+        'helmet': 'head',
+        'armor': 'chest'
+      };
+
+      const slot = slotMap[itemType];
+      if (!slot) {
+        logger(`Cannot equip item of type ${item.type}. No corresponding equipment slot found.`);
+        return; // Added a return here to prevent further execution if slot is not found
+      }
+
+      // Remove item from source
+      if (fromStash) {
+        const stashIndex = this.stash.findIndex(loot => loot === item);
+        if (stashIndex !== -1) {
+          this.stash.splice(stashIndex, 1);
+        }
+      } else {
+        const lootIndex = this.character.loot.findIndex(loot => loot === item);
+        if (lootIndex !== -1) {
+          this.character.loot.splice(lootIndex, 1);
+        }
+      }
+
+      // If there's already an item equipped, move it to inventory
+      const currentItem = this.character.equipment[slot];
+      if (currentItem) {
+        this.character.loot.push(currentItem);
+      }
+
+      // Equip the new item
+      this.character.equipment[slot] = item;
+      
+      this.saveState();
     },
   },
 });

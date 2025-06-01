@@ -164,16 +164,16 @@ export interface ICharacterStats {
 }
 
 export interface ICharacterEquipment {
-  weapon?: string;
-  head?: string;
-  shoulders?: string;
-  arms?: string;
-  chest?: string;
-  legs?: string;
-  feet?: string;
-  neck?: string;
-  leftHand?: string;
-  rightHand?: string;
+  weapon?: ILoot;
+  head?: ILoot;
+  shoulders?: ILoot;
+  arms?: ILoot;
+  chest?: ILoot;
+  legs?: ILoot;
+  feet?: ILoot;
+  neck?: ILoot;
+  leftHand?: ILoot;
+  rightHand?: ILoot;
 }
 
 export interface IItem {
@@ -203,6 +203,7 @@ export interface ILoot {
   cursed: boolean;              // de-equipable??
   corrupted: boolean;           // 
   name: string;
+  type: string;
   itemDetails?: IItem;
 }
 
@@ -464,15 +465,39 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
 }
 
 /**
- * Formats an affix description by replacing the {value} placeholder with the actual value
- * @param affix The affix object containing id, category, and value
- * @returns Formatted description string
+ * Formats an affix description by replacing the {value} placeholder with the actual value and showing the range if applicable.
+ * @param affix The affix object containing id, category, and value (the rolled value).
+ * @returns Formatted description string.
  */
 export function formatAffixDescription(affix: { id: string; category: string; value: number }): string {
-  // Find the matching affix definition
+  // Find the matching affix definition to get min/max values and original description.
   const affixDef = allAffixes.find(a => a.id === affix.id);
   if (!affixDef) return 'Unknown Affix';
 
-  // Replace the {value} placeholder with the actual value
-  return affixDef.description.replace('{value}', affix.value.toString());
+  let description = affixDef.description;
+
+  // Check how many times {value} appears in the description template.
+  const valuePlaceholderCount = (description.match(/\{\s*value\s*\}/gi) || []).length;
+
+  if (valuePlaceholderCount === 1) {
+    // If {value} appears once, replace it with the rolled value.
+    description = description.replace(/\{\s*value\s*\}/gi, affix.value.toString());
+  } else if (valuePlaceholderCount === 2) {
+    // If {value} appears twice, replace the first with rolled value and the second with maxValue.
+    // Then append the full range.
+    let replacedOnce = false;
+    description = description.replace(/\{\s*value\s*\}/gi, (_match) => {
+      if (!replacedOnce) {
+        replacedOnce = true;
+        return affix.value.toString();
+      } else {
+        return affixDef.maxValue.toString();
+      }
+    });
+    // Append the full range in parentheses
+    description += ` (${affixDef.minValue}-${affixDef.maxValue})`;
+  }
+  // If valuePlaceholderCount is 0 or > 2, just use the description template as is (shouldn't happen with current data)
+
+  return description;
 } 
