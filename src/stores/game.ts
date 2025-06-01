@@ -9,7 +9,8 @@ import type {
   ILoot,
   ItemTierType,
   ICombatStat,
-  IMitigation
+  IMitigation,
+  ItemType
 } from '@/lib/game';
 import { 
   DEFAULT_MITIGATION,
@@ -19,6 +20,7 @@ import {
   generateAffixesForTier
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
+import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 
@@ -78,12 +80,154 @@ export const useGameEngine = defineStore('gameEngine', {
     getCombatStats(): ICombatStat | -1 {
       logger(`Retrieving character: ${this.character?.name || 'none'}`);
       if (!this.character) return -1;
+
+      // Calculate equipment bonuses
+      let healthBonus = 0;
+      let manaBonus = 0;
+      let fortitudeBonus = 0;
+      let fortuneBonus = 0;
+      let wrathBonus = 0;
+      let affinityBonus = 0;
+
+      // Initialize damage bonuses
+      let physicalDamageBonus = 0;
+      let fireDamageBonus = 0;
+      let coldDamageBonus = 0;
+      let lightningDamageBonus = 0;
+      let voidDamageBonus = 0;
+      let mentalDamageBonus = 0;
+
+      // Check all equipped items for bonuses
+      Object.values(this.character.equipment).forEach(item => {
+        if (!item?.itemDetails?.affixes) return;
+
+        // Check all affix types (embedded, prefix, suffix)
+        const itemAffixes = [
+          ...item.itemDetails.affixes.embedded,
+          ...item.itemDetails.affixes.prefix,
+          ...item.itemDetails.affixes.suffix
+        ];
+
+        itemAffixes.forEach(affix => {
+          // Look up the full affix definition to get the type
+          const affixDef = affixDefinitions.find(a => a.id === affix.id);
+          if (!affixDef) return;
+
+          // Use switch statement for better readability and maintainability
+          switch (affix.category) {
+            case 'life':
+              healthBonus += affix.value;
+              break;
+            case 'mana':
+              manaBonus += affix.value;
+              break;
+            case 'attribute':
+              // Check the affix tags to determine which attribute it affects
+              if (affixDef.tags.includes('fortitude')) {
+                fortitudeBonus += affix.value;
+              } else if (affixDef.tags.includes('fortune')) {
+                fortuneBonus += affix.value;
+              } else if (affixDef.tags.includes('wrath')) {
+                wrathBonus += affix.value;
+              } else if (affixDef.tags.includes('affinity')) {
+                affinityBonus += affix.value;
+              }
+              break;
+            case 'physical':
+              // Physical damage from prefix/suffix, resistance from embedded
+              if (affixDef.type === AffixType.EMBEDDED) {
+                // Handle physical resistance
+                const mitigation = retval.mitigation.find(m => m.key === 'physical');
+                if (mitigation) {
+                  mitigation.value += affix.value;
+                }
+              } else {
+                physicalDamageBonus += affix.value;
+              }
+              break;
+            case 'elemental':
+              // Elemental damage from prefix/suffix, resistance from embedded
+              if (affixDef.type === AffixType.EMBEDDED) {
+                // Handle elemental resistances
+                if (affixDef.tags.includes('fire')) {
+                  const mitigation = retval.mitigation.find(m => m.key === 'elemental_fire');
+                  if (mitigation) {
+                    mitigation.value += affix.value;
+                  }
+                } else if (affixDef.tags.includes('cold')) {
+                  const mitigation = retval.mitigation.find(m => m.key === 'elemental_cold');
+                  if (mitigation) {
+                    mitigation.value += affix.value;
+                  }
+                } else if (affixDef.tags.includes('lightning')) {
+                  const mitigation = retval.mitigation.find(m => m.key === 'elemental_lightning');
+                  if (mitigation) {
+                    mitigation.value += affix.value;
+                  }
+                }
+              } else {
+                // Handle elemental damage
+                if (affixDef.tags.includes('fire')) {
+                  fireDamageBonus += affix.value;
+                } else if (affixDef.tags.includes('cold')) {
+                  coldDamageBonus += affix.value;
+                } else if (affixDef.tags.includes('lightning')) {
+                  lightningDamageBonus += affix.value;
+                }
+              }
+              break;
+            case 'corruption':
+              if (affixDef.tags.includes('void')) {
+                voidDamageBonus += affix.value;
+              } else if (affixDef.tags.includes('mental')) {
+                mentalDamageBonus += affix.value;
+              }
+              break;
+          }
+        });
+      });
+
+      // Base damage from wrath
+      const basePhysicalDamage = Math.floor(this.character.stats.wrath / 2);
+
+      const baseDamagePerTick = 15;
+      // Calculate total damage per tick including all bonuses
+      const totalDamagePerTick = 
+        baseDamagePerTick + 
+        basePhysicalDamage + physicalDamageBonus + 
+        fireDamageBonus + 
+        coldDamageBonus + 
+        lightningDamageBonus + 
+        voidDamageBonus + 
+        mentalDamageBonus;
+
       let retval: ICombatStat = {
-        accuracy: 100,
-        damagePerTick: 15,
-        health: this.character.stats.currentHealth,
-        mana: this.character.stats.currentMana,
+        health: this.character.stats.currentHealth + healthBonus,
+        mana: this.character.stats.currentMana + manaBonus,
+        maxHealth: this.character.stats.health + healthBonus,
+        maxMana: this.character.stats.mana + manaBonus,
         mitigation: resolveMitigation(this.character),
+        attributes: {
+          fortitude: this.character.stats.fortitude + fortitudeBonus,
+          fortune: this.character.stats.fortune + fortuneBonus,
+          wrath: this.character.stats.wrath + wrathBonus,
+          affinity: this.character.stats.affinity + affinityBonus
+        },
+        accuracy: 100,
+        baseDamagePerTick: baseDamagePerTick,
+        damagePerTick: totalDamagePerTick,
+        damage: {
+          physical: basePhysicalDamage + physicalDamageBonus,
+          elemental: {
+            fire: fireDamageBonus,
+            cold: coldDamageBonus,
+            lightning: lightningDamageBonus
+          },
+          corruption: {
+            void: voidDamageBonus,
+            mental: mentalDamageBonus
+          }
+        }
       };
       return retval;
     },
@@ -148,17 +292,6 @@ export const useGameEngine = defineStore('gameEngine', {
       this.runs = 0;
       this.character = { ...character }; // Create a new object to ensure reactivity
       this.isDead = false;
-      this.saveState();
-    },
-
-    /**
-     * Updates character equipment
-     * @param {Partial<ICharacterEquipment>} equipment - The equipment to update
-     */
-    updateEquipment(equipment: Partial<ICharacterEquipment>) {
-      if (!this.character) return;
-      logger(`Updating equipment for ${this.character.name}`);
-      this.character.equipment = { ...this.character.equipment, ...equipment };
       this.saveState();
     },
 
@@ -311,7 +444,7 @@ export const useGameEngine = defineStore('gameEngine', {
       // Generate random loot items
       for (let i = 0; i < totalLoot; i++) {
         // Generate a random item type
-        const type = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor'][Math.floor(Math.random() * 8)];
+        const type: ItemType = (['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'] as ItemType[])[Math.floor(Math.random() * 10)];
 
         const newLoot: ILoot = {
           identified: false,
@@ -336,30 +469,29 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    identifyLoot(lootIndex: number) {
-      if (!this.character || !this.character.loot[lootIndex]) return;
-      logger(`Identifying loot[${lootIndex}]`);
-      
-      const loot = this.character.loot[lootIndex];
-      if (loot.identified) return;
+    /**
+     * Internal helper method to handle item identification logic
+     * @param {ILoot} loot - The item to identify
+     * @returns {boolean} Whether identification was successful
+     */
+    _identifyItem(loot: ILoot): boolean {
+      if (loot.identified) return false;
 
       // Calculate identification cost based on tier
       const tier = loot.itemDetails?.tier || 'basic';
-      
-      // Use the tier cost directly as the total cost
       const totalCost = ITEM_TIER_COSTS[tier];
 
       // Check if character has enough gold
-      if (this.character.gold < totalCost) {
-        logger(`Not enough gold to identify item. Cost: ${totalCost}, Available: ${this.character.gold}`);
-        return;
+      if (!this.character || this.character.gold < totalCost) {
+        logger(`Not enough gold to identify item. Cost: ${totalCost}, Available: ${this.character?.gold || 0}`);
+        return false;
       }
 
       // Deduct the cost
       this.character.gold -= totalCost;
 
       // The type is already set when the loot was created
-      const type = loot.type; // Get the type from the loot object
+      const type = loot.type;
       
       // Generate affixes based on tier
       const affixes = generateAffixesForTier(tier, type);
@@ -386,7 +518,25 @@ export const useGameEngine = defineStore('gameEngine', {
       // Mark as identified
       loot.identified = true;
       
-      this.saveState();
+      return true;
+    },
+
+    identifyLoot(lootIndex: number) {
+      if (!this.character || !this.character.loot[lootIndex]) return;
+      logger(`Identifying loot[${lootIndex}]`);
+      
+      if (this._identifyItem(this.character.loot[lootIndex])) {
+        this.saveState();
+      }
+    },
+
+    identifyStashItem(stashIndex: number) {
+      if (!this.stash[stashIndex]) return;
+      logger(`Identifying stash item at index ${stashIndex}`);
+      
+      if (this._identifyItem(this.stash[stashIndex])) {
+        this.saveState();
+      }
     },
 
     /**
@@ -418,61 +568,6 @@ export const useGameEngine = defineStore('gameEngine', {
     },
 
     /**
-     * Identifies an item in the stash
-     * @param {number} stashIndex - Index of the item in stash
-     */
-    identifyStashItem(stashIndex: number) {
-      if (!this.stash[stashIndex]) return;
-      logger(`Identifying stash item at index ${stashIndex}`);
-      
-      const loot = this.stash[stashIndex];
-      if (loot.identified) return;
-
-      // Calculate identification cost based on tier
-      const tier = loot.itemDetails?.tier || 'basic';
-      const totalCost = ITEM_TIER_COSTS[tier];
-
-      // Check if character has enough gold
-      if (!this.character || this.character.gold < totalCost) {
-        logger(`Not enough gold to identify item. Cost: ${totalCost}, Available: ${this.character?.gold || 0}`);
-        return;
-      }
-
-      // Deduct the cost
-      this.character.gold -= totalCost;
-
-      // The type is already set when the loot was created
-      const type = loot.type; // Get the type from the loot object
-      
-      // Generate affixes based on tier
-      const affixes = generateAffixesForTier(tier, type);
-      
-      // Update item details with generated affixes
-      loot.itemDetails = {
-        tier,
-        mutations: loot.itemDetails?.mutations || [],
-        affixes: {
-          embedded: affixes.embedded,
-          prefix: affixes.prefix,
-          suffix: affixes.suffix
-        }
-      };
-
-      // Generate item name based on affixes
-      const prefixName = affixes.prefix.length > 0 ? `${affixes.prefix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.prefix[0].id.split('_')[1].slice(1)} ` : '';
-      const suffixName = affixes.suffix.length > 0 ? ` of ${affixes.suffix[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.suffix[0].id.split('_')[1].slice(1)}` : '';
-      const embeddedName = affixes.embedded.length > 0 ? `${affixes.embedded[0].id.split('_')[1].charAt(0).toUpperCase() + affixes.embedded[0].id.split('_')[1].slice(1)} ` : '';
-      
-      // Use the stored type in the name generation
-      loot.name = `${prefixName}${embeddedName}${tier.charAt(0).toUpperCase() + tier.slice(1)} ${loot.type}${suffixName}`;
-      
-      // Mark as identified
-      loot.identified = true;
-      
-      this.saveState();
-    },
-
-    /**
      * Increments the number of completed runs
      * @param {number} [value=1] - The number of runs to add (defaults to 1)
      */
@@ -500,18 +595,20 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Equipping item: ${item.name}${fromStash ? ' from stash' : ''}`);
       
       // Use the item's explicit type field
-      const itemType = item.type.toLowerCase();
+      const itemType = item.type;
 
       // Map item types to equipment slots
-      const slotMap: Record<string, keyof ICharacterEquipment> = {
-        'sword': 'weapon',
-        'shield': 'weapon',
-        'amulet': 'neck',
-        'ring': 'leftHand',
-        'boots': 'feet',
-        'gloves': 'arms',
-        'helmet': 'head',
-        'armor': 'chest'
+      const slotMap: Record<ItemType, keyof ICharacterEquipment> = {
+        'Sword': 'weapon',
+        'Shield': 'weapon',
+        'Amulet': 'neck',
+        'Ring': 'leftHand',
+        'Boots': 'feet',
+        'Gloves': 'arms',
+        'Helmet': 'head',
+        'Armor': 'chest',
+        'Shoulders': 'shoulders',
+        'Pants': 'legs'
       };
 
       const slot = slotMap[itemType];

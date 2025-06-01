@@ -86,7 +86,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
           @click="activeTab = 'inventory'"
         >
           <FluidElement class="w-fit !p-2">
-            Inventory
+            Inventory {{ character !== -1 ? character.loot.length : 0 }}
           </FluidElement>
         </button>
         <button
@@ -97,7 +97,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
           @click="activeTab = 'stash'"
         >
           <FluidElement class="w-fit !p-2">
-            Stash
+            Stash {{ gameEngine.stash.length }}
           </FluidElement>
         </button>
       </div>

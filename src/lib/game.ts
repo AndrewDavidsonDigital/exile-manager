@@ -6,6 +6,7 @@ export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
 export type LootType = 'armor' | 'weapons' | 'jewelry' | 'currency';
 export type MonsterType = 'undead' | 'beast' | 'humanoid' | 'elemental' | 'abomination';
 export type JournalEntryType = 'Danger' | 'DangerLite' | 'Generic' | 'Safe' | 'Treasure';
+export type ItemType = 'Sword'| 'Shield'| 'Amulet'| 'Ring'| 'Boots'| 'Gloves'| 'Helmet'| 'Armor'| 'Shoulders'| 'Pants';
 
 export interface IJournalEntry {
   type: JournalEntryType;
@@ -138,11 +139,32 @@ export type MitigationType =
 | 'corruption_mental'
 
 export interface ICombatStat {
+  baseDamagePerTick: number;
   damagePerTick: number;
   accuracy: number;
   health: number;
   mana: number;
+  maxHealth: number;
+  maxMana: number;
   mitigation: IMitigation[];
+  attributes: {
+    fortitude: number;    // Mental and physical endurance
+    fortune: number;      // Luck and chance-based outcomes
+    wrath: number;        // Combat prowess and rage
+    affinity: number;     // Connection to magical forces
+  };
+  damage: {
+    physical: number;     // Base physical damage
+    elemental: {
+      fire: number;       // Fire damage
+      cold: number;       // Cold damage
+      lightning: number;  // Lightning damage
+    };
+    corruption: {
+      void: number;       // Void corruption damage
+      mental: number;     // Mental corruption damage
+    };
+  };
 }
 
 export interface IDifficulty {
@@ -161,6 +183,11 @@ export interface ICharacterStats {
   fortune: number;       // Luck and chance-based outcomes
   wrath: number;         // Combat prowess and rage
   affinity: number;      // Connection to magical forces
+  
+  // Base attributes
+  strength: number;      // Physical power and carrying capacity
+  dexterity: number;     // Agility and precision
+  intelligence: number;  // Mental acuity and magical potential
 }
 
 export interface ICharacterEquipment {
@@ -203,7 +230,7 @@ export interface ILoot {
   cursed: boolean;              // de-equipable??
   corrupted: boolean;           // 
   name: string;
-  type: string;
+  type: ItemType;
   itemDetails?: IItem;
 }
 
@@ -241,7 +268,10 @@ export const BASE_STATS: ICharacterStats = {
   fortitude: 10,
   fortune: 10,
   wrath: 10,
-  affinity: 10
+  affinity: 10,
+  strength: 10,
+  dexterity: 10,
+  intelligence: 10
 };
 
 export interface IStatRange {

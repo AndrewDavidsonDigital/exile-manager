@@ -30,13 +30,13 @@ const char = gameEngine.getCharacter;
             :key="slot"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="{ 'opacity-50': !item }"
-            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-armour-${slot.replace(/([A-Z])/g, ' $1').trim()};`]"
+            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
             <div
               v-if="item"
               class="tooltip"
-              :style="`position-anchor: --accessory-armour-${slot.replace(/([A-Z])/g, ' $1').trim()};`"
+              :style="`position-anchor: --accessory-${slot};`"
             >
               <div class="flex flex-col gap-1">
                 <p class="font-bold">
@@ -91,13 +91,13 @@ const char = gameEngine.getCharacter;
             :key="slot"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="{ 'opacity-50': !item }"
-            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-weapon-${slot.replace(/([A-Z])/g, ' $1').trim()};`]"
+            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
             <div
               v-if="item"
               class="tooltip"
-              :style="`position-anchor: --accessory-weapon-${slot.replace(/([A-Z])/g, ' $1').trim()};`"
+              :style="`position-anchor: --accessory-${slot};`"
             >
               <div class="flex flex-col gap-1">
                 <p class="font-bold">
@@ -152,13 +152,13 @@ const char = gameEngine.getCharacter;
             :key="slot"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="{ 'opacity-50': !item }"
-            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-anchor-${slot.replace(/([A-Z])/g, ' $1').trim()};`]"
+            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
             <div
               v-if="item"
               class="tooltip"
-              :style="`position-anchor: --accessory-anchor-${slot.replace(/([A-Z])/g, ' $1').trim()};`"
+              :style="`position-anchor: --accessory-${slot};`"
             >
               <div class="flex flex-col gap-1">
                 <p class="font-bold">
