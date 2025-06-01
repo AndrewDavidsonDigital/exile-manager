@@ -88,7 +88,7 @@
         </article>
         <article v-show="activeTab === 'loot'">
           <FluidElement class="w-full">
-            LOOT
+            <LootManager />
           </FluidElement>
         </article>
         <article v-show="activeTab === 'town'">

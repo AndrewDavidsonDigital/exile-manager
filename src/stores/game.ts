@@ -328,6 +328,24 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
+    identifyLoot(lootIndex: number) {
+      if (!this.character || !this.character.loot[lootIndex]) return;
+      logger(`Identifying loot[${lootIndex}]`);
+      
+      const loot = this.character.loot[lootIndex];
+      if (loot.identified) return;
+
+      // Generate a proper name based on the item's properties
+      const tier = loot.itemDetails?.tier || 'basic';
+      const type = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor'][Math.floor(Math.random() * 8)];
+      loot.name = `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${type}`;
+      
+      // Mark as identified
+      loot.identified = true;
+      
+      this.saveState();
+    },
+
     /**
      * Increments the number of completed runs
      * @param {number} [value=1] - The number of runs to add (defaults to 1)
