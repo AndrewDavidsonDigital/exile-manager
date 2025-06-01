@@ -55,11 +55,11 @@ const getStatColor = (stat: string) => {
       <div class="grid grid-cols-2 gap-2 text-sm">
         <div>
           <span class="text-gray-400">Health:</span>
-          <span class="text-green-400 ml-2">{{ char.stats.health }}</span>
+          <span class="text-green-400 ml-2">{{ char.stats.currentHealth }}/{{ char.stats.health }}</span>
         </div>
         <div>
           <span class="text-gray-400">Mana:</span>
-          <span class="text-blue-400 ml-2">{{ char.stats.mana }}</span>
+          <span class="text-blue-400 ml-2">{{ char.stats.currentMana }}/{{ char.stats.mana }}</span>
         </div>
         <template
           v-for="stat in orderedStats"

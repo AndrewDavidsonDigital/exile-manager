@@ -138,6 +138,7 @@ export interface ICombatStat {
   damagePerTick: number;
   accuracy: number;
   health: number;
+  mana: number;
   mitigation: IMitigation[];
 }
 
@@ -148,8 +149,11 @@ export interface IDifficulty {
 }
 
 export interface ICharacterStats {
-  health: number;
-  mana: number;
+  currentHealth: number; // current health
+  currentMana: number;   // current mana
+
+  health: number;        // max health
+  mana: number;          // max mana
   fortitude: number;     // Mental and physical endurance
   fortune: number;       // Luck and chance-based outcomes
   wrath: number;         // Combat prowess and rage
@@ -207,6 +211,8 @@ export const CLASS_DESCRIPTIONS: Record<ExileClassType, string> = {
 };
 
 export const BASE_STATS: ICharacterStats = {
+  currentHealth: 100,
+  currentMana: 100,
   health: 100,
   mana: 100,
   fortitude: 10,
@@ -221,6 +227,8 @@ export interface IStatRange {
 }
 
 export interface IClassStatRanges {
+  health: IStatRange;
+  mana: IStatRange;
   affinity: IStatRange;
   wrath: IStatRange;
   fortune: IStatRange;
@@ -229,18 +237,24 @@ export interface IClassStatRanges {
 
 export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   'Spellsword': {
+    health: { min: 10, max: 20 },
+    mana: { min: 10, max: 20 },
     affinity: { min: 3, max: 5 },    // Reduced from 4-7 to maintain relative difference
     wrath: { min: 1, max: 3 },       // Reduced from 2-4
     fortune: { min: -2, max: 0 },    // Non-aligned
     fortitude: { min: -2, max: 0 }   // Non-aligned
   },
   'Chaos Mage': {
+    health: { min: 5, max: 10 },
+    mana: { min: 15, max: 30 },
     affinity: { min: 4, max: 6 },    // Reduced from 6-9
     fortune: { min: 1, max: 3 },     // Reduced from 2-5
     wrath: { min: -3, max: -1 },     // Non-aligned
     fortitude: { min: -3, max: -1 }  // Non-aligned
   },
   'Reaver': {
+    health: { min: 15, max: 30 },
+    mana: { min: 5, max: 10 },
     wrath: { min: 4, max: 6 },       // Reduced from 6-9
     fortitude: { min: 1, max: 3 },   // Reduced from 2-5
     affinity: { min: -3, max: -1 },  // Non-aligned

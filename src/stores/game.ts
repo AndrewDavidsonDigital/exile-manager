@@ -77,7 +77,8 @@ export const useGameEngine = defineStore('gameEngine', {
       let retval: ICombatStat = {
         accuracy: 100,
         damagePerTick: 15,
-        health: this.character.stats.health,
+        health: this.character.stats.currentHealth,
+        mana: this.character.stats.currentMana,
         mitigation: resolveMitigation(this.character),
       };
       return retval;
@@ -176,7 +177,7 @@ export const useGameEngine = defineStore('gameEngine', {
     takeDamage(amount: number, applyReduction: boolean = true) {
       if (!this.character) return;
       logger(`Taking ${amount} damage`);
-      console.log('takeDamage: Initial health', this.character.stats.health);
+      console.log('takeDamage: Initial health', this.character.stats.currentHealth);
       
       let finalDamage = amount;
       if (applyReduction) {
@@ -185,15 +186,15 @@ export const useGameEngine = defineStore('gameEngine', {
       }
       console.log('takeDamage: finalDamage', finalDamage);
       
-      const newHealth = Math.max(0, this.character.stats.health - finalDamage);
+      const newHealth = Math.max(0, this.character.stats.currentHealth - finalDamage);
       console.log('takeDamage: newHealth calculated', newHealth);
-      this.updateStats({ health: newHealth });
-      console.log('takeDamage: health after updateStats', this.character.stats.health);
+      this.updateStats({ currentHealth: newHealth });
+      console.log('takeDamage: health after updateStats', this.character.stats.currentHealth);
       
       // Check if character died from this damage
       if (newHealth <= 0) {
         this.isDead = true;
-        this.character.stats.health = 0; // Ensure health is set to 0 when dead
+        this.character.stats.currentHealth = 0; // Ensure health is set to 0 when dead
         this.saveState();
       }
     },
@@ -202,26 +203,17 @@ export const useGameEngine = defineStore('gameEngine', {
      * Heals the character's health
      * @param {number} amount - Amount of health to restore
      */
-    heal(amount: number) {
+    heal(amount: number, isPercent: boolean = false) {
       if (!this.character) return;
-      logger(`Healing ${amount} health`);
+      logger(`Healing ${amount} health${isPercent ? ' %' : ''}`);
       
-      const newHealth = Math.min(100, this.character.stats.health + amount);
-      this.updateStats({ health: newHealth });
-    },
-
-    /**
-     * Modifies a stat by a relative amount
-     * @param {keyof ICharacterStats} stat - The stat to modify
-     * @param {number} amount - Amount to modify the stat by (can be negative)
-     */
-    modifyStat(stat: keyof ICharacterStats, amount: number) {
-      if (!this.character) return;
-      logger(`Modifying ${stat} by ${amount}`);
-      
-      const currentValue = this.character.stats[stat];
-      const newValue = Math.max(0, currentValue + amount);
-      this.updateStats({ [stat]: newValue });
+      let newHealth;
+      if (isPercent) {
+        newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + (this.character.stats.health * (100 / amount)));
+      }else{
+        newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + amount);
+      }
+      this.updateStats({ currentHealth: newHealth });
     },
 
     /**
