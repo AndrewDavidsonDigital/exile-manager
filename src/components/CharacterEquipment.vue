@@ -20,8 +20,8 @@ const char = gameEngine.getCharacter;
         <div class="mt-2 grid grid-cols-3 gap-2">
           <div 
             v-for="(item, slot) in { 
-              head: char.equipment.head, 
               shoulders: char.equipment.shoulders,
+              head: char.equipment.head, 
               arms: char.equipment.arms,
               chest: char.equipment.chest, 
               legs: char.equipment.legs, 

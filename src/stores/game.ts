@@ -602,7 +602,7 @@ export const useGameEngine = defineStore('gameEngine', {
         'Sword': 'weapon',
         'Shield': 'weapon',
         'Amulet': 'neck',
-        'Ring': 'leftHand',
+        'Ring': 'leftHand', // Default slot for rings
         'Boots': 'feet',
         'Gloves': 'arms',
         'Helmet': 'head',
@@ -611,10 +611,27 @@ export const useGameEngine = defineStore('gameEngine', {
         'Pants': 'legs'
       };
 
-      const slot = slotMap[itemType];
+      let slot = slotMap[itemType];
+      
+      // Special handling for rings
+      if (itemType === 'Ring') {
+        // If left hand is empty, use it
+        if (!this.character.equipment.leftHand) {
+          slot = 'leftHand';
+        }
+        // If right hand is empty, use it
+        else if (!this.character.equipment.rightHand) {
+          slot = 'rightHand';
+        }
+        // If both hands have rings, replace the left hand ring
+        else {
+          slot = 'leftHand';
+        }
+      }
+
       if (!slot) {
         logger(`Cannot equip item of type ${item.type}. No corresponding equipment slot found.`);
-        return; // Added a return here to prevent further execution if slot is not found
+        return;
       }
 
       // Remove item from source

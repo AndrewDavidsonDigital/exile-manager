@@ -222,22 +222,22 @@ const canAffordIdentification = (loot: ILoot): boolean => {
               Tier: {{ selectedLoot.itemDetails.tier }}
             </p>
             <div
-              v-for="affix in selectedLoot.itemDetails.affixes.embedded"
-              :key="affix.id"
+              v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
+              :key="`em_${affix.id}_${aIndex}`"
               class="text-sm text-gray-400"
             >
               {{ formatAffixDescription(affix) }}
             </div>
             <div
-              v-for="affix in selectedLoot.itemDetails.affixes.prefix"
-              :key="affix.id"
+              v-for="affix, aIndex in selectedLoot.itemDetails.affixes.prefix"
+              :key="`pr_${affix.id}_${aIndex}`"
               class="text-sm text-blue-400"
             >
               {{ formatAffixDescription(affix) }}
             </div>
             <div
-              v-for="affix in selectedLoot.itemDetails.affixes.suffix"
-              :key="affix.id"
+              v-for="affix, aIndex in selectedLoot.itemDetails.affixes.suffix"
+              :key="`su_${affix.id}_${aIndex}`"
               class="text-sm text-green-400"
             >
               {{ formatAffixDescription(affix) }}
