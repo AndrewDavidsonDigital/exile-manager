@@ -25,7 +25,7 @@ import { _cloneDeep } from '@/lib/object';
 import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.0.1';
+const VERSION_NUMBER = '0.0.2';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
