@@ -741,8 +741,16 @@ function logger(message: string) {
  * @returns {string} Random string with potential special characters
  */
 function generateRandomId(): string {
+  let baseId = '';
+  try {
+    baseId = crypto.randomUUID().split('-')[4]; // Get the last segment instead of first
+  }
+  catch {
+    logger(`falling back to alternative ID generation as we dont have access to crypto`);
+    baseId = generateFallbackId();
+  }
+  
   const specialChars = '!@#$%^&*';
-  const baseId = crypto.randomUUID().split('-')[4]; // Get the last segment instead of first
   const numReplacements = Math.floor(Math.random() * 5); // 0 to 4 replacements
   
   let result = baseId;
@@ -756,10 +764,26 @@ function generateRandomId(): string {
   return result;
 }
 
+/**
+ * Generates a fallback unique ID when crypto.randomUUID() is not available
+ * Uses timestamp, random numbers, and Math.random() to create a unique string
+ * @returns {string} A unique string ID
+ */
+function generateFallbackId(): string {
+  const randomStr = Math.random().toString(36).substring(2, 8); // Get 6 random chars
+  const randomNum = Math.floor(Math.random() * 10000).toString().padStart(6, '0'); // 6 digit random number
+  
+  // Combine and shuffle the segments
+  const combined = randomStr + randomNum;
+  const shuffled = combined.split('')
+    .sort(() => Math.random() - 0.5)
+    .join('');
+  
+  return shuffled;
+}
+
 function resolveMitigation(_character: ICharacter): IMitigation[]{
-  const retval: IMitigation[] = [
-    ...DEFAULT_MITIGATION,
-  ];
+  const retval: IMitigation[] = _cloneDeep(DEFAULT_MITIGATION);
 
   return retval;
 }

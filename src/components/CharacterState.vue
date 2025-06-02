@@ -4,6 +4,7 @@ import { CLASS_ALIGNED_STATS, formatConsolidatedAffix } from '@/lib/game';
 import { computed, ref, watch } from 'vue';
 import { allAffixes, isAffixRange, type AffixValue } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
+import FluidElement from './FluidElement.vue';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
@@ -185,6 +186,10 @@ const groupedAffixes = computed(() => {
     suffix: consolidateAffixes(affixes.suffix)
   };
 });
+
+function addLoot(){
+  gameEngine.addLoot(1);
+}
 </script>
 
 <template>
@@ -204,6 +209,18 @@ const groupedAffixes = computed(() => {
             Level {{ char.level }} {{ char.class }}
           </div>
         </div>
+        <section class="flex flex-col gap-2 ">
+          <button @click="char.gold += 1000">
+            <FluidElement>
+              Add 1000 gold
+            </FluidElement>
+          </button>
+          <button @click="addLoot">
+            <FluidElement>
+              Add loot
+            </FluidElement>
+          </button>
+        </section>
         <div class="text-right font-bold text-white capitalize">
           <h3
             class="text-xl px-2 py-1"
@@ -223,7 +240,16 @@ const groupedAffixes = computed(() => {
       </div>
 
       <!-- Stats Section -->
-      <div class="grid grid-cols-2 gap-2 text-sm items-center">
+      <div
+        class="
+          grid grid-cols-1 md:grid-cols-2 
+          gap-2 items-center
+          text-sm
+
+          [&>div]:grid [&>div]:grid-cols-2
+          [&>div]:text-center
+        "
+      >
         <div>
           <span class="text-gray-400">Health:</span>
           <span 

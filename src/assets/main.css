@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './baseline.css';
 @import './custom.css';
+@import './game.css'
 
 
 /* TAILWIND DEFAULTS */

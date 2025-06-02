@@ -416,113 +416,74 @@ export const ITEM_AFFIX_COUNTS: Record<ItemTierType, { embedded: number, prefix:
 }; 
 
 /**
- * Generates appropriate affixes for an item based on its tier and type
- * @param tier The item's tier
- * @param _type The item's type (currently unused but kept for future use)
- * @returns Object containing arrays of generated affixes with their roll values
+ * Generates a random value for an affix based on its type and description
+ * @param affix The affix to generate a value for
+ * @returns The generated affix value
  */
-export function generateAffixesForTier(tier: ItemTierType, _type: string) {
-  const affixes = {
-    embedded: [] as Array<{
-      id: string;
-      category: string;
-      value: AffixValue;
-    }>,
-    prefix: [] as Array<{
-      id: string;
-      category: string;
-      value: AffixValue;
-    }>,
-    suffix: [] as Array<{
-      id: string;
-      category: string;
-      value: AffixValue;
-    }>
-  };
+function generateAffixValue(affix: IAffix): AffixValue {
+  // Check if the description contains two {value} placeholders
+  const isRange = (affix.description.match(/\{\s*value\s*\}/gi) || []).length === 2;
+  
+  if (isRange) {
+    const minValue = Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue;
+    const maxValue =  Math.floor(Math.random() * (affix.maxValue - minValue + 1)) + minValue;
+    const retval = {
+      type: "range",
+      minValue,
+      maxValue,
+    } as AffixValue;
+    return retval;
 
-  // Get the expected affix counts for this tier
-  const affixCounts = ITEM_AFFIX_COUNTS[tier];
+  } else if (affix.description.includes('%')) {
+    const retval = {
+      type: "multiplicative",
+      value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,
+    } as AffixValue;
+    return retval;
+  } else {
+    const retval = {
+      type: "additive",
+      value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,
+    } as AffixValue;
+    return retval;
+  }
+}
 
-  // Filter affixes that are allowed for this tier
-  const allowedAffixes = allAffixes.filter((affix: IAffix) => 
-    affix.allowedTiers.includes(tier)
-  );
+/**
+ * Helper function to generate affixes of a specific type
+ * @param affixType The type of affix to generate (EMBEDDED, PREFIX, or SUFFIX)
+ * @param allowedAffixes Collection of all allowed affixes
+ * @param maxCount Maximum number of affixes to generate
+ * @returns Array of generated affixes
+ */
+function generateAffixesOfType(
+  affixType: AffixType,
+  allowedAffixes: IAffix[],
+  maxCount: number
+): Array<{ id: string; category: string; value: AffixValue }> {
+  const generatedAffixes: Array<{ id: string; category: string; value: AffixValue }> = [];
+  const typeAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === affixType);
 
-  const generateAffixValue = (affix: IAffix): AffixValue => {
-    // Check if the description contains two {value} placeholders
-    const isRange = (affix.description.match(/\{\s*value\s*\}/gi) || []).length === 2;
-    
-    if (isRange) {
-      const minValue = Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue;
-      const maxValue =  Math.floor(Math.random() * (affix.maxValue - minValue + 1)) + minValue;
-      const retval = {
-        type: "range",
-        minValue,
-        maxValue,
-      } as AffixValue;
-      return retval;
-
-    } else if (affix.description.includes('%')) {
-      const retval = {
-        type: "multiplicative",
-        value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,
-      } as AffixValue;
-      return retval;
-    } else {
-      const retval = {
-        type: "additive",
-        value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,
-      } as AffixValue;
-      return retval;
+  for (let i = 0; i < maxCount; i++) {
+    // Increasing chance to stop (20% base + 15% per affix)
+    if (i > 0 && Math.random() < (0.2 + (i * 0.15))) {
+      break;
     }
-  };
-
-  // Generate embedded affixes
-  if (affixCounts.embedded > 0) {
-    const embeddedAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.EMBEDDED);
-    for (let i = 0; i < affixCounts.embedded; i++) {
-      if (embeddedAffixes.length > 0) {
-        const randomEmbedded = embeddedAffixes[Math.floor(Math.random() * embeddedAffixes.length)];
-        affixes.embedded.push({
-          id: randomEmbedded.id,
-          category: randomEmbedded.category,
-          value: generateAffixValue(randomEmbedded)
-        });
-      }
+    if (typeAffixes.length > 0) {
+      const randomAffix = randomlySelectAffixFromCollection(typeAffixes);
+      generatedAffixes.push({
+        id: randomAffix.id,
+        category: randomAffix.category,
+        value: generateAffixValue(randomAffix)
+      });
     }
   }
 
-  // Generate prefix affixes
-  if (affixCounts.prefix > 0) {
-    const prefixAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.PREFIX);
-    for (let i = 0; i < affixCounts.prefix; i++) {
-      if (prefixAffixes.length > 0) {
-        const randomPrefix = prefixAffixes[Math.floor(Math.random() * prefixAffixes.length)];
-        affixes.prefix.push({
-          id: randomPrefix.id,
-          category: randomPrefix.category,
-          value: generateAffixValue(randomPrefix)
-        });
-      }
-    }
-  }
+  return generatedAffixes;
+}
 
-  // Generate suffix affixes
-  if (affixCounts.suffix > 0) {
-    const suffixAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.SUFFIX);
-    for (let i = 0; i < affixCounts.suffix; i++) {
-      if (suffixAffixes.length > 0) {
-        const randomSuffix = suffixAffixes[Math.floor(Math.random() * suffixAffixes.length)];
-        affixes.suffix.push({
-          id: randomSuffix.id,
-          category: randomSuffix.category,
-          value: generateAffixValue(randomSuffix)
-        });
-      }
-    }
-  }
-
-  return affixes;
+function randomlySelectAffixFromCollection(affixCollection: IAffix[]){
+  return affixCollection[Math.floor(Math.random() * affixCollection.length)]
 }
 
 /**
@@ -594,4 +555,53 @@ export function formatAffixDescription(affix: { id: string; category: string; va
  */
 export function formatConsolidatedAffix(affix: { id: string; category: string; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: false });
+}
+
+/**
+ * Generates appropriate affixes for an item based on its tier and type
+ * @param tier The item's tier
+ * @param _type The item's type (currently unused but kept for future use)
+ * @returns Object containing arrays of generated affixes with their roll values
+ */
+export function generateAffixesForTier(tier: ItemTierType, _type: string) {
+  const affixes = {
+    embedded: [] as Array<{
+      id: string;
+      category: string;
+      value: AffixValue;
+    }>,
+    prefix: [] as Array<{
+      id: string;
+      category: string;
+      value: AffixValue;
+    }>,
+    suffix: [] as Array<{
+      id: string;
+      category: string;
+      value: AffixValue;
+    }>
+  };
+
+  // Get the expected affix counts for this tier
+  const affixCounts = ITEM_AFFIX_COUNTS[tier];
+
+  // Filter affixes that are allowed for this tier
+  const allowedAffixes = allAffixes.filter((affix: IAffix) => 
+    affix.allowedTiers.includes(tier)
+  );
+
+  // Generate each type of affix using the helper function
+  if (affixCounts.embedded > 0) {
+    affixes.embedded = generateAffixesOfType(AffixType.EMBEDDED, allowedAffixes, affixCounts.embedded);
+  }
+
+  if (affixCounts.prefix > 0) {
+    affixes.prefix = generateAffixesOfType(AffixType.PREFIX, allowedAffixes, affixCounts.prefix);
+  }
+
+  if (affixCounts.suffix > 0) {
+    affixes.suffix = generateAffixesOfType(AffixType.SUFFIX, allowedAffixes, affixCounts.suffix);
+  }
+
+  return affixes;
 } 

@@ -299,8 +299,6 @@ const canAffordIdentification = (loot: ILoot): boolean => {
 * {
   --loot-border-color: oklch(69.6% 0.17 162.48);
   --loot-border-color-selected: rgb(255 255 255); /* white */
-  --loot-border-color-cursed: rgb(217 119 6); /* amber-600 */
-  --loot-border-color-corrupted: rgb(220 38 38); /* red-600 */
 }
 
 .loot-item {
@@ -327,12 +325,20 @@ const canAffordIdentification = (loot: ILoot): boolean => {
   border-color: var(--loot-border-color-selected) !important;
 }
 
-.loot-item[data-cursed="true"] {
+.loot-item[data-cursed="true"][data-identified="true"] {
   border-color: var(--loot-border-color-cursed);
 }
 
-.loot-item[data-corrupted="true"] {
+.loot-item[data-corrupted="true"][data-identified="true"] {
   border-color: var(--loot-border-color-corrupted);
+}
+
+.loot-item[data-crystallized="true"][data-identified="true"] {
+  border-color: var(--loot-border-color-crystallized);
+}
+
+.loot-item[data-void-touched="true"][data-identified="true"] {
+  border-color: var(--loot-border-color-void);
 }
 
 .loot-item[data-selected="true"] {
