@@ -299,7 +299,6 @@ export const useGameEngine = defineStore('gameEngine', {
   actions: {
     restart(){
       logger('Restarting game state');
-      this.version = VERSION_NUMBER;
       this.runs = 0;
       this.difficulty = 'Easy';
       this.character = undefined;
