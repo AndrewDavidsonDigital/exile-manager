@@ -50,6 +50,9 @@ export const useGameEngine = defineStore('gameEngine', {
     
     // Initialize state from storage if it exists
     if (savedState) {
+      if (! savedState.version){
+        savedState.version = '0.0.0';
+      }
       return savedState as IGameEngine;
     }
     
@@ -296,6 +299,7 @@ export const useGameEngine = defineStore('gameEngine', {
   actions: {
     restart(){
       logger('Restarting game state');
+      this.version = VERSION_NUMBER;
       this.runs = 0;
       this.difficulty = 'Easy';
       this.character = undefined;
