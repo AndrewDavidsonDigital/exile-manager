@@ -17,6 +17,10 @@ function get(key: StorageKeys){
 function set(key: StorageKeys, value: string){
   return window.localStorage.setItem(key, value);
 }
+function remove(key: StorageKeys){
+  return window.localStorage.removeItem(key);
+}
+
 /*
 export function useCurrentGame() {
   return {
@@ -76,6 +80,7 @@ export function useGameState() {
     },
     'set': (value: string) => set('exileManagerEngine_state', value),
     '$set': (value: object) => set('exileManagerEngine_state', JSON.stringify(value)),
-    'clear': () => set('exileManagerEngine_state', '{}')
+    'clear': () => set('exileManagerEngine_state', '{}'),
+    'remove': () => remove('exileManagerEngine_state'),
   }
 }

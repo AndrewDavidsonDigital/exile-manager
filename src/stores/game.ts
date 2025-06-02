@@ -22,7 +22,7 @@ import {
 import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
-import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
+import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.1';
@@ -134,6 +134,8 @@ export const useGameEngine = defineStore('gameEngine', {
         }
       };
 
+      let localEvasion = 0;
+
 
       // Check all equipped items for bonuses
       Object.values(this.character.equipment).forEach(item => {
@@ -194,10 +196,15 @@ export const useGameEngine = defineStore('gameEngine', {
                 }
               }
               break;
+            case 'evasion':
+              // evasion only on embeded
+              if (affixDef.type === AffixType.EMBEDDED) {
+                localEvasion += getAffixValue(affix);
+              }
+              break;
             case 'elemental':
               // Elemental damage from prefix/suffix, resistance from embedded
               if (affixDef.type === AffixType.EMBEDDED) {
-                console.log('____XXXX: ',affix, affixDef)
                 // Handle elemental resistances
                 if (affixDef.tags.includes('elemental') && affixDef.tags.includes('resistance')){
                   const mitigationFire = retval.mitigation.find(m => m.key === 'elemental_fire');
@@ -263,6 +270,12 @@ export const useGameEngine = defineStore('gameEngine', {
         retval.damage.elemental.lightning + 
         retval.damage.corruption.void + 
         retval.damage.corruption.mental;
+
+
+      const mitigationEvasion = retval.mitigation.find(m => m.key === 'evasion');
+      if (mitigationEvasion) {
+        mitigationEvasion.value = calculateDodgeChance(localEvasion, this.character.level);
+      }
 
       return retval;
     },

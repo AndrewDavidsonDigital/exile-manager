@@ -12,7 +12,7 @@
     // need small delay to ensure config has been loaded & init'd 
     // by the time we grab audio levels
     setTimeout(() => {
-      console.log(`config:`, config.audio)
+      // console.log(`config:`, config.audio)
 
       bgmEngine.init('_audio_bgm');
       bgmEngine.setVolume(config.audio.bgm * config.audio.master);
