@@ -1,6 +1,27 @@
-// Affix Types for Path of Exile items
-
 import type { ItemTierType, ItemMutationType } from './game';
+import type { OneOf } from './typescript';
+
+export type AdditiveValue = {
+  type: 'additive';
+  value: number;
+}
+
+export type MultiplicativeValue = {
+  type: 'multiplicative';
+  value: number;
+}
+
+export type RangeValue = {
+  type: 'range';
+  minValue: number;
+  maxValue: number;
+}
+
+export type AffixValue = OneOf<[AdditiveValue, MultiplicativeValue, RangeValue]>;
+
+export function isAffixRange(value: AdditiveValue | MultiplicativeValue| RangeValue ): value is RangeValue {
+    return value.type === 'range';
+}
 
 /**
  * Represents the different types of affixes that can be applied to items
@@ -74,56 +95,6 @@ export interface IAffix {
         };
     };
 }
-
-// Example affix definitions
-export const affixExamples: IAffix[] = [
-    {
-        id: 'prefix_physical_1',
-        name: 'Brutal',
-        type: AffixType.PREFIX,
-        category: AffixCategory.PHYSICAL,
-        tier: 1,
-        minValue: 1,
-        maxValue: 2,
-        description: 'Adds {value} to {value} Physical Damage',
-        tags: ['physical', 'attack', 'weapon'],
-        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
-        requirements: {
-            level: 1
-        }
-    },
-    {
-        id: 'suffix_attribute_1',
-        name: 'of the Bear',
-        type: AffixType.SUFFIX,
-        category: AffixCategory.ATTRIBUTE,
-        tier: 1,
-        minValue: 5,
-        maxValue: 8,
-        description: '+{value} to Strength',
-        tags: ['attribute', 'strength'],
-        allowedTiers: ['enhanced', 'exceptional', 'infused'],
-        requirements: {
-            level: 1
-        }
-    },
-    {
-        id: 'embedded_defense_1',
-        name: 'Crystallized',
-        type: AffixType.EMBEDDED,
-        category: AffixCategory.DEFENSE,
-        tier: 1,
-        minValue: 10,
-        maxValue: 15,
-        description: '+{value}% to all Elemental Resistances',
-        tags: ['resistance', 'elemental', 'defense'],
-        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
-        allowedMutations: ['crystallized'],
-        requirements: {
-            level: 5
-        }
-    }
-];
 
 /**
  * List of all available embedded affixes

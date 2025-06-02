@@ -22,6 +22,7 @@ import {
 import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
+import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.1';
@@ -137,23 +138,24 @@ export const useGameEngine = defineStore('gameEngine', {
           if (!affixDef) return;
 
           // Use switch statement for better readability and maintainability
-          switch (affix.category) {
+          switch (affix
+            .category) {
             case 'life':
-              healthBonus += affix.value;
+              healthBonus += getAffixValue(affix);
               break;
             case 'mana':
-              manaBonus += affix.value;
+              manaBonus += getAffixValue(affix);
               break;
             case 'attribute':
               // Check the affix tags to determine which attribute it affects
               if (affixDef.tags.includes('fortitude')) {
-                fortitudeBonus += affix.value;
+                fortitudeBonus += getAffixValue(affix);
               } else if (affixDef.tags.includes('fortune')) {
-                fortuneBonus += affix.value;
+                fortuneBonus += getAffixValue(affix);
               } else if (affixDef.tags.includes('wrath')) {
-                wrathBonus += affix.value;
+                wrathBonus += getAffixValue(affix);
               } else if (affixDef.tags.includes('affinity')) {
-                affinityBonus += affix.value;
+                affinityBonus += getAffixValue(affix);
               }
               break;
             case 'physical':
@@ -162,10 +164,10 @@ export const useGameEngine = defineStore('gameEngine', {
                 // Handle physical resistance
                 const mitigation = retval.mitigation.find(m => m.key === 'physical');
                 if (mitigation) {
-                  mitigation.value += affix.value;
+                  mitigation.value += getAffixValue(affix);
                 }
               } else {
-                physicalDamageBonus += affix.value;
+                physicalDamageBonus += getAffixValue(affix);
               }
               break;
             case 'elemental':
@@ -175,35 +177,35 @@ export const useGameEngine = defineStore('gameEngine', {
                 if (affixDef.tags.includes('fire')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_fire');
                   if (mitigation) {
-                    mitigation.value += affix.value;
+                    mitigation.value += getAffixValue(affix);
                   }
                 } else if (affixDef.tags.includes('cold')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_cold');
                   if (mitigation) {
-                    mitigation.value += affix.value;
+                    mitigation.value += getAffixValue(affix);
                   }
                 } else if (affixDef.tags.includes('lightning')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_lightning');
                   if (mitigation) {
-                    mitigation.value += affix.value;
+                    mitigation.value += getAffixValue(affix);
                   }
                 }
               } else {
                 // Handle elemental damage
                 if (affixDef.tags.includes('fire')) {
-                  fireDamageBonus += affix.value;
+                  fireDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
                 } else if (affixDef.tags.includes('cold')) {
-                  coldDamageBonus += affix.value;
+                  coldDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
                 } else if (affixDef.tags.includes('lightning')) {
-                  lightningDamageBonus += affix.value;
+                  lightningDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
                 }
               }
               break;
             case 'corruption':
               if (affixDef.tags.includes('void')) {
-                voidDamageBonus += affix.value;
+                voidDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
               } else if (affixDef.tags.includes('mental')) {
-                mentalDamageBonus += affix.value;
+                mentalDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
               }
               break;
           }

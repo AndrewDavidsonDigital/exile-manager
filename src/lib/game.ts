@@ -1,5 +1,6 @@
 import type { IAffix } from './affixTypes';
-import { AffixType, allAffixes } from './affixTypes';
+import { AffixType, allAffixes, isAffixRange } from './affixTypes';
+import type { AffixValue } from './affixTypes';
 
 export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
 export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
@@ -210,17 +211,17 @@ export interface IItem {
     embedded: Array<{
       id: string;
       category: string;
-      value: number;
+      value: AffixValue;
     }>;
     prefix: Array<{
       id: string;
       category: string;
-      value: number;
+      value: AffixValue;
     }>;
     suffix: Array<{
       id: string;
       category: string;
-      value: number;
+      value: AffixValue;
     }>;
   }
 }
@@ -421,17 +422,17 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
     embedded: [] as Array<{
       id: string;
       category: string;
-      value: number;
+      value: AffixValue;
     }>,
     prefix: [] as Array<{
       id: string;
       category: string;
-      value: number;
+      value: AffixValue;
     }>,
     suffix: [] as Array<{
       id: string;
       category: string;
-      value: number;
+      value: AffixValue;
     }>
   };
 
@@ -443,17 +444,45 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
     affix.allowedTiers.includes(tier)
   );
 
+  const generateAffixValue = (affix: IAffix): AffixValue => {
+    // Check if the description contains two {value} placeholders
+    const isRange = (affix.description.match(/\{\s*value\s*\}/gi) || []).length === 2;
+    
+    if (isRange) {
+      const minValue = Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue;
+      const maxValue =  Math.floor(Math.random() * (affix.maxValue - minValue + 1)) + minValue;
+      const retval = {
+        type: "range",
+        minValue,
+        maxValue,
+      } as AffixValue;
+      return retval;
+
+    } else if (affix.description.includes('%')) {
+      const retval = {
+        type: "multiplicative",
+        value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,
+      } as AffixValue;
+      return retval;
+    } else {
+      const retval = {
+        type: "additive",
+        value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,
+      } as AffixValue;
+      return retval;
+    }
+  };
+
   // Generate embedded affixes
   if (affixCounts.embedded > 0) {
     const embeddedAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === AffixType.EMBEDDED);
     for (let i = 0; i < affixCounts.embedded; i++) {
       if (embeddedAffixes.length > 0) {
         const randomEmbedded = embeddedAffixes[Math.floor(Math.random() * embeddedAffixes.length)];
-        const rollValue = Math.floor(Math.random() * (randomEmbedded.maxValue - randomEmbedded.minValue + 1)) + randomEmbedded.minValue;
         affixes.embedded.push({
           id: randomEmbedded.id,
           category: randomEmbedded.category,
-          value: rollValue
+          value: generateAffixValue(randomEmbedded)
         });
       }
     }
@@ -465,11 +494,10 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
     for (let i = 0; i < affixCounts.prefix; i++) {
       if (prefixAffixes.length > 0) {
         const randomPrefix = prefixAffixes[Math.floor(Math.random() * prefixAffixes.length)];
-        const rollValue = Math.floor(Math.random() * (randomPrefix.maxValue - randomPrefix.minValue + 1)) + randomPrefix.minValue;
         affixes.prefix.push({
           id: randomPrefix.id,
           category: randomPrefix.category,
-          value: rollValue
+          value: generateAffixValue(randomPrefix)
         });
       }
     }
@@ -481,11 +509,10 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
     for (let i = 0; i < affixCounts.suffix; i++) {
       if (suffixAffixes.length > 0) {
         const randomSuffix = suffixAffixes[Math.floor(Math.random() * suffixAffixes.length)];
-        const rollValue = Math.floor(Math.random() * (randomSuffix.maxValue - randomSuffix.minValue + 1)) + randomSuffix.minValue;
         affixes.suffix.push({
           id: randomSuffix.id,
           category: randomSuffix.category,
-          value: rollValue
+          value: generateAffixValue(randomSuffix)
         });
       }
     }
@@ -501,7 +528,7 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
  * @returns Formatted description string
  */
 function formatAffixCore(
-  affix: { id: string; category: string; value: number },
+  affix: { id: string; category: string; value: AffixValue },
   options: { showRange?: boolean } = {}
 ): string {
   // Find the matching affix definition to get min/max values and original description
@@ -519,27 +546,28 @@ function formatAffixCore(
 
   // Check how many times {value} appears in the description template
   const valuePlaceholderCount = (description.match(/\{\s*value\s*\}/gi) || []).length;
+  const affixValue = affix.value;
 
-  if (valuePlaceholderCount === 1) {
+  if (valuePlaceholderCount === 1 && !isAffixRange(affixValue)) {
     // If {value} appears once, replace it with the value
-    description = description.replace(/\{\s*value\s*\}/gi, affix.value.toString());
+    description = description.replace(/\{\s*value\s*\}/gi, affixValue.value.toString());
   } else if (valuePlaceholderCount === 2) {
-    if (options.showRange) {
+    if (isAffixRange(affixValue)) {
       // If showing range, replace first with value and second with maxValue
       let replacedOnce = false;
       description = description.replace(/\{\s*value\s*\}/gi, (_match) => {
         if (!replacedOnce) {
           replacedOnce = true;
-          return affix.value.toString();
+          return affixValue.minValue.toString();
         } else {
-          return affixDef.maxValue.toString();
+          return affixValue.maxValue.toString();
         }
       });
-      // Append the full range in parentheses
-      description += ` (${affixDef.minValue}-${affixDef.maxValue})`;
-    } else {
-      // If not showing range, use the same value for both placeholders
-      description = description.replace(/\{\s*value\s*\}/gi, affix.value.toString());
+
+      if (options.showRange){
+        // Append the full range in parentheses
+        description += ` (${affixDef.minValue}-${affixDef.maxValue})`;
+      }
     }
   }
 
@@ -551,7 +579,7 @@ function formatAffixCore(
  * @param affix The affix object containing id, category, and value (the rolled value).
  * @returns Formatted description string.
  */
-export function formatAffixDescription(affix: { id: string; category: string; value: number }): string {
+export function formatAffixDescription(affix: { id: string; category: string; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: true });
 }
 
@@ -560,6 +588,6 @@ export function formatAffixDescription(affix: { id: string; category: string; va
  * @param affix The affix object containing id, category, and value (the total value).
  * @returns Formatted description string.
  */
-export function formatConsolidatedAffix(affix: { id: string; category: string; value: number }): string {
+export function formatConsolidatedAffix(affix: { id: string; category: string; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: false });
 } 

@@ -58,7 +58,7 @@ type MergeTypes<TypesArray extends any[], Result = {}> =
  * only the types from TypeArray and not their merged result
  * @author Typed Rocks <pre>https://www.youtube.com/@Typed-Rocks</pre>
  */
-type OneOf<
+export type OneOf<
     TypesArray extends any[], 
     Result = never, 
     AllProperties = MergeTypes<TypesArray>

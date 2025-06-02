@@ -2,7 +2,8 @@
 import { useGameEngine } from '@/stores/game';
 import { CLASS_ALIGNED_STATS, formatConsolidatedAffix } from '@/lib/game';
 import { computed, ref, watch } from 'vue';
-import { allAffixes } from '@/lib/affixTypes';
+import { allAffixes, isAffixRange, type AffixValue } from '@/lib/affixTypes';
+import { _cloneDeep } from '@/lib/object';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
@@ -14,6 +15,11 @@ const isLevelingUp = ref(false);
 const healthPulseType = ref<'damage' | 'heal'>('damage');
 const manaPulseType = ref<'gain' | 'loss'>('gain');
 const showDetailedStats = ref(false);
+
+const hasEquippedItems = computed(() => {
+  if (char === -1) return false;
+  return Object.values(char.equipment).some(item => item !== undefined);
+});
 
 const PULSE_DURATION = 500;
 const LEVEL_UP_DURATION = 2000;
@@ -101,9 +107,32 @@ const getStatColor = (stat: string) => {
   }
 };
 
-const consolidateAffixes = (affixes: Array<{ id: string; category: string; value: number }>) => {
+function combineAffixes( existingValue:AffixValue ,newValue: AffixValue){
+  if (existingValue.type !== newValue.type){
+    return existingValue;
+  }
+
+  switch (existingValue.type) {
+    case 'range':
+      if(isAffixRange(existingValue) && isAffixRange(newValue)){
+        existingValue.minValue += newValue.minValue
+        existingValue.maxValue += newValue.maxValue
+      }
+      break;
+  
+    default:
+      if(!isAffixRange(existingValue) && !isAffixRange(newValue)){
+        existingValue.value += newValue.value
+      }
+      break;
+  }
+
+  return existingValue;
+}
+
+const consolidateAffixes = (affixes: Array<{ id: string; category: string; value: AffixValue }>) => {
   const consolidated = new Map<string, {
-    value: number;
+    value: AffixValue;
     originalAffix: typeof allAffixes[0];
   }>();
   
@@ -113,7 +142,7 @@ const consolidateAffixes = (affixes: Array<{ id: string; category: string; value
     if (!originalAffix) return;
 
     if (consolidated.has(key)) {
-      consolidated.get(key)!.value += affix.value;
+      consolidated.get(key)!.value = combineAffixes(_cloneDeep(consolidated.get(key)!.value), affix.value);
     } else {
       consolidated.set(key, {
         value: affix.value,
@@ -133,9 +162,9 @@ const groupedAffixes = computed(() => {
   if (char === -1) return { embedded: [], prefix: [], suffix: [] };
   
   const affixes = {
-    embedded: [] as Array<{ id: string; category: string; value: number }>,
-    prefix: [] as Array<{ id: string; category: string; value: number }>,
-    suffix: [] as Array<{ id: string; category: string; value: number }>
+    embedded: [] as Array<{ id: string; category: string; value: AffixValue }>,
+    prefix: [] as Array<{ id: string; category: string; value: AffixValue }>,
+    suffix: [] as Array<{ id: string; category: string; value: AffixValue }>
   };
 
   // Collect all affixes from equipped items
@@ -146,6 +175,8 @@ const groupedAffixes = computed(() => {
       affixes.suffix.push(...item.itemDetails.affixes.suffix);
     }
   });
+
+  console.log(affixes);
 
   // Consolidate affixes by category
   return {
@@ -342,7 +373,10 @@ const groupedAffixes = computed(() => {
       >
       </div>
 
-      <div class="text-gray-300 text-sm">
+      <div
+        v-if="hasEquippedItems"
+        class="text-gray-300 text-sm"
+      >
         <button 
           class="flex items-center gap-2 cursor-pointer hover:text-gray-300"
           @click="showDetailedStats = !showDetailedStats"
