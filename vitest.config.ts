@@ -5,10 +5,13 @@ import viteConfig from './vite.config'
 export default mergeConfig(
   viteConfig,
   defineConfig({
-    test: {
+    test: {      
+      name: 'Exile Manager',
       environment: 'jsdom',
       exclude: [...configDefaults.exclude, 'e2e/**'],
-      root: fileURLToPath(new URL('./', import.meta.url))
-    }
+      root: fileURLToPath(new URL('./', import.meta.url)),
+      include: ['**/*.{test,spec,unit}.?(c|m)[jt]s?(x)'],
+      watch: false,
+    },
   })
 )
