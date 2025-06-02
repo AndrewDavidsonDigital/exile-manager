@@ -1,12 +1,15 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
+import { useGameEngine } from '@/stores/game';
 import BgmBar from './BgmBar.vue';
 
+const gameEngine = useGameEngine()
 </script>
 
 <template>
   <footer class="mt-auto bg-neutral-800 w-full text-white flex flex-col items-center gap-x-2 justify-center pb-4 pt-2 px-2 max-w-content mx-auto [&>*]:whitespace-nowrap">
     <BgmBar />
+    <div>Game version: {{ gameEngine.getVersions.game }}</div>
     <div>© {{ (new Date()).getFullYear() }}</div>
     <div>
       Contact: 
