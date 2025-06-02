@@ -21,15 +21,26 @@ import {
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { _cloneDeep } from '@/lib/object';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
+const VERSION_NUMBER = '0.0.1';
+
+const DEFAULT_STATE = <Readonly<IGameEngine>> {
+  version: VERSION_NUMBER,
+  runs: 0,
+  difficulty: 'Easy',
+  character: undefined,
+  isDead: false,
+}
 
 interface IGameEngine {
+  version: string;
   runs: number;
   character: ICharacter | undefined;
   difficulty: DifficultyType;
   isDead: boolean;
-  stash: ILoot[];
+  stash?: ILoot[];
 }
 
 export const useGameEngine = defineStore('gameEngine', {
@@ -43,20 +54,29 @@ export const useGameEngine = defineStore('gameEngine', {
     }
     
     return { 
-      runs: 0,
-      difficulty: 'Easy',
-      character: undefined,
-      isDead: false,
+      ...DEFAULT_STATE,
       stash: [],
     } as IGameEngine
   },
 
   getters: {
+    isVersionSaveOutOfDate(): boolean{
+      logger('Checking version')
+      return this.version !== VERSION_NUMBER;
+    },
+    getVersions(): {save: string;game:string}{
+      logger('Resolving version')
+      return {
+        'save' : this.version,
+        'game' : VERSION_NUMBER,
+      };
+    },
     /**
      * Retrieves the current difficulty settings including multipliers
      * @returns {IDifficulty | -1} The current difficulty settings or -1 if not found
      */
     getDifficulty(): IDifficulty | -1 {
+      logger('Resolving difficulty')
       const retval = DIFFICULTY_SETTINGS.get(this.difficulty);
       if (retval)
         return retval;
@@ -531,7 +551,7 @@ export const useGameEngine = defineStore('gameEngine', {
     },
 
     identifyStashItem(stashIndex: number) {
-      if (!this.stash[stashIndex]) return;
+      if (!this.stash || !this.stash[stashIndex]) return;
       logger(`Identifying stash item at index ${stashIndex}`);
       
       if (this._identifyItem(this.stash[stashIndex])) {
@@ -544,7 +564,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {number} lootIndex - Index of the item in inventory
      */
     stashItem(lootIndex: number) {
-      if (!this.character || !this.character.loot[lootIndex]) return;
+      if (!this.stash || !this.character || !this.character.loot[lootIndex]) return;
       logger(`Stashing item at index ${lootIndex}`);
       
       const item = this.character.loot[lootIndex];
@@ -558,7 +578,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {number} stashIndex - Index of the item in stash
      */
     unstashItem(stashIndex: number) {
-      if (!this.character || !this.stash[stashIndex]) return;
+      if (!this.stash || !this.character || !this.stash[stashIndex]) return;
       logger(`Unstashing item at index ${stashIndex}`);
       
       const item = this.stash[stashIndex];
@@ -591,7 +611,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {boolean} fromStash - Whether the item is from stash
      */
     equipItem(item: ILoot, fromStash: boolean = false) {
-      if (!this.character || !item.itemDetails) return;
+      if (!this.character || !item.itemDetails || (!this.stash && fromStash)) return;
       logger(`Equipping item: ${item.name}${fromStash ? ' from stash' : ''}`);
       
       // Use the item's explicit type field
@@ -635,7 +655,7 @@ export const useGameEngine = defineStore('gameEngine', {
       }
 
       // Remove item from source
-      if (fromStash) {
+      if (this.stash && fromStash) {
         const stashIndex = this.stash.findIndex(loot => loot === item);
         if (stashIndex !== -1) {
           this.stash.splice(stashIndex, 1);
@@ -658,6 +678,39 @@ export const useGameEngine = defineStore('gameEngine', {
       
       this.saveState();
     },
+    migrateSave(){
+      logger('Running: migrateSave');
+      logger('Ensure we are only running this on a miss-match');
+      if (!this.isVersionSaveOutOfDate){
+        return;
+      }
+
+      const currentState:IGameEngine = _cloneDeep(this.$state);
+      logger(`Save-state: ${JSON.stringify(currentState)}`);
+
+      const mutableNewState:IGameEngine = _cloneDeep(DEFAULT_STATE);
+      logger(`Base-new-state: ${JSON.stringify(mutableNewState)}`);
+
+      mutableNewState.runs = currentState.runs;
+      mutableNewState.character = currentState.character;
+      mutableNewState.stash = currentState.stash;
+      mutableNewState.difficulty = currentState.difficulty;
+      mutableNewState.isDead = currentState.isDead;
+
+      logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);
+     
+      useGameState().clear();
+
+      // iterate over all our merged 
+      Object.entries(mutableNewState).forEach(([key, value]) => {
+        if (Object.keys(this).includes(key)){
+          (this as any)[key] = value;
+        }
+      });
+
+      useGameState().$set(this.$state);
+
+    }
   },
 });
 
