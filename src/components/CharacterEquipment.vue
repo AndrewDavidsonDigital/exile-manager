@@ -1,10 +1,50 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { getTierColor } from '@/lib/itemUtils';
-import { formatAffixDescription } from '@/lib/game';
+import { formatAffixDescription, type ILoot } from '@/lib/game';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
+
+function alertStats(item: ILoot | undefined){
+  if (!item){
+    return
+  }
+
+  let output = `${item.name}\n`;
+  
+  if (item.itemDetails) {
+    output += `\nTier: ${item.itemDetails.tier}\n`;
+    
+    // Embedded affixes
+    if (item.itemDetails.affixes.embedded.length > 0) {
+      output += '\nEmbedded:\n';
+      item.itemDetails.affixes.embedded.forEach(affix => {
+        output += `${formatAffixDescription(affix)}\n`;
+      });
+    }
+    
+    // Prefix affixes
+    if (item.itemDetails.affixes.prefix.length > 0) {
+      output += '\nPrefixes:\n';
+      item.itemDetails.affixes.prefix.forEach(affix => {
+        output += `${formatAffixDescription(affix)}\n`;
+      });
+    }
+    
+    // Suffix affixes
+    if (item.itemDetails.affixes.suffix.length > 0) {
+      output += '\nSuffixes:\n';
+      item.itemDetails.affixes.suffix.forEach(affix => {
+        output += `${formatAffixDescription(affix)}\n`;
+      });
+    }
+  } else {
+    output += '\nItem not identified';
+  }
+
+  alert(output);
+}
 
 </script>
 
@@ -31,6 +71,7 @@ const char = gameEngine.getCharacter;
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="{ 'opacity-50': !item }"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
+            @touchend="() => alertStats(item)"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
             <div
