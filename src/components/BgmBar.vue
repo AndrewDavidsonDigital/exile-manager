@@ -1,8 +1,8 @@
 <!-- eslint-disable prettier/prettier -->
 <script setup lang="ts">
   import { useBgmEngine } from '@/stores/audio';
-import { ref } from 'vue';
-import { IconPlay, IconPause } from './icons';
+  import { ref } from 'vue';
+  import { IconPlay, IconPause } from './icons';
   
   const bgmEngine = useBgmEngine();
   const isPaused = ref<boolean>(false);
@@ -28,7 +28,13 @@ import { IconPlay, IconPause } from './icons';
       el.after((_result) => {
         isPaused.value = false;
         const src = bgmEngine.el?.src.split('/') || [''];
-        playingFile.value =  src[src.length -1 ];
+        const filename = src[src.length -1 ];
+        let sanitizedFileName = filename;
+        const file = sanitizedFileName.split('.');
+        if (file[0].lastIndexOf('-') === file[0].length - 1 - 8) {
+          sanitizedFileName = `${file[0].substring(0, file[0].lastIndexOf('-'))}.${file[1]}`
+        }
+        playingFile.value =  sanitizedFileName;
       })
     }
     
