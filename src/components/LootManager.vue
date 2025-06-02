@@ -25,7 +25,7 @@ const identifySelectedLoot = () => {
     if (lootIndex !== -1) {
       gameEngine.identifyLoot(lootIndex);
     }
-  } else {
+  } else if (gameEngine.stash) {
     const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
     if (stashIndex !== -1) {
       gameEngine.identifyStashItem(stashIndex);
@@ -44,7 +44,7 @@ const stashSelectedLoot = () => {
 };
 
 const unstashSelectedLoot = () => {
-  if (!selectedLoot.value) return;
+  if (!gameEngine.stash || !selectedLoot.value) return;
   
   const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
   if (stashIndex !== -1) {
@@ -97,7 +97,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
           @click="activeTab = 'stash'"
         >
           <FluidElement class="w-fit !p-2">
-            Stash {{ gameEngine.stash.length }}
+            Stash {{ gameEngine.stash?.length || 0 }}
           </FluidElement>
         </button>
       </div>
@@ -131,7 +131,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
             </div>
           </FluidElement>
         </template>
-        <template v-else-if="activeTab === 'stash' && gameEngine.stash.length > 0">
+        <template v-else-if="activeTab === 'stash' && gameEngine.stash && gameEngine.stash.length > 0">
           <FluidElement
             v-for="(loot, index) in gameEngine.stash"
             :key="`stash_${index}`"
