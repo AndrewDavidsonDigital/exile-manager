@@ -73,7 +73,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
 </script>
 
 <template>
-  <div class="flex gap-4 h-full">
+  <div class="flex flex-col md:flex-row gap-4 h-full">
     <!-- Main Loot List -->
     <FluidElement class="flex-1 flex flex-col gap-2">
       <!-- Tab Navigation -->
@@ -112,8 +112,9 @@ const canAffordIdentification = (loot: ILoot): boolean => {
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
             }"
-            :data-cursed="loot.cursed"
-            :data-corrupted="loot.corrupted"
+            :data-cursed="loot._hidden.isCursed"
+            :data-corrupted="loot._hidden.isCorrupted"
+            :data-void-touched="loot._hidden.isVoidTouched"
             :data-selected="selectedLoot === loot"
             :data-identified="loot.identified"
             @click="selectLoot(loot)"
@@ -139,8 +140,9 @@ const canAffordIdentification = (loot: ILoot): boolean => {
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
             }"
-            :data-cursed="loot.cursed"
-            :data-corrupted="loot.corrupted"
+            :data-cursed="loot._hidden.isCursed"
+            :data-corrupted="loot._hidden.isCorrupted"
+            :data-void-touched="loot._hidden.isVoidTouched"
             :data-selected="selectedLoot === loot"
             :data-identified="loot.identified"
             @click="selectLoot(loot)"
@@ -192,7 +194,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
     </FluidElement>
 
     <!-- Loot Details Side Panel -->
-    <FluidElement class="w-1/3 flex flex-col gap-2">
+    <FluidElement class="w-full md:w-1/3 flex flex-col gap-2">
       <h2 class="text-lg">
         Item Details
       </h2>
@@ -204,12 +206,16 @@ const canAffordIdentification = (loot: ILoot): boolean => {
           <p
             class="text-sm"
             :class="[
-              { 'text-amber-600': selectedLoot?.cursed },
-              { 'text-red-600': selectedLoot?.corrupted }
+              { 'text-amber-600': selectedLoot?.itemDetails?.mutations.includes('cursed') },
+              { 'text-red-600': selectedLoot?.itemDetails?.mutations.includes('corrupted') },
+              { 'text-cyan-600': selectedLoot?.itemDetails?.mutations.includes('crystallized') },
+              { 'text-purple-700': selectedLoot?.itemDetails?.mutations.includes('voided') }
             ]"
           >
-            {{ selectedLoot?.cursed ? 'Cursed' : '' }}
-            {{ selectedLoot?.corrupted ? 'Corrupted' : '' }}
+            {{ selectedLoot?.itemDetails?.mutations.includes('cursed') ? 'Cursed' : '' }}
+            {{ selectedLoot?.itemDetails?.mutations.includes('corrupted') ? 'Corrupted' : '' }}
+            {{ selectedLoot?.itemDetails?.mutations.includes('crystallized') ? 'Crystallized' : '' }}
+            {{ selectedLoot?.itemDetails?.mutations.includes('voided') ? 'VoidTouched' : '' }}
           </p>
         </div>
         

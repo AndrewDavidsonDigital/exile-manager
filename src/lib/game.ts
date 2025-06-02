@@ -87,6 +87,7 @@ export type ItemMutationType =
     'crystallized'  // 
   | 'corrupted'     //
   | 'voided'        //
+  | 'cursed'        //
 ;
 
 export interface IMitigation {
@@ -228,11 +229,14 @@ export interface IItem {
 
 export interface ILoot {
   identified: boolean;
-  cursed: boolean;              // de-equipable??
-  corrupted: boolean;           // 
   name: string;
   type: ItemType;
   itemDetails?: IItem;
+  _hidden: {
+    isCorrupted: boolean;
+    isCursed: boolean;
+    isVoidTouched: boolean;
+  }
 }
 
 export interface ICharacter {

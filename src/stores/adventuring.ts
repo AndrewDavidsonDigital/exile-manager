@@ -32,7 +32,7 @@ const ENCOUNTERS: IEncounter[] = [
   },
   {
     type: 'treasure',
-    description: 'You discover a hidden cache of items!',
+    description: 'You discover a hidden cache!',
     weight: 12,
     minLevel: 0,
     alignment: 'positive'
@@ -66,7 +66,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   const adventureIntervalId = ref<ReturnType<typeof setInterval> | -1>();
   const adventureInterval = ref<number>(0);
   const adventureJournal = ref<IJournalEntry[]>([]);
-  const ADVENTURE_TICK_DELTA = 2000;
+  const ADVENTURE_TICK_DELTA = 1500;
 
 
   function calculateScaledExperience(baseExp: number, characterLevel: number, areaLevel: number): number {

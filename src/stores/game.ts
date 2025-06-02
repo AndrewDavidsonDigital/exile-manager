@@ -105,21 +105,35 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Retrieving character: ${this.character?.name || 'none'}`);
       if (!this.character) return -1;
 
-      // Calculate equipment bonuses
-      let healthBonus = 0;
-      let manaBonus = 0;
-      let fortitudeBonus = 0;
-      let fortuneBonus = 0;
-      let wrathBonus = 0;
-      let affinityBonus = 0;
+      let retval: ICombatStat = {
+        health: this.character.stats.currentHealth,
+        mana: this.character.stats.currentMana,
+        maxHealth: this.character.stats.health,
+        maxMana: this.character.stats.mana,
+        mitigation: resolveMitigation(this.character),
+        attributes: {
+          fortitude: this.character.stats.fortitude,
+          fortune: this.character.stats.fortune,
+          wrath: this.character.stats.wrath,
+          affinity: this.character.stats.affinity
+        },
+        accuracy: 100,
+        baseDamagePerTick: 15,
+        damagePerTick: 0,
+        damage: {
+          physical: 0,
+          elemental: {
+            fire: 0,
+            cold: 0,
+            lightning: 0
+          },
+          corruption: {
+            void: 0,
+            mental: 0
+          }
+        }
+      };
 
-      // Initialize damage bonuses
-      let physicalDamageBonus = 0;
-      let fireDamageBonus = 0;
-      let coldDamageBonus = 0;
-      let lightningDamageBonus = 0;
-      let voidDamageBonus = 0;
-      let mentalDamageBonus = 0;
 
       // Check all equipped items for bonuses
       Object.values(this.character.equipment).forEach(item => {
@@ -138,43 +152,68 @@ export const useGameEngine = defineStore('gameEngine', {
           if (!affixDef) return;
 
           // Use switch statement for better readability and maintainability
-          switch (affix
-            .category) {
+          switch (affix.category) {
             case 'life':
-              healthBonus += getAffixValue(affix);
+              retval.health += getAffixValue(affix);
+              retval.maxHealth += getAffixValue(affix);
               break;
             case 'mana':
-              manaBonus += getAffixValue(affix);
+              retval.mana += getAffixValue(affix);
+              retval.maxMana += getAffixValue(affix);
               break;
             case 'attribute':
               // Check the affix tags to determine which attribute it affects
               if (affixDef.tags.includes('fortitude')) {
-                fortitudeBonus += getAffixValue(affix);
+                retval.attributes.fortitude += getAffixValue(affix);
               } else if (affixDef.tags.includes('fortune')) {
-                fortuneBonus += getAffixValue(affix);
+                retval.attributes.fortune += getAffixValue(affix);
               } else if (affixDef.tags.includes('wrath')) {
-                wrathBonus += getAffixValue(affix);
+                retval.attributes.wrath += getAffixValue(affix);
               } else if (affixDef.tags.includes('affinity')) {
-                affinityBonus += getAffixValue(affix);
+                retval.attributes.affinity += getAffixValue(affix);
               }
               break;
             case 'physical':
-              // Physical damage from prefix/suffix, resistance from embedded
+              // Physical damage from prefix, Armour Value from EMBEDDED
               if (affixDef.type === AffixType.EMBEDDED) {
-                // Handle physical resistance
+                // Handle Armor??? but how
+                // const mitigation = retval.mitigation.find(m => m.key === 'physical');
+                // if (mitigation) {
+                //   mitigation.value += getAffixValue(affix);
+                // }
+              } else if (affixDef.type === AffixType.PREFIX) {
+                retval.damage.physical += getAffixValue(affix);
+              }
+              break;
+            case 'defense':
+              // Physical damage from prefix, phys resistance from suffix
+              if (affixDef.type === AffixType.SUFFIX) {
                 const mitigation = retval.mitigation.find(m => m.key === 'physical');
                 if (mitigation) {
                   mitigation.value += getAffixValue(affix);
                 }
-              } else {
-                physicalDamageBonus += getAffixValue(affix);
               }
               break;
             case 'elemental':
               // Elemental damage from prefix/suffix, resistance from embedded
               if (affixDef.type === AffixType.EMBEDDED) {
+                console.log('____XXXX: ',affix, affixDef)
                 // Handle elemental resistances
-                if (affixDef.tags.includes('fire')) {
+                if (affixDef.tags.includes('elemental') && affixDef.tags.includes('resistance')){
+                  const mitigationFire = retval.mitigation.find(m => m.key === 'elemental_fire');
+                  if (mitigationFire) {
+                    mitigationFire.value += getAffixValue(affix);
+                  }
+                  const mitigationCold = retval.mitigation.find(m => m.key === 'elemental_cold');
+                  if (mitigationCold) {
+                    mitigationCold.value += getAffixValue(affix);
+                  }
+                  const mitigationLightning = retval.mitigation.find(m => m.key === 'elemental_lightning');
+                  if (mitigationLightning) {
+                    mitigationLightning.value += getAffixValue(affix);
+                  }
+
+                } else if (affixDef.tags.includes('fire')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_fire');
                   if (mitigation) {
                     mitigation.value += getAffixValue(affix);
@@ -193,67 +232,38 @@ export const useGameEngine = defineStore('gameEngine', {
               } else {
                 // Handle elemental damage
                 if (affixDef.tags.includes('fire')) {
-                  fireDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
+                  retval.damage.elemental.fire += resolveAverageOfRange(getAffixValueRange(affix));
                 } else if (affixDef.tags.includes('cold')) {
-                  coldDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
+                  retval.damage.elemental.cold += resolveAverageOfRange(getAffixValueRange(affix));
                 } else if (affixDef.tags.includes('lightning')) {
-                  lightningDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
+                  retval.damage.elemental.lightning  += resolveAverageOfRange(getAffixValueRange(affix));
                 }
               }
               break;
             case 'corruption':
               if (affixDef.tags.includes('void')) {
-                voidDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
+                retval.damage.corruption.void += resolveAverageOfRange(getAffixValueRange(affix));
               } else if (affixDef.tags.includes('mental')) {
-                mentalDamageBonus += resolveAverageOfRange(getAffixValueRange(affix));
+                retval.damage.corruption.mental += resolveAverageOfRange(getAffixValueRange(affix));
               }
               break;
           }
         });
       });
 
+
       // Base damage from wrath
-      const basePhysicalDamage = Math.floor(this.character.stats.wrath / 2);
+      retval.damage.physical += Math.floor(retval.attributes.wrath / 2);
+      
+      retval.damagePerTick = 
+        retval.baseDamagePerTick + 
+        retval.damage.physical + 
+        retval.damage.elemental.fire + 
+        retval.damage.elemental.cold + 
+        retval.damage.elemental.lightning + 
+        retval.damage.corruption.void + 
+        retval.damage.corruption.mental;
 
-      const baseDamagePerTick = 15;
-      // Calculate total damage per tick including all bonuses
-      const totalDamagePerTick = 
-        baseDamagePerTick + 
-        basePhysicalDamage + physicalDamageBonus + 
-        fireDamageBonus + 
-        coldDamageBonus + 
-        lightningDamageBonus + 
-        voidDamageBonus + 
-        mentalDamageBonus;
-
-      let retval: ICombatStat = {
-        health: this.character.stats.currentHealth + healthBonus,
-        mana: this.character.stats.currentMana + manaBonus,
-        maxHealth: this.character.stats.health + healthBonus,
-        maxMana: this.character.stats.mana + manaBonus,
-        mitigation: resolveMitigation(this.character),
-        attributes: {
-          fortitude: this.character.stats.fortitude + fortitudeBonus,
-          fortune: this.character.stats.fortune + fortuneBonus,
-          wrath: this.character.stats.wrath + wrathBonus,
-          affinity: this.character.stats.affinity + affinityBonus
-        },
-        accuracy: 100,
-        baseDamagePerTick: baseDamagePerTick,
-        damagePerTick: totalDamagePerTick,
-        damage: {
-          physical: basePhysicalDamage + physicalDamageBonus,
-          elemental: {
-            fire: fireDamageBonus,
-            cold: coldDamageBonus,
-            lightning: lightningDamageBonus
-          },
-          corruption: {
-            void: voidDamageBonus,
-            mental: mentalDamageBonus
-          }
-        }
-      };
       return retval;
     },
 
@@ -472,11 +482,14 @@ export const useGameEngine = defineStore('gameEngine', {
         const type: ItemType = (['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'] as ItemType[])[Math.floor(Math.random() * 10)];
 
         const newLoot: ILoot = {
-          identified: false,
-          cursed: Math.random() < 0.1, // 10% chance to be cursed
-          corrupted: Math.random() < 0.05, // 5% chance to be corrupted
           name: generateRandomId(), // Temporary name until identified
           type: type, // Set the type here
+          identified: false,
+          _hidden: {
+            isCursed: Math.random() < 0.05, // 5% chance to be cursed
+            isCorrupted: Math.random() < 0.02, // 2% chance to be corrupted
+            isVoidTouched: Math.random() < 0.01, // 1% chance to be voidTouched
+          },
           itemDetails: {
             tier: ['basic', 'enhanced', 'exceptional', 'abstract', 'infused'][Math.floor(Math.random() * 5)] as ItemTierType,
             mutations: [],

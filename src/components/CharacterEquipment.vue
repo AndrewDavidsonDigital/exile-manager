@@ -43,29 +43,40 @@ const char = gameEngine.getCharacter;
                   {{ item.name }}
                 </p>
                 <template v-if="item.itemDetails">
-                  <p class="text-sm opacity-50">
-                    Tier: {{ item.itemDetails.tier }}
+                  <p
+                    class="text-sm capitalize"
+                    :style="{
+                      'color': getTierColor(item.itemDetails.tier, item.identified)
+                    }"
+                  >
+                    {{ item.itemDetails.tier }}
                   </p>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
                     :key="affix.id"
-                    class="text-sm text-gray-400"
+                    class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">e</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
                     :key="affix.id"
-                    class="text-sm text-blue-400"
+                    class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">p</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.suffix"
                     :key="affix.id"
-                    class="text-sm text-green-400"
+                    class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">s</span>
                   </div>
                 </template>
                 <template v-else>
@@ -104,29 +115,40 @@ const char = gameEngine.getCharacter;
                   {{ item.name }}
                 </p>
                 <template v-if="item.itemDetails">
-                  <p class="text-sm opacity-50">
-                    Tier: {{ item.itemDetails.tier }}
+                  <p
+                    class="text-sm capitalize"
+                    :style="{
+                      'color': getTierColor(item.itemDetails.tier, item.identified)
+                    }"
+                  >
+                    {{ item.itemDetails.tier }}
                   </p>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
                     :key="affix.id"
-                    class="text-sm text-gray-400"
+                    class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">e</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
                     :key="affix.id"
-                    class="text-sm text-blue-400"
+                    class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">p</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.suffix"
                     :key="affix.id"
-                    class="text-sm text-green-400"
+                    class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">s</span>
                   </div>
                 </template>
                 <template v-else>
@@ -165,29 +187,40 @@ const char = gameEngine.getCharacter;
                   {{ item.name }}
                 </p>
                 <template v-if="item.itemDetails">
-                  <p class="text-sm opacity-50">
-                    Tier: {{ item.itemDetails.tier }}
+                  <p
+                    class="text-sm capitalize"
+                    :style="{
+                      'color': getTierColor(item.itemDetails.tier, item.identified)
+                    }"
+                  >
+                    {{ item.itemDetails.tier }}
                   </p>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
                     :key="affix.id"
-                    class="text-sm text-gray-400"
+                    class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">e</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
                     :key="affix.id"
-                    class="text-sm text-blue-400"
+                    class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">p</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.suffix"
                     :key="affix.id"
-                    class="text-sm text-green-400"
+                    class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    {{ formatAffixDescription(affix) }}
+                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <span class="text-right opacity-50 text-amber-200">s</span>
                   </div>
                 </template>
                 <template v-else>

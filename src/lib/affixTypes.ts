@@ -39,6 +39,7 @@ export enum AffixType {
 export enum AffixCategory {
     ATTACK = 'attack',
     DEFENSE = 'defense',
+    EVASION = 'evasion',
     LIFE = 'life',
     MANA = 'mana',
     RESISTANCE = 'resistance',
@@ -86,14 +87,48 @@ export interface IAffix {
         level?: number;
         /** Required attribute values */
         attributes?: {
-            /** Required strength value */
-            strength?: number;
-            /** Required dexterity value */
-            dexterity?: number;
-            /** Required intelligence value */
-            intelligence?: number;
+            /** Required fortitude value - Mental and physical endurance */
+            fortitude?: number;
+            /** Required fortune value - Luck and chance-based outcomes */
+            fortune?: number;
+            /** Required wrath value - Combat prowess and rage */
+            wrath?: number;
+            /** Required affinity value - Connection to magical forces */
+            affinity?: number;
         };
     };
+}
+
+// Dodge chance calculation constants
+export const MAX_DODGE_CHANCE = 0.80; // 80% maximum dodge chance   // 840-1,258 base evasion needed
+export const DODGE_CHANCE_BASE = 0.05; // 5% base dodge chance
+export const DODGE_CHANCE_SCALING = 0.0001; // Scaling factor for dodge chance calculation
+
+// Level-based scaling constants
+export const MIN_LEVEL = 1;
+export const MAX_LEVEL = 100;
+export const MIN_EVASION = 40;
+export const MAX_EVASION = 1000;
+
+/**
+ * Calculates dodge chance based on evasion rating and area level
+ * Formula: base + (1 - base) * (1 - e^(-scaling * normalized_evasion))
+ * Where normalized_evasion scales based on area level
+ */
+export function calculateDodgeChance(evasion: number, level: number): number {
+    // Clamp level between MIN_LEVEL and MAX_LEVEL
+    const clampedLevel = Math.max(MIN_LEVEL, Math.min(level, MAX_LEVEL));
+    
+    // Calculate expected evasion for this level
+    const levelProgress = (clampedLevel - MIN_LEVEL) / (MAX_LEVEL - MIN_LEVEL);
+    const areaLevelRelativeEvasion = MIN_EVASION + (MAX_EVASION - MIN_EVASION) * levelProgress;
+    
+    // Normalize evasion relative to expected value for this level
+    const normalizedEvasion = evasion / areaLevelRelativeEvasion;
+    
+    // Calculate dodge chance using normalized evasion
+    const dodgeChance = DODGE_CHANCE_BASE + (1 - DODGE_CHANCE_BASE) * (1 - Math.exp(-DODGE_CHANCE_SCALING * normalizedEvasion * 1000));
+    return Math.min(dodgeChance, MAX_DODGE_CHANCE);
 }
 
 /**
@@ -123,7 +158,7 @@ export const embeddedAffixes: IAffix[] = [
         maxValue: 12,
         description: '+{value} to Armor',
         tags: ['defense', 'armor'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     {
         id: 'embedded_defense_3',
@@ -135,7 +170,7 @@ export const embeddedAffixes: IAffix[] = [
         maxValue: 18,
         description: '+{value} to Armor',
         tags: ['defense', 'armor'],
-        allowedTiers: ['abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     // Elemental Category
     {
@@ -144,8 +179,8 @@ export const embeddedAffixes: IAffix[] = [
         type: AffixType.EMBEDDED,
         category: AffixCategory.ELEMENTAL,
         tier: 1,
-        minValue: 10,
-        maxValue: 15,
+        minValue: 1,
+        maxValue: 3,
         description: '+{value}% to all Elemental Resistances',
         tags: ['elemental', 'resistance'],
         allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
@@ -157,12 +192,49 @@ export const embeddedAffixes: IAffix[] = [
         type: AffixType.EMBEDDED,
         category: AffixCategory.ELEMENTAL,
         tier: 2,
-        minValue: 15,
-        maxValue: 22,
+        minValue: 2,
+        maxValue: 5,
         description: '+{value}% to all Elemental Resistances',
         tags: ['elemental', 'resistance'],
-        allowedTiers: ['exceptional', 'abstract', 'infused'],
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
         allowedMutations: ['crystallized']
+    },
+    // Evasion Category
+    {
+        id: 'embedded_evasion_1',
+        name: 'Agile',
+        type: AffixType.EMBEDDED,
+        category: AffixCategory.EVASION,
+        tier: 1,
+        minValue: 5,
+        maxValue: 8,
+        description: '+{value} to Evasion',
+        tags: ['defense', 'evasion'],
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    },
+    {
+        id: 'embedded_evasion_2',
+        name: 'Nimble',
+        type: AffixType.EMBEDDED,
+        category: AffixCategory.EVASION,
+        tier: 2,
+        minValue: 8,
+        maxValue: 12,
+        description: '+{value} to Evasion',
+        tags: ['defense', 'evasion'],
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    },
+    {
+        id: 'embedded_evasion_3',
+        name: 'Elusive',
+        type: AffixType.EMBEDDED,
+        category: AffixCategory.EVASION,
+        tier: 3,
+        minValue: 12,
+        maxValue: 18,
+        description: '+{value} to Evasion',
+        tags: ['defense', 'evasion'],
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     }
 ];
 
@@ -193,7 +265,7 @@ export const prefixAffixes: IAffix[] = [
         maxValue: 4,
         description: 'Adds {value} to {value} Physical Damage',
         tags: ['physical', 'attack', 'weapon'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     {
         id: 'prefix_physical_3',
@@ -205,7 +277,7 @@ export const prefixAffixes: IAffix[] = [
         maxValue: 7,
         description: 'Adds {value} to {value} Physical Damage',
         tags: ['physical', 'attack', 'weapon'],
-        allowedTiers: ['abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     // Elemental Category
     {
@@ -230,7 +302,7 @@ export const prefixAffixes: IAffix[] = [
         maxValue: 6,
         description: 'Adds {value} to {value} Fire Damage',
         tags: ['elemental', 'fire', 'attack', 'weapon'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     // Critical Category
     {
@@ -255,7 +327,7 @@ export const prefixAffixes: IAffix[] = [
         maxValue: 12,
         description: '+{value}% to Critical Strike Chance',
         tags: ['critical', 'attack', 'weapon'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     }
 ];
 
@@ -286,7 +358,7 @@ export const suffixAffixes: IAffix[] = [
         maxValue: 12,
         description: '+{value}% to Physical Damage Reduction',
         tags: ['defense', 'physical', 'armor'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     // Life Category
     {
@@ -311,7 +383,7 @@ export const suffixAffixes: IAffix[] = [
         maxValue: 12,
         description: '+{value} to Maximum Life',
         tags: ['life', 'defense'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     },
     // Mana Category
     {
@@ -336,7 +408,7 @@ export const suffixAffixes: IAffix[] = [
         maxValue: 12,
         description: '+{value} to Maximum Mana',
         tags: ['mana', 'spell'],
-        allowedTiers: ['exceptional', 'abstract', 'infused']
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
     }
 ];
 
