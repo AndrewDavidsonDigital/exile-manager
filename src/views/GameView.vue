@@ -19,14 +19,18 @@
   const selectedLevel = ref<ILevel>();
   const levelDelta = computed(() => gameEngine.getCharacter !== -1 ? gameEngine.getCharacter.level : 0);
   const activeTab = ref<TabType>('adventuring');
+  const lastUpdate = ref<number>(Date.now());
   
   type TabType = 'adventuring' | 'loot' | 'town';
   const modalShown = ref<boolean>(false);
+
+  const REPORT_DOM_ID = '_activity-report';
 
   function startAdventuring() {
     if (selectedLevel.value) {
       adventuringStore.startAdventuring(selectedLevel.value);
     }
+    document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
   }
 
   watch(isCharAlive, (newVal) => {
@@ -49,7 +53,7 @@
           { 'opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
         ]"
       >
-        <button @click="activeTab = 'adventuring'">
+        <button @click="activeTab = 'adventuring'; lastUpdate = Date.now()">
           <FluidElement class="w-fit">
             Go Adventuring
           </FluidElement>
@@ -76,6 +80,7 @@
         >
           <LevelSelection
             v-model="selectedLevel"
+            :toggle="lastUpdate"
             :class="isCharAlive ? '' : 'pointer-events-none opacity-50'"
             :levels="levels"
             :character-level="levelDelta"
@@ -95,14 +100,17 @@
         </article>
       </section>
       <div class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]">
-        <FluidElement class="w-full">
+        <FluidElement class="w-full order-2 md:order-1">
           <CharacterState />
         </FluidElement>
-        <FluidElement class="w-full">
+        <FluidElement class="w-full order-1 md:order-2">
           <CharacterEquipment />
         </FluidElement>
       </div>
-      <FluidElement class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b">
+      <FluidElement
+        :id="REPORT_DOM_ID"
+        class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b"
+      >
         <TransitionGroup
           tag="ul" 
           class="flex flex-col last:pb-2"

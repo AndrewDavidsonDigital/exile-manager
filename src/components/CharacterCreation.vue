@@ -12,7 +12,7 @@ import {
 import { FANTASY_NAMES } from '@/lib/characters';
 import { IconRepeat } from './icons';
 
-const emit = defineEmits<{
+const $emit = defineEmits<{
   (_e: 'character-created'): void
 }>();
 
@@ -53,7 +53,7 @@ const createCharacter = () => {
     loot: []
   });
 
-  emit('character-created');
+  $emit('character-created');
 };
 
 function generateName() {

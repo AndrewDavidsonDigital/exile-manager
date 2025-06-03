@@ -288,7 +288,8 @@ const groupedAffixes = computed(() => {
               gap-2 items-center
               text-sm
 
-              md:!grid
+              md:!grid 
+              md:-my-3
 
               [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
               [&>div]:text-center md:[&>div]:text-left

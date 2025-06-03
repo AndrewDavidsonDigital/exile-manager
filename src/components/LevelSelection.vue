@@ -1,20 +1,36 @@
 <script setup lang="ts">
 import FluidElement from '@/components/FluidElement.vue';
 import type { ILevel } from '@/lib/game';
+import { computed, watch, ref } from 'vue';
 
 interface Props {
   levels: ILevel[];
   class: string;
+  toggle: number;
   characterLevel: number;
   isAdventuring: boolean;
   modelValue?: ILevel;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
+const $emit = defineEmits<{
   'update:modelValue': [value: ILevel];
   'start-adventuring': [];
 }>();
+
+const lastUpdated = computed( () => props.toggle);
+const isCollapsed = ref(false);
+
+watch(lastUpdated, () => {
+  console.log(`${Date.now()}: Force Show _____`);
+  isCollapsed.value = false;
+})
+
+function startAdventuring(){  
+  $emit('start-adventuring');
+  isCollapsed.value = true;
+}
+
 </script>
 
 <template>
@@ -22,15 +38,39 @@ const emit = defineEmits<{
     class="flex gap-2 flex-col items-center"
     :class="props.class"
   >
-    <h2>Select Level</h2>
-    <div class="flex gap-2 justify-center flex-wrap">
+    <div class="flex items-center gap-2 w-full mb-2">
+      <button 
+        class="mx-auto text-sm w-fit"
+        @click="isCollapsed = !isCollapsed"
+      >
+        <h2>
+          Select Level <span
+            class="duration-300 ease-in-out transition-all"
+            :class="[
+              { 'rotate-90': isCollapsed }
+            ]"
+          > ▼ </span>
+        </h2>
+      </button>
+    </div>
+    <div 
+      class="flex gap-2 justify-center flex-wrap transition-all duration-300 my-4"
+      :class="{ 'max-h-0 !my-0 overflow-clip': isCollapsed, 'max-h-[1000px]': !isCollapsed }"
+    >
       <template
         v-for="level, index in levels"
         :key="`level_button_${index}`"
       >
         <FluidElement 
           v-if="characterLevel !== -1"
-          class="w-fit !p-2 !border min-w-[15vw]"
+          class="
+            w-fit min-w-[15vw]
+            !p-2 !border 
+
+            transition-all duration-500
+            hover:z-10
+            hover:scale-125
+          "
           :class="[
             { '!border-neutral-600' : (level.areaLevel - characterLevel) < -1},
             { '!border-emerald-600' : (level.areaLevel - characterLevel) <= 0},
@@ -42,7 +82,7 @@ const emit = defineEmits<{
           <button
             class="flex flex-col mx-auto"
             :disabled="isAdventuring"
-            @click="() => emit('update:modelValue', level)"
+            @click="$emit('update:modelValue', level)"
           >
             <p>{{ level.name }}</p>
             <p class="text-sm opacity-50">
@@ -74,7 +114,7 @@ const emit = defineEmits<{
         v-if="modelValue !== undefined"
         class="mx-auto"
         :disabled="isAdventuring"
-        @click="emit('start-adventuring')"
+        @click="startAdventuring"
       >
         Enter: <span class="italic">{{ modelValue.name }}</span>
       </button>

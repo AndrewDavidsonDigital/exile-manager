@@ -5,7 +5,6 @@ import type {
   IDifficulty, 
   ICharacter, 
   ICharacterStats,
-  ICharacterEquipment,
   ILoot,
   ItemTierType,
   ICombatStat,
@@ -23,7 +22,7 @@ import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
-import { allItemTypes } from '@/lib/itemUtils';
+import { allItemTypes, slotMap } from '@/lib/itemUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.4';
@@ -651,19 +650,6 @@ export const useGameEngine = defineStore('gameEngine', {
       // Use the item's explicit type field
       const itemType = item.type;
 
-      // Map item types to equipment slots
-      const slotMap: Record<ItemType, keyof ICharacterEquipment> = {
-        'Sword': 'weapon',
-        'Shield': 'weapon',
-        'Amulet': 'neck',
-        'Ring': 'leftHand', // Default slot for rings
-        'Boots': 'feet',
-        'Gloves': 'arms',
-        'Helmet': 'head',
-        'Armor': 'chest',
-        'Shoulders': 'shoulders',
-        'Pants': 'legs'
-      };
 
       let slot = slotMap[itemType];
       

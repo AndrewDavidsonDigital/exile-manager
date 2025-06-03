@@ -1,4 +1,4 @@
-import type { ItemTierType, ItemType } from './game';
+import type { ICharacterEquipment, ItemTierType, ItemType } from './game';
 
 export const allItemTypes: ItemType[] = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'];
 
@@ -13,6 +13,21 @@ export const itemTypeEmojiMap: Record<ItemType, string> = {
   'Armor': '🥋',
   'Shoulders': '🧥',
   'Pants': '👖'
+};
+
+
+// Map item types to equipment slots
+export const slotMap: Record<ItemType, keyof ICharacterEquipment> = {
+  'Sword': 'weapon',
+  'Shield': 'weapon',
+  'Amulet': 'neck',
+  'Ring': 'leftHand', // Default slot for rings
+  'Boots': 'feet',
+  'Gloves': 'arms',
+  'Helmet': 'head',
+  'Armor': 'chest',
+  'Shoulders': 'shoulders',
+  'Pants': 'legs'
 };
 
 /**

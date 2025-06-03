@@ -5,7 +5,7 @@ import { computed, ref } from 'vue';
 import type { ILoot, ItemType } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
-import { getTierColor, allItemTypes, itemTypeEmojiMap } from '@/lib/itemUtils';
+import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap } from '@/lib/itemUtils';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
@@ -100,6 +100,48 @@ function deleteSelectedLoot(){
   char.loot.splice(deletableIndex, 1);
 }
 
+const selectedItemIndex = computed(()=>{  
+  const char = gameEngine.getCharacter;
+  let toResolveId = selectedLoot.value?._identifier;
+  if(char === -1 || !toResolveId){
+    return null;
+  }
+  return char.loot.findIndex(loot => loot._identifier === toResolveId);
+})
+
+const hasPrev = computed(()=>{
+  if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value))){
+    return false;
+  }
+  return selectedItemIndex.value > 0
+});
+
+const hasNext = computed(()=>{
+  const char = gameEngine.getCharacter;
+  if(char === -1){
+    return false;
+  }
+  if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value))){
+    return false;
+  }
+  return selectedItemIndex.value < (char.loot.length -1 )
+});
+
+
+function selectLootNeighbour(forwards: boolean = false){
+  console.log('selecting neighbour: next?:', forwards);
+  const char = gameEngine.getCharacter;
+  if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value)) || char === -1){
+    return;
+  }
+
+  if(forwards){
+    selectLoot(char.loot[selectedItemIndex.value + 1]);
+  } else {
+    selectLoot(char.loot[selectedItemIndex.value - 1]);
+  }
+}
+
 </script>
 
 <template>
@@ -113,7 +155,7 @@ function deleteSelectedLoot(){
             { 'opacity-50': activeTab !== 'inventory' },
             { 'pointer-events-none': activeTab === 'inventory' }
           ]"
-          @click="activeTab = 'inventory'"
+          @click="activeTab = 'inventory'; selectedLoot = undefined;"
         >
           <FluidElement class="w-fit !p-2">
             Inventory {{ character !== -1 ? character.loot.length : 0 }}
@@ -124,7 +166,7 @@ function deleteSelectedLoot(){
             { 'opacity-50': activeTab !== 'stash' },
             { 'pointer-events-none': activeTab === 'stash' }
           ]"
-          @click="activeTab = 'stash'"
+          @click="activeTab = 'stash'; selectedLoot = undefined;"
         >
           <FluidElement class="w-fit !p-2">
             Stash {{ gameEngine.stash?.length || 0 }}
@@ -187,12 +229,6 @@ function deleteSelectedLoot(){
               <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
                 <p>{{ loot.name }}</p>
               </div>
-              <p 
-                v-if="!loot.identified"
-                class="text-sm opacity-50"
-              >
-                Unidentified
-              </p>
             </div>
           </FluidElement>
         </template>
@@ -282,6 +318,24 @@ function deleteSelectedLoot(){
             title="Delete selected Item"
           >
             ❌
+          </FluidElement>
+        </button>
+      </div>
+      <div class="flex md:hidden justify-between">
+        <button
+          :disabled="!hasPrev"
+          @click="selectLootNeighbour()"
+        >
+          <FluidElement class="!py-1 !px-2">
+            {{ '<' }}
+          </FluidElement>
+        </button>
+        <button
+          :disabled="!hasNext"
+          @click="selectLootNeighbour(true)"
+        >
+          <FluidElement class="!py-1 !px-2">
+            >
           </FluidElement>
         </button>
       </div>
@@ -381,7 +435,7 @@ function deleteSelectedLoot(){
             @click="equipSelectedLoot"
           >
             <FluidElement class="!p-2 mt-auto">
-              Equip Item
+              Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
             </FluidElement>
           </button>
           <button
