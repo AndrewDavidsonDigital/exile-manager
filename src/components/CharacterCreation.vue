@@ -9,6 +9,8 @@ import {
   generateClassStats,
   DIFFICULTY_SETTINGS
 } from '@/lib/game';
+import { FANTASY_NAMES } from '@/lib/characters';
+import { IconRepeat } from './icons';
 
 const emit = defineEmits<{
   (_e: 'character-created'): void
@@ -53,6 +55,12 @@ const createCharacter = () => {
 
   emit('character-created');
 };
+
+function generateName() {
+  const randomIndex = Math.floor(Math.random() * FANTASY_NAMES.length);
+  characterName.value = FANTASY_NAMES[randomIndex];
+}
+
 </script>
 
 <template>
@@ -68,15 +76,23 @@ const createCharacter = () => {
           for="character-name"
           class="text-gray-300"
         >Character Name</label>
-        <input
-          id="character-name"
-          v-model="characterName"
-          type="text"
-          class="px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          placeholder="Enter your name"
-          aria-label="Character name"
-          auto
-        />
+        <div class="w-full grid-area-stack">
+          <button
+            class="mr-2 ml-auto my-auto z-10"
+            @click="generateName"
+          >
+            <IconRepeat class="text-emerald-400" />
+          </button>
+          <input
+            id="character-name"
+            v-model="characterName"
+            type="text"
+            class="px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Enter your name"
+            aria-label="Character name"
+            auto
+          />
+        </div>
       </div>
 
       <!-- Class Selection -->
