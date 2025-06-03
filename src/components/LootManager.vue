@@ -321,9 +321,13 @@ function selectLootNeighbour(forwards: boolean = false){
           </FluidElement>
         </button>
       </div>
-      <div class="flex justify-between">
+      <div
+        v-if="selectedLoot"
+        class="flex justify-between"
+      >
         <button
           :disabled="!hasPrev"
+          class="disabled:pointer-events-none"
           @click="selectLootNeighbour()"
         >
           <FluidElement class="!py-1 !px-2">
@@ -332,6 +336,7 @@ function selectLootNeighbour(forwards: boolean = false){
         </button>
         <button
           :disabled="!hasNext"
+          class="disabled:pointer-events-none"
           @click="selectLootNeighbour(true)"
         >
           <FluidElement class="!py-1 !px-2">
