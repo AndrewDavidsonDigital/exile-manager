@@ -495,8 +495,10 @@ export const useGameEngine = defineStore('gameEngine', {
         // Generate a random item type
         const type: ItemType = (allItemTypes)[Math.floor(Math.random() * allItemTypes.length)];
 
+        const id = generateRandomId(); // Temporary name until identified;
         const newLoot: ILoot = {
-          name: generateRandomId(), // Temporary name until identified
+          name: id,
+          _identifier: id,
           type: type, // Set the type here
           identified: false,
           _hidden: {
