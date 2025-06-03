@@ -90,12 +90,14 @@ function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
 
 function deleteSelectedLoot(){
   const char = gameEngine.getCharacter;
-  let foo = selectedLoot.value?.name;
-  if(char === -1 || !foo){
+  let toDeleteId = selectedLoot.value?._identifier;
+  if(char === -1 || !toDeleteId){
     return;
   }
-  const deletableIndex = char.loot.findIndex(loot => loot._identifier === foo);
-  console.log(`to delete item [${deletableIndex}] as item: ${JSON.stringify(char.loot[deletableIndex])}`)
+  const deletableIndex = char.loot.findIndex(loot => loot._identifier === toDeleteId);
+  // console.log(`to delete item [${deletableIndex}] as item: ${JSON.stringify(char.loot[deletableIndex])}`)
+  selectedLoot.value = undefined;
+  char.loot.splice(deletableIndex, 1);
 }
 
 </script>
