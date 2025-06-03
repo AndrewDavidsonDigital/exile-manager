@@ -18,7 +18,7 @@ export const releases: IRelease[] = [
       'Add ability to delete items',
       "Fix issue where value ranges could end up with equal min and max values, i.e: no more `adds 3 to 3 physical damage`"
     ],
-    commit: 'TBD',
+    commit: '73a1ca22670825cc63b97c3959b251915732c54e',
   },
   {
     version: '0.0.3',
