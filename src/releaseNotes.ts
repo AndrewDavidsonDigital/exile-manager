@@ -13,7 +13,7 @@ export const releases: IRelease[] = [
       'Visual UI tweaks and restructuring',
       'Enhanced UX when starting-missions',
       'Added Roadmap',
-      'Added selected item traversal ( prev / next item ) for mobile',
+      'Added selected item traversal ( prev / next item ) for mobile, ... ok desktop can have this too',
     ],
     commit: '1abbe3caa66cf9eda205e22a042f625a69a0a1d3',
   },

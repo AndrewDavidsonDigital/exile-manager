@@ -321,7 +321,7 @@ function selectLootNeighbour(forwards: boolean = false){
           </FluidElement>
         </button>
       </div>
-      <div class="flex md:hidden justify-between">
+      <div class="flex justify-between">
         <button
           :disabled="!hasPrev"
           @click="selectLootNeighbour()"
