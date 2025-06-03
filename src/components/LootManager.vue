@@ -2,13 +2,14 @@
 import FluidElement from '@/components/FluidElement.vue';
 import { useGameEngine } from '@/stores/game';
 import { computed, ref } from 'vue';
-import type { ILoot } from '@/lib/game';
+import type { ILoot, ItemType } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
-import { getTierColor } from '@/lib/itemUtils';
+import { getTierColor, allItemTypes, itemTypeEmojiMap } from '@/lib/itemUtils';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
+const lootFilter = ref<ItemType | undefined>(undefined);
 const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
 type ManageLootTabType = 'inventory' | 'stash';
@@ -70,6 +71,23 @@ const canAffordIdentification = (loot: ILoot): boolean => {
   if (!character.value || character.value === -1) return false;
   return character.value.gold >= getIdentificationCost(loot);
 };
+
+function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
+  if (lootFilter.value === undefined) {
+    return false;
+  }
+
+  if (!isIdentified){
+    return true;
+  }
+
+  if (lootFilter.value !== type) {
+    return true;
+  }
+
+  return false;
+}
+
 </script>
 
 <template>
@@ -102,6 +120,37 @@ const canAffordIdentification = (loot: ILoot): boolean => {
         </button>
       </div>
 
+      <!-- Filter Buttons -->
+      <div class="flex flex-wrap gap-1 mb-4">
+        <button
+          :class="[
+            { 'opacity-50': lootFilter !== undefined },
+            { 'pointer-events-none': lootFilter === undefined }
+          ]"
+          @click="lootFilter = undefined"
+        >
+          <FluidElement class="w-fit !p-1">
+            Clear Filter
+          </FluidElement>
+        </button>
+        <button
+          v-for="type in allItemTypes"
+          :key="type"
+          :class="[
+            { 'opacity-50': lootFilter !== type },
+            { 'pointer-events-none': lootFilter === type }
+          ]"
+          @click="lootFilter = type"
+        >
+          <FluidElement
+            class="w-fit !p-1"
+            :title="type"
+          >
+            {{ itemTypeEmojiMap[type] }}
+          </FluidElement>
+        </button>
+      </div>
+
       <!-- Loot List -->
       <div class="flex flex-wrap gap-2">
         <template v-if="activeTab === 'inventory' && character !== -1 && character.loot.length > 0">
@@ -109,6 +158,9 @@ const canAffordIdentification = (loot: ILoot): boolean => {
             v-for="(loot, index) in character.loot"
             :key="`loot_${index}`"
             class="w-fit !p-2 !border cursor-pointer loot-item"
+            :class="[
+              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified) },
+            ]"
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
             }"
@@ -137,6 +189,9 @@ const canAffordIdentification = (loot: ILoot): boolean => {
             v-for="(loot, index) in gameEngine.stash"
             :key="`stash_${index}`"
             class="w-fit !p-2 !border cursor-pointer loot-item"
+            :class="[
+              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified) },
+            ]"
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
             }"
@@ -221,8 +276,15 @@ const canAffordIdentification = (loot: ILoot): boolean => {
         
         <template v-if="selectedLoot?.itemDetails">
           <div>
-            <p class="text-sm opacity-50">
-              Tier: {{ selectedLoot?.itemDetails.tier }}
+            <p class="text-sm">
+              Tier: <span
+                class="dynamic-loot-text capitalize"
+                :style="{
+                  '--loot-text-color': getTierColor(selectedLoot.itemDetails?.tier, selectedLoot.identified)
+                }"
+              >
+                {{ selectedLoot?.itemDetails.tier }}
+              </span>
             </p>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
@@ -279,15 +341,26 @@ const canAffordIdentification = (loot: ILoot): boolean => {
         </button>
 
         <!-- Equip Button -->
-        <button
-          v-if="selectedLoot && selectedLoot.identified"
-          class="mt-auto"
-          @click="equipSelectedLoot"
-        >
-          <FluidElement class="w-fit !p-2 mt-auto">
-            Equip Item
-          </FluidElement>
-        </button>
+        <section class="flex justify-between">
+          <button
+            v-if="selectedLoot && selectedLoot.identified"
+            class="w-fit mt-auto"
+            @click="equipSelectedLoot"
+          >
+            <FluidElement class="!p-2 mt-auto">
+              Equip Item
+            </FluidElement>
+          </button>
+          <button
+            v-if="selectedLoot && selectedLoot.identified"
+            class="w-fit mt-auto"
+            @click="selectedLoot = undefined"
+          >
+            <FluidElement class="!p-2 mt-auto">
+              Deselect Item
+            </FluidElement>
+          </button>
+        </section>
       </div>
     </FluidElement>
   </div>
@@ -343,5 +416,9 @@ const canAffordIdentification = (loot: ILoot): boolean => {
 
 .loot-item[data-selected="true"] {
   border-color: var(--loot-border-color-selected);
+}
+
+.dynamic-loot-text {
+  color: var(--loot-text-color, white);
 }
 </style> 

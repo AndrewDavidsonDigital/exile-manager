@@ -23,6 +23,7 @@ import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
+import { allItemTypes } from '@/lib/itemUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.2';
@@ -492,7 +493,7 @@ export const useGameEngine = defineStore('gameEngine', {
       // Generate random loot items
       for (let i = 0; i < totalLoot; i++) {
         // Generate a random item type
-        const type: ItemType = (['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'] as ItemType[])[Math.floor(Math.random() * 10)];
+        const type: ItemType = (allItemTypes)[Math.floor(Math.random() * allItemTypes.length)];
 
         const newLoot: ILoot = {
           name: generateRandomId(), // Temporary name until identified

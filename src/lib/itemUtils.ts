@@ -1,4 +1,19 @@
-import type { ItemTierType } from './game';
+import type { ItemTierType, ItemType } from './game';
+
+export const allItemTypes: ItemType[] = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'];
+
+export const itemTypeEmojiMap: Record<ItemType, string> = {
+  'Sword': '⚔️',
+  'Shield': '🛡️',
+  'Amulet': '📿',
+  'Ring': '💍',
+  'Boots': '👢',
+  'Gloves': '🧤',
+  'Helmet': '🪖',
+  'Armor': '🥋',
+  'Shoulders': '🧥',
+  'Pants': '👖'
+};
 
 /**
  * Gets the border color for an item based on its tier and identification status

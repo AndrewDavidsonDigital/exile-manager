@@ -15,6 +15,7 @@ const isLevelingUp = ref(false);
 const healthPulseType = ref<'damage' | 'heal'>('damage');
 const manaPulseType = ref<'gain' | 'loss'>('gain');
 const showDetailedStats = ref(false);
+const showStats = ref(true);
 
 const hasEquippedItems = computed(() => {
   if (char === -1) return false;
@@ -190,7 +191,7 @@ const groupedAffixes = computed(() => {
 
 <template>
   <div 
-    class="flex flex-col gap-4 p-4 bg-gray-800 rounded-lg border-4 relative border-transparent"
+    class="flex flex-col gap-3 p-4 bg-gray-800 rounded-lg border-4 relative border-transparent"
     :class="[
       isLevelingUp ? 'animate-snake-border' : ''
     ]"
@@ -223,7 +224,7 @@ const groupedAffixes = computed(() => {
         </div>
       </div>
 
-      <!-- Stats Section -->
+
       <div
         class="
           grid grid-cols-1 md:grid-cols-2 
@@ -234,7 +235,7 @@ const groupedAffixes = computed(() => {
           [&>div]:text-center md:[&>div]:text-left
         "
       >
-        <div>
+        <div class="ml-2 px-2">
           <span class="text-gray-400">Health:</span>
           <span 
             class="ml-2 px-2 py-1  place-self-center md:place-self-start" 
@@ -249,7 +250,7 @@ const groupedAffixes = computed(() => {
             >{{ gameEngine.getCombatStats.health }}</span>/<span>{{ gameEngine.getCombatStats.maxHealth }}</span>
           </span>
         </div>
-        <div>
+        <div class="ml-2 px-2">
           <span class="text-gray-400">Mana:</span>
           <span 
             class="text-blue-400 ml-2 px-2 py-1 place-self-center md:place-self-start"
@@ -258,106 +259,143 @@ const groupedAffixes = computed(() => {
           ><span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
           </span>
         </div>
-        <div>
-          <span class="text-gray-400">Damage:</span>
-          <span 
-            class="text-slate-400 ml-2 px-2 py-1"
-            :class="{ 'pulse-dynamic': isManaPulsing }"
-            :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-          ><span>~{{ gameEngine.getCombatStats.damagePerTick }} (
-            <span
-              title="Base"
-              class="text-slate-200"
-            >{{ gameEngine.getCombatStats.baseDamagePerTick }}</span>
-            <span
-              v-if="gameEngine.getCombatStats.damage.physical > 0"
-              title="Physical"
-            >+<span class="text-slate-400">{{ gameEngine.getCombatStats.damage.physical }}</span></span>
-            <span
-              v-if="gameEngine.getCombatStats.damage.elemental.cold > 0"
-              title="Cold"
-            >+<span class="text-blue-400">{{ gameEngine.getCombatStats.damage.elemental.cold }}</span></span>
-            <span
-              v-if="gameEngine.getCombatStats.damage.elemental.fire > 0"
-              title="Fire"
-            >+<span class="text-red-400">{{ gameEngine.getCombatStats.damage.elemental.fire }}</span></span>
-            <span
-              v-if="gameEngine.getCombatStats.damage.elemental.lightning > 0"
-              title="Lightning"
-            >+<span class="text-amber-400">{{ gameEngine.getCombatStats.damage.elemental.lightning }}</span></span>
-            <span
-              v-if="gameEngine.getCombatStats.damage.corruption.void > 0"
-              title="Void"
-            >+<span class="text-purple-400">{{ gameEngine.getCombatStats.damage.corruption.void }}</span></span>
-            <span
-              v-if="gameEngine.getCombatStats.damage.corruption.mental > 0"
-              title="Mental"
-            >+<span class="text-pink-400">{{ gameEngine.getCombatStats.damage.corruption.mental }}</span></span>
-            )</span>
-          </span>
-        </div>
-        <div>
-          <span class="text-gray-400">Mitigation:</span>
-          <span 
-            class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start"
-            :class="{ 'pulse-dynamic': isManaPulsing }"
-            :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-          >
-            <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value">Dodge: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value || 0 }}%</span>
-            <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'block')?.value">Block: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'block')?.value || 0 }}%</span>
-          </span>
-        </div>
-        <div>
-          <span class="text-gray-400">Resist:</span>
-          <span 
-            class="text-slate-400 ml-2 px-2 inline-flex gap-x-1 w-full justify-center md:justify-start"
-            :class="{ 'pulse-dynamic': isManaPulsing }"
-            :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-          >
-            <span
-              title="Physical Resist"
-              class="text-slate-400"
-            >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'physical')?.value || 0 }}%</span>
-            <span
-              title="Cold Resist"
-              class="text-blue-300"
-            >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_cold')?.value || 0 }}%</span>
-            <span
-              title="Fire Resist"
-              class="text-red-300"
-            >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_fire')?.value || 0 }}%</span>
-            <span
-              title="Lightning Resist"
-              class="text-amber-300"
-            >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_lightning')?.value || 0 }}%</span>
-          </span>
-        </div>
-        <div>
-          <span class="text-gray-400">Sanity:</span>
-          <span 
-            class="text-slate-400 ml-2 px-2"
-            :class="{ 'pulse-dynamic': isManaPulsing }"
-            :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-          >
-            <span
-              title="Void Corruption"
-              class="text-purple-300"
-            >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_void')?.value || 0 }}%  </span>
-            <span
-              title="Mental Corruption"
-              class="text-pink-300"
-            >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_mental')?.value || 0 }}%  </span>
-          </span>
-        </div>
-        <template
-          v-for="stat in orderedStats"
-          :key="stat"
+      </div>
+
+      <!-- Stats Section -->
+      <div class="relative">
+        <button 
+          class="md:hidden flex items-center gap-2 text-gray-400 hover:text-gray-300 mb-2"
+          @click="showStats = !showStats"
         >
-          <div class="ml-2  px-2">
-            <span class="text-gray-400">{{ stat.charAt(0).toUpperCase() + stat.slice(1) }}:</span>
-            <span :class="[getStatColor(stat), 'ml-2']">{{ gameEngine.getCombatStats.attributes[stat] }}</span>
+          <span 
+            class="transform transition-transform duration-300 ease-in-out"
+            :class="{ 'rotate-90': showStats }"
+          >></span>
+          Stats
+        </button>
+        <Transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="transform -translate-y-2 opacity-0"
+          enter-to-class="transform translate-y-0 opacity-100"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="transform translate-y-0 opacity-100"
+          leave-to-class="transform -translate-y-2 opacity-0"
+        >
+          <div
+            v-show="showStats"
+            class="
+              grid grid-cols-1 md:grid-cols-2 
+              gap-2 items-center
+              text-sm
+
+              md:!grid
+
+              [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
+              [&>div]:text-center md:[&>div]:text-left
+            "
+          >
+            <div class="ml-2 px-2">
+              <span class="text-gray-400">Damage:</span>
+              <span 
+                class="text-slate-400 ml-2 px-2 py-1"
+                :class="{ 'pulse-dynamic': isManaPulsing }"
+                :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
+              ><span>~{{ gameEngine.getCombatStats.damagePerTick }} (
+                <span
+                  title="Base"
+                  class="text-slate-200"
+                >{{ gameEngine.getCombatStats.baseDamagePerTick }}</span>
+                <span
+                  v-if="gameEngine.getCombatStats.damage.physical > 0"
+                  title="Physical"
+                >+<span class="text-slate-400">{{ gameEngine.getCombatStats.damage.physical }}</span></span>
+                <span
+                  v-if="gameEngine.getCombatStats.damage.elemental.cold > 0"
+                  title="Cold"
+                >+<span class="text-blue-400">{{ gameEngine.getCombatStats.damage.elemental.cold }}</span></span>
+                <span
+                  v-if="gameEngine.getCombatStats.damage.elemental.fire > 0"
+                  title="Fire"
+                >+<span class="text-red-400">{{ gameEngine.getCombatStats.damage.elemental.fire }}</span></span>
+                <span
+                  v-if="gameEngine.getCombatStats.damage.elemental.lightning > 0"
+                  title="Lightning"
+                >+<span class="text-amber-400">{{ gameEngine.getCombatStats.damage.elemental.lightning }}</span></span>
+                <span
+                  v-if="gameEngine.getCombatStats.damage.corruption.void > 0"
+                  title="Void"
+                >+<span class="text-purple-400">{{ gameEngine.getCombatStats.damage.corruption.void }}</span></span>
+                <span
+                  v-if="gameEngine.getCombatStats.damage.corruption.mental > 0"
+                  title="Mental"
+                >+<span class="text-pink-400">{{ gameEngine.getCombatStats.damage.corruption.mental }}</span></span>
+                )</span>
+              </span>
+            </div>
+            <div class="ml-2  px-2">
+              <span class="text-gray-400">Mitigation:</span>
+              <span 
+                class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start"
+                :class="{ 'pulse-dynamic': isManaPulsing }"
+                :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
+              >
+                <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value">Dodge: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value || 0 }}%</span>
+                <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'block')?.value">Block: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'block')?.value || 0 }}%</span>
+              </span>
+            </div>
+            <div class="ml-2  px-2">
+              <span class="text-gray-400">Resist:</span>
+              <span 
+                class="text-slate-400 ml-2 px-2 inline-flex gap-x-1 w-full justify-center md:justify-start"
+                :class="{ 'pulse-dynamic': isManaPulsing }"
+                :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
+              >
+                <span
+                  title="Physical Resist"
+                  class="text-slate-400"
+                >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'physical')?.value || 0 }}%</span>
+                <span
+                  title="Cold Resist"
+                  class="text-blue-300"
+                >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_cold')?.value || 0 }}%</span>
+                <span
+                  title="Fire Resist"
+                  class="text-red-300"
+                >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_fire')?.value || 0 }}%</span>
+                <span
+                  title="Lightning Resist"
+                  class="text-amber-300"
+                >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_lightning')?.value || 0 }}%</span>
+              </span>
+            </div>
+            <div class="ml-2  px-2">
+              <span class="text-gray-400">Sanity:</span>
+              <span 
+                class="text-slate-400 ml-2 px-2"
+                :class="{ 'pulse-dynamic': isManaPulsing }"
+                :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
+              >
+                <span
+                  title="Void Corruption"
+                  class="text-purple-300"
+                >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_void')?.value || 0 }}%  </span>
+                <span
+                  title="Mental Corruption"
+                  class="text-pink-300"
+                >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_mental')?.value || 0 }}%  </span>
+              </span>
+            </div>
+            <template
+              v-for="stat in orderedStats"
+              :key="stat"
+            >
+              <div class="ml-2  px-2">
+                <span class="text-gray-400">{{ stat.charAt(0).toUpperCase() + stat.slice(1) }}:</span>
+                <span :class="[getStatColor(stat), 'ml-2']">{{ gameEngine.getCombatStats.attributes[stat] }}</span>
+              </div>
+            </template>
           </div>
-        </template>
+        </Transition>
       </div>
 
       <div 
@@ -395,7 +433,7 @@ const groupedAffixes = computed(() => {
             class="transform transition-transform duration-300 ease-in-out text-gray-400"
             :class="{ 'rotate-90': showDetailedStats }"
           >></span>
-          Detailed Stats
+          Equipment Stats
         </button>
         <Transition
           enter-active-class="transition duration-300 ease-out"
