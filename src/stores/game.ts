@@ -185,7 +185,7 @@ export const useGameEngine = defineStore('gameEngine', {
                 //   mitigation.value += getAffixValue(affix);
                 // }
               } else if (affixDef.type === AffixType.PREFIX) {
-                retval.damage.physical += getAffixValue(affix);
+                retval.damage.physical += resolveAverageOfRange(getAffixValueRange(affix));
               }
               break;
             case 'defense':
