@@ -43,14 +43,6 @@
       <FluidElement>
         <WorldState />
       </FluidElement>
-      <div class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]">
-        <FluidElement class="w-full">
-          <CharacterState />
-        </FluidElement>
-        <FluidElement class="w-full">
-          <CharacterEquipment />
-        </FluidElement>
-      </div>
       <article
         class="flex gap-2 justify-center"
         :class="[
@@ -102,6 +94,14 @@
           </FluidElement>
         </article>
       </section>
+      <div class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]">
+        <FluidElement class="w-full">
+          <CharacterState />
+        </FluidElement>
+        <FluidElement class="w-full">
+          <CharacterEquipment />
+        </FluidElement>
+      </div>
       <FluidElement class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b">
         <TransitionGroup
           tag="ul" 
