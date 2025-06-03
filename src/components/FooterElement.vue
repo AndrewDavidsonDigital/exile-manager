@@ -30,6 +30,14 @@
     >
       Purge Save Data - only use if game broken
     </button>
+    <div>
+      <RouterLink
+        :to="{ name: 'releaseNotes' }"
+        class="truncate duration-500 hover:text-orange-400"
+      >
+        Release Notes
+      </RouterLink>
+    </div>
     <div>© {{ (new Date()).getFullYear() }}</div>
     <div>
       Contact: 
