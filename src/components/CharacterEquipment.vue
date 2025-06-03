@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { getTierColor } from '@/lib/itemUtils';
-import { formatAffixDescription, type ILoot } from '@/lib/game';
+import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/lib/game';
+import { inject } from 'vue';
 
+const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
 
@@ -46,6 +48,25 @@ function alertStats(item: ILoot | undefined){
   alert(output);
 }
 
+function unequipItem(slot: keyof ICharacterEquipment) {
+  if (!char || char === -1) return;
+
+
+  if (!ctrlPressed || ctrlPressed.value !== true){
+    return
+  }
+  
+  const item = char.equipment[slot];
+  if (!item) return;
+
+  // Add item to inventory
+  char.loot.push(item);
+  // Clear equipment slot
+  char.equipment[slot] = undefined;
+  // Save state
+  gameEngine.saveState();
+}
+
 </script>
 
 <template>
@@ -58,7 +79,7 @@ function alertStats(item: ILoot | undefined){
           Armor
         </summary>
         <div class="mt-2 grid grid-cols-3 gap-2">
-          <div 
+          <button 
             v-for="(item, slot) in { 
               shoulders: char.equipment.shoulders,
               head: char.equipment.head, 
@@ -69,9 +90,15 @@ function alertStats(item: ILoot | undefined){
             }"
             :key="slot"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-            :class="{ 'opacity-50': !item }"
+            :class="[
+              { 'opacity-50 pointer-events-none': !item },
+              { '!border-red-500': ctrlPressed && item }
+            ]"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
             @touchend="() => alertStats(item)"
+            @click="() => item && unequipItem(slot)"
+            @keydown.enter="() => item && unequipItem(slot)"
+            @keydown.space="() => item && unequipItem(slot)"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
             <div
@@ -127,7 +154,7 @@ function alertStats(item: ILoot | undefined){
                 </template>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </details>
 
@@ -138,13 +165,19 @@ function alertStats(item: ILoot | undefined){
           Weapons
         </summary>
         <div class="mt-2 grid grid-cols-1 gap-2">
-          <div 
+          <button 
             v-for="(item, slot) in { weapon: char.equipment.weapon }"
             :key="slot"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-            :class="{ 'opacity-50': !item }"
+            :class="[
+              { 'opacity-50 pointer-events-none': !item },
+              { '!border-red-500': ctrlPressed && item }
+            ]"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
             @touchend="() => alertStats(item)"
+            @click="() => item && unequipItem(slot)"
+            @keydown.enter="() => item && unequipItem(slot)"
+            @keydown.space="() => item && unequipItem(slot)"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
             <div
@@ -200,7 +233,7 @@ function alertStats(item: ILoot | undefined){
                 </template>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </details>
 
@@ -211,13 +244,19 @@ function alertStats(item: ILoot | undefined){
           Accessories
         </summary>
         <div class="mt-2 grid grid-cols-3 gap-2">
-          <div 
+          <button 
             v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
             :key="slot"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-            :class="{ 'opacity-50': !item }"
+            :class="[
+              { 'opacity-50 pointer-events-none': !item },
+              { '!border-red-500': ctrlPressed && item }
+            ]"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
             @touchend="() => alertStats(item)"
+            @click="() => item && unequipItem(slot)"
+            @keydown.enter="() => item && unequipItem(slot)"
+            @keydown.space="() => item && unequipItem(slot)"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
             <div
@@ -273,9 +312,10 @@ function alertStats(item: ILoot | undefined){
                 </template>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </details>
+      <blockquote>Un-equip item by holding CTRL</blockquote>
     </template>
   </div>
 </template>
@@ -311,5 +351,9 @@ function alertStats(item: ILoot | undefined){
 
   .tooltip-parent:hover .tooltip {
     @apply block;
+  }
+
+  button {
+    @apply w-full h-full;
   }
 </style> 
