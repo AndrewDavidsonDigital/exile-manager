@@ -57,21 +57,21 @@
           { 'opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
         ]"
       >
-        <FluidElement class="w-fit">
-          <button @click="activeTab = 'adventuring'">
+        <button @click="activeTab = 'adventuring'">
+          <FluidElement class="w-fit">
             Go Adventuring
-          </button>
-        </FluidElement>
-        <FluidElement class="w-fit">
-          <button @click="activeTab = 'loot'">
+          </FluidElement>
+        </button>
+        <button @click="activeTab = 'loot'">
+          <FluidElement class="w-fit">
             Manage Loot
-          </button>
-        </FluidElement>
-        <FluidElement class="w-fit">
-          <button @click="activeTab = 'town'">
+          </FluidElement>
+        </button>
+        <button @click="activeTab = 'town'">
+          <FluidElement class="w-fit">
             Goto Town - NYI
-          </button>
-        </FluidElement>
+          </FluidElement>
+        </button>
       </article>
       <section
         class="grid-area-stack"

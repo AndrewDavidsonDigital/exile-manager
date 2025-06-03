@@ -144,6 +144,7 @@ function alertStats(item: ILoot | undefined){
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="{ 'opacity-50': !item }"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
+            @touchend="() => alertStats(item)"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
             <div
@@ -216,6 +217,7 @@ function alertStats(item: ILoot | undefined){
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="{ 'opacity-50': !item }"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
+            @touchend="() => alertStats(item)"
           >
             <span class="text-sm text-gray-400">{{ item?.name || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
             <div

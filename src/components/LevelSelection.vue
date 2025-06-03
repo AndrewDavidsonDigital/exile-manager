@@ -62,8 +62,7 @@ const emit = defineEmits<{
     </div>
   </FluidElement>
   <FluidElement
-    v-if="modelValue !== undefined"
-    :class="`${props.class}mt-2`"
+    :class="`${props.class} mt-2`"
   >
     <div
       class="flex"
@@ -72,12 +71,20 @@ const emit = defineEmits<{
       ]"
     >
       <button
+        v-if="modelValue !== undefined"
         class="mx-auto"
         :disabled="isAdventuring"
         @click="emit('start-adventuring')"
       >
         Enter: <span class="italic">{{ modelValue.name }}</span>
       </button>
+      <div
+        v-else
+        class="mx-auto"
+        :disabled="isAdventuring"
+      >
+        Select an area to explore
+      </div>
     </div>
   </FluidElement>
 </template> 
