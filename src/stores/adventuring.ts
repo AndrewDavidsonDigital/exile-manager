@@ -483,7 +483,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         // gameEngine.modifyStat('fortitude', -1);
         gameEngine.addExperience(calculateScaledExperience(2, charLevel, areaLevel));
 
-        encounter.description += `\n$- Damage Received: ${trapDamage}`
+        encounter.description += `\n- Damage Received: ${trapDamage}`
         
         encounterType = 'Danger';
         encounterIcon = '🏹';
