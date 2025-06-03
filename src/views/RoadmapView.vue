@@ -45,9 +45,19 @@
     },
     {
       title: 'Mission System 1.5',
-      description: 'A full revamp of the missions system',
+      description: 'Adding expected features as per UI',
       priority: 'high',
-      status: 'pending',
+      status: 'partial',
+      keyPoints: [
+        'Add area drop biasing',
+        'Item Tiers dropped limited in some fashion likely area-level'
+      ],
+    },
+    {
+      title: 'UI/UX polish',
+      description: 'Ensuring the UI / UX is ',
+      priority: 'normal',
+      status: 'partial',
       keyPoints: [
         'Add area drop biasing',
         'Item Tiers dropped limited in some fashion likely area-level'
