@@ -8,6 +8,16 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.5',
+    highlights: [
+      'Visual UI tweaks and restructuring',
+      'Enhanced UX when starting-missions',
+      'Added Roadmap',
+      'Added selected item traversal ( prev / next item ) for mobile',
+    ],
+    commit: 'TBD',
+  },
+  {
     version: '0.0.4',
     isBreaking: true,
     requiresPurge: true,
