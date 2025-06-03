@@ -3,6 +3,7 @@ import type { IRoute } from '@/lib/interfaces';
 import Landing from '../views/LandingView.vue'
 import Game from '@/views/GameView.vue';
 import ReleaseNotes from '@/views/ReleaseNotesView.vue';
+import RoadmapView from '@/views/RoadmapView.vue';
 
 export const routes: IRoute[] = [
   {
@@ -11,15 +12,22 @@ export const routes: IRoute[] = [
     component: Landing
   },
   {
-    path: '/release-notes',
-    name: 'releaseNotes',
-    component: ReleaseNotes,
-  },
-  {
     path: '/game-state',
     name: 'Game',
     title: 'New Game',
     component: Game
+  },
+  {
+    path: '/roadmap',
+    name: 'roadmap',
+    title: 'Roadmap',
+    component: RoadmapView,
+  },
+  {
+    path: '/release-notes',
+    name: 'releaseNotes',
+    title: 'Release Notes',
+    component: ReleaseNotes,
   },
 ];
 
