@@ -30,7 +30,12 @@
     if (selectedLevel.value) {
       adventuringStore.startAdventuring(selectedLevel.value);
     }
-    document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
+    setTimeout(
+      ()=>{
+        document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
+      },
+      500
+    )
   }
 
   watch(isCharAlive, (newVal) => {
