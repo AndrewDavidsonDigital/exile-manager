@@ -15,7 +15,7 @@ export const releases: IRelease[] = [
       'Added Roadmap',
       'Added selected item traversal ( prev / next item ) for mobile',
     ],
-    commit: 'TBD',
+    commit: '1abbe3caa66cf9eda205e22a042f625a69a0a1d3',
   },
   {
     version: '0.0.4',
