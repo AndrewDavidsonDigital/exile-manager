@@ -88,6 +88,16 @@ function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
   return false;
 }
 
+function deleteSelectedLoot(){
+  const char = gameEngine.getCharacter;
+  let foo = selectedLoot.value?.name;
+  if(char === -1 || !foo){
+    return;
+  }
+  const deletableIndex = char.loot.findIndex(loot => loot._identifier === foo);
+  console.log(`to delete item [${deletableIndex}] as item: ${JSON.stringify(char.loot[deletableIndex])}`)
+}
+
 </script>
 
 <template>
@@ -225,34 +235,54 @@ function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
 
       <!-- Action Buttons -->
       <div class="flex gap-2 mt-4">
-        <button
+        <FluidElement
           v-if="activeTab === 'inventory'"
-          :disabled="!selectedLoot"
-          :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
-          @click="stashSelectedLoot"
+          class="w-fit !p-2"
         >
-          <FluidElement class="w-fit !p-2">
+          <button
+            
+            :disabled="!selectedLoot"
+            :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
+            @click="stashSelectedLoot"
+          >
             Stash Selected
-          </FluidElement>
-        </button>
-        <button
+          </button>
+        </FluidElement>
+        <FluidElement
           v-else
-          :disabled="!selectedLoot"
-          :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
-          @click="unstashSelectedLoot"
+          class="w-fit !p-2 "
         >
-          <FluidElement class="w-fit !p-2">
+          <button
+            
+            :disabled="!selectedLoot"
+            :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
+            @click="unstashSelectedLoot"
+          >
             Unstash Selected
-          </FluidElement>
-        </button>
+          </button>
+        </FluidElement>
       </div>
     </FluidElement>
 
     <!-- Loot Details Side Panel -->
     <FluidElement class="w-full md:w-1/3 flex flex-col gap-2">
-      <h2 class="text-lg">
-        Item Details
-      </h2>
+      <div class="flex justify-between">
+        <h2 class="text-lg w-fit">
+          Item Details
+        </h2>
+        <button
+          v-if="selectedLoot"
+          class="w-fit mt-auto"
+          @click="deleteSelectedLoot"
+        >
+          <FluidElement
+            class="!p-1 mt-auto border-red-400 text-red-500"
+            title="Delete selected Item"
+          >
+            ❌
+          </FluidElement>
+        </button>
+      </div>
       <div class="flex flex-col gap-2 h-full">
         <div>
           <p class="font-bold">
@@ -339,6 +369,7 @@ function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
             </div>
           </FluidElement>
         </button>
+
 
         <!-- Equip Button -->
         <section class="flex justify-between">

@@ -230,6 +230,7 @@ export interface IItem {
 export interface ILoot {
   identified: boolean;
   name: string;
+  _identifier: string;
   type: ItemType;
   itemDetails?: IItem;
   _hidden: {
@@ -403,7 +404,7 @@ export const ITEM_TIER_COSTS: Record<ItemTierType, number> = {
   'enhanced': 25,
   'exceptional': 50,
   'abstract': 100,
-  'infused': 200
+  'infused': 100
 };
 
 // Define affix counts per tier based on comments
@@ -425,8 +426,8 @@ function generateAffixValue(affix: IAffix): AffixValue {
   const isRange = (affix.description.match(/\{\s*value\s*\}/gi) || []).length === 2;
   
   if (isRange) {
-    const minValue = Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue;
-    const maxValue =  Math.floor(Math.random() * (affix.maxValue - minValue + 1)) + minValue;
+    const minValue = Math.floor(Math.random() * (affix.maxValue - 1 - affix.minValue + 1)) + affix.minValue; // x -> y-1 = a 
+    const maxValue =  Math.floor(Math.random() * (affix.maxValue - minValue + 1)) + minValue;                //  a - y
     const retval = {
       type: "range",
       minValue,
