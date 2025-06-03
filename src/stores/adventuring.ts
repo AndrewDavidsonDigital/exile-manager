@@ -462,7 +462,15 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         const gold = Math.floor(Math.random() * 50) * difficulty.lootMultiplier;
         gameEngine.updateGold(gold);
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
-        gameEngine.addLoot(Math.floor(Math.random() * 5)); // 20% chance of 0 loot
+        const loot = Math.floor(Math.random() * 5);
+        gameEngine.addLoot(loot); // 20% chance of 0 loot
+
+        if (gold > 0){
+          encounter.description += `\n- ${gold} Gold`
+        }
+        if (loot > 0){
+          encounter.description += `\n- ${loot} Item${loot === 1 ? '' : 's'}`
+        }
 
         encounterType = 'Treasure';
         encounterIcon = '🪙';
@@ -474,6 +482,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         gameEngine.takeDamage(trapDamage);
         // gameEngine.modifyStat('fortitude', -1);
         gameEngine.addExperience(calculateScaledExperience(2, charLevel, areaLevel));
+
+        encounter.description += `\n$- Damage Received: ${trapDamage}`
         
         encounterType = 'Danger';
         encounterIcon = '🏹';
@@ -486,6 +496,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         // gameEngine.modifyStat('affinity', -2);
         // gameEngine.modifyStat('fortitude', -2);
         gameEngine.addExperience(calculateScaledExperience(25, charLevel, areaLevel));
+        
+        encounter.description += `\n- Damage Received: ${corruptionDamage}`
 
         encounterType = 'Danger';
         encounterIcon = '🌋';
@@ -493,10 +505,13 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       case 'none': {
-        gameEngine.heal(10, true);
-        gameEngine.recoverMana(10, true);
+        const restoreAmount = Math.floor(Math.random() * 9) + 7; // Random number between 7 and 15
+        gameEngine.heal(restoreAmount, true);
+        gameEngine.recoverMana(restoreAmount, true);
         gameEngine.addExperience(calculateScaledExperience(1, charLevel, areaLevel));
         
+        encounter.description += `\n- Restored ${restoreAmount}% Health and Mana`
+
         encounterType = 'Generic';
         encounterIcon = '🔎';
         break;
