@@ -554,6 +554,10 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         if (loot > 0){
           encounter.description += `\n- ${loot} Item${loot === 1 ? '' : 's'}`
         }
+        
+        if (gold === 0 && loot === 0 ){
+          encounter.description += `\n- but it would seem that it has already been looted :(`
+        }
 
         encounterType = 'Treasure';
         encounterIcon = '🪙';
