@@ -22,7 +22,7 @@ import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
-import { allItemTypes, slotMap } from '@/lib/itemUtils';
+import { allItemTypes, slotMap, generateItemLevel } from '@/lib/itemUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.5';
@@ -495,9 +495,11 @@ export const useGameEngine = defineStore('gameEngine', {
         const type: ItemType = (allItemTypes)[Math.floor(Math.random() * allItemTypes.length)];
 
         const id = generateRandomId(); // Temporary name until identified;
+        const iLevel = generateItemLevel(this.character.level);
         const newLoot: ILoot = {
           name: id,
           _identifier: id,
+          iLvl: iLevel,
           type: type, // Set the type here
           identified: false,
           _hidden: {

@@ -50,3 +50,17 @@ export const getTierColor = (tier: ItemTierType | undefined, isIdentified: boole
   const color = colorMap[tier];
   return isIdentified ? color : `${color} / 0.3`;
 }; 
+
+/**
+ * Generates an item level using a normal distribution centered around the parsed level
+ * @param normalizedLevel The level around which the to normalize the curve
+ * @returns A number between 1 and 100, following a bell curve distribution around the character's level
+ */
+export const generateItemLevel = (normalizedLevel: number): number => {
+  const mean = normalizedLevel;
+  const stdDev = 1; // Standard deviation of 1 will give us roughly ±2 levels
+  const u1 = Math.random();
+  const u2 = Math.random();
+  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+  return Math.max(1, Math.min(100, Math.ceil(mean + z0 * stdDev)));
+};

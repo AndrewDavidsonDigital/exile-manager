@@ -367,16 +367,21 @@ function selectLootNeighbour(forwards: boolean = false){
         
         <template v-if="selectedLoot?.itemDetails">
           <div>
-            <p class="text-sm">
-              Tier: <span
-                class="dynamic-loot-text capitalize"
-                :style="{
-                  '--loot-text-color': getTierColor(selectedLoot.itemDetails?.tier, selectedLoot.identified)
-                }"
-              >
-                {{ selectedLoot?.itemDetails.tier }}
-              </span>
-            </p>
+            <div class="flex justify-between">
+              <p class="text-sm w-fit">
+                Tier: <span
+                  class="dynamic-loot-text capitalize"
+                  :style="{
+                    '--loot-text-color': getTierColor(selectedLoot.itemDetails?.tier, selectedLoot.identified)
+                  }"
+                >
+                  {{ selectedLoot?.itemDetails.tier }}
+                </span>
+              </p>
+              <p class="w-fit">
+                ilvl:{{ selectedLoot.iLvl || -1 }}
+              </p>
+            </div>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
               :key="`em_${affix.id}_${aIndex}`"

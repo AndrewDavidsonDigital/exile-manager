@@ -232,6 +232,7 @@ export interface ILoot {
   name: string;
   _identifier: string;
   type: ItemType;
+  iLvl: number;
   itemDetails?: IItem;
   _hidden: {
     isCorrupted: boolean;
