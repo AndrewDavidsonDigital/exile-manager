@@ -8,6 +8,10 @@
   text-shadow: rgb(41, 40, 36) 1px 0 5px;
 }
 
+.whitespace-preserve {
+  white-space-collapse: preserve;
+}
+
 /* Custom Sliders */
 
 input[type=range].thin-slider{
