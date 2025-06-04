@@ -44,6 +44,19 @@
       ],
     },
     {
+      title: 'Leveling System 1.5',
+      description: 'Allow better progression',
+      priority: 'high',
+      status: 'pending',
+      keyPoints: [
+        'Keep attribute increases per level',
+        'Add skills and skill-system',
+        'on level up chose 1-3 random skills',
+        'on level up and new level is divisible by 5',
+        'once char is create select 1st skill',
+      ],
+    },
+    {
       title: 'Mission System 1.5',
       description: 'Adding expected features as per UI',
       priority: 'high',
@@ -59,8 +72,7 @@
       priority: 'normal',
       status: 'partial',
       keyPoints: [
-        'Add area drop biasing',
-        'Item Tiers dropped limited in some fashion likely area-level'
+        'Incrementally enhance and update the UI/UX experience',
       ],
     },
     {

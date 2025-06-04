@@ -372,7 +372,7 @@ function selectLootNeighbour(forwards: boolean = false){
                 Tier: <span
                   class="dynamic-loot-text capitalize"
                   :style="{
-                    '--loot-text-color': getTierColor(selectedLoot.itemDetails?.tier, selectedLoot.identified)
+                    '--loot-text-color': getTierColor(selectedLoot.itemDetails?.tier, true)
                   }"
                 >
                   {{ selectedLoot?.itemDetails.tier }}
