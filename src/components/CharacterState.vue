@@ -527,7 +527,7 @@ const groupedAffixes = computed(() => {
     --core-ui-border-color: oklch(20.8% 0.042 265.755);
 
     @media (min-width: 768px) {
-      --core-ui-border-color: oklch(50.8% 0.118 165.612);
+      --core-ui-border-color: transparent;
     }
   }
 
