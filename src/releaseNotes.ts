@@ -8,6 +8,18 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.7',
+    highlights: [
+      'Event weighting tweaks',
+      'Add loot management brushes for Identify',
+      'Add loot management brushes for Delete',
+      'Add Critical Strike',
+      'Add `repeat run` button',
+      'Add `Detailed` logs support',
+    ],
+    commit: 'c268848c2fd813c5f416b2414168b34e7947eb25',
+  },
+  {
     version: '0.0.6',
     isBreaking: true,
     requiresPurge: true,
