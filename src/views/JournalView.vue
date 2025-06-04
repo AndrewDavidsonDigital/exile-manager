@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import FluidElement from '@/components/FluidElement.vue';
+import PillElement from '@/components/PillElement.vue';
   import { entries } from '@/journal';
   import type { IEntry } from '@/journal';
   import { computed, ref } from 'vue';
@@ -155,16 +156,14 @@
           <p class="text-left">
             {{ term.description }}
           </p>
-          <ul>
+          <div class="flex gap-2 justify-center">
             <template
               v-for="tag, tIndex in term.tags"
               :key="`term_tIndex_${tIndex}-${index}`"
             >
-              <li class="list-inside list-disc text-left">
-                {{ tag }}
-              </li>
+              <PillElement :copy="tag" />
             </template>
-          </ul>
+          </div>
         </FluidElement>
       </template>
     </section>
@@ -188,6 +187,8 @@
           transition-all duration-500
           hover:z-10
           hover:scale-125
+
+          !border-red-400/50
         "
           :class="[
           // { '!border-cyan-500': feature.status === 'partial' },
@@ -212,16 +213,17 @@
           <p class="text-left">
             {{ term.description }}
           </p>
-          <ul>
+          <div class="flex gap-2 justify-center">
             <template
               v-for="tag, tIndex in term.tags"
               :key="`term_tIndex_${tIndex}-${index}`"
             >
-              <li class="list-inside list-disc text-left">
-                {{ tag }}
-              </li>
+              <PillElement
+                v-if="tag !== 'NYI'"
+                :copy="tag"
+              />
             </template>
-          </ul>
+          </div>
         </FluidElement>
       </template>
     </section>
