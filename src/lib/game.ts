@@ -439,7 +439,7 @@ function generateAffixValue(affix: IAffix): AffixValue {
     } as AffixValue;
     return retval;
 
-  } else if (affix.description.includes('%')) {
+  } else if (affix.isMultiplicative) {
     const retval = {
       type: "multiplicative",
       value: Math.floor(Math.random() * (affix.maxValue - affix.minValue + 1)) + affix.minValue,

@@ -2,12 +2,15 @@
 import { useGameEngine } from '@/stores/game';
 import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/lib/game';
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import type { AffixValue } from '@/lib/affixTypes';
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
+
+type BrushMode = 'none' | 'unequip';
+const activeBrush = ref<BrushMode>('none');
 
 function alertStats(item: ILoot | undefined){
   if (!item){
@@ -18,6 +21,12 @@ function alertStats(item: ILoot | undefined){
   
   if (item.itemDetails) {
     output += `\nTier: ${item.itemDetails.tier}\n`;
+
+    // Base Affix
+    if (item.itemDetails.baseDetails && item.itemDetails.baseDetails.value) {
+      output += '\n\n';
+      output += `${formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue)}\n`;
+    }
     
     // Embedded affixes
     if (item.itemDetails.affixes.embedded.length > 0) {
@@ -52,9 +61,9 @@ function alertStats(item: ILoot | undefined){
 function unequipItem(slot: keyof ICharacterEquipment) {
   if (!char || char === -1) return;
 
-
-  if (!ctrlPressed || ctrlPressed.value !== true){
-    return
+  // Allow unequip if either CTRL is pressed or brush is active
+  if ((!ctrlPressed || ctrlPressed.value !== true) && activeBrush.value !== 'unequip') {
+    return;
   }
   
   const item = char.equipment[slot];
@@ -66,13 +75,47 @@ function unequipItem(slot: keyof ICharacterEquipment) {
   char.equipment[slot] = undefined;
   // Save state
   gameEngine.saveState();
+  
+  // Reset brush after unequipping
+  if (activeBrush.value === 'unequip') {
+    activeBrush.value = 'none';
+  }
 }
+
+const resetBrush = () => {
+  activeBrush.value = 'none';
+};
 
 </script>
 
 <template>
   <div class="flex flex-col gap-2">
     <template v-if="char !== -1">
+      <!-- Brush Tools -->
+      <div class="flex justify-between gap-2 mb-2 md:hidden">
+        <button
+          class="w-fit"
+          :class="[
+            { 'opacity-50': activeBrush !== 'unequip' },
+            { 'pointer-events-none': activeBrush === 'unequip' }
+          ]"
+          @click="activeBrush = activeBrush === 'unequip' ? 'none' : 'unequip'"
+        >
+          <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
+            Unequip Brush
+          </div>
+        </button>
+        <button
+          v-if="activeBrush !== 'none'"
+          class="w-fit"
+          @click="resetBrush"
+        >
+          <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
+            Reset
+          </div>
+        </button>
+      </div>
+
       <!-- Armor -->
       <details class="group">
         <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
@@ -93,10 +136,10 @@ function unequipItem(slot: keyof ICharacterEquipment) {
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="[
               { 'opacity-50 pointer-events-none': !item },
-              { '!border-red-500': ctrlPressed && item }
+              { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
             ]"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
-            @touchend="() => alertStats(item)"
+            @touchend="() => activeBrush === 'none' && alertStats(item)"
             @click="() => item && unequipItem(slot)"
             @keydown.enter="() => item && unequipItem(slot)"
             @keydown.space="() => item && unequipItem(slot)"
@@ -178,10 +221,10 @@ function unequipItem(slot: keyof ICharacterEquipment) {
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="[
               { 'opacity-50 pointer-events-none': !item },
-              { '!border-red-500': ctrlPressed && item }
+              { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
             ]"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
-            @touchend="() => alertStats(item)"
+            @touchend="() => activeBrush === 'none' && alertStats(item)"
             @click="() => item && unequipItem(slot)"
             @keydown.enter="() => item && unequipItem(slot)"
             @keydown.space="() => item && unequipItem(slot)"
@@ -263,10 +306,10 @@ function unequipItem(slot: keyof ICharacterEquipment) {
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="[
               { 'opacity-50 pointer-events-none': !item },
-              { '!border-red-500': ctrlPressed && item }
+              { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
             ]"
             :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
-            @touchend="() => alertStats(item)"
+            @touchend="() => activeBrush === 'none' && alertStats(item)"
             @click="() => item && unequipItem(slot)"
             @keydown.enter="() => item && unequipItem(slot)"
             @keydown.space="() => item && unequipItem(slot)"
@@ -334,7 +377,9 @@ function unequipItem(slot: keyof ICharacterEquipment) {
           </button>
         </div>
       </details>
-      <blockquote>Un-equip item by holding CTRL</blockquote>
+      <blockquote class="hidden md:block">
+        Un-equip item by holding CTRL
+      </blockquote>
     </template>
   </div>
 </template>
@@ -373,7 +418,5 @@ function unequipItem(slot: keyof ICharacterEquipment) {
     @apply block;
   }
 
-  button {
-    @apply w-full h-full;
-  }
+
 </style> 
