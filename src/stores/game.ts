@@ -25,7 +25,7 @@ import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverage
 import { allItemTypes, slotMap, generateItemLevel } from '@/lib/itemUtils';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.0.5';
+const VERSION_NUMBER = '0.0.6';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
