@@ -90,7 +90,7 @@ const ENCOUNTERS: IEncounter[] = [
   {
     type: 'customC',
     description: 'You spy a Long necked loot turtle, miraculously speeding out of sight.\n In its wake, you find a trail of coins seemingly forming the word Vedorys',
-    weight: 1,
+    weight: 0.5,
     minLevel: 0,
     alignment: 'neutral'
   }
