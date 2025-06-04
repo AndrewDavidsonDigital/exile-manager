@@ -483,7 +483,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    addLoot(amount: number, lootTags?: LootType[]){
+    addLoot(amount: number, areaLevel: number, lootTags?: LootType[]){
       if (!this.character) return;
       logger(`Adding ${amount} loot items for ${this.character.name}`);
 
@@ -503,7 +503,7 @@ export const useGameEngine = defineStore('gameEngine', {
         const type: ItemType = lootTags ? getWeightedItemType(lootTags) : allItemTypes[Math.floor(Math.random() * allItemTypes.length)];
 
         const id = generateRandomId(); // Temporary name until identified;
-        const iLevel = generateItemLevel(this.character.level);
+        const iLevel = generateItemLevel(areaLevel);
         const newLoot: ILoot = {
           name: id,
           _identifier: id,

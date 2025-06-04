@@ -483,7 +483,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           if (typeof char !== 'number') {
             // 30% chance for loot drop
             if (Math.random() < 0.3) {
-              gameEngine.addLoot(1); // Add 1 loot item using existing function
+              gameEngine.addLoot(1, level.areaLevel); // Add 1 loot item using existing function
             }
 
             // Gold reward based on monster exp and fortune
@@ -546,7 +546,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
         const loot = Math.floor(Math.random() * 5);
         // Use weighted item type based on level's loot tags
-        gameEngine.addLoot(loot, level.lootTags); // Pass loot tags to addLoot
+        gameEngine.addLoot(loot, level.areaLevel, level.lootTags); // Pass loot tags to addLoot
 
         if (gold > 0){
           encounter.description += `\n- ${gold} Gold`
