@@ -8,6 +8,19 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.6',
+    isBreaking: true,
+    requiresPurge: true,
+    highlights: [
+      'Responsive fixes',
+      'Add item-level',
+      'Tweak scrolling timings',
+      'Add gold on item destruction at 10% of value',
+      'Secret events',
+    ],
+    commit: 'ceb030a7b3c2f968f25345641e34b2c73d6763a1',
+  },
+  {
     version: '0.0.5',
     highlights: [
       'Visual UI tweaks and restructuring',
