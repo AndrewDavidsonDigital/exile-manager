@@ -279,8 +279,8 @@ export const prefixAffixes: IAffix[] = [
         type: AffixType.PREFIX,
         category: AffixCategory.CRITICAL,
         tier: 1,
-        minValue: 5,
-        maxValue: 8,
+        minValue: 20,
+        maxValue: 40,
         description: '+{value}% to Critical Strike Chance',
         tags: ['critical', 'attack', 'weapon'],
         allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
@@ -291,8 +291,20 @@ export const prefixAffixes: IAffix[] = [
         type: AffixType.PREFIX,
         category: AffixCategory.CRITICAL,
         tier: 2,
-        minValue: 8,
-        maxValue: 12,
+        minValue: 40,
+        maxValue: 80,
+        description: '+{value}% to Critical Strike Chance',
+        tags: ['critical', 'attack', 'weapon'],
+        allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    },
+    {
+        id: 'prefix_critical_3',
+        name: 'Merciless',
+        type: AffixType.PREFIX,
+        category: AffixCategory.CRITICAL,
+        tier: 3,
+        minValue: 80,
+        maxValue: 120,
         description: '+{value}% to Critical Strike Chance',
         tags: ['critical', 'attack', 'weapon'],
         allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']

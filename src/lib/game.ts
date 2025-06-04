@@ -1,4 +1,4 @@
-import type { IAffix } from './affixTypes';
+import type { AffixCategory, IAffix } from './affixTypes';
 import { AffixType, allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
 
@@ -148,6 +148,7 @@ export interface ICombatStat {
   mana: number;
   maxHealth: number;
   maxMana: number;
+  criticalStrike: number;
   mitigation: IMitigation[];
   attributes: {
     fortitude: number;    // Mental and physical endurance
@@ -211,17 +212,17 @@ export interface IItem {
   affixes: {
     embedded: Array<{
       id: string;
-      category: string;
+      category: AffixCategory;
       value: AffixValue;
     }>;
     prefix: Array<{
       id: string;
-      category: string;
+      category: AffixCategory;
       value: AffixValue;
     }>;
     suffix: Array<{
       id: string;
-      category: string;
+      category: AffixCategory;
       value: AffixValue;
     }>;
   }
@@ -462,8 +463,8 @@ function generateAffixesOfType(
   affixType: AffixType,
   allowedAffixes: IAffix[],
   maxCount: number
-): Array<{ id: string; category: string; value: AffixValue }> {
-  const generatedAffixes: Array<{ id: string; category: string; value: AffixValue }> = [];
+): Array<{ id: string; category: AffixCategory; value: AffixValue }> {
+  const generatedAffixes: Array<{ id: string; category: AffixCategory; value: AffixValue }> = [];
   const typeAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === affixType);
 
   for (let i = 0; i < maxCount; i++) {
@@ -569,17 +570,17 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
   const affixes = {
     embedded: [] as Array<{
       id: string;
-      category: string;
+      category: AffixCategory;
       value: AffixValue;
     }>,
     prefix: [] as Array<{
       id: string;
-      category: string;
+      category: AffixCategory;
       value: AffixValue;
     }>,
     suffix: [] as Array<{
       id: string;
-      category: string;
+      category: AffixCategory;
       value: AffixValue;
     }>
   };

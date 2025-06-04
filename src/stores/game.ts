@@ -21,8 +21,9 @@ import {
 import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
-import { calculateDodgeChance, getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
+import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel } from '@/lib/itemUtils';
+import { calculateDodgeChance } from '@/lib/combatMechanics';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.6';
@@ -118,6 +119,7 @@ export const useGameEngine = defineStore('gameEngine', {
           affinity: this.character.stats.affinity
         },
         accuracy: 100,
+        criticalStrike: 0,
         baseDamagePerTick: 15,
         damagePerTick: 0,
         damage: {
@@ -247,11 +249,17 @@ export const useGameEngine = defineStore('gameEngine', {
                 }
               }
               break;
-            case 'corruption':
-              if (affixDef.tags.includes('void')) {
-                retval.damage.corruption.void += resolveAverageOfRange(getAffixValueRange(affix));
-              } else if (affixDef.tags.includes('mental')) {
-                retval.damage.corruption.mental += resolveAverageOfRange(getAffixValueRange(affix));
+            // case 'corruption':
+            //   if (affixDef.tags.includes('void')) {
+            //     retval.damage.corruption.void += resolveAverageOfRange(getAffixValueRange(affix));
+            //   } else if (affixDef.tags.includes('mental')) {
+            //     retval.damage.corruption.mental += resolveAverageOfRange(getAffixValueRange(affix));
+            //   }
+            //   break;
+            case 'critical':
+              // evasion only on PREFIX
+              if (affixDef.type === AffixType.PREFIX) {
+                retval.criticalStrike += getAffixValue(affix);
               }
               break;
           }

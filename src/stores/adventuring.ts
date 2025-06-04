@@ -14,6 +14,8 @@ import type {
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 import { generateNormalGold } from '@/lib/itemUtils';
+import { calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
+import { trace } from '@/lib/logging';
 
 type EncounterType = 
   'combat'
@@ -111,7 +113,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     return Math.floor(baseExp * scaleFactor);
   }
 
-  function generateEncounter(level: ILevel): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
+  function generateEncounter(level: ILevel, loggingDetail = false): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
+    logger(`Generating encounter for level: ${level.name}-${level.areaLevel}, with logging: ${loggingDetail? 'verbose' : 'concise'}`);
     const difficulty = gameEngine.getDifficulty;
     if (difficulty === -1) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '' };
 
@@ -146,7 +149,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     const character = gameEngine.getCharacter;
     if (typeof character === 'number') return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: ''};
 
-    return processEncounter(selectedEncounter, character.level, level, difficulty);
+    return processEncounter(selectedEncounter, character.level, level, difficulty, loggingDetail);
   }
 
   type MobTierType = ['basic', 1.0] | ['elite', 2.5] | ['boss', 5];
@@ -208,161 +211,192 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         break;
       }
 
-      if (!shouldBail) {  // Monster's turn
-        const baseMonsterDamage = Math.floor((5 + Math.random() * 10) * areaLevel * mobTier[1] * difficulty.dangerMultiplier);
-        const monsterDamage = Math.floor(baseMonsterDamage * simMonster.damageInfo.damageMultiplier);
-        // console.log('Combat Debug - Monster Damage:', { baseMonsterDamage, monsterDamage, areaLevel, mobTier, difficulty });
-        
-        // Calculate exile's attack damage based on combat stats
+      if(!shouldBail){
+
+        // Calculate exile's base attack damage
         const exileDamage = Math.floor(exileStats.damagePerTick * (0.9 + Math.random() * 0.2));
-        // console.log('Combat Debug - Exile Damage:', { exileDamage, damagePerTick: exileStats.damagePerTick });
-        
-        // Apply damage to exile, considering specific damage type mitigation
-        let mitigatedDamage = 0;
-        let damageTypeDesc = '';
-        
-        // First check for evasion (complete damage negation)
-        const evasionMitigation = exileStats.mitigation.find(m => m.key === 'evasion')?.value || 0;
-        const evasionRoll = Math.random() * 100;
-        const evaded = evasionRoll < evasionMitigation;
-        // console.log('Combat Debug - Evasion Check:', { evasionMitigation, evasionRoll, evaded });
-        
-        
-        if (!evaded) {
-          if (simMonster.damageInfo.secondary && simMonster.damageInfo.damageSplit) {
-            // Split damage between primary and secondary types
-            const primaryDamage = Math.floor(monsterDamage * (simMonster.damageInfo.damageSplit / 100));
-            const secondaryDamage = monsterDamage - primaryDamage;
-            // console.log('Combat Debug - Split Damage:', { primaryDamage, secondaryDamage, damageSplit: simMonster.damageInfo.damageSplit });
-            
-            // Check for block (80% damage reduction)
-            const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
-            const blockRoll = Math.random() * 100;
-            const blocked = blockRoll < blockMitigation;
-            // console.log('Combat Debug - Block Check:', { blockMitigation, blockRoll, blocked });
-            
-            if (blocked) {
-              usedMitigations.add('block');
-            }
-            
-            // Get percentage-based mitigations
-            const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
-            const secondaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0;
-            // console.log('Combat Debug - Mitigations:', { primaryMitigation, secondaryMitigation });
-            
-            if (primaryMitigation > 0) {
-              usedMitigations.add(simMonster.damageInfo.primary);
-            }
-            if (secondaryMitigation > 0) {
-              usedMitigations.add(simMonster.damageInfo.secondary);
-            }
-            
-            // Apply block if successful
-            const blockMultiplier = blocked ? 0.2 : 1.0; // 80% reduction if blocked
-            
-            // Calculate final damage with all mitigations
-            const mitigatedPrimaryDamage = Math.max(1, Math.floor(primaryDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
-            const mitigatedSecondaryDamage = Math.max(1, Math.floor(secondaryDamage * blockMultiplier * (1 - (secondaryMitigation / 100))));
-            // console.log('Combat Debug - Final Mitigated Damage:', { mitigatedPrimaryDamage, mitigatedSecondaryDamage });
-            
-            mitigatedDamage = mitigatedPrimaryDamage + mitigatedSecondaryDamage;
-            
-            // Update damage description with all mitigation info
-            const blockText = blocked ? ' (80% blocked)' : '';
-            damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${primaryDamage}, ${primaryMitigation}% mitigated) and ${simMonster.damageInfo.secondary} (${secondaryDamage}, ${secondaryMitigation}% mitigated)${blockText}`;
-          } else {
-            // Single damage type
-            const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
-            // console.log('Combat Debug - Single Damage Type:', { primaryMitigation, monsterDamage });
-            
-            if (primaryMitigation > 0) {
-              usedMitigations.add(simMonster.damageInfo.primary);
-            }
-            
-            // Check for block (80% damage reduction)
-            const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
-            const blockRoll = Math.random() * 100;
-            const blocked = blockRoll < blockMitigation;
-            // console.log('Combat Debug - Block Check:', { blockMitigation, blockRoll, blocked });
-            
-            if (blocked) {
-              usedMitigations.add('block');
-            }
-            
-            // Apply block if successful
-            const blockMultiplier = blocked ? 0.2 : 1.0; // 80% reduction if blocked
-            
-            // Calculate final damage with all mitigations
-            mitigatedDamage = Math.max(1, Math.floor(monsterDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
-            // console.log('Combat Debug - Final Mitigated Damage:', { mitigatedDamage });
-            
-            // Update damage description with all mitigation info
-            const blockText = blocked ? ' (80% blocked)' : '';
-            damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${monsterDamage}, ${primaryMitigation}% mitigated)${blockText}`;
-          }
-        } else {
-          usedMitigations.add('evasion');
-          mitigatedDamage = 0;
-          damageTypeDesc = 'attacks but misses (evaded)';
-        }
 
-        // Apply damage to exile
-        exileHealth -= mitigatedDamage;
-        totalDamageReceived += mitigatedDamage;
-        // console.log('Combat Debug - Damage Applied:', { exileHealth, totalDamageReceived });
+        // Calculate critical strike chance and effect
+        const criticalChance = calculateCriticalChance(exileStats.criticalStrike);
+        const criticalRoll = Math.random() * 100;
+        const isCritical = criticalRoll < criticalChance;
         
-        // Check if exile is defeated after taking damage
-        if (exileHealth <= 0) {
-          // Check for miraculous escape based on fortune
-          const fortune = char.stats.fortune;
-          const baseEscapeChance = 1; // 1% base chance
-          const fortuneBonus = Math.min(4, Math.floor(fortune / 10)); // +1% per 10 fortune, max +4%
-          const totalEscapeChance = baseEscapeChance + fortuneBonus;
+        let finalExileDamage = exileDamage;
+        let criticalText = '';
+        let skipMonsterTurn = false;
+        
+        if (isCritical) {
+          logger('Critical Hit scored');
+          // Calculate monster's current health percentage for execution check
+          const monsterHealthPercent = (monsterHealth / simMonster.health) * 100;
           
-          if (Math.random() * 100 < totalEscapeChance) {
-            // Miraculous escape!
-            exileHealth = 1;
-            lootLossPercent = Math.floor(50 + Math.random() * 30); // 50-80% loot loss for near-death escape
-            
-            combatLog.push(
-              `Round ${round}:\n` +
-              `\tMonster ${damageTypeDesc}!\n` +
-              `\tYou deal ${exileDamage} damage and take ${mitigatedDamage} damage.\n` +
-              `\tMonster Health: ${Math.max(0, monsterHealth)} | Your Health: 1\n\n` +
-              `Miraculous Escape! Your fortune (${fortune}) saved you from certain death!\n` +
-              `You lose ${lootLossPercent}% of your loot in your desperate escape...`
-            );
-            break;
+          // Check for super critical (5% chance on any critical)
+          const isSuperCritical = Math.random() * 100 < CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE;
+          
+          // Check for execution based on monster tier and health
+          const executionThreshold = CRITICAL_STRIKE_CONSTANTS.EXECUTION_THRESHOLDS[mobTier[0] as EnemyTier];
+          const isExecution = monsterHealthPercent <= executionThreshold;
+          
+          if (isExecution) {
+            // Execution instantly defeats the monster
+            finalExileDamage = monsterHealth;
+            criticalText = ' (EXECUTION!)';
           } else {
-
-            // No escape, defeat occurs
-            exileHealth = 0;
-            combatLog.push(
-              `Round ${round}:\n` +
-              `\tMonster ${damageTypeDesc}!\n` +
-              `\tYou deal ${exileDamage} damage and take ${mitigatedDamage} damage.\n` +
-              `\tMonster Health: ${Math.max(0, monsterHealth)} | Your Health: 0\n\n` +
-              `Defeat! The ${simMonster.type} has bested you!`
-            );
-            break;
+            // Non-execution critical recovers health
+            const healthRecovery = Math.floor(exileStats.maxHealth * (CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY / 100));
+            exileHealth = Math.min(exileStats.maxHealth, exileHealth + healthRecovery);
+            criticalText = ` (CRITICAL! Recovered ${healthRecovery} health)`;
+            
+            if (isSuperCritical) {
+              skipMonsterTurn = true;
+              criticalText += ' (SUPER CRITICAL! Monster turn skipped)';
+            }
           }
         }
         
         // Exile's turn
-        monsterHealth -= exileDamage;
-        totalDamageDealt += exileDamage;
-        // console.log('Combat Debug - Monster Damage Applied:', { monsterHealth, totalDamageDealt });
+        monsterHealth -= finalExileDamage;
+        totalDamageDealt += finalExileDamage;
 
-        // Log the round
+        // Log the exile's attack
         combatLog.push(
           `Round ${round}:\n` +
-          `\tMonster ${damageTypeDesc}!\n` +
-          `\tYou deal ${exileDamage} damage and take ${mitigatedDamage} damage.\n` +
-          `\tMonster Health: ${Math.max(0, monsterHealth)} | Your Health: ${Math.max(0, exileHealth)}`
+          `\t\t\tYou deal ${finalExileDamage} damage${criticalText}.\n` +
+          `\t\t\tMonster Health: ${Math.max(0, monsterHealth)} | Your Health: ${Math.max(0, exileHealth)}`
         );
-        
-        round++;
+
+        // Check if monster is defeated
+        if (monsterHealth <= 0) {
+          break;
+        }
+
+        // Monster's turn (skipped if super critical)
+        if (!skipMonsterTurn) {
+          const baseMonsterDamage = Math.floor((5 + Math.random() * 10) * areaLevel * mobTier[1] * difficulty.dangerMultiplier);
+          const monsterDamage = Math.floor(baseMonsterDamage * simMonster.damageInfo.damageMultiplier);
+          
+          // Apply damage to exile, considering specific damage type mitigation
+          let mitigatedDamage = 0;
+          let damageTypeDesc = '';
+          
+          // First check for evasion (complete damage negation)
+          const evasionMitigation = exileStats.mitigation.find(m => m.key === 'evasion')?.value || 0;
+          const evasionRoll = Math.random() * 100;
+          const evaded = evasionRoll < evasionMitigation;
+          
+          if (!evaded) {
+            if (simMonster.damageInfo.secondary && simMonster.damageInfo.damageSplit) {
+              // Split damage between primary and secondary types
+              const primaryDamage = Math.floor(monsterDamage * (simMonster.damageInfo.damageSplit / 100));
+              const secondaryDamage = monsterDamage - primaryDamage;
+              
+              // Check for block (80% damage reduction)
+              const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
+              const blockRoll = Math.random() * 100;
+              const blocked = blockRoll < blockMitigation;
+              
+              if (blocked) {
+                usedMitigations.add('block');
+              }
+              
+              // Get percentage-based mitigations
+              const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
+              const secondaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0;
+              
+              if (primaryMitigation > 0) {
+                usedMitigations.add(simMonster.damageInfo.primary);
+              }
+              if (secondaryMitigation > 0) {
+                usedMitigations.add(simMonster.damageInfo.secondary);
+              }
+              
+              // Apply block if successful
+              const blockMultiplier = blocked ? 0.2 : 1.0;
+              
+              // Calculate final damage with all mitigations
+              const mitigatedPrimaryDamage = Math.max(1, Math.floor(primaryDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
+              const mitigatedSecondaryDamage = Math.max(1, Math.floor(secondaryDamage * blockMultiplier * (1 - (secondaryMitigation / 100))));
+              
+              mitigatedDamage = mitigatedPrimaryDamage + mitigatedSecondaryDamage;
+              
+              // Update damage description with all mitigation info
+              const blockText = blocked ? ' (80% blocked)' : '';
+              damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${primaryDamage}, ${primaryMitigation}% mitigated) and ${simMonster.damageInfo.secondary} (${secondaryDamage}, ${secondaryMitigation}% mitigated)${blockText}`;
+            } else {
+              // Single damage type
+              const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
+              
+              if (primaryMitigation > 0) {
+                usedMitigations.add(simMonster.damageInfo.primary);
+              }
+              
+              // Check for block (80% damage reduction)
+              const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
+              const blockRoll = Math.random() * 100;
+              const blocked = blockRoll < blockMitigation;
+              
+              if (blocked) {
+                usedMitigations.add('block');
+              }
+              
+              // Apply block if successful
+              const blockMultiplier = blocked ? 0.2 : 1.0;
+              
+              // Calculate final damage with all mitigations
+              mitigatedDamage = Math.max(1, Math.floor(monsterDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
+              
+              // Update damage description with all mitigation info
+              const blockText = blocked ? ' (80% blocked)' : '';
+              damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${monsterDamage}, ${primaryMitigation}% mitigated)${blockText}`;
+            }
+          } else {
+            usedMitigations.add('evasion');
+            mitigatedDamage = 0;
+            damageTypeDesc = 'attacks but misses (evaded)';
+          }
+
+          // Apply damage to exile
+          exileHealth -= mitigatedDamage;
+          totalDamageReceived += mitigatedDamage;
+          
+          // Log the monster's attack
+          combatLog.push(
+            `\tMonster ${damageTypeDesc}!\n` +
+            `\t\t\tYou take ${mitigatedDamage} damage.\n` +
+            `\t\t\tMonster Health: ${Math.max(0, monsterHealth)} | Your Health: ${Math.max(0, exileHealth)}`
+          );
+          
+          // Check if exile is defeated after taking damage
+          if (exileHealth <= 0) {
+            // Check for miraculous escape based on fortune
+            const fortune = char.stats.fortune;
+            const baseEscapeChance = 1; // 1% base chance
+            const fortuneBonus = Math.min(4, Math.floor(fortune / 10)); // +1% per 10 fortune, max +4%
+            const totalEscapeChance = baseEscapeChance + fortuneBonus;
+            
+            if (Math.random() * 100 < totalEscapeChance) {
+              // Miraculous escape!
+              exileHealth = 1;
+              lootLossPercent = Math.floor(50 + Math.random() * 30); // 50-80% loot loss for near-death escape
+              
+              combatLog.push(
+                `Miraculous Escape! Your fortune (${fortune}) saved you from certain death!\n` +
+                `You lose ${lootLossPercent}% of your loot in your desperate escape...`
+              );
+              break;
+            } else {
+              // No escape, defeat occurs
+              exileHealth = 0;
+              combatLog.push(
+                `Defeat! The ${simMonster.type} has bested you!`
+              );
+              break;
+            }
+          }
+        }
       }
+      round++;
+
     }
 
     // Set combat outcome based on final state
@@ -394,7 +428,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     encounter: IEncounter, 
     charLevel: number, 
     level: ILevel, 
-    difficulty: IDifficulty
+    difficulty: IDifficulty,
+    loggingDetail = false
   ): { encounter: string, encounterType: JournalEntryType, encounterIcon: string} {
     let encounterType: JournalEntryType = 'Safe';
     let encounterIcon: string = '';
@@ -479,9 +514,16 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         // Format the final combat log
         encounter.description = `A ${encounteredMonster} appears!\n${combatResult.combatOutcome}\nCombat Stats:\n- Active Mitigations: ${activeMitigations || 'None'}\n- Damage Dealt: ${combatResult.totalDamageDealt}\n- Damage Received: ${combatResult.totalDamageReceived}`;
+        logger(JSON.stringify(combatResult.combatLog));
         
+
+        if (loggingDetail){
+          encounter.description += '\n\t\t'
+          encounter.description += combatResult.combatLog.join('\n\t\t')
+        }
+
         // Set encounter type and icon based on outcome and damage taken
-        const damageThreshold = Math.max(20, exileStats.health * 0.2); // 20% of max health or 20, whichever is higher
+        const damageThreshold = exileStats.health * 0.3; // 20% of max health or 20, whichever is higher
         const isDangerous = combatResult.exileHealth <= 0 || combatResult.totalDamageReceived >= damageThreshold;
         encounterType = isDangerous ? 'Danger' : 'DangerLite';
         encounterIcon = isDangerous ? '💀' : '⚔️';
@@ -599,15 +641,15 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
   }
 
-  function startAdventuring(selectedLevel: ILevel) {
+  function startAdventuring(selectedLevel: ILevel, loggingDetail = false) {
     isAdventuring.value = true;
     const { encounterBase, encounterRangeDeltas } = selectedLevel;
     const minEncounters = Math.max(0, encounterBase - encounterRangeDeltas);
     const maxEncounters = encounterBase + encounterRangeDeltas;
     const encounters = Math.floor(Math.random() * (maxEncounters - minEncounters + 1)) + minEncounters;
     
-    console.log(`Starting Adventure to: ${selectedLevel.name}`);
-    console.log(`Encounters: ${encounters}`);
+    logger(`Starting Adventure to: ${selectedLevel.name}`);
+    logger(`Encounters: ${encounters}`);
     adventureInterval.value = encounters;
     
     const entry: IJournalEntry = {
@@ -616,12 +658,12 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     }
     adventureJournal.value.push(entry);
     adventureIntervalId.value = setInterval(
-      () => doAdventuring(selectedLevel),
+      () => doAdventuring(selectedLevel, loggingDetail),
       ADVENTURE_TICK_DELTA,
     );
   }
 
-  function doAdventuring(selectedLevel: ILevel) {
+  function doAdventuring(selectedLevel: ILevel, loggingDetail = false) {
     if (adventureInterval.value <= 0) {
     
       const entry: IJournalEntry = {
@@ -639,12 +681,19 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       return;
     }
 
-    const tickResult = generateEncounter(selectedLevel);
+    const tickResult = generateEncounter(selectedLevel, loggingDetail);
     
     const entry: IJournalEntry = {
       message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] ${tickResult.encounterIcon} ${tickResult.encounter}`,
       type: tickResult.encounterType,
     }
+    
+
+    if (loggingDetail){
+      // entry.message += tickResult.encounter.
+    }
+
+
     adventureJournal.value.push(entry);
     adventureInterval.value--;
 
@@ -676,4 +725,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     startAdventuring,
     doAdventuring
   };
-}); 
+});
+
+const LOGGING_PREFIX = '🥷 Adventure:\t';
+function logger(message: string) {
+  trace(`${LOGGING_PREFIX}${message}`);
+}

@@ -4,6 +4,7 @@ import { CLASS_ALIGNED_STATS, formatConsolidatedAffix } from '@/lib/game';
 import { computed, ref, watch } from 'vue';
 import { allAffixes, isAffixRange, type AffixValue } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
+import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './FluidElement.vue';
 
 const gameEngine = useGameEngine();
@@ -344,6 +345,14 @@ const groupedAffixes = computed(() => {
                 </span>
               </div>
               <div class="ml-2  px-2">
+                <span class="text-gray-400">Critical:</span>
+                <span 
+                  class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start"
+                >
+                  <span>~{{ calculateCriticalChance(gameEngine.getCombatStats.criticalStrike) }}%</span>
+                </span>
+              </div>
+              <div class="ml-2  px-2">
                 <span class="text-gray-400">Mitigation:</span>
                 <span 
                   class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start"
@@ -379,6 +388,7 @@ const groupedAffixes = computed(() => {
                   >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_lightning')?.value || 0 }}%</span>
                 </span>
               </div>
+              <!--
               <div class="ml-2  px-2">
                 <span class="text-gray-400">Sanity:</span>
                 <span 
@@ -396,6 +406,7 @@ const groupedAffixes = computed(() => {
                   >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_mental')?.value || 0 }}%  </span>
                 </span>
               </div>
+              -->
               <template
                 v-for="stat in orderedStats"
                 :key="stat"
