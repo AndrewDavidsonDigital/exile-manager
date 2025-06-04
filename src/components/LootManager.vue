@@ -135,7 +135,7 @@ function deleteSelectedLoot(){
   }else if(char !== -1){
     deletableIndex = char.loot.findIndex(loot => loot._identifier === toDeleteId);
   }
-  if (!deletableIndex || deletableIndex === -1){
+  if (deletableIndex === undefined || deletableIndex === -1){
     console.warn(`attempt made to delete an item not indexed: `, toDeleteId, '  from: ', activeTab.value);
     return;
   }
