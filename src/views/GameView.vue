@@ -47,7 +47,7 @@
 </script>
 
 <template>
-  <section class="flex flex-col items-center gap-2 mt-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)]">
+  <section class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)]">
     <template v-if="hasCharacter">
       <FluidElement>
         <WorldState />
@@ -105,10 +105,14 @@
         </article>
       </section>
       <div class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]">
-        <FluidElement class="w-full order-2 md:order-1">
-          <CharacterState />
+        <CharacterState class="w-full order-2" />
+        <FluidElement class="w-full hidden md:block order-3">
+          <CharacterEquipment />
         </FluidElement>
-        <FluidElement class="w-full order-1 md:order-2">
+        <FluidElement
+          v-if="activeTab === 'loot'"
+          class="w-full md:hidden block order-1"
+        >
           <CharacterEquipment />
         </FluidElement>
       </div>
