@@ -36,7 +36,7 @@
       title: 'Item System 2.0',
       description: 'Items need some base values, item type should also limit affix availability.',
       priority: 'normal',
-      status: 'pending',
+      status: 'partial',
       keyPoints: [
         'Basic tier items will have a use',
         'Basic tier items wont need to be identified',
