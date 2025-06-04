@@ -96,6 +96,11 @@ function deleteSelectedLoot(){
   }
   const deletableIndex = char.loot.findIndex(loot => loot._identifier === toDeleteId);
   // console.log(`to delete item [${deletableIndex}] as item: ${JSON.stringify(char.loot[deletableIndex])}`)
+  const itemTier = selectedLoot.value?.itemDetails?.tier || 'basic';
+  const lootValue = ITEM_TIER_COSTS[itemTier] / 10;
+
+  gameEngine.updateGold(lootValue);
+
   selectedLoot.value = undefined;
   char.loot.splice(deletableIndex, 1);
 }
