@@ -126,7 +126,7 @@
         <button
           class="w-fit"
           :class="[
-            {'pointer-events-none blur-xs': adventuringStore.isAdventuring || !isCharAlive }
+            {'pointer-events-none blur-xs': adventuringStore.isAdventuring || !isCharAlive || !selectedLevel }
           ]"
           @click="startAdventuring()"
         >
