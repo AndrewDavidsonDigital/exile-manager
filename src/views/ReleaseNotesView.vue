@@ -40,7 +40,10 @@
             </li>
           </template>
         </ul>
-        <p class="opacity-60 text-left">
+        <p
+          v-if="release.commit"
+          class="opacity-60 text-left"
+        >
           Commit: <a
             :href="resolveCommitUrl(release.commit)"
             target="_blank"

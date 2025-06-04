@@ -60,7 +60,7 @@
       title: 'Mission System 1.5',
       description: 'Adding expected features as per UI',
       priority: 'high',
-      status: 'partial',
+      status: 'completed',
       keyPoints: [
         'Add area drop biasing',
         'Item Tiers dropped limited in some fashion likely area-level'
