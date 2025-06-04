@@ -4,6 +4,7 @@ import Landing from '../views/LandingView.vue'
 import Game from '@/views/GameView.vue';
 import ReleaseNotes from '@/views/ReleaseNotesView.vue';
 import RoadmapView from '@/views/RoadmapView.vue';
+import JournalView from '@/views/JournalView.vue';
 
 export const routes: IRoute[] = [
   {
@@ -16,6 +17,12 @@ export const routes: IRoute[] = [
     name: 'Game',
     title: 'New Game',
     component: Game
+  },
+  {
+    path: '/journal',
+    name: 'journal',
+    title: 'Help',
+    component: JournalView,
   },
   {
     path: '/roadmap',

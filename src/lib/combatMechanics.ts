@@ -11,6 +11,8 @@ export const CRITICAL_STRIKE_CONSTANTS = {
   SUPER_CRIT_CHANCE: 5,
   /** Health recovery percentage on non-execution critical strikes */
   CRIT_HEALTH_RECOVERY: 10,
+  /** Base 5% critical strike chance */
+  BASE_CRIT_CHANCE: 30,
   /** Execution thresholds based on enemy tier */
   EXECUTION_THRESHOLDS: {
     [EnemyTier.BASIC]: 30,
@@ -39,6 +41,17 @@ export interface CriticalStrikeParams {
     attackerMaxHealth: number;
 }
 
+// Dodge chance calculation constants
+export const DODGE_CONSTANTS = {
+  /** 80% maximum dodge chance */
+  MAX_DODGE_CHANCE: 0.80,
+  /** 5% base dodge chance */
+  DODGE_CHANCE_BASE: 0.05,
+  /** */
+  DODGE_CHANCE_SCALING: 0.0001,
+} as const;
+
+
 /**
  * Calculates dodge chance based on evasion rating and area level
  * Formula: base + (1 - base) * (1 - e^(-scaling * normalized_evasion))
@@ -56,14 +69,9 @@ export function calculateDodgeChance(evasion: number, level: number): number {
   const normalizedEvasion = evasion / areaLevelRelativeEvasion;
 
   // Calculate dodge chance using normalized evasion
-  const dodgeChance = DODGE_CHANCE_BASE + (1 - DODGE_CHANCE_BASE) * (1 - Math.exp(-DODGE_CHANCE_SCALING * normalizedEvasion * 1000));
-  return Math.round((Math.min(dodgeChance, MAX_DODGE_CHANCE)) * 100);
+  const dodgeChance = DODGE_CONSTANTS.DODGE_CHANCE_BASE + (1 - DODGE_CONSTANTS.DODGE_CHANCE_BASE) * (1 - Math.exp(-DODGE_CONSTANTS.DODGE_CHANCE_SCALING * normalizedEvasion * 1000));
+  return Math.round((Math.min(dodgeChance, DODGE_CONSTANTS.MAX_DODGE_CHANCE)) * 100);
 }
-
-// Dodge chance calculation constants
-const MAX_DODGE_CHANCE = 0.80; // 80% maximum dodge chance   // 840-1,258 base evasion needed
-const DODGE_CHANCE_BASE = 0.05; // 5% base dodge chance
-const DODGE_CHANCE_SCALING = 0.0001; // Scaling factor for dodge chance calculation
 
 // Level-based scaling constants
 const MIN_LEVEL = 1;
@@ -71,7 +79,6 @@ const MAX_LEVEL = 100;
 const MIN_EVASION = 40;
 const MAX_EVASION = 1000;
 
-const BASE_CRIT_CHANCE = 30; // Base 5% critical strike chance
 /**
  * Calculates the total critical strike chance based on affix bonuses
  * @param affixBonus The critical strike chance bonus from affixes as a percentage (e.g., 20 for 20%)
@@ -80,6 +87,6 @@ const BASE_CRIT_CHANCE = 30; // Base 5% critical strike chance
 export function calculateCriticalChance(affixBonus: number): number {
     // Convert percentage to multiplier (e.g., 20% becomes 0.2)
     const multiplier = 1 + (affixBonus / 100);
-    const totalChance = BASE_CRIT_CHANCE * multiplier;
+    const totalChance = CRITICAL_STRIKE_CONSTANTS.BASE_CRIT_CHANCE * multiplier;
     return Number(Math.min(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE, totalChance).toFixed(0));
 }
