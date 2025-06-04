@@ -1,6 +1,6 @@
-import { DODGE_CONSTANTS } from '@/lib/combatMechanics';
+import { CRITICAL_STRIKE_CONSTANTS, DODGE_CONSTANTS } from '@/lib/combatMechanics';
 import { asPercent } from '@/lib/string';
-import { ITEM_TIER_COSTS, ITEM_AFFIX_COUNTS } from '@/lib/game';
+import { ITEM_TIER_COSTS, ITEM_TIER_INFO } from '@/lib/game';
 
 export type Tags = 
    'damage' 
@@ -62,6 +62,24 @@ export const entries: IEntry[] = [
     ],
   },
   {
+    title: 'Critical Strike',
+    description: `An attack which has been rolled to be a crit has the following effects: if after dealing damage the enemy is bellow a dynamic health % threshold (depends on enemy tiers), then the enemy will instantly die, (think culling-strike). In the cases where the mob is not bellow the threshold then the character will recover ${asPercent(CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY)} of their life and have a flat ${asPercent(CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE)} to stun the enemy resulting in the enemies turn being skipped.`,
+    tags: [
+      'critical',
+      'damage',
+      'life'
+    ],
+  },
+  {
+    title: 'Critical Strike Chance',
+    description: `The percentage chance, capped at ${asPercent(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE)} for a hit to be considered a Critical Hit.`,
+    tags: [
+      'critical',
+      'damage',
+      'life'
+    ],
+  },
+  {
     title: 'Basic Items',
     description: `The most common tier of items. These items have no affixes and cost ${ITEM_TIER_COSTS.basic} gold to identify. They are marked with an emerald border when identified.`,
     tags: [
@@ -71,7 +89,7 @@ export const entries: IEntry[] = [
   },
   {
     title: 'Enhanced Items',
-    description: `Enhanced items have ${ITEM_AFFIX_COUNTS.enhanced.embedded} embedded and ${ITEM_AFFIX_COUNTS.enhanced.suffix} suffix affix. They cost ${ITEM_TIER_COSTS.enhanced} gold to identify and are marked with a blue border when identified.`,
+    description: `Enhanced items have ${ITEM_TIER_INFO.enhanced.affixCount.embedded} embedded and ${ITEM_TIER_INFO.enhanced.affixCount.suffix} suffix affix. They cost ${ITEM_TIER_COSTS.enhanced} gold to identify and are marked with a blue border when identified.`,
     tags: [
       'item',
       'tier',
@@ -80,7 +98,7 @@ export const entries: IEntry[] = [
   },
   {
     title: 'Exceptional Items',
-    description: `Exceptional items have ${ITEM_AFFIX_COUNTS.exceptional.embedded} embedded, ${ITEM_AFFIX_COUNTS.exceptional.prefix} prefix, and ${ITEM_AFFIX_COUNTS.exceptional.suffix} suffix affix. They cost ${ITEM_TIER_COSTS.exceptional} gold to identify and are marked with a purple border when identified.`,
+    description: `Exceptional items have ${ITEM_TIER_INFO.exceptional.affixCount.embedded} embedded, ${ITEM_TIER_INFO.exceptional.affixCount.prefix} prefix, and ${ITEM_TIER_INFO.exceptional.affixCount.suffix} suffix affix. They cost ${ITEM_TIER_COSTS.exceptional} gold to identify and are marked with a purple border when identified.`,
     tags: [
       'item',
       'tier',
@@ -89,7 +107,7 @@ export const entries: IEntry[] = [
   },
   {
     title: 'Abstract Items',
-    description: `Abstract items have ${ITEM_AFFIX_COUNTS.abstract.embedded} embedded and ${ITEM_AFFIX_COUNTS.abstract.prefix} prefix affixes. They cost ${ITEM_TIER_COSTS.abstract} gold to identify and are marked with an amber border when identified.`,
+    description: `Abstract items have ${ITEM_TIER_INFO.abstract.affixCount.embedded} embedded and ${ITEM_TIER_INFO.abstract.affixCount.prefix} prefix affixes. They cost ${ITEM_TIER_COSTS.abstract} gold to identify and are marked with an amber border when identified.`,
     tags: [
       'item',
       'tier',
@@ -98,7 +116,7 @@ export const entries: IEntry[] = [
   },
   {
     title: 'Infused Items',
-    description: `Infused items have ${ITEM_AFFIX_COUNTS.infused.embedded} embedded and ${ITEM_AFFIX_COUNTS.infused.suffix} suffix affixes. They cost ${ITEM_TIER_COSTS.infused} gold to identify and are marked with a cyan border when identified.`,
+    description: `Infused items have ${ITEM_TIER_INFO.infused.affixCount.embedded} embedded and ${ITEM_TIER_INFO.infused.affixCount.suffix} suffix affixes. They cost ${ITEM_TIER_COSTS.infused} gold to identify and are marked with a cyan border when identified.`,
     tags: [
       'item',
       'tier',

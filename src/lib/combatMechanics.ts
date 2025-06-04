@@ -6,18 +6,18 @@ export enum EnemyTier {
 
 export const CRITICAL_STRIKE_CONSTANTS = {
   /** Maximum possible critical strike chance from all sources */
-  MAX_CRIT_CHANCE: 30,
+  MAX_CRIT_CHANCE: 0.30,
   /** Base chance for a super critical strike */
-  SUPER_CRIT_CHANCE: 5,
+  SUPER_CRIT_CHANCE: 0.05,
   /** Health recovery percentage on non-execution critical strikes */
-  CRIT_HEALTH_RECOVERY: 10,
+  CRIT_HEALTH_RECOVERY: 0.10,
   /** Base 5% critical strike chance */
-  BASE_CRIT_CHANCE: 5,
+  BASE_CRIT_CHANCE: 0.05,
   /** Execution thresholds based on enemy tier */
   EXECUTION_THRESHOLDS: {
-    [EnemyTier.BASIC]: 30,
-    [EnemyTier.ELITE]: 25,
-    [EnemyTier.BOSS]: 10
+    [EnemyTier.BASIC]: 0.30,
+    [EnemyTier.ELITE]: 0.25,
+    [EnemyTier.BOSS]: 0.10
   }
 } as const;
 
@@ -85,8 +85,8 @@ const MAX_EVASION = 1000;
  * @returns The final critical strike chance (capped at MAX_CRIT_CHANCE)
  */
 export function calculateCriticalChance(affixBonus: number): number {
-    // Convert percentage to multiplier (e.g., 20% becomes 0.2)
-    const multiplier = 1 + (affixBonus / 100);
+    // affixBonus is now expected to be in decimal format (e.g., 0.2 for 20%)
+    const multiplier = 1 + affixBonus;
     const totalChance = CRITICAL_STRIKE_CONSTANTS.BASE_CRIT_CHANCE * multiplier;
-    return Number(Math.min(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE, totalChance).toFixed(0));
+    return Number(Math.min(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE, totalChance).toFixed(2));
 }

@@ -231,7 +231,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           const monsterHealthPercent = (monsterHealth / simMonster.health) * 100;
           
           // Check for super critical (5% chance on any critical)
-          const isSuperCritical = Math.random() * 100 < CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE;
+          const isSuperCritical = Math.random() < CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE;
           
           // Check for execution based on monster tier and health
           const executionThreshold = CRITICAL_STRIKE_CONSTANTS.EXECUTION_THRESHOLDS[mobTier[0] as EnemyTier];
@@ -243,7 +243,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             criticalText = ' (EXECUTION!)';
           } else {
             // Non-execution critical recovers health
-            const healthRecovery = Math.floor(exileStats.maxHealth * (CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY / 100));
+            const healthRecovery = Math.floor(exileStats.maxHealth * CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY);
             exileHealth = Math.min(exileStats.maxHealth, exileHealth + healthRecovery);
             criticalText = ` (CRITICAL! Recovered ${healthRecovery} health)`;
             

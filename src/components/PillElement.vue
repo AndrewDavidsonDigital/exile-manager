@@ -14,7 +14,7 @@
       capitalize rounded-full 
       border dark:border-emerald-400 border-cyan-700 
       pb-0.5 
-      w-fit "
+      w-fit h-fit"
     :class="[
       { 'text-sm/[1.2]' : props.small },
       { 'px-2' : !(props.collapse) },
