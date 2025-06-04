@@ -6,6 +6,7 @@ import type { ILoot, ItemType } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
+import type { AffixValue } from '@/lib/affixTypes';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
@@ -491,7 +492,7 @@ const resetBrush = () => {
               v-if="selectedLoot.itemDetails?.baseDetails"
               class="text-sm text-amber-200 capitalize"
             >
-              {{ selectedLoot.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(selectedLoot.itemDetails.baseDetails.value) }}
+              {{ selectedLoot.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(selectedLoot.itemDetails.baseDetails.value as AffixValue) }}
             </div>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"

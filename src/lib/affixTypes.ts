@@ -17,6 +17,8 @@ export type RangeValue = {
   maxValue: number;
 }
 
+
+
 export enum BaseItemAffix {
   ARM_ARMOR = 'armor',
   ARM_EVASION = 'evasion',
@@ -33,7 +35,7 @@ export enum BaseItemAffix {
   ACC_RES_LIGHTNING = 'res_lightning',
 }
 
-interface IBaseAffix {
+export interface IBaseAffix {
   affix: BaseItemAffix;
   name: string;
   value: AdditiveValue | MultiplicativeValue| RangeValue;

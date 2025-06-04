@@ -3,6 +3,7 @@ import { useGameEngine } from '@/stores/game';
 import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/lib/game';
 import { inject } from 'vue';
+import type { AffixValue } from '@/lib/affixTypes';
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
@@ -123,7 +124,7 @@ function unequipItem(slot: keyof ICharacterEquipment) {
                     v-if="item.itemDetails.baseDetails"
                     class="text-sm text-amber-200 capitalize"
                   >
-                    {{ item.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value) }}
+                    {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
@@ -208,7 +209,7 @@ function unequipItem(slot: keyof ICharacterEquipment) {
                     v-if="item.itemDetails.baseDetails"
                     class="text-sm text-amber-200 capitalize"
                   >
-                    {{ item.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value) }}
+                    {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
@@ -293,7 +294,7 @@ function unequipItem(slot: keyof ICharacterEquipment) {
                     v-if="item.itemDetails.baseDetails"
                     class="text-sm text-amber-200 capitalize"
                   >
-                    {{ item.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value) }}
+                    {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"

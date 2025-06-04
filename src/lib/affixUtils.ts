@@ -1,11 +1,11 @@
-import type { AffixValue } from '@/lib/affixTypes';
+import type { AffixValue, IBaseAffix } from '@/lib/affixTypes';
 
 /**
  * Gets the actual value from an affix based on its type
  * @param affix The affix object containing the value
  * @returns The calculated value based on the affix type
  */
-export function getAffixValue(affix: { value: AffixValue }): number {
+export function getAffixValue(affix: { value: AffixValue } | IBaseAffix): number {
   switch (affix.value.type) {
     case 'additive':
       return affix.value.value;

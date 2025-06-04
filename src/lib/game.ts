@@ -1,4 +1,4 @@
-import type { AffixCategory, IAffix } from './affixTypes';
+import type { AffixCategory, IAffix, IBaseAffix } from './affixTypes';
 import { AffixType, allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
 
@@ -204,10 +204,7 @@ export interface ICharacterEquipment {
 export interface IItem {
   tier: ItemTierType;              // magic common .... (total affix configuration)
   mutations: ItemMutationType[];   // types of affix subsets to allow
-  baseDetails?: {
-    attribute: string;
-    value: AffixValue;
-  },
+  baseDetails?: IBaseAffix,
   affixes: {
     embedded: Array<{
       id: string;

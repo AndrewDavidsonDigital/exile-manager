@@ -19,7 +19,7 @@ import {
   generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
-import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { AffixType, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
@@ -264,6 +264,70 @@ export const useGameEngine = defineStore('gameEngine', {
               break;
           }
         });
+
+        if (item.itemDetails.baseDetails){
+          const baseAffix = item.itemDetails.baseDetails;
+          switch (baseAffix.affix) {
+            // ARMOUR
+            case BaseItemAffix.ARM_ARMOR:
+              // retval.mitigation.find(el => el.key === 'armor')?.value += getAffixValue(baseAffix.value)
+              break;
+            case BaseItemAffix.ARM_EVASION:{
+              const mitigation = retval.mitigation.find(m => m.key === 'evasion');
+              if (mitigation) {
+                mitigation.value += getAffixValue(baseAffix);
+              }
+              break;
+            }
+            case BaseItemAffix.ARM_HEALTH:
+              retval.health += getAffixValue(baseAffix);
+              retval.maxHealth += getAffixValue(baseAffix);
+              break;
+
+            // WEAPON - this should overwrite your BASE attack value
+            case BaseItemAffix.WEA_PHYS_PHYSICAL:
+            case BaseItemAffix.WEA_COLD:
+            case BaseItemAffix.WEA_FIRE:
+            case BaseItemAffix.WEA_LIGHTNING:
+              retval.baseDamagePerTick = getAffixValue(baseAffix);
+              break;
+          
+            // ACCESSORY
+            case BaseItemAffix.ACC_RES_PHYSICAL:{
+              const mitigation = retval.mitigation.find(m => m.key === 'physical');
+              if (mitigation) {
+                mitigation.value += getAffixValue(baseAffix);
+              }
+              break;
+            }
+            case BaseItemAffix.ACC_RES_COLD:{
+              const mitigation = retval.mitigation.find(m => m.key === 'elemental_cold');
+              if (mitigation) {
+                mitigation.value += getAffixValue(baseAffix);
+              }
+              break;
+            }
+            case BaseItemAffix.ACC_RES_FIRE:{
+              const mitigation = retval.mitigation.find(m => m.key === 'elemental_fire');
+              if (mitigation) {
+                mitigation.value += getAffixValue(baseAffix);
+              }
+              break;
+            }
+            case BaseItemAffix.ACC_RES_LIGHTNING:{
+              const mitigation = retval.mitigation.find(m => m.key === 'elemental_lightning');
+              if (mitigation) {
+                mitigation.value += getAffixValue(baseAffix);
+              }
+              break;
+            }
+
+            default:
+              logger(`non-configured affix definition: ${baseAffix.affix}`);
+              break;
+          }
+        }
+
       });
 
 

@@ -1,6 +1,6 @@
 import type { ICharacterEquipment, ItemTierType, ItemType, LootType } from './game';
 import { BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
-import type { AffixValue } from './affixTypes';
+import type { AffixValue, IBaseAffix } from './affixTypes';
 
 export const allItemTypes: ItemType[] = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'];
 
@@ -224,7 +224,7 @@ const baseAffixTierScalingMap: Record<ItemTierType, number> = {
  * @param tier The item tier
  * @returns The selected base affix configuration
  */
-export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierType): { attribute: string; value: AffixValue } {
+export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierType): IBaseAffix {
   // Map the item type to the corresponding config section
   const configSection = mapItemTypeToAffixCategory(type);
   
@@ -267,7 +267,8 @@ export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierTy
   })();
   
   return {
-    attribute: selectedAffix.name,
+    affix: selectedAffix.affix,
+    name: selectedAffix.name,
     value: scaledValue as AffixValue
   };
 }
