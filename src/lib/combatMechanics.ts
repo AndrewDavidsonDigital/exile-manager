@@ -88,5 +88,5 @@ export function calculateCriticalChance(affixBonus: number): number {
     // affixBonus is now expected to be in decimal format (e.g., 0.2 for 20%)
     const multiplier = 1 + affixBonus;
     const totalChance = CRITICAL_STRIKE_CONSTANTS.BASE_CRIT_CHANCE * multiplier;
-    return Number(Math.min(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE, totalChance).toFixed(2));
+    return Number((100 * Math.min(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE, totalChance)).toFixed(2));
 }
