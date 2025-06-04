@@ -408,7 +408,7 @@ const resetBrush = () => {
         <button
           :disabled="!hasPrev"
           class="disabled:pointer-events-none"
-          @click="selectLootNeighbour()"
+          @click="resetBrush();selectLootNeighbour()"
         >
           <FluidElement class="!py-1 !px-2">
             {{ '<' }}
@@ -417,7 +417,7 @@ const resetBrush = () => {
         <button
           :disabled="!hasNext"
           class="disabled:pointer-events-none"
-          @click="selectLootNeighbour(true)"
+          @click="resetBrush();selectLootNeighbour(true)"
         >
           <FluidElement class="!py-1 !px-2">
             >
