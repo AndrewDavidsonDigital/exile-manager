@@ -14,8 +14,18 @@ import type {
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 
+type EncounterType = 
+  'combat'
+| 'treasure'
+| 'trap'
+| 'corrupted'
+| 'recover'
+| 'customA'
+| 'customB'
+;
+
 interface IEncounter {
-  type: string;
+  type: EncounterType;
   description: string;
   weight: number;
   minLevel: number;
@@ -52,10 +62,24 @@ const ENCOUNTERS: IEncounter[] = [
     alignment: 'negative'
   },
   {
-    type: 'none',
+    type: 'recover',
     description: 'The path ahead is quiet and uneventful...',
     weight: 25,
     minLevel: 0,
+    alignment: 'neutral'
+  },
+  {
+    type: 'customA',
+    description: 'You meet a mythical fisherman, Roiden, who serves up some of his catch',
+    weight: 1,
+    minLevel: 0,
+    alignment: 'neutral'
+  },
+  {
+    type: 'customB',
+    description: 'You encounter a mythical fisherman, Roiden, who force-feeds you his bait',
+    weight: 1,
+    minLevel: 2,
     alignment: 'neutral'
   }
 ];
@@ -88,7 +112,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         }
         return adjustedEncounter;
       });
-    
+
     const totalWeight = availableEncounters.reduce((sum, enc) => sum + enc.weight, 0);
     const random = Math.random() * totalWeight;
     
@@ -154,6 +178,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
     // Simulate combat rounds until someone dies
     while (exileHealth > 0 && monsterHealth > 0 && !shouldBail) {
+
       // Check if exile is about to die (less than 20% health)
       if (exileHealth <= exileStats.health * 0.2 && Math.random() < 0.3) { // 30% chance to escape when below 20% health
         // Calculate loot loss (30-50% of current loot)
@@ -504,7 +529,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         break;
       }
       
-      case 'none': {
+      case 'recover': {
         const restoreAmount = Math.floor(Math.random() * 9) + 7; // Random number between 7 and 15
         gameEngine.heal(restoreAmount, true);
         gameEngine.recoverMana(restoreAmount, true);
@@ -514,6 +539,34 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         encounterType = 'Generic';
         encounterIcon = '🔎';
+        break;
+      }
+      
+      // custom Roiden event Good
+      case 'customA': {
+        const restoreAmount = Math.floor(Math.random() * 51) + 10; // Random number between 10 and 60
+        gameEngine.heal(restoreAmount, true);
+        gameEngine.addExperience(calculateScaledExperience(10, charLevel, areaLevel));
+        
+        encounter.description += `\n- Restored ${restoreAmount}% Health`
+
+        encounterType = 'Generic';
+        encounterIcon = '🍣';
+        break;
+      }
+      
+      // custom Roiden event Bad
+      case 'customB': {
+        if (! (gameEngine.character)){
+          break;
+        }
+        const halfCurrentHealth = (gameEngine.character.stats.currentHealth) / 2
+        gameEngine.takeDamage(halfCurrentHealth, false);
+        
+        // encounter.description += `\n- lost 50% of health`
+
+        encounterType = 'Horror';
+        encounterIcon = '🤢';
         break;
       }
     }

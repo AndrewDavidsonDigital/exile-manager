@@ -141,6 +141,7 @@
                 { 'text-red-400': log.type === 'DangerLite' },
                 { 'text-blue-400': log.type === 'Generic' },
                 { 'text-teal-500': log.type === 'Safe' },
+                { 'text-slate-400': log.type === 'Horror' },
               ]"
             >
               <p
