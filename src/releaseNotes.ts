@@ -8,6 +8,17 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.8',
+    highlights: [
+      'Fix issue with item-delete ALWAYS removing from inventory even when item was in stash . . . :O',
+      'Fix some values related to Crit',
+      'Added Help / Encyclopedia section',
+      'Wire Item drop types to be biassed via area biasses',
+      'Wire Item drop rarity to be biassed via area level'
+    ],
+    commit: 'beebc456579a7c1442dbbafff377d50365809bfa',
+  },
+  {
     version: '0.0.7',
     highlights: [
       'Event weighting tweaks',
