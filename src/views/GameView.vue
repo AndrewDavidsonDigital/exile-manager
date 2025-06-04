@@ -116,6 +116,19 @@
           <CharacterEquipment />
         </FluidElement>
       </div>
+      <div class="flex justify-center -mb-8 z-10">
+        <button
+          class="w-fit"
+          :class="[
+            {'pointer-events-none blur-xs': adventuringStore.isAdventuring || !isCharAlive }
+          ]"
+          @click="startAdventuring()"
+        >
+          <FluidElement class="w-fit py-1">
+            Repeat Run
+          </FluidElement>
+        </button>
+      </div>
       <FluidElement
         :id="REPORT_DOM_ID"
         class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b"
