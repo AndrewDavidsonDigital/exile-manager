@@ -11,6 +11,7 @@
   import { computed, ref, watch } from 'vue';
   import { levels, type ILevel } from '@/lib/game';
   import ModalDialog from '@/components/ModalDialog.vue';
+  import SwitchToggle from '@/components/SwitchToggle.vue';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -20,6 +21,7 @@
   const levelDelta = computed(() => gameEngine.getCharacter !== -1 ? gameEngine.getCharacter.level : 0);
   const activeTab = ref<TabType>('adventuring');
   const lastUpdate = ref<number>(Date.now());
+  const reportingStyle = ref<boolean>(false);
   
   type TabType = 'adventuring' | 'loot' | 'town';
   const modalShown = ref<boolean>(false);
@@ -28,7 +30,7 @@
 
   function startAdventuring() {
     if (selectedLevel.value) {
-      adventuringStore.startAdventuring(selectedLevel.value);
+      adventuringStore.startAdventuring(selectedLevel.value, reportingStyle.value);
     }
     setTimeout(
       ()=>{
@@ -43,6 +45,10 @@
       modalShown.value = true;
     }
   });
+
+  function scrollIntoView(){
+    document.querySelector("#_activity-report")?.scroll({ top:0, behavior :'smooth' })
+  }
 
 </script>
 
@@ -116,7 +122,7 @@
           <CharacterEquipment />
         </FluidElement>
       </div>
-      <div class="flex justify-center -mb-8 z-10">
+      <div class="flex justify-center -mb-7 z-10">
         <button
           class="w-fit"
           :class="[
@@ -131,17 +137,25 @@
       </div>
       <FluidElement
         :id="REPORT_DOM_ID"
-        class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b"
+        class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b !pt-2"
       >
+        <div
+          class="flex gap-2 bg-neutral-900 sticky -top-3 px-5 -mx-5 py-1 border-b border-emerald-900"
+        >
+          <h2 class="text-lg">
+            Activity Log: 
+          </h2>
+          <p class="content-center ml-auto">
+            {{ reportingStyle ? "Detailed Combat logs" : "Condensed Logs" }}
+          </p>
+          <div class="content-center">
+            <SwitchToggle v-model="reportingStyle" />
+          </div>
+        </div>
         <TransitionGroup
           tag="ul" 
           class="flex flex-col last:pb-2"
         >
-          <li key="log_1st">
-            <h2 class="text-lg">
-              Activity Log:
-            </h2>
-          </li>
           <template
             v-for="log, index in adventuringStore.adventureJournal.toReversed()"
             :key="`journal_${index}`"
@@ -160,15 +174,22 @@
               <p
                 v-for="msg, mIndex in log.message.split('\n')"
                 :key="`message_line_${index}-${mIndex}`"
-                :class="[
-                  {'pl-4': msg.startsWith('\t')}
-                ]"
+                class="whitespace-preserve"
               >
                 {{ msg }}
               </p>
             </li>
           </template>
         </TransitionGroup>
+        <button
+          v-if="adventuringStore.adventureJournal.length > 4"
+          class="flex sticky ml-auto bottom-0"
+          @click="scrollIntoView"
+        >
+          <FluidElement class="!rounded-full !px-2 !py-0">
+            ↑
+          </FluidElement>
+        </button>
       </FluidElement>
     </template>
     <template v-else>
@@ -208,9 +229,7 @@
                 <p
                   v-for="msg, mIndex in log.message.split('\n')"
                   :key="`modal_message_line_${index}-${mIndex}`"
-                  :class="[
-                    {'pl-4': msg.startsWith('\t')}
-                  ]"
+                  class="whitespace-preserve"
                 >
                   {{ msg }}
                 </p>
