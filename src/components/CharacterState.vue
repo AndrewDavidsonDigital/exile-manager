@@ -229,7 +229,7 @@ const groupedAffixes = computed(() => {
               :class="{ 'pulse-dynamic': isGoldPulsing }"
               style="--pulse-color: var(--pulse-color-loot)"
             >
-              Gold: {{ char.gold }}
+              Gold: {{ Math.floor(char.gold) }}
             </div>
           </div>
         </div>
