@@ -11,10 +11,10 @@
       <h2 class="capitalize text-lg mx-auto w-fit">
         Welcome adventurer
       </h2>
-      <p>This is a small quick project (currently ~15hrs of dev and minimal AI usage)</p>
+      <p>This is a small project (with minimal AI usage)</p>
       <p>To start adventuring navigate to `new-game` or click the button bellow</p>
       <p>
-        Additionally due to the way auto-play works you'll need to interact with the audio element in the footer before you hear the glorious Stellaris bgm
+        Additionally due to the way audio auto-play works you'll need to interact with the audio element in the footer before you hear the glorious Stellaris bgm
       </p>
       <button
         class="size-full"
