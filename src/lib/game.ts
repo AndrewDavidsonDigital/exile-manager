@@ -186,11 +186,6 @@ export interface ICharacterStats {
   fortune: number;       // Luck and chance-based outcomes
   wrath: number;         // Combat prowess and rage
   affinity: number;      // Connection to magical forces
-  
-  // Base attributes
-  strength: number;      // Physical power and carrying capacity
-  dexterity: number;     // Agility and precision
-  intelligence: number;  // Mental acuity and magical potential
 }
 
 export interface ICharacterEquipment {
@@ -277,9 +272,6 @@ export const BASE_STATS: ICharacterStats = {
   fortune: 10,
   wrath: 10,
   affinity: 10,
-  strength: 10,
-  dexterity: 10,
-  intelligence: 10
 };
 
 export interface IStatRange {
