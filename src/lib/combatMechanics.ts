@@ -12,7 +12,7 @@ export const CRITICAL_STRIKE_CONSTANTS = {
   /** Health recovery percentage on non-execution critical strikes */
   CRIT_HEALTH_RECOVERY: 10,
   /** Base 5% critical strike chance */
-  BASE_CRIT_CHANCE: 30,
+  BASE_CRIT_CHANCE: 5,
   /** Execution thresholds based on enemy tier */
   EXECUTION_THRESHOLDS: {
     [EnemyTier.BASIC]: 30,
