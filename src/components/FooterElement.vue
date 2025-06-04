@@ -18,9 +18,21 @@
 </script>
 
 <template>
-  <footer class="mt-auto bg-neutral-800 w-full text-white flex flex-col items-center gap-x-2 justify-center pb-4 pt-2 px-2 max-w-content mx-auto [&>*]:whitespace-nowrap">
+  <footer 
+    class="
+      mt-auto  
+      max-w-content w-full
+      text-white text-sm
+      flex flex-col items-center justify-center
+      gap-x-2
+      pb-4 pt-2 px-2 
+      mx-auto 
+      bg-neutral-800
+
+      [&>*]:whitespace-nowrap
+    "
+  >
     <BgmBar />
-    <div>Game version: {{ gameEngine.getVersions.game }}</div>
     <button 
       class=" border border-black px-2 rounded-lg bg-amber-700 text-black"
       :class="[
@@ -35,7 +47,7 @@
         :to="{ name: 'releaseNotes' }"
         class="truncate duration-500 hover:text-orange-400"
       >
-        Release Notes
+        Release Notes: {{ gameEngine.getVersions.game }}
       </RouterLink>
     </div>
     <div>© {{ (new Date()).getFullYear() }}</div>
