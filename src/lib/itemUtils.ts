@@ -64,3 +64,21 @@ export const generateItemLevel = (normalizedLevel: number): number => {
   const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
   return Math.max(1, Math.min(100, Math.ceil(mean + z0 * stdDev)));
 };
+
+/**
+ * Generate normally distributed random number between 400 and 4000, centered around 1500
+ * @returns 
+ */
+export const generateNormalGold = () => {
+  // Box-Muller transform for normal distribution
+  const u1 = Math.random();
+  const u2 = Math.random();
+  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+  
+  // Scale and shift to our desired range
+  // Using 3 standard deviations to cover most of the range
+  const scaled = (z0 * 600) + 1500; // 600 is (4000-400)/6 to get 3 std devs
+  
+  // Clamp to our bounds
+  return Math.floor(Math.max(400, Math.min(4000, scaled)));
+};

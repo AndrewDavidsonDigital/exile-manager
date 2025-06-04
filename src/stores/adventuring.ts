@@ -13,6 +13,7 @@ import type {
   IMitigation
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
+import { generateNormalGold } from '@/lib/itemUtils';
 
 type EncounterType = 
   'combat'
@@ -22,6 +23,7 @@ type EncounterType =
 | 'recover'
 | 'customA'
 | 'customB'
+| 'customC'
 ;
 
 interface IEncounter {
@@ -80,6 +82,16 @@ const ENCOUNTERS: IEncounter[] = [
     description: 'You encounter a mythical fisherman, Roiden, who force-feeds you his bait',
     weight: 1,
     minLevel: 2,
+    alignment: 'neutral'
+  },
+  // update this to be a force activation of a new mission once mission revamp is done,
+  // think goblin-queen from d3
+  // treasure map to Archie's Perch, signed Vedorys / Syrodev
+  {
+    type: 'customC',
+    description: 'You spy a Long necked loot turtle, miraculously speeding out of sight.\n In its wake, you find a trail of coins seemingly forming the word Vedorys',
+    weight: 100,
+    minLevel: 0,
     alignment: 'neutral'
   }
 ];
@@ -567,6 +579,19 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         encounterType = 'Horror';
         encounterIcon = '🤢';
+        break;
+      }
+      
+      // custom Vedorys event
+      case 'customC': {
+        const charBasedGold = (gameEngine.character?.level || 1) * 100;
+        const goldChange = generateNormalGold() + charBasedGold;
+        gameEngine.updateGold(goldChange);
+        
+        encounter.description += `\n- quickly collect ${goldChange} gold`
+
+        encounterType = 'Treasure';
+        encounterIcon = '💰';
         break;
       }
     }
