@@ -525,6 +525,10 @@ export const useGameEngine = defineStore('gameEngine', {
             }
           }
         };
+
+        if (newLoot.itemDetails?.tier === 'basic'){
+          this._identifyItem(newLoot);
+        }
         
         this.character.loot.push(newLoot);
       }
