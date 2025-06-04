@@ -9,7 +9,8 @@ import type {
   ItemTierType,
   ICombatStat,
   IMitigation,
-  ItemType
+  ItemType,
+  LootType
 } from '@/lib/game';
 import { 
   DEFAULT_MITIGATION,
@@ -22,7 +23,7 @@ import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
-import { allItemTypes, slotMap, generateItemLevel } from '@/lib/itemUtils';
+import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType } from '@/lib/itemUtils';
 import { calculateDodgeChance } from '@/lib/combatMechanics';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
@@ -483,7 +484,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    addLoot(amount: number){
+    addLoot(amount: number, lootTags?: LootType[]){
       if (!this.character) return;
       logger(`Adding ${amount} loot items for ${this.character.name}`);
 
@@ -499,8 +500,8 @@ export const useGameEngine = defineStore('gameEngine', {
 
       // Generate random loot items
       for (let i = 0; i < totalLoot; i++) {
-        // Generate a random item type
-        const type: ItemType = (allItemTypes)[Math.floor(Math.random() * allItemTypes.length)];
+        // Generate a random item type using weighted system if loot tags are provided
+        const type: ItemType = lootTags ? getWeightedItemType(lootTags) : allItemTypes[Math.floor(Math.random() * allItemTypes.length)];
 
         const id = generateRandomId(); // Temporary name until identified;
         const iLevel = generateItemLevel(this.character.level);

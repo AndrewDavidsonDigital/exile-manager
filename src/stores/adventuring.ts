@@ -13,7 +13,7 @@ import type {
   IMitigation
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
-import { generateNormalGold } from '@/lib/itemUtils';
+import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 
@@ -538,11 +538,15 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       case 'treasure': {
-        const gold = Math.floor(Math.random() * 50) * difficulty.lootMultiplier;
+        const gold = generateGoldWithBias(
+          Math.floor(Math.random() * 50) * difficulty.lootMultiplier, 
+          level.lootTags,
+        );
         gameEngine.updateGold(gold);
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
         const loot = Math.floor(Math.random() * 5);
-        gameEngine.addLoot(loot); // 20% chance of 0 loot
+        // Use weighted item type based on level's loot tags
+        gameEngine.addLoot(loot, level.lootTags); // Pass loot tags to addLoot
 
         if (gold > 0){
           encounter.description += `\n- ${gold} Gold`

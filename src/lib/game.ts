@@ -4,7 +4,7 @@ import type { AffixValue } from './affixTypes';
 
 export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
 export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
-export type LootType = 'armor' | 'weapons' | 'jewelry' | 'currency';
+export type LootType = 'armor' | 'weapons' | 'jewellery' | 'currency';
 export type MonsterType = 'undead' | 'beast' | 'humanoid' | 'elemental' | 'abomination';
 export type JournalEntryType = 'Danger' | 'DangerLite' | 'Generic' | 'Safe' | 'Treasure' | 'Horror';
 export type ItemType = 'Sword'| 'Shield'| 'Amulet'| 'Ring'| 'Boots'| 'Gloves'| 'Helmet'| 'Armor'| 'Shoulders'| 'Pants';
@@ -49,7 +49,7 @@ export const levels: ILevel[] = [
     areaLevel: 2,
     description: "LORE TBD",
     name: "Mini Boss",
-    lootTags: ['currency', 'jewelry'],
+    lootTags: ['currency', 'jewellery'],
     encounterBase: 6,
     encounterRangeDeltas: 2,
     monsterTypes: ['beast', 'elemental']
@@ -67,7 +67,7 @@ export const levels: ILevel[] = [
     areaLevel: 4,
     description: "LORE TBD",
     name: "Boss",
-    lootTags: ['currency', 'jewelry'],
+    lootTags: ['currency', 'jewellery'],
     encounterBase: 8,
     encounterRangeDeltas: 3,
     monsterTypes: ['abomination']

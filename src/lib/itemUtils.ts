@@ -1,4 +1,4 @@
-import type { ICharacterEquipment, ItemTierType, ItemType } from './game';
+import type { ICharacterEquipment, ItemTierType, ItemType, LootType } from './game';
 
 export const allItemTypes: ItemType[] = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'];
 
@@ -81,4 +81,49 @@ export const generateNormalGold = () => {
   
   // Clamp to our bounds
   return Math.floor(Math.max(400, Math.min(4000, scaled)));
+};
+
+// Map loot tags to item types
+export const lootTagToItemTypes: Record<LootType, ItemType[]> = {
+  'armor': ['Helmet', 'Armor', 'Shoulders', 'Pants', 'Boots', 'Gloves'],
+  'weapons': ['Sword', 'Shield'],
+  'jewellery': ['Amulet', 'Ring'],
+  'currency': [] // Currency is handled separately
+};
+
+/**
+ * Gets a weighted random item type based on the level's loot tags
+ * @param lootTags The loot tags from the level
+ * @returns A random item type, with 90% chance from loot tags and 10% chance from all types
+ */
+export function getWeightedItemType(lootTags: LootType[]): ItemType {
+  // 90% chance to use loot tag types, 10% chance to use any type
+  if (Math.random() < 0.9 && lootTags.length > 0) {
+    // Get all possible item types from the loot tags
+    const possibleTypes = lootTags.flatMap(tag => lootTagToItemTypes[tag]);
+    
+    // If we have possible types from the tags, use them
+    if (possibleTypes.length > 0) {
+      return possibleTypes[Math.floor(Math.random() * possibleTypes.length)];
+    }
+  }
+  
+  // Fallback to any item type
+  return allItemTypes[Math.floor(Math.random() * allItemTypes.length)];
+}
+
+/**
+ * Generate gold with loot tag bias
+ * @param lootTags The loot tags from the level
+ * @returns Amount of gold to award
+ */
+export const generateGoldWithBias = (baseGold: number, lootTags: LootType[]): number => {
+  
+  // If level has currency bias, increase gold by 20-100%
+  if (lootTags.includes('currency')) {
+    const multiplier = 1.2 + Math.random() * 0.8; // Random between 1.2x and 2x
+    return Math.floor(baseGold * multiplier);
+  }
+  
+  return baseGold;
 };
