@@ -2,9 +2,12 @@
   import FluidElement from '@/components/FluidElement.vue';
   import { releases } from '@/releaseNotes';
 
-  const gitBaseUrl = "https://github.com/AndrewDavidsonDigital/exile-manager/commit/"
+  const gitBaseUrl = "https://github.com/AndrewDavidsonDigital/exile-manager/"
   function resolveCommitUrl(commitHash: string){
-    return `${gitBaseUrl}${commitHash}`;
+    return `${gitBaseUrl}commit/${commitHash}`;
+  }
+  function resolveCompareUrl(commitHash: string){
+    return `${gitBaseUrl}compare/${commitHash}`;
   }
 </script>
 
@@ -41,7 +44,17 @@
           </template>
         </ul>
         <p
-          v-if="release.commit"
+          v-if="release.compare"
+          class="opacity-60 text-left"
+        >
+          Commits: <a
+            :href="resolveCompareUrl(release.compare)"
+            target="_blank"
+            class="break-words"
+          >v{{ release.version }}</a>
+        </p>
+        <p
+          v-else-if="release.commit"
           class="opacity-60 text-left"
         >
           Commit: <a

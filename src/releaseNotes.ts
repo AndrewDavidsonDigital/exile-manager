@@ -4,6 +4,7 @@ export interface IRelease {
   requiresPurge?: boolean;
   highlights: string[];
   commit: string;
+  compare?: string;
 }
 
 export const releases: IRelease[] = [
@@ -21,6 +22,7 @@ export const releases: IRelease[] = [
       'Removes some odd randomised names.... mage, isn\'t a name',
     ],
     commit: '777d17635739358985fa13f1929dfac0bfc91caf',
+    compare: 'v0.0.8...v0.0.9',
   },
   {
     version: '0.0.8',
@@ -32,6 +34,7 @@ export const releases: IRelease[] = [
       'Wire Item drop rarity to be biassed via area level'
     ],
     commit: 'beebc456579a7c1442dbbafff377d50365809bfa',
+    compare: 'v0.0.7...v0.0.8',
   },
   {
     version: '0.0.7',
@@ -44,6 +47,7 @@ export const releases: IRelease[] = [
       'Add `Detailed` logs support',
     ],
     commit: 'c268848c2fd813c5f416b2414168b34e7947eb25',
+    compare: 'v0.0.6...v0.0.7',
   },
   {
     version: '0.0.6',
@@ -57,6 +61,7 @@ export const releases: IRelease[] = [
       'Secret events',
     ],
     commit: 'ceb030a7b3c2f968f25345641e34b2c73d6763a1',
+    compare: 'v0.0.5...v0.0.6',
   },
   {
     version: '0.0.5',
@@ -67,6 +72,7 @@ export const releases: IRelease[] = [
       'Added selected item traversal ( prev / next item ) for mobile, ... ok desktop can have this too',
     ],
     commit: '1abbe3caa66cf9eda205e22a042f625a69a0a1d3',
+    compare: 'v0.0.4...v0.0.5',
   },
   {
     version: '0.0.4',
@@ -80,6 +86,7 @@ export const releases: IRelease[] = [
       "Fix issue where value ranges could end up with equal min and max values, i.e: no more `adds 3 to 3 physical damage`"
     ],
     commit: '73a1ca22670825cc63b97c3959b251915732c54e',
+    compare: 'v0.0.3...v0.0.4',
   },
   {
     version: '0.0.3',
@@ -89,6 +96,7 @@ export const releases: IRelease[] = [
       'Items are now filterable',
     ],
     commit: 'e6345d1b5146db936e4b123a9c802a6309e914ae',
+    compare: 'v0.0.2...v0.0.3',
   },
   {
     version: '0.0.2',
@@ -98,7 +106,7 @@ export const releases: IRelease[] = [
       'Add support for version re-syncing',
       'Rework how item affixes are handled and managed internally, (Allow ranges to actually exist)',
     ],
-    commit: 'd71e5faa74d4f5b6f0db71e868f62fc7b7785df4',
+    commit: 'd71e5faa74d4f5b6f0db71e868f62fc7b7785df4'
   },
   {
     version: '0.0.1',
