@@ -194,6 +194,8 @@ export interface IAffix {
   type: AffixType;
   /** Category of the affix (attack, defense, etc.) */
   category: AffixCategory;
+  /** Flag to denote if affix is singleValued then it should be a multiplicative affix */
+  isMultiplicative?: boolean;
   /** Tier level of the affix (higher tiers are more powerful) */
   tier: number;
   /** Minimum possible value for this affix */
@@ -403,36 +405,39 @@ export const prefixAffixes: IAffix[] = [
   {
     id: 'prefix_critical_1',
     name: 'Precise',
+    isMultiplicative: true,
     type: AffixType.PREFIX,
     category: AffixCategory.CRITICAL,
     tier: 1,
     minValue: 10,
     maxValue: 20,
-    description: '+{value}% to Critical Strike Chance',
+    description: '{value}% increase Critical Strike Chance',
     tags: ['critical', 'attack', 'weapon'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
   },
   {
     id: 'prefix_critical_2',
     name: 'Deadly',
+    isMultiplicative: true,
     type: AffixType.PREFIX,
     category: AffixCategory.CRITICAL,
     tier: 2,
     minValue: 20,
     maxValue: 40,
-    description: '+{value}% to Critical Strike Chance',
+    description: '{value}% increase Critical Strike Chance',
     tags: ['critical', 'attack', 'weapon'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
   },
   {
     id: 'prefix_critical_3',
     name: 'Merciless',
+    isMultiplicative: true,
     type: AffixType.PREFIX,
     category: AffixCategory.CRITICAL,
     tier: 3,
     minValue: 40,
     maxValue: 60,
-    description: '+{value}% to Critical Strike Chance',
+    description: '{value}% increase Critical Strike Chance',
     tags: ['critical', 'attack', 'weapon'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
   }

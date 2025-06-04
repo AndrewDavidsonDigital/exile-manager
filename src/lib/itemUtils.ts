@@ -142,11 +142,11 @@ export function generateItemTier(characterLevel: number, maxLevel: number = 40):
   
   // Define base weights for each tier
   const baseWeights = {
-    'basic': 40,
-    'enhanced': 30,
-    'exceptional': 20,
-    'abstract': 5,
-    'infused': 5
+    'basic': 65,
+    'enhanced': 20,
+    'exceptional': 11,
+    'abstract': 2,
+    'infused': 2
   };
 
   // Calculate level-based multipliers with steeper scaling
@@ -283,7 +283,7 @@ export function formatBaseAffixValue(value: AffixValue): string {
     case 'additive':
       return `+${value.value}`;
     case 'multiplicative':
-      return `${value.value}%`;
+      return `+${value.value}%`;
     case 'range':
       return `${value.minValue}-${value.maxValue}`;
     default:

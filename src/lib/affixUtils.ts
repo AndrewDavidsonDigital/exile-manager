@@ -10,6 +10,11 @@ export function getAffixValue(affix: { value: AffixValue } | IBaseAffix): number
     case 'additive':
       return affix.value.value;
     case 'multiplicative':
+      console.log('multiplicative', affix);
+      // as these are multipliers, if value is more than 1, i.e: 33% assume it needs normalizing s
+      if (affix.value.value > 1) {
+        return (affix.value.value / 100)
+      }
       return affix.value.value;
     default:
       return 0; // Fallback for unknown value types
