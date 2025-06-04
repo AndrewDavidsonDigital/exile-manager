@@ -8,6 +8,21 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.9',
+    isBreaking: true,
+    requiresPurge: true,
+    highlights: [
+      'All data reset to allow for new items configurations',
+      'Added support for Item bases to have values',
+      'Base affixes are immutable, but rolled from a pool per category (all armour shares same pool, shoulders, boots, etc. )',
+      'Base affixes are also rolled scaled by rarity and item level, (a basic +10 health, could get up-to a 1.5x multiplier from rarity and an additional 10% increase due to its item level )',
+      'Values are displayed and used in calculations but currently NOT exposed under \'Equipment Stats\' expander',
+      'Added some more custom randomised names',
+      'Removes some odd randomised names.... mage, isn\'t a name',
+    ],
+    commit: '777d17635739358985fa13f1929dfac0bfc91caf',
+  },
+  {
     version: '0.0.8',
     highlights: [
       'Fix issue with item-delete ALWAYS removing from inventory even when item was in stash . . . :O',

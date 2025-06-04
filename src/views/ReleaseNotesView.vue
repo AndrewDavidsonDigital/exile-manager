@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <section class="flex flex-col items-center my-auto mx-2 gap-2">
+  <section class="flex flex-col items-center m-2 gap-2 overflow-y-scroll overflow-x-clip scrollbar max-h-[80dvh]">
     <template
       v-for="release, index in releases"
       :key="`release_notes_${index}`"
@@ -47,6 +47,7 @@
           Commit: <a
             :href="resolveCommitUrl(release.commit)"
             target="_blank"
+            class="break-words"
           >{{ release.commit }}</a>
         </p>
       </FluidElement>
