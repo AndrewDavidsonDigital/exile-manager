@@ -14,8 +14,22 @@ const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
 type ManageLootTabType = 'inventory' | 'stash';
 
+type BrushMode = 'none' | 'identify' | 'delete';
+const activeBrush = ref<BrushMode>('none');
+
 const selectLoot = (loot: ILoot) => {
-  selectedLoot.value = loot;
+  if (activeBrush.value === 'none') {
+    selectedLoot.value = loot;
+    return;
+  }
+
+  if (activeBrush.value === 'identify' && !loot.identified) {
+    selectedLoot.value = loot;
+    identifySelectedLoot();
+  } else if (activeBrush.value === 'delete') {
+    selectedLoot.value = loot;
+    deleteSelectedLoot();
+  }
 };
 
 const identifySelectedLoot = () => {
@@ -54,10 +68,20 @@ const unstashSelectedLoot = () => {
   }
 };
 
-const equipSelectedLoot = () => {
+const equipSelectedLoot = (isMobile:boolean = false) => {
   if (!selectedLoot.value) return;
   gameEngine.equipItem(selectedLoot.value, activeTab.value === 'stash');
-  selectedLoot.value = undefined;
+  if (!isMobile){
+    selectedLoot.value = undefined;
+  }else{
+    if (hasNext.value === true){
+      selectLootNeighbour(true);
+    }else if(hasPrev.value === true){
+      selectLootNeighbour(false);
+    }else{
+      selectedLoot.value = undefined;
+    }
+  }  
 };
 
 const getIdentificationCost = (loot: ILoot): number => {
@@ -147,6 +171,10 @@ function selectLootNeighbour(forwards: boolean = false){
   }
 }
 
+const resetBrush = () => {
+  activeBrush.value = 'none';
+};
+
 </script>
 
 <template>
@@ -154,29 +182,74 @@ function selectLootNeighbour(forwards: boolean = false){
     <!-- Main Loot List -->
     <FluidElement class="flex-1 flex flex-col gap-2">
       <!-- Tab Navigation -->
-      <div class="flex gap-2 mb-4">
-        <button
-          :class="[
-            { 'opacity-50': activeTab !== 'inventory' },
-            { 'pointer-events-none': activeTab === 'inventory' }
-          ]"
-          @click="activeTab = 'inventory'; selectedLoot = undefined;"
-        >
-          <FluidElement class="w-fit !p-2">
-            Inventory {{ character !== -1 ? character.loot.length : 0 }}
-          </FluidElement>
-        </button>
-        <button
-          :class="[
-            { 'opacity-50': activeTab !== 'stash' },
-            { 'pointer-events-none': activeTab === 'stash' }
-          ]"
-          @click="activeTab = 'stash'; selectedLoot = undefined;"
-        >
-          <FluidElement class="w-fit !p-2">
-            Stash {{ gameEngine.stash?.length || 0 }}
-          </FluidElement>
-        </button>
+      <div class="flex flex-col md:flex-row justify-between gap-x-2 gap-y-4 mb-4">
+        <div class="flex gap-2">
+          <button
+            :class="[
+              { 'opacity-50': activeTab !== 'inventory' },
+              { 'pointer-events-none': activeTab === 'inventory' }
+            ]"
+            @click="activeTab = 'inventory'; selectedLoot = undefined;"
+          >
+            <FluidElement class="w-fit !p-2">
+              Inventory {{ character !== -1 ? character.loot.length : 0 }}
+            </FluidElement>
+          </button>
+          <button
+            :class="[
+              { 'opacity-50': activeTab !== 'stash' },
+              { 'pointer-events-none': activeTab === 'stash' }
+            ]"
+            @click="activeTab = 'stash'; selectedLoot = undefined;"
+          >
+            <FluidElement class="w-fit !p-2">
+              Stash {{ gameEngine.stash?.length || 0 }}
+            </FluidElement>
+          </button>
+        </div>
+        
+        <!-- Brush Tools -->
+        <div class="flex gap-2">
+          <button
+            :class="[
+              { 'opacity-50': activeBrush !== 'identify' },
+              { 'pointer-events-none': activeBrush === 'identify' }
+            ]"
+            @click="activeBrush = activeBrush === 'identify' ? 'none' : 'identify'"
+          >
+            <FluidElement
+              class="w-fit !p-2"
+              title="Identify Brush"
+            >
+              🔍
+            </FluidElement>
+          </button>
+          <button
+            :class="[
+              { 'opacity-50': activeBrush !== 'delete' },
+              { 'pointer-events-none': activeBrush === 'delete' }
+            ]"
+            @click="activeBrush = activeBrush === 'delete' ? 'none' : 'delete'"
+          >
+            <FluidElement
+              class="w-fit !p-2"
+              title="Delete Brush"
+            >
+              ❌
+            </FluidElement>
+          </button>
+          <button
+            v-if="activeBrush !== 'none'"
+            @click="resetBrush"
+          >
+            <FluidElement
+              class="w-fit !p-2"
+              title="Reset Brush"
+            >
+              Reset
+            </FluidElement>
+          </button>
+        </div>
       </div>
 
       <!-- Filter Buttons -->
@@ -228,6 +301,7 @@ function selectLootNeighbour(forwards: boolean = false){
             :data-void-touched="loot._hidden.isVoidTouched"
             :data-selected="selectedLoot === loot"
             :data-identified="loot.identified"
+            :data-brush="activeBrush"
             @click="selectLoot(loot)"
           >
             <div class="flex flex-col">
@@ -253,6 +327,7 @@ function selectLootNeighbour(forwards: boolean = false){
             :data-void-touched="loot._hidden.isVoidTouched"
             :data-selected="selectedLoot === loot"
             :data-identified="loot.identified"
+            :data-brush="activeBrush"
             @click="selectLoot(loot)"
           >
             <div class="flex flex-col">
@@ -446,8 +521,17 @@ function selectLootNeighbour(forwards: boolean = false){
         <section class="flex justify-between">
           <button
             v-if="selectedLoot && selectedLoot.identified"
-            class="w-fit mt-auto"
-            @click="equipSelectedLoot"
+            class="w-fit mt-auto  hidden md:block"
+            @click="() => equipSelectedLoot()"
+          >
+            <FluidElement class="!p-2 mt-auto">
+              Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
+            </FluidElement>
+          </button>
+          <button
+            v-if="selectedLoot && selectedLoot.identified"
+            class="w-fit mt-auto block md:hidden"
+            @click="() => equipSelectedLoot(true)"
           >
             <FluidElement class="!p-2 mt-auto">
               Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
@@ -518,6 +602,16 @@ function selectLootNeighbour(forwards: boolean = false){
 
 .loot-item[data-selected="true"] {
   border-color: var(--loot-border-color-selected);
+}
+
+.loot-item[data-brush="identify"][data-identified="false"] {
+  border-style: dashed;
+  border-color: var(--loot-border-color-selected);
+}
+
+.loot-item[data-brush="delete"]:hover {
+  border-style: dashed;
+  border-color: rgb(255 0 0) !important;
 }
 
 .dynamic-loot-text {
