@@ -22,7 +22,6 @@ const lastUpdated = computed( () => props.toggle);
 const isCollapsed = ref(false);
 
 watch(lastUpdated, () => {
-  console.log(`${Date.now()}: Force Show _____`);
   isCollapsed.value = false;
 })
 
