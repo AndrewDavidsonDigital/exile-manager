@@ -1,4 +1,6 @@
 import type { ICharacterEquipment, ItemTierType, ItemType, LootType } from './game';
+import { BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import type { AffixValue } from './affixTypes';
 
 export const allItemTypes: ItemType[] = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'];
 
@@ -87,7 +89,7 @@ export const generateNormalGold = () => {
 export const lootTagToItemTypes: Record<LootType, ItemType[]> = {
   'armor': ['Helmet', 'Armor', 'Shoulders', 'Pants', 'Boots', 'Gloves'],
   'weapons': ['Sword', 'Shield'],
-  'jewellery': ['Amulet', 'Ring'],
+  'accessory': ['Amulet', 'Ring'],
   'currency': [] // Currency is handled separately
 };
 
@@ -178,4 +180,112 @@ export function generateItemTier(characterLevel: number, maxLevel: number = 40):
 
   // Fallback to basic tier (should never reach here)
   return 'basic';
+}
+
+/**
+ * Maps an ItemType to its corresponding BASE_ITEM_AFFIX_CONFIG category
+ * @param type The item type to map
+ * @returns The corresponding BASE_ITEM_AFFIX_CONFIG category
+ */
+export function mapItemTypeToAffixCategory(type: ItemType): keyof typeof BASE_ITEM_AFFIX_CONFIG {
+  // Find which category this item type belongs to
+  for (const [category, types] of Object.entries(lootTagToItemTypes)) {
+    if (types.includes(type)) {
+      // Map the category to the corresponding BASE_ITEM_AFFIX_CONFIG key
+      switch (category) {
+        case 'weapons':
+          return 'WEAPON';
+        case 'accessory':
+          return 'ACCESSORY';
+        case 'armor':
+          return 'ARMOUR';
+        default:
+          throw new Error(`Unknown item category: ${category}`);
+      }
+    }
+  }
+  throw new Error(`Item type ${type} not found in any category`);
+}
+
+/**
+ * Maps item tiers to their value scaling multipliers
+ */
+const baseAffixTierScalingMap: Record<ItemTierType, number> = {
+  'basic': 1.0,       // Base value
+  'enhanced': 1.15,   // 15% increase
+  'exceptional': 1.3, // 30% increase
+  'abstract': 1.5,    // 50% increase
+  'infused': 1.5     // 50% increase
+};
+
+/**
+ * Resolves a base affix for an item based on its type and tier
+ * @param type The item type
+ * @param tier The item tier
+ * @returns The selected base affix configuration
+ */
+export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierType): { attribute: string; value: AffixValue } {
+  // Map the item type to the corresponding config section
+  const configSection = mapItemTypeToAffixCategory(type);
+  
+  // Get the available base affixes for this item type
+  const availableAffixes = BASE_ITEM_AFFIX_CONFIG[configSection];
+  
+  if (!availableAffixes || availableAffixes.length === 0) {
+    throw new Error(`No base affixes found for item type: ${type}`);
+  }
+  
+  // Randomly select from available affixes
+  const randomIndex = Math.floor(Math.random() * availableAffixes.length);
+  const selectedAffix = availableAffixes[randomIndex];
+  
+  // Get the scaling multiplier for this tier
+  const scalingMultiplier = baseAffixTierScalingMap[tier];
+  
+  // Scale the value based on the tier and value type
+  const scaledValue = (() => {
+    switch (selectedAffix.value.type) {
+      case 'additive':
+        return {
+          type: selectedAffix.value.type,
+          value: Math.round(selectedAffix.value.value * scalingMultiplier)
+        };
+      case 'multiplicative':
+        return {
+          type: selectedAffix.value.type,
+          value: Math.round(selectedAffix.value.value * scalingMultiplier)
+        };
+      case 'range':
+        return {
+          type: 'range',
+          minValue: Math.round(selectedAffix.value.minValue * scalingMultiplier),
+          maxValue: Math.round(selectedAffix.value.maxValue * scalingMultiplier)
+        };
+      default:
+        return selectedAffix.value;
+    }
+  })();
+  
+  return {
+    attribute: selectedAffix.name,
+    value: scaledValue as AffixValue
+  };
+}
+
+/**
+ * Formats a base affix value for display
+ * @param value The affix value to format
+ * @returns A formatted string representation of the value
+ */
+export function formatBaseAffixValue(value: AffixValue): string {
+  switch (value.type) {
+    case 'additive':
+      return `+${value.value}`;
+    case 'multiplicative':
+      return `${value.value}%`;
+    case 'range':
+      return `${value.minValue}-${value.maxValue}`;
+    default:
+      return 'Unknown';
+  }
 }

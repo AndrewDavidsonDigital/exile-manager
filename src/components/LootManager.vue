@@ -5,7 +5,7 @@ import { computed, ref } from 'vue';
 import type { ILoot, ItemType } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
-import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap } from '@/lib/itemUtils';
+import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
@@ -488,6 +488,12 @@ const resetBrush = () => {
               </p>
             </div>
             <div
+              v-if="selectedLoot.itemDetails?.baseDetails"
+              class="text-sm text-amber-200 capitalize"
+            >
+              {{ selectedLoot.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(selectedLoot.itemDetails.baseDetails.value) }}
+            </div>
+            <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
               :key="`em_${affix.id}_${aIndex}`"
               class="text-sm text-gray-400"
@@ -525,7 +531,7 @@ const resetBrush = () => {
         <button
           v-if="selectedLoot && !selectedLoot.identified"
           :disabled="!selectedLoot || !canAffordIdentification(selectedLoot)"
-          class="mt-auto"
+          class="mt-auto w-fit"
           :class="{ 'opacity-50 pointer-events-none': !selectedLoot || !canAffordIdentification(selectedLoot) }"
           @click="identifySelectedLoot"
         >

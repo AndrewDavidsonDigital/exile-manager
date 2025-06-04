@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { getTierColor } from '@/lib/itemUtils';
+import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/lib/game';
 import { inject } from 'vue';
 
@@ -120,6 +120,12 @@ function unequipItem(slot: keyof ICharacterEquipment) {
                     {{ item.itemDetails.tier }}
                   </p>
                   <div
+                    v-if="item.itemDetails.baseDetails"
+                    class="text-sm text-amber-200 capitalize"
+                  >
+                    {{ item.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value) }}
+                  </div>
+                  <div
                     v-for="affix in item.itemDetails.affixes.embedded"
                     :key="affix.id"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
@@ -198,6 +204,12 @@ function unequipItem(slot: keyof ICharacterEquipment) {
                   >
                     {{ item.itemDetails.tier }}
                   </p>
+                  <div
+                    v-if="item.itemDetails.baseDetails"
+                    class="text-sm text-amber-200 capitalize"
+                  >
+                    {{ item.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value) }}
+                  </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
                     :key="affix.id"
@@ -278,6 +290,12 @@ function unequipItem(slot: keyof ICharacterEquipment) {
                     {{ item.itemDetails.tier }}
                   </p>
                   <div
+                    v-if="item.itemDetails.baseDetails"
+                    class="text-sm text-amber-200 capitalize"
+                  >
+                    {{ item.itemDetails.baseDetails.attribute }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value) }}
+                  </div>
+                  <div
                     v-for="affix in item.itemDetails.affixes.embedded"
                     :key="affix.id"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
@@ -345,6 +363,7 @@ function unequipItem(slot: keyof ICharacterEquipment) {
     @apply fixed hidden bg-gray-900 border border-gray-600/40 rounded-md;
     @apply text-gray-200 text-sm whitespace-nowrap;
     @apply p-2 z-50;
+    @apply cursor-default;
     top: anchor(bottom);
     justify-self: anchor-center;
   }
