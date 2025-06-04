@@ -115,10 +115,30 @@ function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
 function deleteSelectedLoot(){
   const char = gameEngine.getCharacter;
   let toDeleteId = selectedLoot.value?._identifier;
-  if(char === -1 || !toDeleteId){
+
+  if (activeTab.value === 'stash'){    
+    if(!(gameEngine.stash) || gameEngine.stash.length === 0 || !toDeleteId){
+      console.warn(`attempt made to delete an item, from STASH but not valid condition`);
+      return;
+    }
+
+  } else {
+    if(char === -1 || char.loot.length === 0 || !toDeleteId){
+      console.warn(`attempt made to delete an item, from INVENT but not valid condition`);
+      return;
+    }
+  }
+  
+  let deletableIndex = undefined;
+  if(activeTab.value === 'stash'){
+    deletableIndex = gameEngine.stash?.findIndex(loot => loot._identifier === toDeleteId);
+  }else if(char !== -1){
+    deletableIndex = char.loot.findIndex(loot => loot._identifier === toDeleteId);
+  }
+  if (!deletableIndex || deletableIndex === -1){
+    console.warn(`attempt made to delete an item not indexed: `, toDeleteId, '  from: ', activeTab.value);
     return;
   }
-  const deletableIndex = char.loot.findIndex(loot => loot._identifier === toDeleteId);
   // console.log(`to delete item [${deletableIndex}] as item: ${JSON.stringify(char.loot[deletableIndex])}`)
   const itemTier = selectedLoot.value?.itemDetails?.tier || 'basic';
   const lootValue = ITEM_TIER_COSTS[itemTier] / 10;
@@ -126,7 +146,12 @@ function deleteSelectedLoot(){
   gameEngine.updateGold(lootValue);
 
   selectedLoot.value = undefined;
-  char.loot.splice(deletableIndex, 1);
+
+  if(activeTab.value === 'stash'){
+    gameEngine.stash?.splice(deletableIndex, 1)
+  }else if(char !== -1){
+    char.loot.splice(deletableIndex, 1)
+  }
 }
 
 const selectedItemIndex = computed(()=>{  
