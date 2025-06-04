@@ -360,12 +360,6 @@ const resetBrush = () => {
               <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
                 <p>{{ loot.name }}</p>
               </div>
-              <p 
-                v-if="!loot.identified"
-                class="text-sm opacity-50"
-              >
-                Unidentified
-              </p>
             </div>
           </FluidElement>
         </template>
