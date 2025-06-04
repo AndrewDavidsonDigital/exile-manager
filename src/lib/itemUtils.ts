@@ -127,3 +127,55 @@ export const generateGoldWithBias = (baseGold: number, lootTags: LootType[]): nu
   
   return baseGold;
 };
+
+/**
+ * Generates an item tier based on character level with weighted probabilities
+ * @param characterLevel The character's current level
+ * @param maxLevel The maximum possible level (defaults to 40)
+ * @returns A randomly selected ItemTierType based on weighted probabilities
+ */
+export function generateItemTier(characterLevel: number, maxLevel: number = 40): ItemTierType {
+  // Calculate the normalized level (0 to 1)
+  const normalizedLevel = Math.min(1, characterLevel / maxLevel);
+  
+  // Define base weights for each tier
+  const baseWeights = {
+    'basic': 40,
+    'enhanced': 30,
+    'exceptional': 20,
+    'abstract': 5,
+    'infused': 5
+  };
+
+  // Calculate level-based multipliers with steeper scaling
+  const levelMultipliers = {
+    'basic': Math.max(0.1, 1 - (normalizedLevel * 2.5)), // Decreases faster
+    'enhanced': 1, // Stays constant
+    'exceptional': 1 + (normalizedLevel * 2.5), // Increases faster
+    'abstract': 1 + (normalizedLevel * 5), // Increases much faster
+    'infused': 1 + (normalizedLevel * 5) // Increases much faster
+  };
+
+  // Calculate final weights
+  const finalWeights = Object.entries(baseWeights).map(([tier, weight]) => ({
+    tier: tier as ItemTierType,
+    weight: weight * levelMultipliers[tier as keyof typeof levelMultipliers]
+  }));
+
+  // Calculate total weight
+  const totalWeight = finalWeights.reduce((sum, { weight }) => sum + weight, 0);
+
+  // Generate random number between 0 and total weight
+  let random = Math.random() * totalWeight;
+
+  // Select tier based on weights
+  for (const { tier, weight } of finalWeights) {
+    random -= weight;
+    if (random <= 0) {
+      return tier;
+    }
+  }
+
+  // Fallback to basic tier (should never reach here)
+  return 'basic';
+}

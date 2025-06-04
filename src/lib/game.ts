@@ -401,14 +401,23 @@ export const ITEM_TIER_COSTS: Record<ItemTierType, number> = {
   'infused': 100
 };
 
-// Define affix counts per tier based on comments
-export const ITEM_AFFIX_COUNTS: Record<ItemTierType, { embedded: number, prefix: number, suffix: number }> = {
-  'basic': { embedded: 0, prefix: 0, suffix: 0 },
-  'enhanced': { embedded: 1, prefix: 0, suffix: 1 },
-  'exceptional': { embedded: 2, prefix: 1, suffix: 1 },
-  'abstract': { embedded: 1, prefix: 3, suffix: 0 },
-  'infused': { embedded: 1, prefix: 0, suffix: 3 }
-}; 
+export interface IItemTierInfo {
+  tier: ItemTierType;
+  numericalTier: number;
+  affixCount: {
+    embedded: number;
+    prefix: number;
+    suffix: number;
+  };
+}
+
+export const ITEM_TIER_INFO: Record<ItemTierType, IItemTierInfo> = {
+  'basic': { tier: 'basic', numericalTier: 1, affixCount: { embedded: 0, prefix: 0, suffix: 0 } },
+  'enhanced': { tier: 'enhanced', numericalTier: 2, affixCount: { embedded: 1, prefix: 0, suffix: 1 } },
+  'exceptional': { tier: 'exceptional', numericalTier: 3, affixCount: { embedded: 2, prefix: 1, suffix: 1 } },
+  'abstract': { tier: 'abstract', numericalTier: 4, affixCount: { embedded: 1, prefix: 3, suffix: 0 } },
+  'infused': { tier: 'infused', numericalTier: 4, affixCount: { embedded: 1, prefix: 0, suffix: 3 } }
+};
 
 /**
  * Generates a random value for an affix based on its type and description
@@ -578,7 +587,7 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string) {
   };
 
   // Get the expected affix counts for this tier
-  const affixCounts = ITEM_AFFIX_COUNTS[tier];
+  const affixCounts = ITEM_TIER_INFO[tier].affixCount;
 
   // Filter affixes that are allowed for this tier
   const allowedAffixes = allAffixes.filter((affix: IAffix) => 

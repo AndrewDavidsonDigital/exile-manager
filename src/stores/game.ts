@@ -6,7 +6,6 @@ import type {
   ICharacter, 
   ICharacterStats,
   ILoot,
-  ItemTierType,
   ICombatStat,
   IMitigation,
   ItemType,
@@ -17,13 +16,13 @@ import {
   DIFFICULTY_SETTINGS, 
   generateClassStats,
   ITEM_TIER_COSTS,
-  generateAffixesForTier
+  generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
 import { AffixType, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
-import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType } from '@/lib/itemUtils';
+import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier } from '@/lib/itemUtils';
 import { calculateDodgeChance } from '@/lib/combatMechanics';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
@@ -517,7 +516,7 @@ export const useGameEngine = defineStore('gameEngine', {
             isVoidTouched: Math.random() < 0.01, // 1% chance to be voidTouched
           },
           itemDetails: {
-            tier: ['basic', 'enhanced', 'exceptional', 'abstract', 'infused'][Math.floor(Math.random() * 5)] as ItemTierType,
+            tier: generateItemTier(this.character.level),
             mutations: [],
             affixes: {
               embedded: [],
