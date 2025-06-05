@@ -1,15 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" 
-  width="16" height="16"
+  width="700" height="300"
   fill="teal" 
-  stroke="teal"
-  stroke-width="1"
+  stroke="currentColor"
+  stroke-width="4"
   stroke-linecap="round"
   style="background: black;"
 >
-  <line
-    x1="1"
-    y1="8"
-    x2="15"
-    y2="8"
-  ></line>
+<svg width="660" height="220">
+<defs>
+  <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#05a"/>
+    <stop offset="50%" stop-color="#a55"/>
+    <stop offset="100%" stop-color="#0a5"/>
+  </linearGradient>
+</defs>
+
+<rect 
+  x="10" 
+  y="10" 
+  width="600" 
+  height="200" 
+  stroke="url(#linear)" 
+/>
+</svg>
+
 </svg>

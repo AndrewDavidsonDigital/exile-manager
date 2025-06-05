@@ -1,5 +1,5 @@
 import type { AffixValue, IBaseAffix } from '@/lib/affixTypes';
-import { BaseItemAffix, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import { BaseItemAffix, BASE_ITEM_AFFIX_CONFIG, AffixTypes } from './affixTypes';
 
 /**
  * Gets the actual value from an affix based on its type
@@ -8,9 +8,9 @@ import { BaseItemAffix, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
  */
 export function getAffixValue(affix: { value: AffixValue } | IBaseAffix): number {
   switch (affix.value.type) {
-    case 'additive':
+    case AffixTypes.ADDITIVE:
       return affix.value.value;
-    case 'multiplicative':
+    case AffixTypes.MULTIPLICATIVE:
       // as these are multipliers, if value is more than 1, i.e: 33% assume it needs normalizing s
       if (affix.value.value > 1) {
         return (affix.value.value / 100)
@@ -28,7 +28,7 @@ export function getAffixValue(affix: { value: AffixValue } | IBaseAffix): number
  */
 export function getAffixValueRange(affix: { value: AffixValue }): { lower: number, upper: number } {
   switch (affix.value.type) {
-    case 'range':
+    case AffixTypes.RANGE:
       return { lower: affix.value.minValue, upper: affix.value.maxValue };
     default:
       return { lower: 0, upper: 0 }; // Fallback for unknown value types

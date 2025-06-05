@@ -9,7 +9,10 @@ import type {
   ICombatStat,
   IMitigation,
   ItemType,
-  LootType
+  IStatBuff,
+  IPassive,
+  LootType,
+  SkillTriggers,
 } from '@/lib/game';
 import { 
   DEFAULT_MITIGATION,
@@ -19,11 +22,13 @@ import {
   generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
-import { AffixType, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { AffixType, AffixTypes, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
 import { calculateDodgeChance } from '@/lib/combatMechanics';
+import { passives } from '@/data/passives';
+import { skills } from '@/data/skills';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.11';
@@ -98,6 +103,18 @@ export const useGameEngine = defineStore('gameEngine', {
       return this.character;
     },
 
+    getPassiveIds():string[]{
+      if (!this.character) return [];
+
+      return this.character.passives.map(el => el._identifier);
+    },
+
+    getSkillIds():string[]{
+      if (!this.character) return [];
+
+      return this.character.skills.map(el => el._identifier);
+    },
+
     /**
      * Retrieves the current character
      * @returns {ICharacter | -1} The current character or -1 if none exists
@@ -138,6 +155,9 @@ export const useGameEngine = defineStore('gameEngine', {
 
       let localEvasion = 0;
 
+      //---------------------
+      // ADD all ITEM values
+      //---------------------
 
       // Check all equipped items for bonuses
       Object.values(this.character.equipment).forEach(item => {
@@ -330,6 +350,93 @@ export const useGameEngine = defineStore('gameEngine', {
 
       });
 
+      //------------------------------
+      // ADD all values from PASSIVES
+      //------------------------------
+      /* passives skills from character progression */
+
+      // 1st pass for NON multiplicative entries.
+      for (let index = 0; index < this.character.passives.length; index++) {
+        const passive: IPassive = this.character.passives[index];
+        // skip multiplicative in first pass
+        if (passive.effect.type === AffixTypes.MULTIPLICATIVE){
+          continue;
+        }
+        const target = passive.effect.target;
+        switch (target) {
+          case 'affinity':
+          case 'fortitude':
+          case 'fortune':
+          case 'wrath':
+            retval.attributes[target] = resolveAttributeChange(retval.attributes[target] , passive.effect);
+            
+            break;
+          case 'health':
+            retval.health = resolveAttributeChange(retval.health , passive.effect);
+            retval.maxHealth = resolveAttributeChange(retval.maxHealth , passive.effect);
+
+            break;
+          case 'mana':
+            retval.mana = resolveAttributeChange(retval.mana , passive.effect);
+            retval.maxMana = resolveAttributeChange(retval.maxMana , passive.effect);
+
+            break;
+        
+          default:
+            break;
+        }
+      }
+      
+      // 2nd pass for only multiplicative entries.
+      for (let index = 0; index < this.character.passives.length; index++) {
+        const passive: IPassive = this.character.passives[index];
+        if (passive.effect.type !== AffixTypes.MULTIPLICATIVE){
+          continue;
+        }
+
+        const target = passive.effect.target;
+        switch (target) {
+          case 'affinity':
+          case 'fortitude':
+          case 'fortune':
+          case 'wrath':
+            logger(`passive effecting: ${target}`);
+            retval.attributes[target] = resolveAttributeChange(retval.attributes[target] , passive.effect);
+            
+            break;
+          case 'health':
+            retval.health = resolveAttributeChange(retval.health , passive.effect);
+            retval.maxHealth = resolveAttributeChange(retval.maxHealth , passive.effect);
+            
+            break;
+          case 'mana':
+            retval.mana = resolveAttributeChange(retval.mana , passive.effect);
+            retval.maxMana = resolveAttributeChange(retval.maxMana , passive.effect);
+
+            break;
+        
+          default:
+            break;
+        }
+        
+      }
+
+
+
+      //------------------------------------------------
+      // ADD all values from temporary buffs / de-buffs
+      //------------------------------------------------
+      /* effects from mobs (poison, lower resists) . . .  */
+
+
+      //-------------------------------------
+      // Finally add run post addition logic
+      //-------------------------------------
+
+      retval.attributes.affinity = Math.floor(retval.attributes.affinity);
+      retval.attributes.fortitude = Math.floor(retval.attributes.fortitude);
+      retval.attributes.fortune = Math.floor(retval.attributes.fortune);
+      retval.attributes.wrath = Math.floor(retval.attributes.wrath);
 
       // Base damage from wrath
       retval.damage.physical += Math.floor(retval.attributes.wrath / 2);
@@ -413,6 +520,48 @@ export const useGameEngine = defineStore('gameEngine', {
       this.character = { ...character }; // Create a new object to ensure reactivity
       this.isDead = false;
       this.saveState();
+    },
+
+    setSkillTrigger(mySkillIndex: number, trigger: SkillTriggers){
+      if(!this.character)return;
+      const skill = this.character.skills[mySkillIndex];
+
+      skill.setTrigger = trigger;
+      this.saveState();
+    },
+
+    addSkill(skillIdentifier: string){
+      logger(`Attempting to add skill: [${skillIdentifier}]`);
+      if(
+          !this.character 
+        || this.character.pendingRewards.skills < 1 
+        || this.character.skills.find(p => p._identifier === skillIdentifier) !== undefined
+      ) return;
+
+      const skill = skills.find(p => p._identifier === skillIdentifier);
+
+      if(skill){
+        this.character.skills.push(skill);
+        this.character.pendingRewards.skills--;
+        this.saveState();
+      }
+    },
+
+    addPassive(passiveIdentifier: string){
+      logger(`Attempting to add passive: [${passiveIdentifier}]`);
+      if(
+          !this.character 
+        || this.character.pendingRewards.passives < 1 
+        || this.character.passives.find(p => p._identifier === passiveIdentifier) !== undefined
+      ) return;
+
+      const passive = passives.find(p => p._identifier === passiveIdentifier);
+
+      if(passive){
+        this.character.passives.push(passive);
+        this.character.pendingRewards.passives--;
+        this.saveState();
+      }
     },
 
     /**
@@ -536,6 +685,17 @@ export const useGameEngine = defineStore('gameEngine', {
       Object.entries(statBonus).forEach(([stat, bonus]) => {
         this.character!.stats[stat as keyof ICharacterStats] += bonus;
       });
+
+
+      // check against 1 as we have already incremented char level
+      // passive every 3 levels 
+      //  skill  every 4 levels
+      if (this.character.level % 4 === 1) {
+        this.character.pendingRewards.skills++;
+      } 
+      if (this.character.level % 3 === 1) {
+        this.character.pendingRewards.passives++;
+      }
       
       logger(`Character leveled up to ${this.character.level}`);
       this.saveState();
@@ -797,6 +957,19 @@ export const useGameEngine = defineStore('gameEngine', {
       mutableNewState.difficulty = currentState.difficulty;
       mutableNewState.isDead = currentState.isDead;
 
+      // v0.0.12 - passives | skills char bindings
+      if (mutableNewState.character && currentState.character){
+        mutableNewState.character.passives = [...currentState.character.passives];
+      }
+      if (mutableNewState.character && mutableNewState.character.skills && currentState.character && currentState.character.skills &&  typeof currentState.character === 'string'){
+        mutableNewState.character.skills = [];
+      }
+      
+      if (mutableNewState.character && currentState.character && currentState.character.pendingRewards &&  currentState.character.pendingRewards.passives && currentState.character.pendingRewards.skills) {
+        mutableNewState.character.pendingRewards = currentState.character.pendingRewards;
+      }
+
+
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);
      
       useGameState().clear();
@@ -868,4 +1041,15 @@ function resolveMitigation(_character: ICharacter): IMitigation[]{
   const retval: IMitigation[] = _cloneDeep(DEFAULT_MITIGATION);
 
   return retval;
+}
+
+function resolveAttributeChange(attribute: number, delta: IStatBuff ): number{
+  switch (delta.type) {
+    case AffixTypes.ADDITIVE:
+      return attribute + delta.change;
+    case AffixTypes.MULTIPLICATIVE:
+      return attribute * (1 + (delta.change / 100));
+    default:
+      return attribute;
+  }
 }

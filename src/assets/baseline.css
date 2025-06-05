@@ -54,10 +54,11 @@ details > summary {
   }      
 }
 
-.animation-pause {
+@utility animation-pause {
   animation-play-state: paused;
 }
-.animation-play {
+
+@utility animation-play {
   animation-play-state: running;
 }
 

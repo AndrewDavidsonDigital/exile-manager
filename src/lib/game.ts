@@ -1,4 +1,4 @@
-import type { AffixCategory, IAffix, IBaseAffix } from './affixTypes';
+import type { AffixCategory, AffixTypes, IAffix, IBaseAffix } from './affixTypes';
 import { AffixType, allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
 
@@ -358,6 +358,76 @@ export interface ILoot {
   }
 }
 
+export type CharacterAttributeType = 'fortitude' | 'fortune' | 'affinity' | 'wrath' | 'health' | 'mana';
+
+export enum SkillTarget {
+  ENEMY = 'enemy',
+  SELF = 'self',
+}
+
+export interface IStatBuff {
+  target: Partial<IAffix> | CharacterAttributeType;
+  change: number;
+  type: AffixTypes.ADDITIVE | AffixTypes.MULTIPLICATIVE | AffixTypes.RANGE;
+}
+
+export interface IPassive {
+  _identifier: string;      // unique identifier usually same as name, but immutable to allow for possible name changes 
+  name: string;
+  effect: IStatBuff;
+}
+
+export enum SkillTiming {
+  RUN = 'run',
+  TURN = 'turn',
+}
+
+export enum SkillResource {
+  HEALTH = 'health',
+  MANA = 'mana',
+  GOLD = 'gold',
+}
+export enum SkillActivationLayer {
+  COMBAT = 'combat',
+  RESTING = 'resting',
+  WORLD = 'world',
+}
+export enum SkillTriggers {
+  NONE = 'none',
+  ALWAYS = 'always',
+  CRITICAL_HEALTH = 'Health Critical',
+  LOW_HEALTH = 'Low Health',
+  LOW_MANA = 'Low Mana',
+  MED_HEALTH = 'Medium Health',
+  MED_MANA = 'Medium Mana',
+  HIGH_HEALTH = 'High Health',
+  HIGH_MANA = 'High Mana',
+}
+
+export interface ISkill {
+  _identifier: string;      // unique identifier usually same as name, but immutable to allow for possible name changes 
+  name: string;
+  target: SkillTarget;
+  activationLayer: SkillActivationLayer;
+  triggerStates: SkillTriggers[];
+  setTrigger?:SkillTriggers;
+  isEnabled?: boolean;
+  duration?: {
+    count: number;
+    timing: SkillTiming,
+  };
+  cooldown: {
+    count: number,
+    timing: SkillTiming,
+    startCooldownInstantly: boolean,
+  };
+  cost: {
+    amount: number;
+    resource: SkillResource;
+  },
+  effect: IStatBuff;
+}
+
 /**
  * Represents a character in the game with their stats, equipment, and inventory
  */
@@ -368,9 +438,14 @@ export interface ICharacter {
   experience: number;
   stats: ICharacterStats;
   equipment: ICharacterEquipment;
-  skills: string[];
   gold: number;
   loot: ILoot[];
+  passives: IPassive[];
+  skills: ISkill[];
+  pendingRewards: {
+    skills: number,
+    passives: number,
+  }
 }
 
 /**

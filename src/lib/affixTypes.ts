@@ -2,11 +2,17 @@ import type { ItemTierType, ItemMutationType, ItemType } from './game';
 import { allItemTypes } from './itemUtils';
 import type { OneOf } from './typescript';
 
+export enum AffixTypes {
+  ADDITIVE = 'additive',
+  MULTIPLICATIVE = 'multiplicative',
+  RANGE = 'range',
+}
+
 /**
  * Represents an additive value modifier
  */
 export type AdditiveValue = {
-  type: 'additive';
+  type: AffixTypes.ADDITIVE;
   value: number;
 }
 
@@ -14,7 +20,7 @@ export type AdditiveValue = {
  * Represents a multiplicative value modifier
  */
 export type MultiplicativeValue = {
-  type: 'multiplicative';
+  type: AffixTypes.MULTIPLICATIVE;
   value: number;
 }
 
@@ -22,7 +28,7 @@ export type MultiplicativeValue = {
  * Represents a range of possible values
  */
 export type RangeValue = {
-  type: 'range';
+  type: AffixTypes.RANGE;
   minValue: number;
   maxValue: number;
 }
@@ -81,7 +87,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ARM_ARMOR,
       name: 'Armour',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 5,
       },
     },
@@ -89,7 +95,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ARM_EVASION,
       name: 'Evasion',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 8,
       },
     },
@@ -97,7 +103,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ARM_HEALTH,
       name: 'Health',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 8,
       },
     }
@@ -107,7 +113,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.WEA_PHYS_PHYSICAL,
       name: 'Physical Damage',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 15,
       },
     },
@@ -115,7 +121,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.WEA_FIRE,
       name: 'Fire Damage',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 15,
       },
     },
@@ -123,7 +129,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.WEA_COLD,
       name: 'Cold Damage',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 15,
       },
     },
@@ -131,7 +137,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.WEA_LIGHTNING,
       name: 'Lightning Damage',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 15,
       },
     }
@@ -141,7 +147,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ACC_RES_PHYSICAL,
       name: 'Physical Resistance',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 5,
       },
     },
@@ -149,7 +155,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ACC_RES_FIRE,
       name: 'Fire Resistance',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 5,
       },
     },
@@ -157,7 +163,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ACC_RES_COLD,
       name: 'Cold Resistance',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 5,
       },
     },
@@ -165,7 +171,7 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
       affix: BaseItemAffix.ACC_RES_LIGHTNING,
       name: 'Lightning Resistance',
       value: {
-        type: 'additive',
+        type: AffixTypes.ADDITIVE,
         value: 5,
       },
     }
@@ -183,7 +189,7 @@ export type AffixValue = OneOf<[AdditiveValue, MultiplicativeValue, RangeValue]>
  * @returns True if the value is a range value
  */
 export function isAffixRange(value: AdditiveValue | MultiplicativeValue| RangeValue ): value is RangeValue {
-  return value.type === 'range';
+  return value.type === AffixTypes.RANGE;
 }
 
 /**

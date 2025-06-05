@@ -1,5 +1,5 @@
 import type { ICharacterEquipment, ItemTierType, ItemType, LootType } from './game';
-import { BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import { AffixTypes, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
 import type { AffixValue, IBaseAffix } from './affixTypes';
 
 /**
@@ -265,19 +265,19 @@ export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierTy
   // Scale the value based on the tier and value type
   const scaledValue = (() => {
     switch (selectedAffix.value.type) {
-      case 'additive':
+      case AffixTypes.ADDITIVE:
         return {
           type: selectedAffix.value.type,
           value: Math.round(selectedAffix.value.value * scalingMultiplier)
         };
-      case 'multiplicative':
+      case AffixTypes.MULTIPLICATIVE:
         return {
           type: selectedAffix.value.type,
           value: Math.round(selectedAffix.value.value * scalingMultiplier)
         };
-      case 'range':
+      case AffixTypes.RANGE:
         return {
-          type: 'range',
+          type: AffixTypes.RANGE,
           minValue: Math.round(selectedAffix.value.minValue * scalingMultiplier),
           maxValue: Math.round(selectedAffix.value.maxValue * scalingMultiplier)
         };
@@ -300,11 +300,11 @@ export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierTy
  */
 export function formatBaseAffixValue(value: AffixValue): string {
   switch (value.type) {
-    case 'additive':
+    case AffixTypes.ADDITIVE:
       return `+${value.value}`;
-    case 'multiplicative':
+    case AffixTypes.MULTIPLICATIVE:
       return `+${value.value}%`;
-    case 'range':
+    case AffixTypes.RANGE:
       return `${value.minValue}-${value.maxValue}`;
     default:
       return 'Unknown';

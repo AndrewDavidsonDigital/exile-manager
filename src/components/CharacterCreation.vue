@@ -50,7 +50,12 @@ const createCharacter = () => {
     equipment: {},
     skills: [],
     gold: 100,
-    loot: []
+    loot: [],
+    passives: [],
+    pendingRewards: {
+      passives: 0,
+      skills: 0,
+    }
   });
 
   $emit('character-created');

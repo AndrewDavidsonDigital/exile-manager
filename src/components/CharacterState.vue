@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ILoot } from '@/lib/game';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, type ILoot } from '@/lib/game';
 import { computed, ref, watch } from 'vue';
-import { AffixCategory, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
+import { AffixCategory, AffixTypes, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './FluidElement.vue';
 import { getAffixByType } from '@/lib/affixUtils';
 import { formatBaseAffixValue } from '@/lib/itemUtils';
+import { IconPassiveTree, IconSkills } from './icons';
+import ModalDialog from './ModalDialog.vue';
+import SwitchToggle from './SwitchToggle.vue';
+import { passives } from '@/data/passives';
+import { skills } from '@/data/skills';
+
+
+interface Props {
+  class?: string;
+}
+
+const props = defineProps<Props>();
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
@@ -21,10 +33,23 @@ const manaPulseType = ref<'gain' | 'loss'>('gain');
 const showDetailedStats = ref(false);
 const showStats = ref(false);
 
+const showPassivesModal = ref<boolean>(false);
+const showNewPassivesModal = ref<boolean>(false);
+const showSkillsModal = ref<boolean>(false);
+const showNewSkillsModal = ref<boolean>(false);
+
+const availablePassives = computed(() => passives.filter(el => !(gameEngine.getPassiveIds.includes(el._identifier))));
+const availableSkills = computed(() => skills.filter(el => !(gameEngine.getSkillIds.includes(el._identifier))));
+
 const hasEquippedItems = computed(() => {
   if (char === -1) return false;
   return Object.values(char.equipment).some(item => item !== undefined);
 });
+
+const SKILLS_MODAL_ID = 'skills_modal_id';
+const PASSIVES_MODAL_ID = 'passive_modal_id';
+const NEW_SKILLS_MODAL_ID = 'new_skills_modal_id';
+const NEW_PASSIVES_MODAL_ID = 'new_passive_modal_id';
 
 const PULSE_DURATION = 500;
 const LEVEL_UP_DURATION = 2000;
@@ -118,7 +143,7 @@ function combineAffixes( existingValue:AffixValue ,newValue: AffixValue){
   }
 
   switch (existingValue.type) {
-    case 'range':
+    case AffixTypes.RANGE:
       if(isAffixRange(existingValue) && isAffixRange(newValue)){
         existingValue.minValue += newValue.minValue
         existingValue.maxValue += newValue.maxValue
@@ -254,10 +279,49 @@ const groupedAffixes = computed(() => {
   };
 });
 
+function handleSkillsClick(){
+  if (char === -1) return;
+
+  if (char.pendingRewards.skills > 0){
+    showNewSkillsModal.value = !showNewSkillsModal.value
+  }else{
+    showSkillsModal.value = !showSkillsModal.value
+  }
+}
+
+function handlePassivesClick(){
+  if (char === -1) return;
+
+  if (char.pendingRewards.passives > 0){
+    showNewPassivesModal.value = !showNewPassivesModal.value
+  }else{
+    showPassivesModal.value = !showPassivesModal.value
+  }
+}
+
+function handleAddPassive(identifier: string){
+  try{
+    gameEngine.addPassive(identifier);
+  } finally{
+    showNewPassivesModal.value = false;
+  }
+}
+
+function handleAddSkill(identifier: string){
+  try{
+    gameEngine.addSkill(identifier);
+  } finally{
+    showNewSkillsModal.value = false;
+  }
+}
+
 </script>
 
 <template>
-  <FluidElement class="!p-0 md:!p-5 !border-0 md:!border-2">
+  <FluidElement
+    class="!p-0 md:!p-5 !border-0 md:!border-2"
+    :class="props.class"
+  >
     <div 
       class="
       flex flex-col 
@@ -281,6 +345,38 @@ const groupedAffixes = computed(() => {
             <div class="text-sm text-gray-300">
               Level {{ char.level }} {{ char.class }}
             </div>
+          </div>
+          <div class="flex gap-2 ">
+            <button 
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              @click="handleSkillsClick"
+            >
+              <IconSkills
+                :class="[
+                  {'animate-colour-pulse': char.pendingRewards.skills > 0 && !showSkillsModal},
+                  {'opacity-50 hover:opacity-80': !(char.pendingRewards.skills)},
+                ]"
+                :style="`
+                  --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
+                  --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
+                `"
+              />
+            </button>
+            <button
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              @click="handlePassivesClick"
+            >
+              <IconPassiveTree 
+                :class="[
+                  {'animate-colour-pulse': char.pendingRewards.passives > 0 && !showPassivesModal},
+                  {'opacity-50 hover:opacity-80': !(char.pendingRewards.passives)},
+                ]"
+                :style="`
+                  --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
+                  --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
+                `"
+              />
+            </button>
           </div>
           <div class="text-right font-bold text-white capitalize">
             <h3
@@ -609,7 +705,301 @@ const groupedAffixes = computed(() => {
       </template>
     </div>
   </FluidElement>
+  <ModalDialog
+    :id="SKILLS_MODAL_ID"
+    :show="showSkillsModal"
+    @close="showSkillsModal = false"
+  >
+    <section class="text-emerald-400">
+      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+        Skills
+      </h3>
+      <div
+        v-if="char !== -1"
+        class="space-y-3"
+      >
+        <template
+          v-for="skill,index in char.skills"
+          :key="`skills_${index}`"
+        >
+          <FluidElement
+            class="p-3"
+            :class="[
+              {'opacity-50': !(skill.isEnabled)}
+            ]"
+          >
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between items-center">
+                <span class="inline-flex items-baseline-last">
+                  <h4 class="text-lg font-medium capitalize">
+                    {{ skill.name }}:
+                  </h4>
+                  <span
+                    class="text-sm text-gray-400 capitalize ml-2"
+                    :class="[
+                      { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
+                      { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
+                      { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
+                    ]"
+                  >
+                    {{ skill.activationLayer }}
+                  </span>
+                </span>
+                <SwitchToggle 
+                  v-model="skill.isEnabled"
+                />
+              </div>
+              <div class="flex flex-col gap-1 text-sm text-gray-300">
+                <div class="flex gap-4 justify-between">
+                  <span
+                    class="capitalize"
+                  >
+                    Target: <span 
+                      :class="[
+                        { 'text-red-400': skill.target === SkillTarget.ENEMY },
+                        { 'text-teal-400': skill.target === SkillTarget.SELF },
+                      ]"
+                    >{{ skill.target }}</span>
+                  </span>
+                  <span class="capitalize">
+                    Cost: <span
+                      :class="[
+                        { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
+                        { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
+                        { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
+                      ]"
+                    >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
+                  </span>
+                </div>
+                <div class="flex gap-4 justify-between">
+                  <span
+                    v-if="skill.duration"
+                    class="capitalize"
+                  >
+                    Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
+                  </span>
+                  <span class="capitalize">
+                    Cooldown: <span
+                      :class="[
+                        { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
+                        { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
+                      ]"
+                    >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                    </span>
+                  </span>
+                </div>
+                <div class="text-sm text-gray-300 capitalize">
+                  Effect: {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                </div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <span class="text-gray-400">Triggers:</span>
+                  <button 
+                    v-for="trigger in skill.triggerStates" 
+                    :key="trigger"
+                    class="px-2 py-0.5 bg-gray-800 rounded-full capitalize border-transparent border text-emerald-400 duration-300 transition-all"
+                    :class="[
+                      { '!border-emerald-500' : skill.setTrigger === trigger },
+                      { 'opacity-50' : skill.setTrigger !== trigger },
+                      { 'pointer-events-none' : !(skill.isEnabled) },
+                    ]"
+                    @click="gameEngine.setSkillTrigger(index, trigger)"
+                  >
+                    {{ trigger }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </FluidElement>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
+  <ModalDialog
+    :id="PASSIVES_MODAL_ID"
+    :show="showPassivesModal"
+    @close="showPassivesModal = false"
+  >
+    <section class="text-emerald-400">
+      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+        Passives
+      </h3>
+      <div
+        v-if="char !== -1"
+        class="space-y-3"
+      >
+        <template
+          v-for="passive,index in char.passives"
+          :key="`passives_${index}`"
+        >
+          <FluidElement class="p-3">
+            <div class="flex flex-col gap-2">
+              <div class="flex justify-between items-center">
+                <h4 class="text-lg font-medium capitalize">
+                  {{ passive.name }}
+                </h4>
+              </div>
+              <div class="text-sm text-gray-300 capitalize">
+                Effect: +{{ passive.effect.change }}{{ passive.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ passive.effect.target }}
+              </div>
+            </div>
+          </FluidElement>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
+  <ModalDialog
+    :id="NEW_PASSIVES_MODAL_ID"
+    :show="showNewPassivesModal"
+    disable-lite-dismiss
+    @close="showNewPassivesModal = false"
+  >
+    <section class="text-emerald-400">
+      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+        Select a new Passive
+      </h3>
+      <div
+        v-if="char !== -1"
+        class="flex gap-2 flex-wrap justify-center"
+      >
+        <template
+          v-for="passive,index in (availablePassives.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
+          :key="`passives_${index}`"
+        >
+          <button 
+            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5"
+            @click="handleAddPassive(passive._identifier)"
+          >
+            <FluidElement
+              class="p-3 hover:border-amber-400  duration-300 transition-all"
+            >
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <h4 class="text-lg font-medium capitalize">
+                    {{ passive.name }}
+                  </h4>
+                </div>
+                <div class="text-sm text-gray-300 capitalize">
+                  Effect: +{{ passive.effect.change }}{{ passive.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ passive.effect.target }}
+                </div>
+              </div>
+            </FluidElement>
+          </button>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
+
+  <ModalDialog
+    :id="NEW_SKILLS_MODAL_ID"
+    :show="showNewSkillsModal"
+    class="!p-[3%] md:!px-10 md:!pb-10  md:!pt-4"
+    @close="showNewSkillsModal = false"
+  >
+    <section class="text-emerald-400">
+      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+        Select a new Skills
+      </h3>
+      <div
+        v-if="char !== -1"
+        class="flex gap-2 flex-wrap justify-center"
+      >
+        <template
+          v-for="skill,index in (availableSkills.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
+          :key="`skills_${index}`"
+        >
+          <button 
+            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5"
+            @click="handleAddSkill(skill._identifier)"
+          >
+            <FluidElement
+              class="p-3 hover:border-amber-400  duration-300 transition-all"
+            >
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <span class="inline-flex items-baseline-last">
+                    <h4 class="text-lg font-medium capitalize">
+                      {{ skill.name }}:
+                    </h4>
+                    <span
+                      class="text-sm text-gray-400 capitalize ml-2"
+                      :class="[
+                        { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
+                        { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
+                        { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
+                      ]"
+                    >
+                      {{ skill.activationLayer }}
+                    </span>
+                  </span>
+                </div>
+                <div class="flex flex-col gap-1 text-sm text-gray-300">
+                  <div class="flex gap-4 justify-between">
+                    <span
+                      class="capitalize"
+                    >
+                      Target: <span 
+                        :class="[
+                          { 'text-red-400': skill.target === SkillTarget.ENEMY },
+                          { 'text-teal-400': skill.target === SkillTarget.SELF },
+                        ]"
+                      >{{ skill.target }}</span>
+                    </span>
+                    <span class="capitalize">
+                      Cost: <span
+                        :class="[
+                          { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
+                          { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
+                          { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
+                        ]"
+                      >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
+                    </span>
+                  </div>
+                  <div class="flex gap-4 justify-between">
+                    <span
+                      v-if="skill.duration"
+                      class="capitalize"
+                    >
+                      Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
+                    </span>
+                    <span class="capitalize">
+                      Cooldown: <span
+                        :class="[
+                          { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
+                          { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
+                        ]"
+                      >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                      </span>
+                    </span>
+                  </div>
+                  <div class="text-sm text-gray-300 capitalize">
+                    Effect: {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                  </div>
+                  <div class="flex flex-wrap gap-2 mt-2">
+                    <span class="text-gray-400">Triggers:</span>
+                    <button 
+                      v-for="trigger in skill.triggerStates" 
+                      :key="trigger"
+                      class="px-2 py-0.5 bg-gray-800 rounded-full capitalize border-transparent border text-emerald-400 duration-300 transition-all"
+                      :class="[
+                        { '!border-emerald-500' : skill.setTrigger === trigger },
+                        { 'opacity-50' : skill.setTrigger !== trigger },
+                        { 'pointer-events-none' : !(skill.isEnabled) },
+                      ]"
+                      @click="gameEngine.setSkillTrigger(index, trigger)"
+                    >
+                      {{ trigger }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </FluidElement>
+          </button>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
 </template> 
+
 
 <style lang="css" scoped>
   * {
@@ -735,5 +1125,36 @@ const groupedAffixes = computed(() => {
     mask-composite: exclude;
     animation: snake-border v-bind(LEVEL_UP_DURATION + 'ms') linear forwards;
   }
+
+
+.animate-colour-pulse {
+  animation: colour-pulse-dynamic 3s ease-in-out forwards infinite;
+}
+
+@keyframes colour-pulse-dynamic {
+  0% {
+    opacity: 1;
+    color: var(--dynamic-colour-pulse-out, red);
+    scale: 0.9;
+  }
+  25% {
+    opacity: 0.8;
+    scale: 1;
+  }
+  50% {
+    opacity: 1;
+    color: var(--dynamic-colour-pulse-in, blue);
+    scale: 0.9;
+  }
+  75% {
+    opacity: 0.8;
+    scale: 1;
+  }
+  100% {
+    opacity: 1;
+    color: var(--dynamic-colour-pulse-out, red);
+    scale: 0.9;
+  }
+}
 
 </style>

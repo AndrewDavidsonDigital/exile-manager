@@ -66,6 +66,7 @@
       p-[5vw]
       backdrop-blur-[5px] !outline-none
 
+      border border-emerald-800
       backdrop:bg-slate-800/80
       bg-slate-800 rounded-xl
 

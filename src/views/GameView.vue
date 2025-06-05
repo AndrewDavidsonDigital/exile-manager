@@ -58,6 +58,37 @@
       <FluidElement>
         <WorldState />
       </FluidElement>
+      <section class="flex flex-col">
+        <div class="mx-auto w-fit">
+          CHEATS
+        </div>
+        <div class="flex gap-2 justify-center">
+          <button
+            class="w-fit"
+            @click="gameEngine.addPassive('Wrathful Embrace')"
+          >
+            <FluidElement>
+              add passive
+            </FluidElement>
+          </button>
+          <button
+            class="w-fit"
+            @click="gameEngine.addSkill('Heal')"
+          >
+            <FluidElement>
+              add Skill
+            </FluidElement>
+          </button>
+          <button
+            class="w-fit"
+            @click="gameEngine.levelUp()"
+          >
+            <FluidElement>
+              LevelUp
+            </FluidElement>
+          </button>
+        </div>
+      </section>
       <article
         class="flex gap-2 justify-center"
         :class="[
