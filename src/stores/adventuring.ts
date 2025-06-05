@@ -565,7 +565,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       case 'trap': {
-        const trapDamage = Math.floor(Math.random() * 15) * difficulty.dangerMultiplier;
+        const trapDamage = Math.floor((Math.random() * 10) + 5) * difficulty.dangerMultiplier;
         gameEngine.takeDamage(trapDamage);
         // gameEngine.modifyStat('fortitude', -1);
         gameEngine.addExperience(calculateScaledExperience(2, charLevel, areaLevel));
