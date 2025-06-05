@@ -625,7 +625,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         const halfCurrentHealth = (gameEngine.character.stats.currentHealth) / 2
         gameEngine.takeDamage(halfCurrentHealth, false);
         
-        // encounter.description += `\n- lost 50% of health`
+        encounter.description += `\n- lost ${halfCurrentHealth} of health`
 
         encounterType = 'Horror';
         encounterIcon = '🤢';
