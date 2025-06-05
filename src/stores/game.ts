@@ -26,7 +26,7 @@ import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generate
 import { calculateDodgeChance } from '@/lib/combatMechanics';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.0.9';
+const VERSION_NUMBER = '0.0.10';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
