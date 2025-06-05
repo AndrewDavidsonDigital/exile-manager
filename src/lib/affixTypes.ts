@@ -1,52 +1,80 @@
-import type { ItemTierType, ItemMutationType } from './game';
+import type { ItemTierType, ItemMutationType, ItemType } from './game';
+import { allItemTypes } from './itemUtils';
 import type { OneOf } from './typescript';
 
+/**
+ * Represents an additive value modifier
+ */
 export type AdditiveValue = {
   type: 'additive';
   value: number;
 }
 
+/**
+ * Represents a multiplicative value modifier
+ */
 export type MultiplicativeValue = {
   type: 'multiplicative';
   value: number;
 }
 
+/**
+ * Represents a range of possible values
+ */
 export type RangeValue = {
   type: 'range';
   minValue: number;
   maxValue: number;
 }
 
-
-
 export enum BaseItemAffix {
+  /** Base Armor Affix for increasing Armor */
   ARM_ARMOR = 'armor',
+  /** Base Armor Affix for increasing Evasion */
   ARM_EVASION = 'evasion',
+  /** Base Armor Affix for increasing Health */
   ARM_HEALTH = 'health',
 
+  /** Base Weapon Affix for replacing base-attack value with one of Physical */
   WEA_PHYS_PHYSICAL = 'physical',
+  /** Base Weapon Affix for replacing base-attack value with one of Fire */
   WEA_FIRE = 'fire',
+  /** Base Weapon Affix for replacing base-attack value with one of Cold */
   WEA_COLD = 'cold',
+  /** Base Weapon Affix for replacing base-attack value with one of Lightning */
   WEA_LIGHTNING = 'lightning',
 
+  /** Base Accessory Affix for adding base Physical Resistance */
   ACC_RES_PHYSICAL = 'res_physical',
+  /** Base Accessory Affix for adding base Fire Resistance */
   ACC_RES_FIRE= 'res_fire',
+  /** Base Accessory Affix for adding base Cold Resistance */
   ACC_RES_COLD = 'res_cold',
+  /** Base Accessory Affix for adding base Lightning Resistance */
   ACC_RES_LIGHTNING = 'res_lightning',
 }
 
+/**
+ * Represents a base affix with its name and value
+ */
 export interface IBaseAffix {
   affix: BaseItemAffix;
   name: string;
   value: AdditiveValue | MultiplicativeValue| RangeValue;
 }
 
+/**
+ * Configuration for base affixes by item type
+ */
 interface IBaseAffixConfig {
   ARMOUR: IBaseAffix[];
   WEAPON: IBaseAffix[];
   ACCESSORY: IBaseAffix[];
 }
 
+/**
+ * Configuration for base item affixes
+ */
 export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
   ARMOUR: [
     {
@@ -144,15 +172,22 @@ export const BASE_ITEM_AFFIX_CONFIG: Readonly<IBaseAffixConfig> = {
   ]
 };
 
+/**
+ * Union type of all possible affix value types
+ */
 export type AffixValue = OneOf<[AdditiveValue, MultiplicativeValue, RangeValue]>;
 
+/**
+ * Type guard to check if a value is a range value
+ * @param value The value to check
+ * @returns True if the value is a range value
+ */
 export function isAffixRange(value: AdditiveValue | MultiplicativeValue| RangeValue ): value is RangeValue {
   return value.type === 'range';
 }
 
 /**
  * Represents the different types of affixes that can be applied to items
- * @enum {string}
  */
 export enum AffixType {
   /** Immutable affixes that are inherent to the item, similar to Path of Exile's implicit modifiers */
@@ -163,27 +198,42 @@ export enum AffixType {
   SUFFIX = 'suffix'
 }
 
+/**
+ * Represents the different categories of affixes
+ */
 export enum AffixCategory {
+  /** Affixes relating to specifically offensive values */
   ATTACK = 'attack',
+  /** Affixes relating to specifically defensive values */
   DEFENSE = 'defense',
+  /** Affixes pertaining to evasion rating values */
   EVASION = 'evasion',
+  /** Affixes relating the characters life */
   LIFE = 'life',
+  /** Affixes relating the characters mana */
   MANA = 'mana',
+  /** Affixes relating resistances explicity @deprecated not yet implemented */
   RESISTANCE = 'resistance',
+  /** Affixes relating the characters base attributes */
   ATTRIBUTE = 'attribute',
+  /** Affixes relating utility elements @deprecated not yet implemented */
   UTILITY = 'utility',
+  /** Affixes relating elemental damage, both offensively and defensibly */
   ELEMENTAL = 'elemental',
+  /** Affixes relating physical damage, both offensively and defensibly */
   PHYSICAL = 'physical',
-  CHAOS = 'chaos',
+  /** Affixes pertaining to critical strike chance */
   CRITICAL = 'critical',
+  /** Affixes relating spell @deprecated not yet implemented */
   SPELL = 'spell',
+  /** Affixes relating movement @deprecated not yet implemented */
   MOVEMENT = 'movement',
+  /** Affixes relating crafting @deprecated not yet implemented */
   CRAFTING = 'crafting'
 }
 
 /**
  * Represents an affix that can be applied to an item
- * @interface IAffix
  */
 export interface IAffix {
   /** Unique identifier for the affix in format {type}_{category}_{tier} */
@@ -208,6 +258,8 @@ export interface IAffix {
   tags: string[];
   /** Item tiers that this affix can appear on */
   allowedTiers: ItemTierType[];
+  /** Item bases that this affix can appear on */
+  allowedBases: ItemType[];
   /** Optional mutations that this affix is compatible with */
   allowedMutations?: ItemMutationType[];
   /** Optional requirements for using this affix */
@@ -243,7 +295,8 @@ export const embeddedAffixes: IAffix[] = [
     maxValue: 8,
     description: '+{value} to Armor',
     tags: ['defense', 'armor'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'embedded_defense_2',
@@ -255,7 +308,8 @@ export const embeddedAffixes: IAffix[] = [
     maxValue: 12,
     description: '+{value} to Armor',
     tags: ['defense', 'armor'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'embedded_defense_3',
@@ -267,7 +321,8 @@ export const embeddedAffixes: IAffix[] = [
     maxValue: 18,
     description: '+{value} to Armor',
     tags: ['defense', 'armor'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   // Elemental Category
   {
@@ -281,7 +336,8 @@ export const embeddedAffixes: IAffix[] = [
     description: '+{value}% to all Elemental Resistances',
     tags: ['elemental', 'resistance'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
-    allowedMutations: ['crystallized']
+    allowedMutations: ['crystallized'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'embedded_elemental_2',
@@ -294,7 +350,8 @@ export const embeddedAffixes: IAffix[] = [
     description: '+{value}% to all Elemental Resistances',
     tags: ['elemental', 'resistance'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
-    allowedMutations: ['crystallized']
+    allowedMutations: ['crystallized'],
+    allowedBases: [...allItemTypes],
   },
   // Evasion Category
   {
@@ -307,7 +364,8 @@ export const embeddedAffixes: IAffix[] = [
     maxValue: 8,
     description: '+{value} to Evasion',
     tags: ['defense', 'evasion'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'embedded_evasion_2',
@@ -319,7 +377,8 @@ export const embeddedAffixes: IAffix[] = [
     maxValue: 12,
     description: '+{value} to Evasion',
     tags: ['defense', 'evasion'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'embedded_evasion_3',
@@ -331,7 +390,8 @@ export const embeddedAffixes: IAffix[] = [
     maxValue: 18,
     description: '+{value} to Evasion',
     tags: ['defense', 'evasion'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   }
 ];
 
@@ -350,7 +410,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 2,
     description: 'Adds {value} to {value} Physical Damage',
     tags: ['physical', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'prefix_physical_2',
@@ -362,7 +423,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 4,
     description: 'Adds {value} to {value} Physical Damage',
     tags: ['physical', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'prefix_physical_3',
@@ -374,7 +436,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 7,
     description: 'Adds {value} to {value} Physical Damage',
     tags: ['physical', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   // Elemental Category
   {
@@ -387,7 +450,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 3,
     description: 'Adds {value} to {value} Fire Damage',
     tags: ['elemental', 'fire', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'prefix_elemental_2',
@@ -399,7 +463,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 6,
     description: 'Adds {value} to {value} Fire Damage',
     tags: ['elemental', 'fire', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   // Critical Category
   {
@@ -413,7 +478,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 20,
     description: '{value}% increase Critical Strike Chance',
     tags: ['critical', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'prefix_critical_2',
@@ -426,7 +492,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 40,
     description: '{value}% increase Critical Strike Chance',
     tags: ['critical', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'prefix_critical_3',
@@ -439,7 +506,8 @@ export const prefixAffixes: IAffix[] = [
     maxValue: 60,
     description: '{value}% increase Critical Strike Chance',
     tags: ['critical', 'attack', 'weapon'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   }
 ];
 
@@ -458,7 +526,8 @@ export const suffixAffixes: IAffix[] = [
     maxValue: 8,
     description: '+{value}% to Physical Damage Reduction',
     tags: ['defense', 'physical', 'armor'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'suffix_defense_2',
@@ -470,7 +539,8 @@ export const suffixAffixes: IAffix[] = [
     maxValue: 12,
     description: '+{value}% to Physical Damage Reduction',
     tags: ['defense', 'physical', 'armor'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   // Life Category
   {
@@ -483,7 +553,8 @@ export const suffixAffixes: IAffix[] = [
     maxValue: 8,
     description: '+{value} to Maximum Life',
     tags: ['life', 'defense'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'suffix_life_2',
@@ -495,7 +566,8 @@ export const suffixAffixes: IAffix[] = [
     maxValue: 12,
     description: '+{value} to Maximum Life',
     tags: ['life', 'defense'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   // Mana Category
   {
@@ -508,7 +580,8 @@ export const suffixAffixes: IAffix[] = [
     maxValue: 8,
     description: '+{value} to Maximum Mana',
     tags: ['mana', 'spell'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   },
   {
     id: 'suffix_mana_2',
@@ -520,13 +593,16 @@ export const suffixAffixes: IAffix[] = [
     maxValue: 12,
     description: '+{value} to Maximum Mana',
     tags: ['mana', 'spell'],
-    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused']
+    allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
+    allowedBases: [...allItemTypes],
   }
 ];
 
-// Combined list of all affixes
+/**
+ * Combined list of all affixes
+ */
 export const allAffixes: IAffix[] = [
   ...embeddedAffixes,
   ...prefixAffixes,
   ...suffixAffixes
-]; 
+];

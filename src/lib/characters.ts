@@ -30,6 +30,11 @@ const CUSTOM_NAME:Readonly<string[]>  = [
   'Nylos', 'Vedorys', 'Syrodev', 
   'Serathal', 'Zenith'
 ]
+
+/**
+ * A collection of fantasy-themed character names.
+ * Used for generating random character names in the game
+ */
 export const FANTASY_NAMES:Readonly<string[]> = [
   ...EXAMPLE_NAMES,
   ...CUSTOM_NAME,

@@ -1,9 +1,18 @@
+/**
+ * Represents a release version of the application
+ */
 export interface IRelease {
+  /** Version number in semantic versioning format */
   version: string;
+  /** Whether this release contains breaking changes */
   isBreaking?: boolean;
+  /** Whether this release requires a data purge */
   requiresPurge?: boolean;
+  /** List of major changes in this release */
   highlights: string[];
+  /** Git commit hash for this release */
   commit: string;
+  /** URL to compare with previous version */
   compare?: string;
 }
 
