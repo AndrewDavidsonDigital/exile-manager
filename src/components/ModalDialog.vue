@@ -7,6 +7,7 @@
   interface Props {
     id: string,
     show: boolean,
+    disableLiteDismiss?: boolean,
   }
   const props = defineProps<Props>()
   const $emit = defineEmits(['open', 'close'])
@@ -77,7 +78,7 @@
       backdrop:w-screen backdrop:h-screen
     "
     role="presentation"
-    closedby="any"
+    :closedby="disableLiteDismiss ? 'closerequest' : 'any'"
     @close="cascadeBackdropClose"
   >
     <slot></slot>
