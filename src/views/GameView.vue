@@ -137,7 +137,7 @@
       </div>
       <FluidElement
         :id="REPORT_DOM_ID"
-        class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip mask-b !pt-2"
+        class="h-full max-h-[50dvh] md:max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip !pt-2"
       >
         <div
           class="flex gap-2 bg-neutral-900 sticky -top-3 px-5 -mx-5 py-1 border-b border-emerald-900"
@@ -183,7 +183,7 @@
         </TransitionGroup>
         <button
           v-if="adventuringStore.adventureJournal.length > 4"
-          class="flex sticky ml-auto bottom-0"
+          class="flex sticky ml-auto bottom-0 z-100"
           @click="scrollIntoView"
         >
           <FluidElement class="!rounded-full !px-2 !py-0">
@@ -191,6 +191,8 @@
           </FluidElement>
         </button>
       </FluidElement>
+      <article class="mask-b -mt-2">
+      </article>
     </template>
     <template v-else>
       <CharacterCreation
@@ -209,35 +211,33 @@
         <p>{{ gameEngine.character?.name }} has perished hoarding {{ gameEngine.character?.loot.length }} valuables</p>
       </div>
       <FluidElement class="h-full max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip ">
-        <div class="mask-b">
-          <TransitionGroup
-            tag="ul" 
-            class="flex flex-col last:pb-2"
+        <TransitionGroup
+          tag="ul" 
+          class="flex flex-col last:pb-2"
+        >
+          <template
+            v-for="log, index in adventuringStore.adventureJournal.toReversed()"
+            :key="`modal_journal_${index}`"
           >
-            <template
-              v-for="log, index in adventuringStore.adventureJournal.toReversed()"
-              :key="`modal_journal_${index}`"
+            <li 
+              :class="[
+                { 'text-amber-300': log.type === 'Treasure' },
+                { 'text-red-600': log.type === 'Danger' },
+                { 'text-red-400': log.type === 'DangerLite' },
+                { 'text-blue-400': log.type === 'Generic' },
+                { 'text-teal-500': log.type === 'Safe' },
+              ]"
             >
-              <li 
-                :class="[
-                  { 'text-amber-300': log.type === 'Treasure' },
-                  { 'text-red-600': log.type === 'Danger' },
-                  { 'text-red-400': log.type === 'DangerLite' },
-                  { 'text-blue-400': log.type === 'Generic' },
-                  { 'text-teal-500': log.type === 'Safe' },
-                ]"
+              <p
+                v-for="msg, mIndex in log.message.split('\n')"
+                :key="`modal_message_line_${index}-${mIndex}`"
+                class="whitespace-preserve"
               >
-                <p
-                  v-for="msg, mIndex in log.message.split('\n')"
-                  :key="`modal_message_line_${index}-${mIndex}`"
-                  class="whitespace-preserve"
-                >
-                  {{ msg }}
-                </p>
-              </li>
-            </template>
-          </TransitionGroup>
-        </div>
+                {{ msg }}
+              </p>
+            </li>
+          </template>
+        </TransitionGroup>
       </FluidElement>
       <FluidElement class="w-fit !p-2">
         <button
@@ -254,13 +254,14 @@
   @reference "@/assets/main.css";
   .mask-b{
     @apply relative;
-    @apply before:absolute before:w-[calc(100%_-_1px)] before:h-8 before:bottom-0 before:left-[1px];
+    @apply before:absolute before:w-[calc(100%_-_0.75rem)] before:h-16 before:bottom-[1px] before:left-[1px] before:rounded-bl-xl;
+    @apply before:bg-neutral-900;
   }
   .mask-b::before {
     mask-image: linear-gradient(
       to bottom, 
       transparent,
-      black 100%
+      black 80%
     );
     @apply z-10;
   }
