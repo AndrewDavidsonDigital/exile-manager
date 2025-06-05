@@ -8,6 +8,7 @@ import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './ModalDialog.vue';
+import { IconRefreshCC } from './icons';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
@@ -15,6 +16,7 @@ const lootFilter = ref<ItemType | undefined>(undefined);
 const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
 const showCompareModal = ref(false);
+const isLeftRing = ref<boolean>(false);
 type ManageLootTabType = 'inventory' | 'stash';
 
 type BrushMode = 'none' | 'identify' | 'delete';
@@ -73,7 +75,7 @@ const unstashSelectedLoot = () => {
 
 const equipSelectedLoot = (isMobile:boolean = false) => {
   if (!selectedLoot.value) return;
-  gameEngine.equipItem(selectedLoot.value, activeTab.value === 'stash');
+  gameEngine.equipItem(selectedLoot.value, activeTab.value === 'stash', !isLeftRing.value);
   if (!isMobile){
     selectedLoot.value = undefined;
   }else{
@@ -230,6 +232,9 @@ const resetBrush = () => {
 
 const equippedItem = computed(() => {
   if (!selectedLoot.value || !character.value || character.value === -1) return undefined;
+  if (selectedLoot.value.type === 'Ring' && !(isLeftRing.value)){
+    return character.value.equipment['rightHand'];
+  }
   return character.value.equipment[slotMap[selectedLoot.value.type]];
 });
 
@@ -644,7 +649,7 @@ const canCompare = computed(() => {
         </button>
         <div
           v-if="selectedLoot && selectedLoot.identified && equippedItem"
-          class="grid grid-cols-[1fr_3fr_3fr] gap-4 items-start [&>*]:capitalize px-[3%] md:px-8 py-[2%] md:py-4"
+          class="grid grid-cols-[1fr_3fr_3fr] gap-4 items-start [&>*]:capitalize px-[3%] md:px-8 py-[2%] md:py-4 relative"
         >
           <!-- Header -->
           <span></span>
@@ -850,6 +855,20 @@ const canCompare = computed(() => {
               -
             </span>
           </div>
+          <button
+            v-if="equippedItem.type === 'Ring' && character !== -1 && character.equipment.leftHand && character.equipment.rightHand"
+            class="absolute top-2 right-2 w-fit"
+            @click="isLeftRing = !isLeftRing"
+          >
+            <FluidElement class="!rounded-full !p-2 border-emerald-400/50 text-emerald-500 bg-transparent scale-75">
+              <IconRefreshCC
+                class="stroke-2 duration-700 transition-all"
+                :class="[
+                  { 'rotate-180' : isLeftRing }
+                ]"
+              />
+            </FluidElement>
+          </button>
         </div>
         <button
           class="w-fit mx-auto"

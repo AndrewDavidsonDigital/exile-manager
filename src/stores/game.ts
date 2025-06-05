@@ -721,8 +721,9 @@ export const useGameEngine = defineStore('gameEngine', {
      * Equips an item from inventory or stash
      * @param {ILoot} item - The item to equip
      * @param {boolean} fromStash - Whether the item is from stash
+     * @param {boolean} isRightRing - Whether the item is from stash
      */
-    equipItem(item: ILoot, fromStash: boolean = false) {
+    equipItem(item: ILoot, fromStash: boolean = false, isRightRing = false) {
       if (!this.character || !item.itemDetails || (!this.stash && fromStash)) return;
       logger(`Equipping item: ${item.name}${fromStash ? ' from stash' : ''}`);
       
@@ -744,7 +745,7 @@ export const useGameEngine = defineStore('gameEngine', {
         }
         // If both hands have rings, replace the left hand ring
         else {
-          slot = 'leftHand';
+          slot = isRightRing ? 'rightHand' : 'leftHand';
         }
       }
 
