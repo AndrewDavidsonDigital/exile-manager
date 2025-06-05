@@ -18,6 +18,18 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.10',
+    highlights: [
+      'Add visual summation of item base-stats',
+      'Add item comparison gui',
+      'Add quick-swap ability',
+      'Save some more space on mobile',
+      'Tweak auto-play logic so that more devices will auto-play',
+    ],
+    commit: '',
+    compare: 'v0.0.9...v0.0.10',
+  },
+  {
     version: '0.0.9',
     isBreaking: true,
     requiresPurge: true,
