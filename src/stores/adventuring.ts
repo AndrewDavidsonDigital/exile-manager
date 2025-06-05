@@ -622,7 +622,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         if (! (gameEngine.character)){
           break;
         }
-        const halfCurrentHealth = (gameEngine.character.stats.currentHealth) / 2
+        const halfCurrentHealth = Math.floor((gameEngine.character.stats.currentHealth) / 2)
         gameEngine.takeDamage(halfCurrentHealth, false);
         
         encounter.description += `\n- lost ${halfCurrentHealth} of health`
