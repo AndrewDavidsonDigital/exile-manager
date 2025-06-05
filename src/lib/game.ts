@@ -2,18 +2,84 @@ import type { AffixCategory, IAffix, IBaseAffix } from './affixTypes';
 import { AffixType, allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
 
-export type ExileClassType = 'Spellsword' | 'Chaos Mage' | 'Reaver';
-export type DifficultyType = 'Easy' | 'Normal' | 'Hard';
-export type LootType = 'armor' | 'weapons' | 'accessory' | 'currency';
-export type MonsterType = 'undead' | 'beast' | 'humanoid' | 'elemental' | 'abomination';
-export type JournalEntryType = 'Danger' | 'DangerLite' | 'Generic' | 'Safe' | 'Treasure' | 'Horror';
-export type ItemType = 'Sword'| 'Shield'| 'Amulet'| 'Ring'| 'Boots'| 'Gloves'| 'Helmet'| 'Armor'| 'Shoulders'| 'Pants';
+/**
+ * Represents the available difficulty levels for the game
+ */
+export type DifficultyType = 
+  'Easy' 
+| 'Normal' 
+| 'Hard'
+;
 
+/**
+ * Represents the different categories of loot that can be found
+ */
+export type LootType = 
+  'armor' 
+| 'weapons' 
+| 'accessory' 
+| 'currency'
+;
+
+/**
+ * Represents the different types of journal entries that can be encountered
+ */
+export type JournalEntryType = 
+'Danger' 
+| 'DangerLite' 
+| 'Generic' 
+| 'Safe' 
+| 'Treasure' 
+| 'Horror'
+;
+
+/**
+ * Represents all possible item types that can be equipped or found
+ */
+export type ItemType = 
+  'Sword'
+| 'Shield'
+| 'Amulet'
+| 'Ring'
+| 'Boots'
+| 'Gloves'
+| 'Helmet'
+| 'Armor'
+| 'Shoulders'
+| 'Pants'
+;
+
+/**
+ * Represents the available character classes in the game
+ */
+export type ExileClassType = 
+  'Spellsword' 
+| 'Chaos Mage' 
+| 'Reaver'
+;
+
+/**
+ * Represents the different types of monsters that can be encountered
+ */
+export type MonsterType = 
+  'undead' 
+| 'beast' 
+| 'humanoid' 
+| 'elemental' 
+| 'abomination'
+;
+
+/**
+ * Represents a journal entry with its type and message
+ */
 export interface IJournalEntry {
   type: JournalEntryType;
   message: string;
 }
 
+/**
+ * Represents a game level with its properties and configuration
+ */
 export interface ILevel {
   areaLevel: number;
   name: string;
@@ -23,8 +89,11 @@ export interface ILevel {
   encounterBase: number;
   encounterRangeDeltas: number;
   monsterTypes: MonsterType[];
-} 
+}
 
+/**
+ * List of all available game levels
+ */
 export const levels: ILevel[] = [
   {
     areaLevel: 0,
@@ -74,7 +143,19 @@ export const levels: ILevel[] = [
   },
 ];
 
-// affixes [embedded | pre | suf]:
+/**
+ * Represents the different tiers of items in the game
+ * 
+ * basic: No affixes
+ * 
+ * enhanced: 1 embedded, 1 suffix
+ * 
+ * exceptional: 2 embedded, 1 prefix, 1 suffix
+ * 
+ * abstract: 1 embedded, 3 prefixes
+ * 
+ * infused: 1 embedded, 3 suffixes
+ */
 export type ItemTierType = 
     'basic' //            0|0|0
   | 'enhanced' //         1|0|1
@@ -83,6 +164,17 @@ export type ItemTierType =
   | 'infused'//           1|0|3
 ;
 
+/**
+ * Represents the different types of item mutations
+ * 
+ * crystallized: Adds elemental properties
+ * 
+ * corrupted: Adds corruption properties
+ * 
+ * voided: Adds void properties
+ * 
+ * cursed: Adds curse properties
+ */
 export type ItemMutationType = 
     'crystallized'  // 
   | 'corrupted'     //
@@ -90,11 +182,17 @@ export type ItemMutationType =
   | 'cursed'        //
 ;
 
+/**
+ * Represents a damage mitigation value for a specific type
+ */
 export interface IMitigation {
   key: MitigationType;
   value: number;
 }
 
+/**
+ * Default mitigation values for different damage types
+ */
 export const DEFAULT_MITIGATION: IMitigation[] = [
   {
     key: 'evasion',
@@ -130,6 +228,9 @@ export const DEFAULT_MITIGATION: IMitigation[] = [
   }
 ];
 
+/**
+ * Represents the different types of damage mitigation
+ */
 export type MitigationType = 
   'evasion' 
 | 'block'
@@ -140,6 +241,9 @@ export type MitigationType =
 | 'corruption_void'
 | 'corruption_mental'
 
+/**
+ * Represents a character's combat statistics and attributes
+ */
 export interface ICombatStat {
   baseDamagePerTick: number;
   damagePerTick: number;
@@ -170,24 +274,18 @@ export interface ICombatStat {
   };
 }
 
+/**
+ * Represents the difficulty settings for the game
+ */
 export interface IDifficulty {
   name: DifficultyType;
   dangerMultiplier: number;
   lootMultiplier: number;
 }
 
-export interface ICharacterStats {
-  currentHealth: number; // current health
-  currentMana: number;   // current mana
-
-  health: number;        // max health
-  mana: number;          // max mana
-  fortitude: number;     // Mental and physical endurance
-  fortune: number;       // Luck and chance-based outcomes
-  wrath: number;         // Combat prowess and rage
-  affinity: number;      // Connection to magical forces
-}
-
+/**
+ * Represents a character's equipped items
+ */
 export interface ICharacterEquipment {
   weapon?: ILoot;
   head?: ILoot;
@@ -201,6 +299,25 @@ export interface ICharacterEquipment {
   rightHand?: ILoot;
 }
 
+/**
+ * Represents the character's core statistics and attributes
+ */
+export interface ICharacterStats {
+  currentHealth: number; // current health
+  currentMana: number;   // current mana
+
+  health: number;        // max health
+  mana: number;          // max mana
+
+  fortitude: number;     // Mental and physical endurance
+  fortune: number;       // Luck and chance-based outcomes
+  wrath: number;         // Combat prowess and rage
+  affinity: number;      // Connection to magical forces
+}
+
+/**
+ * Represents an item with its affixes and properties
+ */
 export interface IItem {
   tier: ItemTierType;              // magic common .... (total affix configuration)
   mutations: ItemMutationType[];   // types of affix subsets to allow
@@ -224,6 +341,9 @@ export interface IItem {
   }
 }
 
+/**
+ * Represents a loot item with its properties
+ */
 export interface ILoot {
   identified: boolean;
   name: string;
@@ -238,6 +358,9 @@ export interface ILoot {
   }
 }
 
+/**
+ * Represents a character in the game with their stats, equipment, and inventory
+ */
 export interface ICharacter {
   name: string;
   class: ExileClassType;
@@ -250,20 +373,32 @@ export interface ICharacter {
   loot: ILoot[];
 }
 
+/**
+ * Difficulty settings for the game with their respective multipliers
+ */
 export const DIFFICULTY_SETTINGS: ReadonlyMap<DifficultyType, IDifficulty> = new Map<DifficultyType, IDifficulty>([
   ['Easy', { name: 'Easy', dangerMultiplier: 0.5, lootMultiplier: 1.0 }],
   ['Normal', { name: 'Normal', dangerMultiplier: 1.0, lootMultiplier: 1.0 }],
   ['Hard', { name: 'Hard', dangerMultiplier: 2.0, lootMultiplier: 0.8 }]
 ]);
 
+/**
+ * List of available character classes in the game
+ */
 export const EXILE_CLASSES: ExileClassType[] = ['Spellsword', 'Chaos Mage', 'Reaver'];
 
+/**
+ * Descriptions for each character class
+ */
 export const CLASS_DESCRIPTIONS: Record<ExileClassType, string> = {
   'Spellsword': 'A master of both blade and magic, combining physical prowess with arcane abilities.',
   'Chaos Mage': 'A wielder of unpredictable and powerful magic, harnessing the forces of chaos.',
   'Reaver': 'A fierce warrior who channels their rage into devastating combat abilities.'
 };
 
+/**
+ * Base statistics for a new character
+ */
 export const BASE_STATS: ICharacterStats = {
   currentHealth: 100,
   currentMana: 100,
@@ -275,11 +410,17 @@ export const BASE_STATS: ICharacterStats = {
   affinity: 10,
 };
 
+/**
+ * Represents a range of possible values for a stat
+ */
 export interface IStatRange {
   min: number;
   max: number;
 }
 
+/**
+ * Represents the possible stat ranges for each class
+ */
 export interface IClassStatRanges {
   health: IStatRange;
   mana: IStatRange;
@@ -289,33 +430,39 @@ export interface IClassStatRanges {
   fortitude: IStatRange;
 }
 
+/**
+ * Stat ranges for each character class
+ */
 export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   'Spellsword': {
     health: { min: 10, max: 20 },
     mana: { min: 10, max: 20 },
-    affinity: { min: 3, max: 5 },    // Reduced from 4-7 to maintain relative difference
-    wrath: { min: 1, max: 3 },       // Reduced from 2-4
+    affinity: { min: 3, max: 5 },    // Aligned 3-5 to maintain relative difference
+    wrath: { min: 1, max: 3 },       // Aligned 2-4
     fortune: { min: -2, max: 0 },    // Non-aligned
     fortitude: { min: -2, max: 0 }   // Non-aligned
   },
   'Chaos Mage': {
     health: { min: 5, max: 10 },
     mana: { min: 15, max: 30 },
-    affinity: { min: 4, max: 6 },    // Reduced from 6-9
-    fortune: { min: 1, max: 3 },     // Reduced from 2-5
+    affinity: { min: 4, max: 6 },    // Aligned 4-6
+    fortune: { min: 1, max: 3 },     // Aligned 1-3
     wrath: { min: -3, max: -1 },     // Non-aligned
     fortitude: { min: -3, max: -1 }  // Non-aligned
   },
   'Reaver': {
     health: { min: 15, max: 30 },
     mana: { min: 5, max: 10 },
-    wrath: { min: 4, max: 6 },       // Reduced from 6-9
-    fortitude: { min: 1, max: 3 },   // Reduced from 2-5
+    wrath: { min: 4, max: 6 },       // Aligned 4-6
+    fortitude: { min: 1, max: 3 },   // Aligned 1-3
     affinity: { min: -3, max: -1 },  // Non-aligned
     fortune: { min: -2, max: 0 }     // Non-aligned
   }
 };
 
+/**
+ * Aligned stats for each character class
+ */
 export const CLASS_ALIGNED_STATS: Record<ExileClassType, (keyof IClassStatRanges)[]> = {
   'Spellsword': ['health','mana','affinity', 'wrath'],
   'Chaos Mage': ['health','mana','affinity', 'fortune'],
@@ -325,7 +472,7 @@ export const CLASS_ALIGNED_STATS: Record<ExileClassType, (keyof IClassStatRanges
 /**
  * Generates random stat bonuses for a given class
  * @param classType The class to generate stats for
- * @returns Partial<ICharacterStats> with random bonuses within the class's ranges
+ * @returns `Partial<ICharacterStats>` with random bonuses within the class's ranges
  */
 export function generateClassStats(classType: ExileClassType): Partial<ICharacterStats> {
   const ranges = CLASS_STAT_RANGES[classType];
@@ -356,6 +503,9 @@ export function generateClassStats(classType: ExileClassType): Partial<ICharacte
   return stats;
 }
 
+/**
+ * Represents the damage configuration for a monster type
+ */
 export interface IMonsterDamage {
   primary: MitigationType;
   secondary?: MitigationType;
@@ -363,6 +513,9 @@ export interface IMonsterDamage {
   damageSplit?: number; // Percentage of damage that comes from primary source (0-100)
 }
 
+/**
+ * Damage configurations for each monster type
+ */
 export const MONSTER_DAMAGE_TYPES: Record<MonsterType, IMonsterDamage> = {
   'undead': {
     primary: 'physical',
@@ -394,6 +547,13 @@ export const MONSTER_DAMAGE_TYPES: Record<MonsterType, IMonsterDamage> = {
   }
 };
 
+/**
+ * Cost multipliers for each item tier
+ * 
+ * Identification costs 1x
+ * 
+ * Sale reimbursement 0.5x
+ */
 export const ITEM_TIER_COSTS: Record<ItemTierType, number> = {
   'basic': 10,
   'enhanced': 25,
@@ -402,6 +562,9 @@ export const ITEM_TIER_COSTS: Record<ItemTierType, number> = {
   'infused': 100
 };
 
+/**
+ * Represents information about an item tier
+ */
 export interface IItemTierInfo {
   tier: ItemTierType;
   numericalTier: number;
@@ -412,6 +575,9 @@ export interface IItemTierInfo {
   };
 }
 
+/**
+ * Configuration for each item tier
+ */
 export const ITEM_TIER_INFO: Record<ItemTierType, IItemTierInfo> = {
   'basic': { tier: 'basic', numericalTier: 1, affixCount: { embedded: 0, prefix: 0, suffix: 0 } },
   'enhanced': { tier: 'enhanced', numericalTier: 2, affixCount: { embedded: 1, prefix: 0, suffix: 1 } },
@@ -456,7 +622,7 @@ function generateAffixValue(affix: IAffix): AffixValue {
 
 /**
  * Helper function to generate affixes of a specific type
- * @param affixType The type of affix to generate (EMBEDDED, PREFIX, or SUFFIX)
+ * @param affixType The type of affix to generate (`EMBEDDED`, `PREFIX`, or `SUFFIX`)
  * @param allowedAffixes Collection of all allowed affixes
  * @param maxCount Maximum number of affixes to generate
  * @returns Array of generated affixes
@@ -565,7 +731,7 @@ export function formatConsolidatedAffix(affix: { id: string; category: string; v
 /**
  * Generates appropriate affixes for an item based on its tier and type
  * @param tier The item's tier
- * @param _type The item's type (currently unused but kept for future use)
+ * @param _type NYI: The item's type (currently unused but kept for future use)
  * @returns Object containing arrays of generated affixes with their roll values
  */
 export function generateAffixesForTier(tier: ItemTierType, _type: string) {

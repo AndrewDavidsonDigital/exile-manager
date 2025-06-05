@@ -1,9 +1,18 @@
+/**
+ * Represents the different tiers of enemies that can be encountered
+ * BASIC: Standard enemies with normal stats
+ * ELITE: TBD
+ * BOSS: TBD
+ */
 export enum EnemyTier {
   BASIC = 'basic',
   ELITE = 'elite',
   BOSS = 'boss'
 }
 
+/**
+ * Constants for critical strike calculations
+ */
 export const CRITICAL_STRIKE_CONSTANTS = {
   /** Maximum possible critical strike chance from all sources */
   MAX_CRIT_CHANCE: 0.30,
@@ -21,6 +30,9 @@ export const CRITICAL_STRIKE_CONSTANTS = {
   }
 } as const;
 
+/**
+ * Represents the result of a critical strike calculation
+ */
 export interface CriticalStrikeResult {
   /** Whether the attack was a critical strike */
   isCritical: boolean;
@@ -32,30 +44,37 @@ export interface CriticalStrikeResult {
   healthRecovered?: number;
 }
 
+/**
+ * Parameters for calculating critical strike chance
+ */
 export interface CriticalStrikeParams {
-    /** The enemy's current health percentage */
-    targetHealthPercent: number;
-    /** The enemy's tier */
-    enemyTier: EnemyTier;
-    /** The attacker's maximum health */
-    attackerMaxHealth: number;
+  /** The enemy's current health percentage */
+  targetHealthPercent: number;
+  /** The enemy's tier */
+  enemyTier: EnemyTier;
+  /** The attacker's maximum health */
+  attackerMaxHealth: number;
 }
 
-// Dodge chance calculation constants
+/**
+ * Constants for dodge chance calculations
+ */
 export const DODGE_CONSTANTS = {
   /** 80% maximum dodge chance */
   MAX_DODGE_CHANCE: 0.80,
   /** 5% base dodge chance */
   DODGE_CHANCE_BASE: 0.05,
-  /** */
+  /** Scaling factor for dodge chance calculation */
   DODGE_CHANCE_SCALING: 0.0001,
 } as const;
-
 
 /**
  * Calculates dodge chance based on evasion rating and area level
  * Formula: base + (1 - base) * (1 - e^(-scaling * normalized_evasion))
  * Where normalized_evasion scales based on area level
+ * @param evasion The character's evasion rating
+ * @param level The area level
+ * @returns The calculated dodge chance as a percentage
  */
 export function calculateDodgeChance(evasion: number, level: number): number {
   // Clamp level between MIN_LEVEL and MAX_LEVEL

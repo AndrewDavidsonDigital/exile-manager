@@ -2,8 +2,25 @@ import type { ICharacterEquipment, ItemTierType, ItemType, LootType } from './ga
 import { BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
 import type { AffixValue, IBaseAffix } from './affixTypes';
 
-export const allItemTypes: ItemType[] = ['Sword', 'Shield', 'Amulet', 'Ring', 'Boots', 'Gloves', 'Helmet', 'Armor', 'Shoulders', 'Pants'];
+/**
+ * List of all possible item types in the game
+ */
+export const allItemTypes: ItemType[] = [
+  'Sword', 
+  'Shield', 
+  'Amulet', 
+  'Ring', 
+  'Boots', 
+  'Gloves', 
+  'Helmet', 
+  'Armor', 
+  'Shoulders', 
+  'Pants'
+];
 
+/**
+ * Maps item types to their corresponding emoji representations
+ */
 export const itemTypeEmojiMap: Record<ItemType, string> = {
   'Sword': '⚔️',
   'Shield': '🛡️',
@@ -17,8 +34,9 @@ export const itemTypeEmojiMap: Record<ItemType, string> = {
   'Pants': '👖'
 };
 
-
-// Map item types to equipment slots
+/**
+ * Maps item types to their corresponding equipment slots
+ */
 export const slotMap: Record<ItemType, keyof ICharacterEquipment> = {
   'Sword': 'weapon',
   'Shield': 'weapon',
@@ -33,7 +51,7 @@ export const slotMap: Record<ItemType, keyof ICharacterEquipment> = {
 };
 
 /**
- * Gets the border color for an item based on its tier and identification status
+ * Gets the primary color for an item based on its tier and identification status
  * @param tier The item's tier
  * @param isIdentified Whether the item is identified
  * @returns The CSS color value for the border
@@ -55,8 +73,8 @@ export const getTierColor = (tier: ItemTierType | undefined, isIdentified: boole
 
 /**
  * Generates an item level using a normal distribution centered around the parsed level
- * @param normalizedLevel The level around which the to normalize the curve
- * @returns A number between 1 and 100, following a bell curve distribution around the character's level
+ * @param normalizedLevel The level around which to normalize the curve
+ * @returns A number between 1 and 100, following a bell curve distribution around `normalizedLevel` level
  */
 export const generateItemLevel = (normalizedLevel: number): number => {
   const mean = normalizedLevel;
@@ -69,7 +87,7 @@ export const generateItemLevel = (normalizedLevel: number): number => {
 
 /**
  * Generate normally distributed random number between 400 and 4000, centered around 1500
- * @returns 
+ * @returns A random gold amount following a normal distribution
  */
 export const generateNormalGold = () => {
   // Box-Muller transform for normal distribution
@@ -85,7 +103,9 @@ export const generateNormalGold = () => {
   return Math.floor(Math.max(400, Math.min(4000, scaled)));
 };
 
-// Map loot tags to item types
+/**
+ * Maps loot type tags to their corresponding item types
+ */
 export const lootTagToItemTypes: Record<LootType, ItemType[]> = {
   'armor': ['Helmet', 'Armor', 'Shoulders', 'Pants', 'Boots', 'Gloves'],
   'weapons': ['Sword', 'Shield'],
@@ -94,9 +114,9 @@ export const lootTagToItemTypes: Record<LootType, ItemType[]> = {
 };
 
 /**
- * Gets a weighted random item type based on the level's loot tags
- * @param lootTags The loot tags from the level
- * @returns A random item type, with 90% chance from loot tags and 10% chance from all types
+ * Gets a weighted random item type based on loot tags
+ * @param lootTags The item tags to weigh higher
+ * @returns A random item type, with 90% chance from `lootTags` and 10% chance from all types
  */
 export function getWeightedItemType(lootTags: LootType[]): ItemType {
   // 90% chance to use loot tag types, 10% chance to use any type
@@ -116,11 +136,11 @@ export function getWeightedItemType(lootTags: LootType[]): ItemType {
 
 /**
  * Generate gold with loot tag bias
- * @param lootTags The loot tags from the level
+ * @param baseGold The base amount of gold
+ * @param lootTags The loot tags to check for biasses
  * @returns Amount of gold to award
  */
 export const generateGoldWithBias = (baseGold: number, lootTags: LootType[]): number => {
-  
   // If level has currency bias, increase gold by 20-100%
   if (lootTags.includes('currency')) {
     const multiplier = 1.2 + Math.random() * 0.8; // Random between 1.2x and 2x
@@ -132,13 +152,13 @@ export const generateGoldWithBias = (baseGold: number, lootTags: LootType[]): nu
 
 /**
  * Generates an item tier based on character level with weighted probabilities
- * @param characterLevel The character's current level
+ * @param sourceLevel The level from whence we are generating this item
  * @param maxLevel The maximum possible level (defaults to 40)
  * @returns A randomly selected ItemTierType based on weighted probabilities
  */
-export function generateItemTier(characterLevel: number, maxLevel: number = 40): ItemTierType {
+export function generateItemTier(sourceLevel: number, maxLevel: number = 40): ItemTierType {
   // Calculate the normalized level (0 to 1)
-  const normalizedLevel = Math.min(1, characterLevel / maxLevel);
+  const normalizedLevel = Math.min(1, sourceLevel / maxLevel);
   
   // Define base weights for each tier
   const baseWeights = {
