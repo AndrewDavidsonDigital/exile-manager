@@ -4,6 +4,16 @@ import type { IAudioEngine } from '.';
 const LOGGING_PREFIX = '🍃 BGM Engine:\t';
 const AUDIO_DELTA = 0.05;
 
+let retryCount = 0;
+const RETRY_DELAY_MS = 500;
+const MAX_RETRY_COUNT = 10;
+
+type FFMediaPolicy = 'allowed' | 'allowed-muted' | 'disallowed';
+
+interface INavigator extends Navigator{
+  getAutoplayPolicy: (a: HTMLElement) => FFMediaPolicy;
+}
+
 export const useBgmEngine = defineStore('bgmAudioEngine', {
   state: () => {
     return { 
@@ -37,10 +47,44 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
       this.volumeRaw = value;
       this.el.volume = value * this.volumeMultiplier;
     },
+
     play(){
       if (!this.el) return;
+      logger('attempting play()');
 
-      this.el.play();
+      let firefoxMediaPolicy:FFMediaPolicy | null = null;
+      try{
+        firefoxMediaPolicy = (navigator as INavigator).getAutoplayPolicy(this.el);
+        logger('Browser is Firefox');
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      }catch( _e ){
+        // expect errors here for non-ff browsers so can ignore
+      }
+
+      // firefox logic
+      if (firefoxMediaPolicy){
+        if (firefoxMediaPolicy === 'allowed'){
+          this.el.play();
+        }
+      } else {
+      // chromium recursive caller when blocked by non-interaction yet
+        this.el.play().catch(
+          e => {
+            logger(`auto-play error: ${e.message}`);
+            if(retryCount +1 > MAX_RETRY_COUNT){
+              logger(`Max auto-play retry attempts reached ${MAX_RETRY_COUNT}`);
+              return;
+            }
+            logger(`Retrying in ${RETRY_DELAY_MS * (retryCount + 1)}ms. Retry: ${(retryCount + 1)}/${MAX_RETRY_COUNT}`);
+            setTimeout(
+              ()=> {
+                this.play();
+              },
+              RETRY_DELAY_MS * ++retryCount
+            )
+          }
+        );
+      }
     },
     pause() {
       if (!this.el) return;
