@@ -18,6 +18,15 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.0.11',
+    highlights: [
+      'Fix bug with death recap modal being dismissible',
+      'Fix bug with over healing with % calculations :o',
+    ],
+    commit: '0ea29bc61fe9ee2de833e462fadbbd6842493b31',
+    compare: 'v0.0.10...v0.0.11',
+  },
+  {
     version: '0.0.10',
     highlights: [
       'Add visual summation of item base-stats',
