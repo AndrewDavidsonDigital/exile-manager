@@ -462,14 +462,14 @@ export const useGameEngine = defineStore('gameEngine', {
      */
     heal(amount: number, isPercent: boolean = false) {
       if (!this.character) return;
-      logger(`Healing ${amount} health${isPercent ? ' %' : ''}`);
       
       let newHealth;
       if (isPercent) {
-        newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + (this.character.stats.health * (100 / amount)));
+        newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + (this.character.stats.health * (amount / 100)));
       }else{
         newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + amount);
       }
+      logger(`Healing ${amount} health${isPercent ? ' %' : ''} as [${isPercent ? (this.character.stats.health * (amount / 100 )) : amount}]`);
       this.updateStats({ currentHealth: newHealth });
     },
 
