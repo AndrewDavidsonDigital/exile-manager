@@ -1,12 +1,12 @@
 {
-  "name": "vue-quickstart",
-  "version": "0.0.0",
+  "name": "Exile-Manager",
+  "version": "0.0.12",
   "private": true,
   "type": "module",
   "scripts": {
     "boot": "yarn install && yarn dev",
     "dev": "vite --host",
-    "build": "yarn type-check && yarn build-only",
+    "build": "vitest && yarn type-check && yarn build-only",
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",
