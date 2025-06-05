@@ -149,11 +149,11 @@ const consolidateBaseAffixes = (affixes: Array<{ id: string; affixType: BaseItem
   }>();
   
   affixes.forEach(affix => {
-    console.log(affix);
+    // console.log(affix);
     const key = affix.id.split('_')[1]; // Get the category part of the ID
     // need to resolve base-affix details
     const baseAffix = getAffixByType(affix.affixType);
-    console.log('ba: ',baseAffix);
+    // console.log('ba: ',baseAffix);
     if (!baseAffix) return;
 
     if (consolidated.has(key)) {
@@ -224,7 +224,7 @@ const groupedAffixes = computed(() => {
 
   // Collect all affixes from equipped items
   Object.values(char.equipment).forEach((item: ILoot) => {
-    console.log(item?.itemDetails?.baseDetails);
+    // console.log(item?.itemDetails?.baseDetails);
     if (item?.itemDetails) {
       // Add base affix if it exists
       if (item.itemDetails.baseDetails) {
