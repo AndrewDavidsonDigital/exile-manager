@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS, formatConsolidatedAffix } from '@/lib/game';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ILoot } from '@/lib/game';
 import { computed, ref, watch } from 'vue';
-import { allAffixes, isAffixRange, type AffixValue } from '@/lib/affixTypes';
+import { AffixCategory, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './FluidElement.vue';
+import { getAffixByType } from '@/lib/affixUtils';
+import { formatBaseAffixValue } from '@/lib/itemUtils';
 
 const gameEngine = useGameEngine();
 const char = gameEngine.getCharacter;
@@ -133,10 +135,59 @@ function combineAffixes( existingValue:AffixValue ,newValue: AffixValue){
   return existingValue;
 }
 
-const consolidateAffixes = (affixes: Array<{ id: string; category: string; value: AffixValue }>) => {
+const consolidateBaseAffixes = (affixes: Array<{ id: string; affixType: BaseItemAffix; value: AffixValue }>):
+  Array<{
+    key: string;
+    entry: {
+      value: AffixValue;
+      baseAffix: IBaseAffix;
+      }   
+  }> => {
   const consolidated = new Map<string, {
     value: AffixValue;
-    originalAffix: typeof allAffixes[0];
+    baseAffix: IBaseAffix;
+  }>();
+  
+  affixes.forEach(affix => {
+    console.log(affix);
+    const key = affix.id.split('_')[1]; // Get the category part of the ID
+    // need to resolve base-affix details
+    const baseAffix = getAffixByType(affix.affixType);
+    console.log('ba: ',baseAffix);
+    if (!baseAffix) return;
+
+    if (consolidated.has(key)) {
+      consolidated.get(key)!.value = combineAffixes(_cloneDeep(consolidated.get(key)!.value), affix.value);
+    } else {
+      consolidated.set(key, {
+        value: affix.value,
+        baseAffix
+      });
+    }
+  });
+
+  const retval: Array<{
+    key: string;
+    entry: {
+      value: AffixValue;
+      baseAffix: IBaseAffix;
+      }   
+  }> = [];
+
+  for (const [key, value] of consolidated) {
+    retval.push({
+      key,
+      entry: value,
+    })
+  }
+
+  return retval;
+};
+
+const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory; value: AffixValue }>) => {
+  const consolidated = new Map<string, {
+    value: AffixValue;
+    originalAffix: IAffix;
   }>();
   
   affixes.forEach(affix => {
@@ -162,30 +213,44 @@ const consolidateAffixes = (affixes: Array<{ id: string; category: string; value
 };
 
 const groupedAffixes = computed(() => {
-  if (char === -1) return { embedded: [], prefix: [], suffix: [] };
+  if (char === -1) return { embedded: [], prefix: [], suffix: [], base: [] };
   
   const affixes = {
-    embedded: [] as Array<{ id: string; category: string; value: AffixValue }>,
-    prefix: [] as Array<{ id: string; category: string; value: AffixValue }>,
-    suffix: [] as Array<{ id: string; category: string; value: AffixValue }>
+    embedded: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
+    prefix: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
+    suffix: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
+    base: [] as Array<{ id: string; affixType: BaseItemAffix; value: AffixValue }>
   };
 
   // Collect all affixes from equipped items
-  Object.values(char.equipment).forEach(item => {
-    if (item?.itemDetails?.affixes) {
-      affixes.embedded.push(...item.itemDetails.affixes.embedded);
-      affixes.prefix.push(...item.itemDetails.affixes.prefix);
-      affixes.suffix.push(...item.itemDetails.affixes.suffix);
+  Object.values(char.equipment).forEach((item: ILoot) => {
+    console.log(item?.itemDetails?.baseDetails);
+    if (item?.itemDetails) {
+      // Add base affix if it exists
+      if (item.itemDetails.baseDetails) {
+        affixes.base.push({
+          id: `base_${item.itemDetails.baseDetails.affix}_-1`,
+          affixType: item.itemDetails.baseDetails.affix,
+          value: _cloneDeep(item.itemDetails.baseDetails.value) as AffixValue
+        });
+      }
+      
+      // Add regular affixes if they exist
+      if (item.itemDetails.affixes) {
+        affixes.embedded.push(...item.itemDetails.affixes.embedded);
+        affixes.prefix.push(...item.itemDetails.affixes.prefix);
+        affixes.suffix.push(...item.itemDetails.affixes.suffix);
+      }
     }
   });
 
-  // console.log(affixes);
-
+  
   // Consolidate affixes by category
   return {
     embedded: consolidateAffixes(affixes.embedded),
     prefix: consolidateAffixes(affixes.prefix),
-    suffix: consolidateAffixes(affixes.suffix)
+    suffix: consolidateAffixes(affixes.suffix),
+    base: consolidateBaseAffixes(affixes.base)
   };
 });
 
@@ -469,7 +534,24 @@ const groupedAffixes = computed(() => {
               v-show="showDetailedStats"
               class="mt-2 bg-gray-900/50 p-3 rounded-lg"
             >
-              <div class="space-y-4">
+              <div class="space-y-4 grid grid-cols-1 lg:grid-cols-2">
+                <template v-if="groupedAffixes.base.length > 0">
+                  <div class="space-y-2">
+                    <h4 class="text-emerald-400 font-medium">
+                      Base Items
+                    </h4>
+                    <div class="pl-4 space-y-1">
+                      <div
+                        v-for="affix in groupedAffixes.base"
+                        :key="affix.key"
+                        class="text-gray-300"
+                      >
+                        {{ formatBaseAffixValue(affix.entry.value) }} {{ affix.entry.baseAffix.name }}
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
                 <template v-if="groupedAffixes.embedded.length > 0">
                   <div class="space-y-2">
                     <h4 class="text-cyan-400 font-medium">
