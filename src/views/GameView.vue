@@ -201,6 +201,7 @@
   <ModalDialog
     id="gameModal"
     :show="modalShown"
+    class="!backdrop:bg-red-800"
   >
     <section class="flex flex-col gap-2 text-emerald-200">
       <div class="">

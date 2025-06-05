@@ -7,12 +7,14 @@ import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
+import ModalDialog from './ModalDialog.vue';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
 const lootFilter = ref<ItemType | undefined>(undefined);
 const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
+const showCompareModal = ref(false);
 type ManageLootTabType = 'inventory' | 'stash';
 
 type BrushMode = 'none' | 'identify' | 'delete';
@@ -83,6 +85,31 @@ const equipSelectedLoot = (isMobile:boolean = false) => {
       selectedLoot.value = undefined;
     }
   }  
+};
+
+const handleEquipmentSwap = () => {
+  if (!selectedLoot.value || !character.value || character.value === -1) return;
+  
+  const currentlyEquippedItem = equippedItem.value;
+  if (!currentlyEquippedItem) return;
+
+  // Store the identifier of the currently equipped item
+  const unequippedItemId = currentlyEquippedItem._identifier;
+  
+  
+  // Equip the selected item
+  equipSelectedLoot();
+  
+  // Switch to inventory tab if we're in stash
+  if (activeTab.value === 'stash') {
+    activeTab.value = 'inventory';
+  }
+
+  // Find the unequipped item in the character's loot array
+  const unequippedItem = character.value.loot.find(item => item._identifier === unequippedItemId);
+  if (unequippedItem) {
+    selectedLoot.value = unequippedItem;
+  }
 };
 
 const getIdentificationCost = (loot: ILoot): number => {
@@ -200,6 +227,15 @@ function selectLootNeighbour(forwards: boolean = false){
 const resetBrush = () => {
   activeBrush.value = 'none';
 };
+
+const equippedItem = computed(() => {
+  if (!selectedLoot.value || !character.value || character.value === -1) return undefined;
+  return character.value.equipment[slotMap[selectedLoot.value.type]];
+});
+
+const canCompare = computed(() => {
+  return selectedLoot.value?.identified && equippedItem.value?.identified;
+});
 
 </script>
 
@@ -545,24 +581,35 @@ const resetBrush = () => {
 
         <!-- Equip Button -->
         <section class="flex justify-between">
-          <button
-            v-if="selectedLoot && selectedLoot.identified"
-            class="w-fit mt-auto  hidden md:block"
-            @click="() => equipSelectedLoot()"
-          >
-            <FluidElement class="!p-2 mt-auto">
-              Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
-            </FluidElement>
-          </button>
-          <button
-            v-if="selectedLoot && selectedLoot.identified"
-            class="w-fit mt-auto block md:hidden"
-            @click="() => equipSelectedLoot(true)"
-          >
-            <FluidElement class="!p-2 mt-auto">
-              Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
-            </FluidElement>
-          </button>
+          <div class="flex flex-col gap-2">
+            <button
+              v-if="canCompare"
+              class="w-fit mt-auto"
+              @click="showCompareModal = true"
+            >
+              <FluidElement class="!p-2 mt-auto">
+                Compare
+              </FluidElement>
+            </button>
+            <button
+              v-if="selectedLoot && selectedLoot.identified"
+              class="w-fit mt-auto hidden md:block"
+              @click="() => equipSelectedLoot()"
+            >
+              <FluidElement class="!p-2 mt-auto">
+                Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
+              </FluidElement>
+            </button>
+            <button
+              v-if="selectedLoot && selectedLoot.identified"
+              class="w-fit mt-auto block md:hidden"
+              @click="() => equipSelectedLoot(true)"
+            >
+              <FluidElement class="!p-2 mt-auto">
+                Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
+              </FluidElement>
+            </button>
+          </div>
           <button
             v-if="selectedLoot && selectedLoot.identified"
             class="w-fit mt-auto"
@@ -575,6 +622,245 @@ const resetBrush = () => {
         </section>
       </div>
     </FluidElement>
+    <ModalDialog
+      id="compareModal"
+      :show="showCompareModal"
+      class="text-emerald-200 md:!p-8 border-emerald-800 border "
+      @close="showCompareModal = false"
+    >
+      <div class="flex flex-col gap-4 p-4  bg-slate-900 rounded-4xl">
+        <h2 class="text-lg font-bold mx-auto w-fit">
+          Item Comparison
+        </h2>
+        <button
+          class="absolute top-2 right-2 w-fit"
+          @click="showCompareModal = false"
+        >
+          <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+            <div class="font-semibold text-slate-300">
+              X
+            </div>
+          </FluidElement>
+        </button>
+        <div
+          v-if="selectedLoot && selectedLoot.identified && equippedItem"
+          class="grid grid-cols-[1fr_3fr_3fr] gap-4 items-start [&>*]:capitalize px-[3%] md:px-8 py-[2%] md:py-4"
+        >
+          <!-- Header -->
+          <span></span>
+          <span class="text-center text-slate-400">Selected Item</span>
+          <span class="text-center text-slate-400">Equipped Item</span>
+
+          <!-- Name -->
+          <span class="text-right opacity-50 my-auto md:my-0">Name</span>
+          <p class="text-center">
+            {{ selectedLoot?.name || '-' }}
+          </p>
+          <p class="text-center">
+            {{ equippedItem?.name || '-' }}
+          </p>
+
+          <!-- Mutations -->
+          <template v-if="equippedItem?.itemDetails?.mutations?.length || selectedLoot?.itemDetails?.mutations?.length">
+            <span class="text-right my-auto md:my-0">Mutations</span>
+            <div>
+              <template v-if="selectedLoot?.itemDetails?.mutations?.length">
+                <p
+                  v-for="mutation,index in selectedLoot.itemDetails.mutations"
+                  :key="`eq-mutation_${index}-${Date.now()}`"
+                  class="text-sm capitalize"
+                  :class="[
+                    { 'text-amber-600': mutation === 'cursed' },
+                    { 'text-red-600': mutation === 'corrupted' },
+                    { 'text-cyan-600': mutation === 'crystallized' },
+                    { 'text-purple-700': mutation === 'voided' }
+                  ]"
+                >
+                  {{ mutation }}
+                </p>
+              </template>
+              <span v-else>-</span>
+            </div>
+            <div>
+              <template v-if="equippedItem?.itemDetails?.mutations?.length">
+                <p
+                  v-for="mutation,index in equippedItem.itemDetails.mutations"
+                  :key="`si-mutation_${index}-${Date.now()}`"
+                  class="text-sm capitalize"
+                  :class="[
+                    { 'text-amber-600': mutation === 'cursed' },
+                    { 'text-red-600': mutation === 'corrupted' },
+                    { 'text-cyan-600': mutation === 'crystallized' },
+                    { 'text-purple-700': mutation === 'voided' }
+                  ]"
+                >
+                  {{ mutation }}
+                </p>
+              </template>
+              <span v-else>-</span>
+            </div>
+          </template>
+
+          <!-- iLevel -->
+          <span class="text-right opacity-50 my-auto md:my-0">Item Level</span>
+          <p class="opacity-50 text-center">
+            {{ selectedLoot?.iLvl || '-' }}
+          </p>
+          <p class="opacity-50 text-center">
+            {{ equippedItem?.iLvl || '-' }}
+          </p>
+
+          <!-- Tier -->
+          <span class="text-right opacity-50 my-auto md:my-0">Tier</span>
+          <p
+            class="text-sm capitalize text-center"
+            :style="{ color: getTierColor(selectedLoot?.itemDetails?.tier, true) }"
+          >
+            {{ selectedLoot?.itemDetails?.tier || '-' }}
+          </p>
+          <p
+            class="text-sm capitalize text-center"
+            :style="{ color: getTierColor(equippedItem?.itemDetails?.tier, true) }"
+          >
+            {{ equippedItem?.itemDetails?.tier || '-' }}
+          </p>
+
+          <!-- BaseAffix -->
+          <span class="text-right opacity-50 my-auto md:my-0">Base Affix</span>
+          <p class="text-amber-200 text-sm md:px-[2vw]">
+            {{ selectedLoot?.itemDetails?.baseDetails?.name }}:{{ formatBaseAffixValue(selectedLoot?.itemDetails?.baseDetails?.value as AffixValue) }}
+          </p>
+          <p class="text-amber-200 text-sm md:px-[2vw]">
+            {{ equippedItem?.itemDetails?.baseDetails?.name }}:{{ formatBaseAffixValue(equippedItem?.itemDetails?.baseDetails?.value as AffixValue) }}
+          </p>
+
+          <!-- Embedded Affix -->
+          <span class="text-right opacity-50 my-auto md:my-0">Embedded Affix</span>
+          <div class="flex flex-col gap-1 md:px-[2vw]">
+            <template v-if="(selectedLoot?.itemDetails?.affixes.embedded.length || 0) > 0">
+              <template
+                v-for="embedded,i in selectedLoot?.itemDetails?.affixes.embedded"
+                :key="`emb-${i}-selected-${Date.now()}`"
+              >
+                <span class="text-sm text-teal-400">
+                  {{ formatAffixDescription(embedded) }}
+                </span>
+              </template>
+            </template>
+            <span
+              v-else
+              class="text-center"
+            >
+              -
+            </span>
+          </div>
+          <div class="flex flex-col gap-1 md:px-[2vw]">
+            <template v-if="(equippedItem?.itemDetails?.affixes.embedded.length || 0) > 0">
+              <template
+                v-for="embedded,i in equippedItem?.itemDetails?.affixes.embedded"
+                :key="`emb-${i}-equipped-${Date.now()}`"
+              >
+                <span class="text-sm text-teal-400">
+                  {{ formatAffixDescription(embedded) }}
+                </span>
+              </template>
+            </template>
+            <span
+              v-else
+              class="text-center"
+            >
+              -
+            </span>
+          </div>
+
+          <!-- Prefix -->
+          <span class="text-right opacity-50 my-auto md:my-0">Prefixes</span>
+          <div class="flex flex-col gap-1 md:px-[2vw]">
+            <template v-if="(selectedLoot?.itemDetails?.affixes.prefix.length || 0) > 0">
+              <template
+                v-for="prefix,i in selectedLoot?.itemDetails?.affixes.prefix"
+                :key="`pre-${i}-selected-${Date.now()}`"
+              >
+                <span class="text-sm text-teal-400">
+                  {{ formatAffixDescription(prefix) }}
+                </span>
+              </template>
+            </template>
+            <span
+              v-else
+              class="text-center"
+            >
+              -
+            </span>
+          </div>
+          <div class="flex flex-col gap-1 md:px-[2vw]">
+            <template v-if="(equippedItem?.itemDetails?.affixes.prefix.length || 0) > 0">
+              <template
+                v-for="prefix,i in equippedItem?.itemDetails?.affixes.prefix"
+                :key="`pre-${i}-equipped-${Date.now()}`"
+              >
+                <span class="text-sm text-teal-400">
+                  {{ formatAffixDescription(prefix) }}
+                </span>
+              </template>
+            </template>
+            <span
+              v-else
+              class="text-center"
+            >
+              -
+            </span>
+          </div>
+
+          <!-- Suffix -->
+          <span class="text-right opacity-50 my-auto md:my-0">Suffix</span>
+          <div class="flex flex-col gap-1 md:px-[2vw]">
+            <template v-if="(selectedLoot?.itemDetails?.affixes.suffix.length || 0) > 0">
+              <template
+                v-for="suffix,i in selectedLoot?.itemDetails?.affixes.suffix"
+                :key="`su-${i}-selected-${Date.now()}`"
+              >
+                <span class="text-sm text-green-400">
+                  {{ formatAffixDescription(suffix) }}
+                </span>
+              </template>
+            </template>
+            <span
+              v-else
+              class="text-center"
+            >
+              -
+            </span>
+          </div>
+          <div class="flex flex-col gap-1 md:px-[2vw]">
+            <template v-if="(equippedItem?.itemDetails?.affixes.suffix.length || 0) > 0">
+              <template
+                v-for="suffix,i in equippedItem?.itemDetails?.affixes.suffix"
+                :key="`su-${i}-equipped-${Date.now()}`"
+              >
+                <span class="text-sm text-green-400">
+                  {{ formatAffixDescription(suffix) }}
+                </span>
+              </template>
+            </template>
+            <span
+              v-else
+              class="text-center"
+            >
+              -
+            </span>
+          </div>
+        </div>
+        <button
+          class="w-fit mx-auto"
+          @click="handleEquipmentSwap"
+        >
+          <FluidElement class="py-1 px-2 w-fit">
+            Quick Swap
+          </FluidElement>
+        </button>
+      </div>
+    </modaldialog>
   </div>
 </template>
 

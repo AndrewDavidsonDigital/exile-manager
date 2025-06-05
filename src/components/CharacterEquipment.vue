@@ -132,7 +132,7 @@ const resetBrush = () => {
               legs: char.equipment.legs, 
               feet: char.equipment.feet 
             }"
-            :key="slot"
+            :key="`arm-${slot}-${Date.now()}`"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="[
               { 'opacity-50 pointer-events-none': !item },
@@ -171,7 +171,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
-                    :key="affix.id"
+                    :key="`emb-arm-${affix.id}-${Date.now()}`"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -180,7 +180,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
-                    :key="affix.id"
+                    :key="`pre-arm-${affix.id}-${Date.now()}`"
                     class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -189,7 +189,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.suffix"
-                    :key="affix.id"
+                    :key="`suf-arm-${affix.id}-${Date.now()}`"
                     class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -217,7 +217,7 @@ const resetBrush = () => {
         <div class="mt-2 grid grid-cols-1 gap-2">
           <button 
             v-for="(item, slot) in { weapon: char.equipment.weapon }"
-            :key="slot"
+            :key="`weap-${slot}-${Date.now()}`"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="[
               { 'opacity-50 pointer-events-none': !item },
@@ -256,7 +256,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
-                    :key="affix.id"
+                    :key="`emb-weap-${affix.id}-${Date.now()}`"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -265,7 +265,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
-                    :key="affix.id"
+                    :key="`pre-weap-${affix.id}-${Date.now()}`"
                     class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -274,7 +274,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.suffix"
-                    :key="affix.id"
+                    :key="`suf-weap-${affix.id}-${Date.now()}`"
                     class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -302,7 +302,7 @@ const resetBrush = () => {
         <div class="mt-2 grid grid-cols-3 gap-2">
           <button 
             v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
-            :key="slot"
+            :key="`acc-${slot}-${Date.now()}`"
             class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
             :class="[
               { 'opacity-50 pointer-events-none': !item },
@@ -341,7 +341,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.embedded"
-                    :key="affix.id"
+                    :key="`emb-acc-${affix.id}-${Date.now()}`"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -350,7 +350,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
-                    :key="affix.id"
+                    :key="`pre-acc-${affix.id}-${Date.now()}`"
                     class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
@@ -359,7 +359,7 @@ const resetBrush = () => {
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.suffix"
-                    :key="affix.id"
+                    :key="`suf-acc-${affix.id}-${Date.now()}`"
                     class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
                     <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
