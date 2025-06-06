@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FluidElement from '@/components/FluidElement.vue';
-import type { ILevel } from '@/lib/game';
+import { type ILevel } from '@/lib/core';
 import { computed, watch, ref } from 'vue';
 
 interface Props {
@@ -101,6 +101,7 @@ function startAdventuring(){
     </div>
   </FluidElement>
   <FluidElement
+    class="!hidden"
     :class="`${props.class} mt-2`"
   >
     <div

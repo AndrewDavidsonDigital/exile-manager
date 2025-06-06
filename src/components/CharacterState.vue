@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, type ILoot } from '@/lib/game';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ILoot } from '@/lib/game';
+import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
 import { AffixCategory, AffixTypes, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
@@ -13,6 +14,7 @@ import ModalDialog from './ModalDialog.vue';
 import SwitchToggle from './SwitchToggle.vue';
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
+import { ErrorNumber } from '@/lib/typescript';
 
 
 interface Props {
@@ -42,7 +44,7 @@ const availablePassives = computed(() => passives.filter(el => !(gameEngine.getP
 const availableSkills = computed(() => skills.filter(el => !(gameEngine.getSkillIds.includes(el._identifier))));
 
 const hasEquippedItems = computed(() => {
-  if (char === -1) return false;
+  if (char === ErrorNumber.NOT_FOUND) return false;
   return Object.values(char.equipment).some(item => item !== undefined);
 });
 
@@ -57,7 +59,7 @@ const LEVEL_UP_DURATION = 2000;
 const pulseDurationMs = computed(() => `${PULSE_DURATION}ms`);
 
 // Watch for loot changes
-watch(() => char !== -1 ? char.loot?.length : 0, () => {
+watch(() => char !== ErrorNumber.NOT_FOUND ? char.loot?.length : 0, () => {
   isLootPulsing.value = true;
   setTimeout(() => {
     isLootPulsing.value = false;
@@ -65,8 +67,8 @@ watch(() => char !== -1 ? char.loot?.length : 0, () => {
 });
 
 // Watch for health changes
-watch(() => char !== -1 ? char.stats.currentHealth : 0, (newHealth, oldHealth) => {
-  if (char === -1 || oldHealth === undefined) return;
+watch(() => char !== ErrorNumber.NOT_FOUND ? char.stats.currentHealth : 0, (newHealth, oldHealth) => {
+  if (char === ErrorNumber.NOT_FOUND || oldHealth === undefined) return;
   
   isHealthPulsing.value = true;
   healthPulseType.value = newHealth < oldHealth ? 'damage' : 'heal';
@@ -77,8 +79,8 @@ watch(() => char !== -1 ? char.stats.currentHealth : 0, (newHealth, oldHealth) =
 });
 
 // Watch for mana changes
-watch(() => char !== -1 ? char.stats.currentMana : 0, (newMana, oldMana) => {
-  if (char === -1 || oldMana === undefined) return;
+watch(() => char !== ErrorNumber.NOT_FOUND ? char.stats.currentMana : 0, (newMana, oldMana) => {
+  if (char === ErrorNumber.NOT_FOUND || oldMana === undefined) return;
   
   isManaPulsing.value = true;
   manaPulseType.value = newMana < oldMana ? 'loss' : 'gain';
@@ -89,7 +91,7 @@ watch(() => char !== -1 ? char.stats.currentMana : 0, (newMana, oldMana) => {
 });
 
 // Watch for gold changes
-watch(() => char !== -1 ? char.gold : 0, () => {
+watch(() => char !== ErrorNumber.NOT_FOUND ? char.gold : 0, () => {
   isGoldPulsing.value = true;
   setTimeout(() => {
     isGoldPulsing.value = false;
@@ -97,8 +99,8 @@ watch(() => char !== -1 ? char.gold : 0, () => {
 });
 
 // Watch for level changes
-watch(() => char !== -1 ? char.level : 0, (newLevel, oldLevel) => {
-  if (char === -1 || oldLevel === undefined) return;
+watch(() => char !== ErrorNumber.NOT_FOUND ? char.level : 0, (newLevel, oldLevel) => {
+  if (char === ErrorNumber.NOT_FOUND || oldLevel === undefined) return;
   
   isLevelingUp.value = true;
   setTimeout(() => {
@@ -107,7 +109,7 @@ watch(() => char !== -1 ? char.level : 0, (newLevel, oldLevel) => {
 });
 
 const orderedStats = computed(() => {
-  if (char === -1) return [];
+  if (char === ErrorNumber.NOT_FOUND) return [];
   
   const allStats = CLASS_ALIGNED_STATS[char.class];
   const baseStats = ['fortitude', 'fortune', 'wrath', 'affinity'] as const;
@@ -117,10 +119,10 @@ const orderedStats = computed(() => {
   return [...alignedStats, ...nonAlignedStats];
 });
 
-const experienceWidth = computed(() =>  char !== -1 ? `${ Math.round((char.experience / (char.level * 100)) * 100) }%` : '0%');
+const experienceWidth = computed(() =>  char !== ErrorNumber.NOT_FOUND ? `${ Math.round((char.experience / (char.level * 100)) * 100) }%` : '0%');
 
 const healthColorClass = computed(() => {
-  if (char === -1) return '';
+  if (char === ErrorNumber.NOT_FOUND) return '';
   const healthPercent = (char.stats.currentHealth / char.stats.health) * 100;
   return {
     '--health-percent': Math.min(Math.max(Math.round(healthPercent), 0), 100)
@@ -238,7 +240,7 @@ const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory
 };
 
 const groupedAffixes = computed(() => {
-  if (char === -1) return { embedded: [], prefix: [], suffix: [], base: [] };
+  if (char === ErrorNumber.NOT_FOUND) return { embedded: [], prefix: [], suffix: [], base: [] };
   
   const affixes = {
     embedded: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
@@ -280,7 +282,7 @@ const groupedAffixes = computed(() => {
 });
 
 function handleSkillsClick(){
-  if (char === -1) return;
+  if (char === ErrorNumber.NOT_FOUND) return;
 
   if (char.pendingRewards.skills > 0){
     showNewSkillsModal.value = !showNewSkillsModal.value
@@ -290,7 +292,7 @@ function handleSkillsClick(){
 }
 
 function handlePassivesClick(){
-  if (char === -1) return;
+  if (char === ErrorNumber.NOT_FOUND) return;
 
   if (char.pendingRewards.passives > 0){
     showNewPassivesModal.value = !showNewPassivesModal.value
@@ -336,7 +338,7 @@ function handleAddSkill(identifier: string){
         isLevelingUp ? 'animate-snake-border' : ''
       ]"
     >
-      <template v-if="char !== -1 && gameEngine.getCombatStats !== -1">
+      <template v-if="char !== ErrorNumber.NOT_FOUND && gameEngine.getCombatStats !== ErrorNumber.NOT_FOUND">
         <div class="flex justify-between">
           <div class="flex flex-col gap-2">
             <div class="text-xl font-bold text-white capitalize">
@@ -521,7 +523,7 @@ function handleAddSkill(identifier: string){
                   :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
                 >
                   <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value">Dodge: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value || 0 }}%</span>
-                  <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'block')?.value">Block: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'block')?.value || 0 }}%</span>
+                  <span v-if="gameEngine.getCombatStats.deflection">Deflect: {{ gameEngine.getCombatStats.deflection || 0 }}</span>
                 </span>
               </div>
               <div class="ml-2  px-2">
@@ -715,7 +717,7 @@ function handleAddSkill(identifier: string){
         Skills
       </h3>
       <div
-        v-if="char !== -1"
+        v-if="char !== ErrorNumber.NOT_FOUND"
         class="space-y-3"
       >
         <template
@@ -824,7 +826,7 @@ function handleAddSkill(identifier: string){
         Passives
       </h3>
       <div
-        v-if="char !== -1"
+        v-if="char !== ErrorNumber.NOT_FOUND"
         class="space-y-3"
       >
         <template
@@ -858,7 +860,7 @@ function handleAddSkill(identifier: string){
         Select a new Passive
       </h3>
       <div
-        v-if="char !== -1"
+        v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
       >
         <template
@@ -900,7 +902,7 @@ function handleAddSkill(identifier: string){
         Select a new Skills
       </h3>
       <div
-        v-if="char !== -1"
+        v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
       >
         <template

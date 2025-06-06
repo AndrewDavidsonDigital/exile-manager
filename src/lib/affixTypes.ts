@@ -1,4 +1,4 @@
-import type { ItemTierType, ItemMutationType, ItemType } from './game';
+import type { ItemTierType, ItemMutationType, ItemBase } from './core';
 import { allItemTypes } from './itemUtils';
 import type { OneOf } from './typescript';
 
@@ -212,6 +212,8 @@ export enum AffixCategory {
   ATTACK = 'attack',
   /** Affixes relating to specifically defensive values */
   DEFENSE = 'defense',
+  /** Affixes pertaining to armor rating values */
+  ARMOR = 'armor',
   /** Affixes pertaining to evasion rating values */
   EVASION = 'evasion',
   /** Affixes relating the characters life */
@@ -265,7 +267,7 @@ export interface IAffix {
   /** Item tiers that this affix can appear on */
   allowedTiers: ItemTierType[];
   /** Item bases that this affix can appear on */
-  allowedBases: ItemType[];
+  allowedBases: ItemBase[];
   /** Optional mutations that this affix is compatible with */
   allowedMutations?: ItemMutationType[];
   /** Optional requirements for using this affix */
@@ -295,7 +297,7 @@ export const embeddedAffixes: IAffix[] = [
     id: 'embedded_defense_1',
     name: 'Reinforced',
     type: AffixType.EMBEDDED,
-    category: AffixCategory.DEFENSE,
+    category: AffixCategory.ARMOR,
     tier: 1,
     minValue: 5,
     maxValue: 8,
@@ -308,7 +310,7 @@ export const embeddedAffixes: IAffix[] = [
     id: 'embedded_defense_2',
     name: 'Fortified',
     type: AffixType.EMBEDDED,
-    category: AffixCategory.DEFENSE,
+    category: AffixCategory.ARMOR,
     tier: 2,
     minValue: 8,
     maxValue: 12,
@@ -321,7 +323,7 @@ export const embeddedAffixes: IAffix[] = [
     id: 'embedded_defense_3',
     name: 'Impenetrable',
     type: AffixType.EMBEDDED,
-    category: AffixCategory.DEFENSE,
+    category: AffixCategory.ARMOR,
     tier: 3,
     minValue: 12,
     maxValue: 18,
@@ -526,12 +528,12 @@ export const suffixAffixes: IAffix[] = [
     id: 'suffix_defense_1',
     name: 'of the Turtle',
     type: AffixType.SUFFIX,
-    category: AffixCategory.DEFENSE,
+    category: AffixCategory.ARMOR,
     tier: 1,
     minValue: 5,
     maxValue: 8,
     description: '+{value}% to Physical Damage Reduction',
-    tags: ['defense', 'physical', 'armor'],
+    tags: ['defense', 'physical'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
     allowedBases: [...allItemTypes],
   },
@@ -539,12 +541,12 @@ export const suffixAffixes: IAffix[] = [
     id: 'suffix_defense_2',
     name: 'of the Rhino',
     type: AffixType.SUFFIX,
-    category: AffixCategory.DEFENSE,
+    category: AffixCategory.ARMOR,
     tier: 2,
     minValue: 8,
     maxValue: 12,
     description: '+{value}% to Physical Damage Reduction',
-    tags: ['defense', 'physical', 'armor'],
+    tags: ['defense', 'physical'],
     allowedTiers: ['enhanced', 'exceptional', 'abstract', 'infused'],
     allowedBases: [...allItemTypes],
   },

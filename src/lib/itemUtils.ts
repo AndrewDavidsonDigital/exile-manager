@@ -1,29 +1,19 @@
-import type { ICharacterEquipment, ItemTierType, ItemType, LootType } from './game';
-import { AffixTypes, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import { type ICharacterEquipment } from './game';
 import type { AffixValue, IBaseAffix } from './affixTypes';
+import { AffixTypes, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import { ItemBase, type ItemTierType, type LootType } from './core';
 
 /**
  * List of all possible item types in the game
  */
-export const allItemTypes: ItemType[] = [
-  'Sword', 
-  'Shield', 
-  'Amulet', 
-  'Ring', 
-  'Boots', 
-  'Gloves', 
-  'Helmet', 
-  'Armor', 
-  'Shoulders', 
-  'Pants'
-];
+export const allItemTypes: ItemBase[] = Object.values(ItemBase);
 
 /**
  * Maps item types to their corresponding emoji representations
  */
-export const itemTypeEmojiMap: Record<ItemType, string> = {
-  'Sword': '⚔️',
-  'Shield': '🛡️',
+export const itemTypeEmojiMap: Record<ItemBase, string> = {
+  'Daggers': '⚔️',
+  'Sword & Shield': '🛡️',
   'Amulet': '📿',
   'Ring': '💍',
   'Boots': '👢',
@@ -37,9 +27,9 @@ export const itemTypeEmojiMap: Record<ItemType, string> = {
 /**
  * Maps item types to their corresponding equipment slots
  */
-export const slotMap: Record<ItemType, keyof ICharacterEquipment> = {
-  'Sword': 'weapon',
-  'Shield': 'weapon',
+export const slotMap: Record<ItemBase, keyof ICharacterEquipment> = {
+  'Daggers': 'weapon',
+  'Sword & Shield': 'weapon',
   'Amulet': 'neck',
   'Ring': 'leftHand', // Default slot for rings
   'Boots': 'feet',
@@ -106,10 +96,23 @@ export const generateNormalGold = () => {
 /**
  * Maps loot type tags to their corresponding item types
  */
-export const lootTagToItemTypes: Record<LootType, ItemType[]> = {
-  'armor': ['Helmet', 'Armor', 'Shoulders', 'Pants', 'Boots', 'Gloves'],
-  'weapons': ['Sword', 'Shield'],
-  'accessory': ['Amulet', 'Ring'],
+export const lootTagToItemTypes: Record<LootType, ItemBase[]> = {
+  'accessory': [
+    ItemBase.AMULET,
+    ItemBase.RING,
+  ],
+  'armor': [
+    ItemBase.HELMET,
+    ItemBase.ARMOR,
+    ItemBase.SHOULDER,
+    ItemBase.PANTS,
+    ItemBase.BOOTS,
+    ItemBase.GLOVES,
+  ],
+  'weapons': [
+    ItemBase.DAGGERS,
+    ItemBase.SHIELD,
+  ],
   'currency': [] // Currency is handled separately
 };
 
@@ -118,7 +121,7 @@ export const lootTagToItemTypes: Record<LootType, ItemType[]> = {
  * @param lootTags The item tags to weigh higher
  * @returns A random item type, with 90% chance from `lootTags` and 10% chance from all types
  */
-export function getWeightedItemType(lootTags: LootType[]): ItemType {
+export function getWeightedItemType(lootTags: LootType[]): ItemBase {
   // 90% chance to use loot tag types, 10% chance to use any type
   if (Math.random() < 0.9 && lootTags.length > 0) {
     // Get all possible item types from the loot tags
@@ -207,7 +210,7 @@ export function generateItemTier(sourceLevel: number, maxLevel: number = 40): It
  * @param type The item type to map
  * @returns The corresponding BASE_ITEM_AFFIX_CONFIG category
  */
-export function mapItemTypeToAffixCategory(type: ItemType): keyof typeof BASE_ITEM_AFFIX_CONFIG {
+export function mapItemTypeToAffixCategory(type: ItemBase): keyof typeof BASE_ITEM_AFFIX_CONFIG {
   // Find which category this item type belongs to
   for (const [category, types] of Object.entries(lootTagToItemTypes)) {
     if (types.includes(type)) {
@@ -244,7 +247,7 @@ const baseAffixTierScalingMap: Record<ItemTierType, number> = {
  * @param tier The item tier
  * @returns The selected base affix configuration
  */
-export function resolveBaseAffixFromTypeAndTier(type: ItemType, tier: ItemTierType): IBaseAffix {
+export function resolveBaseAffixFromTypeAndTier(type: ItemBase, tier: ItemTierType): IBaseAffix {
   // Map the item type to the corresponding config section
   const configSection = mapItemTypeToAffixCategory(type);
   

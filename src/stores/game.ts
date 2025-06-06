@@ -1,34 +1,27 @@
 import { trace } from '@/lib/logging';
 import { defineStore } from 'pinia';
 import type { 
-  DifficultyType, 
-  IDifficulty, 
   ICharacter, 
-  ICharacterStats,
   ILoot,
   ICombatStat,
-  IMitigation,
-  ItemType,
   IStatBuff,
   IPassive,
-  LootType,
-  SkillTriggers,
 } from '@/lib/game';
 import { 
-  DEFAULT_MITIGATION,
-  DIFFICULTY_SETTINGS, 
   generateClassStats,
   ITEM_TIER_COSTS,
   generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
-import { AffixType, AffixTypes, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { AffixCategory, AffixType, AffixTypes, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
-import { calculateDodgeChance } from '@/lib/combatMechanics';
+import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatMechanics';
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
+import { ErrorNumber } from '@/lib/typescript';
+import { DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.11';
@@ -85,21 +78,21 @@ export const useGameEngine = defineStore('gameEngine', {
      * Retrieves the current difficulty settings including multipliers
      * @returns {IDifficulty | -1} The current difficulty settings or -1 if not found
      */
-    getDifficulty(): IDifficulty | -1 {
+    getDifficulty(): IDifficulty | ErrorNumber.NOT_FOUND {
       logger('Resolving difficulty')
       const retval = DIFFICULTY_SETTINGS.get(this.difficulty);
       if (retval)
         return retval;
-      return -1;
+      return ErrorNumber.NOT_FOUND;
     },
 
     /**
      * Retrieves the current character
      * @returns {ICharacter | -1} The current character or -1 if none exists
      */
-    getCharacter(): ICharacter | -1 {
+    getCharacter(): ICharacter | ErrorNumber.NOT_FOUND {
       logger(`Retrieving character: ${this.character?.name || 'none'}`);
-      if (!this.character) return -1;
+      if (!this.character) return ErrorNumber.NOT_FOUND;
       return this.character;
     },
 
@@ -119,9 +112,9 @@ export const useGameEngine = defineStore('gameEngine', {
      * Retrieves the current character
      * @returns {ICharacter | -1} The current character or -1 if none exists
      */
-    getCombatStats(): ICombatStat | -1 {
+    getCombatStats(): ICombatStat | ErrorNumber.NOT_FOUND {
       logger(`Retrieving character: ${this.character?.name || 'none'}`);
-      if (!this.character) return -1;
+      if (!this.character) return ErrorNumber.NOT_FOUND;
 
       let retval: ICombatStat = {
         health: this.character.stats.currentHealth,
@@ -154,6 +147,7 @@ export const useGameEngine = defineStore('gameEngine', {
       };
 
       let localEvasion = 0;
+      let localArmor = 0;
 
       //---------------------
       // ADD all ITEM values
@@ -177,15 +171,15 @@ export const useGameEngine = defineStore('gameEngine', {
 
           // Use switch statement for better readability and maintainability
           switch (affix.category) {
-            case 'life':
+            case AffixCategory.LIFE:
               retval.health += getAffixValue(affix);
               retval.maxHealth += getAffixValue(affix);
               break;
-            case 'mana':
+            case AffixCategory.MANA:
               retval.mana += getAffixValue(affix);
               retval.maxMana += getAffixValue(affix);
               break;
-            case 'attribute':
+            case AffixCategory.ATTRIBUTE:
               // Check the affix tags to determine which attribute it affects
               if (affixDef.tags.includes('fortitude')) {
                 retval.attributes.fortitude += getAffixValue(affix);
@@ -197,19 +191,15 @@ export const useGameEngine = defineStore('gameEngine', {
                 retval.attributes.affinity += getAffixValue(affix);
               }
               break;
-            case 'physical':
+            case AffixCategory.ARMOR:
               // Physical damage from prefix, Armour Value from EMBEDDED
               if (affixDef.type === AffixType.EMBEDDED) {
-                // Handle Armor??? but how
-                // const mitigation = retval.mitigation.find(m => m.key === 'physical');
-                // if (mitigation) {
-                //   mitigation.value += getAffixValue(affix);
-                // }
+                localArmor += getAffixValue(affix);
               } else if (affixDef.type === AffixType.PREFIX) {
                 retval.damage.physical += resolveAverageOfRange(getAffixValueRange(affix));
               }
               break;
-            case 'defense':
+            case AffixCategory.DEFENSE:
               // Physical damage from prefix, phys resistance from suffix
               if (affixDef.type === AffixType.SUFFIX) {
                 const mitigation = retval.mitigation.find(m => m.key === 'physical');
@@ -218,13 +208,13 @@ export const useGameEngine = defineStore('gameEngine', {
                 }
               }
               break;
-            case 'evasion':
+            case AffixCategory.EVASION:
               // evasion only on embeded
               if (affixDef.type === AffixType.EMBEDDED) {
                 localEvasion += getAffixValue(affix);
               }
               break;
-            case 'elemental':
+            case AffixCategory.ELEMENTAL:
               // Elemental damage from prefix/suffix, resistance from embedded
               if (affixDef.type === AffixType.EMBEDDED) {
                 // Handle elemental resistances
@@ -269,14 +259,7 @@ export const useGameEngine = defineStore('gameEngine', {
                 }
               }
               break;
-            // case 'corruption':
-            //   if (affixDef.tags.includes('void')) {
-            //     retval.damage.corruption.void += resolveAverageOfRange(getAffixValueRange(affix));
-            //   } else if (affixDef.tags.includes('mental')) {
-            //     retval.damage.corruption.mental += resolveAverageOfRange(getAffixValueRange(affix));
-            //   }
-            //   break;
-            case 'critical':
+            case AffixCategory.CRITICAL:
               // evasion only on PREFIX
               if (affixDef.type === AffixType.PREFIX) {
                 retval.criticalStrike += getAffixValue(affix);
@@ -290,15 +273,11 @@ export const useGameEngine = defineStore('gameEngine', {
           switch (baseAffix.affix) {
             // ARMOUR
             case BaseItemAffix.ARM_ARMOR:
-              // retval.mitigation.find(el => el.key === 'armor')?.value += getAffixValue(baseAffix.value)
+              localArmor += getAffixValue(baseAffix);
               break;
-            case BaseItemAffix.ARM_EVASION:{
-              const mitigation = retval.mitigation.find(m => m.key === 'evasion');
-              if (mitigation) {
-                mitigation.value += getAffixValue(baseAffix);
-              }
+            case BaseItemAffix.ARM_EVASION:
+              localEvasion += getAffixValue(baseAffix);
               break;
-            }
             case BaseItemAffix.ARM_HEALTH:
               retval.health += getAffixValue(baseAffix);
               retval.maxHealth += getAffixValue(baseAffix);
@@ -368,17 +347,25 @@ export const useGameEngine = defineStore('gameEngine', {
           case 'fortitude':
           case 'fortune':
           case 'wrath':
-            retval.attributes[target] = resolveAttributeChange(retval.attributes[target] , passive.effect);
+            retval.attributes[target] = resolveStatChangeFromPassive(retval.attributes[target] , passive.effect);
             
             break;
           case 'health':
-            retval.health = resolveAttributeChange(retval.health , passive.effect);
-            retval.maxHealth = resolveAttributeChange(retval.maxHealth , passive.effect);
+            retval.health = resolveStatChangeFromPassive(retval.health , passive.effect);
+            retval.maxHealth = resolveStatChangeFromPassive(retval.maxHealth , passive.effect);
 
             break;
           case 'mana':
-            retval.mana = resolveAttributeChange(retval.mana , passive.effect);
-            retval.maxMana = resolveAttributeChange(retval.maxMana , passive.effect);
+            retval.mana = resolveStatChangeFromPassive(retval.mana , passive.effect);
+            retval.maxMana = resolveStatChangeFromPassive(retval.maxMana , passive.effect);
+
+            break;
+          case 'armor':            
+            localArmor = resolveStatChangeFromPassive(localArmor, passive.effect);
+
+            break;
+          case 'evasion':
+            localEvasion = resolveStatChangeFromPassive(localEvasion, passive.effect);
 
             break;
         
@@ -401,18 +388,26 @@ export const useGameEngine = defineStore('gameEngine', {
           case 'fortune':
           case 'wrath':
             logger(`passive effecting: ${target}`);
-            retval.attributes[target] = resolveAttributeChange(retval.attributes[target] , passive.effect);
+            retval.attributes[target] = resolveStatChangeFromPassive(retval.attributes[target] , passive.effect);
             
             break;
           case 'health':
-            retval.health = resolveAttributeChange(retval.health , passive.effect);
-            retval.maxHealth = resolveAttributeChange(retval.maxHealth , passive.effect);
+            retval.health = resolveStatChangeFromPassive(retval.health , passive.effect);
+            retval.maxHealth = resolveStatChangeFromPassive(retval.maxHealth , passive.effect);
             
             break;
           case 'mana':
-            retval.mana = resolveAttributeChange(retval.mana , passive.effect);
-            retval.maxMana = resolveAttributeChange(retval.maxMana , passive.effect);
+            retval.mana = resolveStatChangeFromPassive(retval.mana , passive.effect);
+            retval.maxMana = resolveStatChangeFromPassive(retval.maxMana , passive.effect);
 
+            break;
+          case 'armor':            
+            localArmor = resolveStatChangeFromPassive(localArmor, passive.effect);
+
+            break;
+          case 'evasion':
+            localEvasion = resolveStatChangeFromPassive(localEvasion, passive.effect);
+            
             break;
         
           default:
@@ -454,6 +449,11 @@ export const useGameEngine = defineStore('gameEngine', {
       const mitigationEvasion = retval.mitigation.find(m => m.key === 'evasion');
       if (mitigationEvasion) {
         mitigationEvasion.value = calculateDodgeChance(localEvasion, this.character.level);
+      }
+      const mitigationArmor = retval.mitigation.find(m => m.key === 'armor');
+      if (mitigationArmor && this.character) {
+        mitigationArmor.value = localArmor;
+        retval.deflection = calculateDeflectionAttempts(localArmor, this.character.level);
       }
 
       return retval;
@@ -517,8 +517,17 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Initializing game with character: ${character.name} (${character.class})`);
       
       this.runs = 0;
-      this.character = { ...character }; // Create a new object to ensure reactivity
+      this.character = _cloneDeep(character); // Create a new object to ensure reactivity
       this.isDead = false;
+
+      // auto select a skill
+      const starters = skills.filter(sk => !(sk.minCharLevel));
+      logger(`${JSON.stringify(starters)}`);
+      const randomStarterSkill = starters[Math.floor(Math.random() * starters.length)];
+      if (randomStarterSkill && this.character) {
+        this.character.skills.push(randomStarterSkill);
+      }
+
       this.saveState();
     },
 
@@ -688,13 +697,22 @@ export const useGameEngine = defineStore('gameEngine', {
 
 
       // check against 1 as we have already incremented char level
+      // custom
+      // skill on creation: level-1
+      // passive on: level-2
+      // else
       // passive every 3 levels 
       //  skill  every 4 levels
-      if (this.character.level % 4 === 1) {
-        this.character.pendingRewards.skills++;
-      } 
-      if (this.character.level % 3 === 1) {
+      if (this.character.level === 2) {
         this.character.pendingRewards.passives++;
+      } else {
+        if (this.character.level % 4 === 1) {
+          this.character.pendingRewards.skills++;
+        } 
+        // skip level-3 as we just got our forced level-2 one
+        if (this.character.level !== 3 && this.character.level % 3 === 1) {
+          this.character.pendingRewards.passives++;
+        }
       }
       
       logger(`Character leveled up to ${this.character.level}`);
@@ -724,7 +742,7 @@ export const useGameEngine = defineStore('gameEngine', {
       // Generate random loot items
       for (let i = 0; i < totalLoot; i++) {
         // Generate a random item type using weighted system if loot tags are provided
-        const type: ItemType = lootTags ? getWeightedItemType(lootTags) : allItemTypes[Math.floor(Math.random() * allItemTypes.length)];
+        const type: ItemBase = lootTags ? getWeightedItemType(lootTags) : allItemTypes[Math.floor(Math.random() * allItemTypes.length)];
 
         const id = generateRandomId(); // Temporary name until identified;
         const iLevel = generateItemLevel(areaLevel);
@@ -917,12 +935,12 @@ export const useGameEngine = defineStore('gameEngine', {
       // Remove item from source
       if (this.stash && fromStash) {
         const stashIndex = this.stash.findIndex(loot => loot === item);
-        if (stashIndex !== -1) {
+        if (stashIndex !== ErrorNumber.NOT_FOUND) {
           this.stash.splice(stashIndex, 1);
         }
       } else {
         const lootIndex = this.character.loot.findIndex(loot => loot === item);
-        if (lootIndex !== -1) {
+        if (lootIndex !== ErrorNumber.NOT_FOUND) {
           this.character.loot.splice(lootIndex, 1);
         }
       }
@@ -1043,13 +1061,13 @@ function resolveMitigation(_character: ICharacter): IMitigation[]{
   return retval;
 }
 
-function resolveAttributeChange(attribute: number, delta: IStatBuff ): number{
+function resolveStatChangeFromPassive(rawStatValue: number, delta: IStatBuff ): number{
   switch (delta.type) {
     case AffixTypes.ADDITIVE:
-      return attribute + delta.change;
+      return rawStatValue + delta.change;
     case AffixTypes.MULTIPLICATIVE:
-      return attribute * (1 + (delta.change / 100));
+      return rawStatValue * (1 + (delta.change / 100));
     default:
-      return attribute;
+      return rawStatValue;
   }
 }

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useGameEngine } from '@/stores/game';
-import type { ExileClassType, DifficultyType } from '@/lib/game';
+import type { ExileClassType, DifficultyType } from '@/lib/core';
 import { 
   EXILE_CLASSES, 
   CLASS_DESCRIPTIONS, 
   BASE_STATS,
-  generateClassStats,
   DIFFICULTY_SETTINGS
-} from '@/lib/game';
+} from '@/lib/core';
 import { FANTASY_NAMES } from '@/lib/characters';
 import { IconRepeat } from './icons';
+import { generateClassStats } from '@/lib/game';
 
 const $emit = defineEmits<{
   (_e: 'character-created'): void

@@ -2,17 +2,19 @@
 import FluidElement from '@/components/FluidElement.vue';
 import { useGameEngine } from '@/stores/game';
 import { computed, ref } from 'vue';
-import type { ILoot, ItemType } from '@/lib/game';
+import type { ILoot } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './ModalDialog.vue';
 import { IconRefreshCC } from './icons';
+import { ErrorNumber } from '@/lib/typescript';
+import type { ItemBase } from '@/lib/core';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
-const lootFilter = ref<ItemType | undefined>(undefined);
+const lootFilter = ref<ItemBase | undefined>(undefined);
 const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
 const showCompareModal = ref(false);
@@ -38,26 +40,26 @@ const selectLoot = (loot: ILoot) => {
 };
 
 const identifySelectedLoot = () => {
-  if (!selectedLoot.value || !character.value || character.value === -1) return;
+  if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
   
   if (activeTab.value === 'inventory') {
     const lootIndex = character.value.loot.findIndex(loot => loot === selectedLoot.value);
-    if (lootIndex !== -1) {
+    if (lootIndex !== ErrorNumber.NOT_FOUND) {
       gameEngine.identifyLoot(lootIndex);
     }
   } else if (gameEngine.stash) {
     const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
-    if (stashIndex !== -1) {
+    if (stashIndex !== ErrorNumber.NOT_FOUND) {
       gameEngine.identifyStashItem(stashIndex);
     }
   }
 };
 
 const stashSelectedLoot = () => {
-  if (!selectedLoot.value || !character.value || character.value === -1) return;
+  if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
   
   const lootIndex = character.value.loot.findIndex(loot => loot === selectedLoot.value);
-  if (lootIndex !== -1) {
+  if (lootIndex !== ErrorNumber.NOT_FOUND) {
     gameEngine.stashItem(lootIndex);
     selectedLoot.value = undefined;
   }
@@ -67,7 +69,7 @@ const unstashSelectedLoot = () => {
   if (!gameEngine.stash || !selectedLoot.value) return;
   
   const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
-  if (stashIndex !== -1) {
+  if (stashIndex !== ErrorNumber.NOT_FOUND) {
     gameEngine.unstashItem(stashIndex);
     selectedLoot.value = undefined;
   }
@@ -90,7 +92,7 @@ const equipSelectedLoot = (isMobile:boolean = false) => {
 };
 
 const handleEquipmentSwap = () => {
-  if (!selectedLoot.value || !character.value || character.value === -1) return;
+  if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
   
   const currentlyEquippedItem = equippedItem.value;
   if (!currentlyEquippedItem) return;
@@ -122,11 +124,11 @@ const getIdentificationCost = (loot: ILoot): number => {
 };
 
 const canAffordIdentification = (loot: ILoot): boolean => {
-  if (!character.value || character.value === -1) return false;
+  if (!character.value || character.value === ErrorNumber.NOT_FOUND) return false;
   return character.value.gold >= getIdentificationCost(loot);
 };
 
-function itemMatchesFilter(type: ItemType, isIdentified :boolean) {
+function itemMatchesFilter(type: ItemBase, isIdentified :boolean) {
   if (lootFilter.value === undefined) {
     return false;
   }
@@ -153,7 +155,7 @@ function deleteSelectedLoot(){
     }
 
   } else {
-    if(char === -1 || char.loot.length === 0 || !toDeleteId){
+    if(char === ErrorNumber.NOT_FOUND || char.loot.length === 0 || !toDeleteId){
       console.warn(`attempt made to delete an item, from INVENT but not valid condition`);
       return;
     }
@@ -162,10 +164,10 @@ function deleteSelectedLoot(){
   let deletableIndex = undefined;
   if(activeTab.value === 'stash'){
     deletableIndex = gameEngine.stash?.findIndex(loot => loot._identifier === toDeleteId);
-  }else if(char !== -1){
+  }else if(char !== ErrorNumber.NOT_FOUND){
     deletableIndex = char.loot.findIndex(loot => loot._identifier === toDeleteId);
   }
-  if (deletableIndex === undefined || deletableIndex === -1){
+  if (deletableIndex === undefined || deletableIndex === ErrorNumber.NOT_FOUND){
     console.warn(`attempt made to delete an item not indexed: `, toDeleteId, '  from: ', activeTab.value);
     return;
   }
@@ -179,7 +181,7 @@ function deleteSelectedLoot(){
 
   if(activeTab.value === 'stash'){
     gameEngine.stash?.splice(deletableIndex, 1)
-  }else if(char !== -1){
+  }else if(char !== ErrorNumber.NOT_FOUND){
     char.loot.splice(deletableIndex, 1)
   }
 }
@@ -187,7 +189,7 @@ function deleteSelectedLoot(){
 const selectedItemIndex = computed(()=>{  
   const char = gameEngine.getCharacter;
   let toResolveId = selectedLoot.value?._identifier;
-  if(char === -1 || !toResolveId){
+  if(char === ErrorNumber.NOT_FOUND || !toResolveId){
     return null;
   }
   return char.loot.findIndex(loot => loot._identifier === toResolveId);
@@ -202,7 +204,7 @@ const hasPrev = computed(()=>{
 
 const hasNext = computed(()=>{
   const char = gameEngine.getCharacter;
-  if(char === -1){
+  if(char === ErrorNumber.NOT_FOUND){
     return false;
   }
   if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value))){
@@ -215,7 +217,7 @@ const hasNext = computed(()=>{
 function selectLootNeighbour(forwards: boolean = false){
   console.log('selecting neighbour: next?:', forwards);
   const char = gameEngine.getCharacter;
-  if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value)) || char === -1){
+  if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value)) || char === ErrorNumber.NOT_FOUND){
     return;
   }
 
@@ -231,7 +233,7 @@ const resetBrush = () => {
 };
 
 const equippedItem = computed(() => {
-  if (!selectedLoot.value || !character.value || character.value === -1) return undefined;
+  if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return undefined;
   if (selectedLoot.value.type === 'Ring' && !(isLeftRing.value)){
     return character.value.equipment['rightHand'];
   }
@@ -259,7 +261,7 @@ const canCompare = computed(() => {
             @click="activeTab = 'inventory'; selectedLoot = undefined;"
           >
             <FluidElement class="w-fit !p-2">
-              Inventory {{ character !== -1 ? character.loot.length : 0 }}
+              Inventory {{ character !== ErrorNumber.NOT_FOUND ? character.loot.length : 0 }}
             </FluidElement>
           </button>
           <button
@@ -602,7 +604,7 @@ const canCompare = computed(() => {
               @click="() => equipSelectedLoot()"
             >
               <FluidElement class="!p-2 mt-auto">
-                Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
+                Equip Item <span v-if="character !== ErrorNumber.NOT_FOUND">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
               </FluidElement>
             </button>
             <button
@@ -611,7 +613,7 @@ const canCompare = computed(() => {
               @click="() => equipSelectedLoot(true)"
             >
               <FluidElement class="!p-2 mt-auto">
-                Equip Item <span v-if="character !== -1">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
+                Equip Item <span v-if="character !== ErrorNumber.NOT_FOUND">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
               </FluidElement>
             </button>
           </div>

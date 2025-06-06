@@ -1,4 +1,4 @@
-import { CRITICAL_STRIKE_CONSTANTS, DODGE_CONSTANTS } from '@/lib/combatMechanics';
+import { CRITICAL_STRIKE_CONSTANTS, DEFLECTION_CONSTANTS, DODGE_CONSTANTS } from '@/lib/combatMechanics';
 import { asPercent } from '@/lib/string';
 import { ITEM_TIER_COSTS, ITEM_TIER_INFO } from '@/lib/game';
 
@@ -9,6 +9,8 @@ export type Tags =
  | 'mana'
  | 'resource'
  | 'dodge'
+ | 'armor'
+ | 'deflection'
  | 'block'
  | 'affix'
  | 'NYI'
@@ -50,6 +52,23 @@ export const entries: IEntry[] = [
     tags: [
       'defense',
       'dodge',
+    ],
+  },
+  {
+    title: 'Armor',
+    description: 'The flat amount of the concept of how defended your health is from hits. This is the key value in the Deflection formulae',
+    tags: [
+      'defense',
+      'armor',
+      'deflection',
+    ],
+  },
+  {
+    title: 'Deflection',
+    description: `The number of re-roll attempts, capped at ${DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS}, that occur when considering the mobs initial hit.`,
+    tags: [
+      'defense',
+      'deflection',
     ],
   },
   {

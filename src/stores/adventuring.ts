@@ -2,20 +2,16 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useGameEngine } from './game';
 import type { 
-  IDifficulty, 
-  IJournalEntry, 
-  ILevel, 
-  JournalEntryType, 
-  MonsterType, 
   IMonsterDamage,
   ICharacter,
   ICombatStat,
-  IMitigation
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
-import { calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
+import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
+import { ErrorNumber } from '@/lib/typescript';
+import { baseDamageFunction, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
 
 type EncounterType = 
   'combat'
@@ -101,7 +97,7 @@ const ENCOUNTERS: IEncounter[] = [
 export const useAdventuringStore = defineStore('adventuring', () => {
   const gameEngine = useGameEngine();
   const isAdventuring = ref(false);
-  const adventureIntervalId = ref<ReturnType<typeof setInterval> | -1>();
+  const adventureIntervalId = ref<ReturnType<typeof setInterval> | ErrorNumber.NOT_FOUND>();
   const adventureInterval = ref<number>(0);
   const adventureJournal = ref<IJournalEntry[]>([]);
   const ADVENTURE_TICK_DELTA = 1500;
@@ -116,7 +112,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   function generateEncounter(level: ILevel, loggingDetail = false): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
     logger(`Generating encounter for level: ${level.name}-${level.areaLevel}, with logging: ${loggingDetail? 'verbose' : 'concise'}`);
     const difficulty = gameEngine.getDifficulty;
-    if (difficulty === -1) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '' };
+    if (difficulty === ErrorNumber.NOT_FOUND) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '' };
 
     const availableEncounters = ENCOUNTERS
       .filter(enc => enc.minLevel <= level.areaLevel)
@@ -272,7 +268,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         // Monster's turn (skipped if super critical)
         if (!skipMonsterTurn) {
-          const baseMonsterDamage = Math.floor((5 + Math.random() * 10) * areaLevel * mobTier[1] * difficulty.dangerMultiplier);
+          const baseMonsterDamage = armorMitigation(() => baseDamageFunction(areaLevel, mobTier[1], difficulty.dangerMultiplier), exileStats.mitigation.find(e => e.key === 'armor')?.value || 0 ,char.level);
           const monsterDamage = Math.floor(baseMonsterDamage * simMonster.damageInfo.damageMultiplier);
           
           // Apply damage to exile, considering specific damage type mitigation
@@ -290,15 +286,6 @@ export const useAdventuringStore = defineStore('adventuring', () => {
               const primaryDamage = Math.floor(monsterDamage * (simMonster.damageInfo.damageSplit / 100));
               const secondaryDamage = monsterDamage - primaryDamage;
               
-              // Check for block (80% damage reduction)
-              const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
-              const blockRoll = Math.random() * 100;
-              const blocked = blockRoll < blockMitigation;
-              
-              if (blocked) {
-                usedMitigations.add('block');
-              }
-              
               // Get percentage-based mitigations
               const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
               const secondaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0;
@@ -310,18 +297,14 @@ export const useAdventuringStore = defineStore('adventuring', () => {
                 usedMitigations.add(simMonster.damageInfo.secondary);
               }
               
-              // Apply block if successful
-              const blockMultiplier = blocked ? 0.2 : 1.0;
-              
               // Calculate final damage with all mitigations
-              const mitigatedPrimaryDamage = Math.max(1, Math.floor(primaryDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
-              const mitigatedSecondaryDamage = Math.max(1, Math.floor(secondaryDamage * blockMultiplier * (1 - (secondaryMitigation / 100))));
+              const mitigatedPrimaryDamage = Math.max(1, Math.floor(primaryDamage * (1 - (primaryMitigation / 100))));
+              const mitigatedSecondaryDamage = Math.max(1, Math.floor(secondaryDamage * (1 - (secondaryMitigation / 100))));
               
               mitigatedDamage = mitigatedPrimaryDamage + mitigatedSecondaryDamage;
               
               // Update damage description with all mitigation info
-              const blockText = blocked ? ' (80% blocked)' : '';
-              damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${primaryDamage}, ${primaryMitigation}% mitigated) and ${simMonster.damageInfo.secondary} (${secondaryDamage}, ${secondaryMitigation}% mitigated)${blockText}`;
+              damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${primaryDamage}, ${primaryMitigation}% mitigated) and ${simMonster.damageInfo.secondary} (${secondaryDamage}, ${secondaryMitigation}% mitigated)`;
             } else {
               // Single damage type
               const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
@@ -329,25 +312,12 @@ export const useAdventuringStore = defineStore('adventuring', () => {
               if (primaryMitigation > 0) {
                 usedMitigations.add(simMonster.damageInfo.primary);
               }
-              
-              // Check for block (80% damage reduction)
-              const blockMitigation = exileStats.mitigation.find(m => m.key === 'block')?.value || 0;
-              const blockRoll = Math.random() * 100;
-              const blocked = blockRoll < blockMitigation;
-              
-              if (blocked) {
-                usedMitigations.add('block');
-              }
-              
-              // Apply block if successful
-              const blockMultiplier = blocked ? 0.2 : 1.0;
-              
+
               // Calculate final damage with all mitigations
-              mitigatedDamage = Math.max(1, Math.floor(monsterDamage * blockMultiplier * (1 - (primaryMitigation / 100))));
+              mitigatedDamage = Math.max(1, Math.floor(monsterDamage * (1 - (primaryMitigation / 100))));
               
               // Update damage description with all mitigation info
-              const blockText = blocked ? ' (80% blocked)' : '';
-              damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${monsterDamage}, ${primaryMitigation}% mitigated)${blockText}`;
+              damageTypeDesc = `attacks with ${simMonster.damageInfo.primary} (${monsterDamage}, ${primaryMitigation}% mitigated)`;
             }
           } else {
             usedMitigations.add('evasion');
@@ -442,7 +412,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         const char = gameEngine.getCharacter;
         const exileStats = gameEngine.getCombatStats;
 
-        if (char === -1 || exileStats === -1) break;
+        if (char === ErrorNumber.NOT_FOUND || exileStats === ErrorNumber.NOT_FOUND) break;
 
         const monsterDamageInfo = MONSTER_DAMAGE_TYPES[encounteredMonster];
         const simMonster: ISimMonster = {
@@ -531,7 +501,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         // If escaped or defeated, stop adventuring
         if (combatResult.exileHealth <= 1) {
           clearInterval(adventureIntervalId.value);
-          adventureIntervalId.value = -1;
+          adventureIntervalId.value = ErrorNumber.NOT_FOUND;
           isAdventuring.value = false;
         }
         break;
@@ -680,7 +650,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       adventureJournal.value.push(entry);
       clearInterval(adventureIntervalId.value);
-      adventureIntervalId.value = -1;
+      adventureIntervalId.value = ErrorNumber.NOT_FOUND;
       isAdventuring.value = false;
       gameEngine.heal(50, true);
       gameEngine.recoverMana(50, true);
@@ -714,7 +684,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       adventureJournal.value.push(entry);
       clearInterval(adventureIntervalId.value);
-      adventureIntervalId.value = -1;
+      adventureIntervalId.value = ErrorNumber.NOT_FOUND;
       isAdventuring.value = false;
       return;
     }
@@ -722,7 +692,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
   function reset() {
     adventureInterval.value = 0;
-    adventureIntervalId.value = -1;
+    adventureIntervalId.value = ErrorNumber.NOT_FOUND;
     adventureJournal.value = [];
   }
 

@@ -3,6 +3,7 @@
 import PillElement from '@/components/PillElement.vue';
   import { entries } from '@/journal';
   import type { IEntry } from '@/journal';
+import { ErrorNumber } from '@/lib/typescript';
   import { computed, ref } from 'vue';
 
   const searchQuery = ref('');
@@ -40,7 +41,7 @@ import PillElement from '@/components/PillElement.vue';
 
   const toggleTag = (tag: string) => {
     const index = selectedTags.value.indexOf(tag);
-    if (index === -1) {
+    if (index === ErrorNumber.NOT_FOUND) {
       selectedTags.value.push(tag);
     } else {
       selectedTags.value.splice(index, 1);

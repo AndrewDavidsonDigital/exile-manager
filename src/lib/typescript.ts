@@ -79,3 +79,7 @@ const _singularAsset : MediaAsset = {
     documentUrl: '/assets/img/123.jpg',
     extension: 'jpg',
 }
+
+export enum ErrorNumber {
+    NOT_FOUND = -1,
+}

@@ -9,16 +9,19 @@
   import { useGameEngine } from '@/stores/game';
   import { useAdventuringStore } from '@/stores/adventuring';
   import { computed, ref, watch } from 'vue';
-  import { levels, type ILevel } from '@/lib/game';
+  import { levels } from '@/lib/game';
   import ModalDialog from '@/components/ModalDialog.vue';
   import SwitchToggle from '@/components/SwitchToggle.vue';
+  import { ErrorNumber } from '@/lib/typescript';
+  import type { ILevel } from '@/lib/core';
+import { armorMitigation } from '@/lib/combatMechanics';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
-  const hasCharacter = computed(() => gameEngine.getCharacter !== -1);
-  const isCharAlive = computed(() => gameEngine.getCharacter !== -1 && !(gameEngine.isDead));
+  const hasCharacter = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND);
+  const isCharAlive = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND && !(gameEngine.isDead));
   const selectedLevel = ref<ILevel>();
-  const levelDelta = computed(() => gameEngine.getCharacter !== -1 ? gameEngine.getCharacter.level : 0);
+  const levelDelta = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND ? gameEngine.getCharacter.level : 0);
   const activeTab = ref<TabType>('adventuring');
   const lastUpdate = ref<number>(Date.now());
   const reportingStyle = ref<boolean>(false);
@@ -85,6 +88,14 @@
           >
             <FluidElement>
               LevelUp
+            </FluidElement>
+          </button>
+          <button
+            class="w-fit"
+            @click="armorMitigation(() => Math.floor((5 + Math.random() * 10) * 5 * 1 * 1), 173, gameEngine.character?.level || 1)"
+          >
+            <FluidElement>
+              Test Armor
             </FluidElement>
           </button>
         </div>
@@ -162,7 +173,7 @@
           @click="startAdventuring()"
         >
           <FluidElement class="w-fit py-1">
-            Repeat Run
+            Start Run: {{ selectedLevel?.name }}
           </FluidElement>
         </button>
       </div>

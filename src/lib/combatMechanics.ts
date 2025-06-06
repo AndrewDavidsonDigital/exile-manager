@@ -109,3 +109,53 @@ export function calculateCriticalChance(affixBonus: number): number {
     const totalChance = CRITICAL_STRIKE_CONSTANTS.BASE_CRIT_CHANCE * multiplier;
     return Number((100 * Math.min(CRITICAL_STRIKE_CONSTANTS.MAX_CRIT_CHANCE, totalChance)).toFixed(2));
 }
+
+
+/**
+ * Constants for deflection recursion damage calculation calls
+ */
+export const DEFLECTION_CONSTANTS = {
+  /** maximum deflection re-rolls 5 */
+  MAX_DEFLECTION_REPEATS: 5,
+  /** 0% base deflection chance */
+  DODGE_DEFLECTION_BASE: 0,
+} as const;
+
+export function calculateDeflectionAttempts(armourValue: number, charLevel:number = 1): number{
+  console.log(`----------------------------------------`);
+  console.log(`calculateDeflectionAttempts: INIT: Armor: ${armourValue}, Level: ${charLevel}`);
+  // get number of recursions.
+  const normalizedArmorValue = 10 * charLevel;
+
+  return Math.floor(Math.min((armourValue / normalizedArmorValue), DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS))
+}
+
+
+export function armorMitigation( damageFunction: () => number, armourValue: number, charLevel:number = 1){
+  console.log(`----------------------------------------`);
+  console.log(`armorMitigation: INIT: Armor: ${armourValue}`);
+  // get number of recursions.
+
+  const normalizedArmorValue = 10 * charLevel;
+
+  const recursions = Math.min((armourValue / normalizedArmorValue), DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS);
+
+  let baseDamage = damageFunction();
+  let maxHit = baseDamage;
+
+  console.log(`armorMitigation: INIT: ${baseDamage}`);
+
+  for (let i = 0; i < recursions; i++) {
+
+    const newHit = damageFunction();
+    baseDamage = Math.min(baseDamage, newHit);
+    maxHit = Math.max(maxHit, newHit);
+
+    console.log(`armorMitigation: r[${i}] m:${baseDamage} r:${newHit}`);
+  }
+
+  console.log(`armorMitigation: MAX: ${maxHit}`);
+  console.log(`armorMitigation: END: ${baseDamage}`);
+
+  return baseDamage;
+}

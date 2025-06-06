@@ -4,6 +4,7 @@ import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/lib/game';
 import { inject, ref } from 'vue';
 import type { AffixValue } from '@/lib/affixTypes';
+import { ErrorNumber } from '@/lib/typescript';
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
@@ -59,7 +60,7 @@ function alertStats(item: ILoot | undefined){
 }
 
 function unequipItem(slot: keyof ICharacterEquipment) {
-  if (!char || char === -1) return;
+  if (!char || char === ErrorNumber.NOT_FOUND) return;
 
   // Allow unequip if either CTRL is pressed or brush is active
   if ((!ctrlPressed || ctrlPressed.value !== true) && activeBrush.value !== 'unequip') {
@@ -90,7 +91,7 @@ const resetBrush = () => {
 
 <template>
   <div class="flex flex-col gap-2">
-    <template v-if="char !== -1">
+    <template v-if="char !== ErrorNumber.NOT_FOUND">
       <!-- Brush Tools -->
       <div class="flex justify-between gap-2 mb-2 md:hidden">
         <button
@@ -118,7 +119,7 @@ const resetBrush = () => {
 
       <!-- Armor -->
       <details class="group">
-        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
+        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex gap-2 mx-auto w-fit">
           <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
           Armor
         </summary>
@@ -144,7 +145,12 @@ const resetBrush = () => {
             @keydown.enter="() => item && unequipItem(slot)"
             @keydown.space="() => item && unequipItem(slot)"
           >
-            <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+            <span class="text-sm text-gray-400 capitalize">
+              <span 
+                :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
+              >{{ item ? item.itemDetails?.tier : '' }}</span>
+              {{ item ? item.type : slot.replace(/([A-Z])/g, ' $1').trim() }}
+            </span>
             <div
               v-if="item"
               class="tooltip"
@@ -229,7 +235,12 @@ const resetBrush = () => {
             @keydown.enter="() => item && unequipItem(slot)"
             @keydown.space="() => item && unequipItem(slot)"
           >
-            <span class="text-sm text-gray-400">{{ item?.name || slot.charAt(0).toUpperCase() + slot.slice(1) }}</span>
+            <span class="text-sm text-gray-400 capitalize">
+              <span 
+                :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
+              >{{ item ? item.itemDetails?.tier : '' }}</span>
+              {{ item ? item.type : slot.replace(/([A-Z])/g, ' $1').trim() }}
+            </span>
             <div
               v-if="item"
               class="tooltip"
@@ -314,7 +325,12 @@ const resetBrush = () => {
             @keydown.enter="() => item && unequipItem(slot)"
             @keydown.space="() => item && unequipItem(slot)"
           >
-            <span class="text-sm text-gray-400">{{ item?.name || slot.replace(/([A-Z])/g, ' $1').trim() }}</span>
+            <span class="text-sm text-gray-400 capitalize">
+              <span 
+                :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
+              >{{ item ? item.itemDetails?.tier : '' }}</span>
+              {{ item ? item.type : slot.replace(/([A-Z])/g, ' $1').trim() }}
+            </span>
             <div
               v-if="item"
               class="tooltip"
@@ -377,7 +393,7 @@ const resetBrush = () => {
           </button>
         </div>
       </details>
-      <blockquote class="hidden md:block">
+      <blockquote class="hidden md:block opacity-50 italic">
         Un-equip item by holding CTRL
       </blockquote>
     </template>

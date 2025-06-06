@@ -1,5 +1,8 @@
 import { AffixTypes } from "@/lib/affixTypes";
-import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type ISkill } from "@/lib/game";
+import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
+import type { ISkill } from "@/lib/game";
+
+const NOT_ON_CREATION = 1;
 
 export const skills: ISkill[] = [
   {
@@ -54,6 +57,7 @@ export const skills: ISkill[] = [
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.HIGH_HEALTH],
+    minCharLevel: NOT_ON_CREATION,
     duration: {
       count: 3,
       timing: SkillTiming.TURN,
@@ -79,6 +83,7 @@ export const skills: ISkill[] = [
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.WORLD,
     triggerStates: [SkillTriggers.NONE],
+    minCharLevel: NOT_ON_CREATION,
     duration: {
       count: 1,
       timing: SkillTiming.RUN,
@@ -125,6 +130,7 @@ export const skills: ISkill[] = [
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.CRITICAL_HEALTH, SkillTriggers.LOW_HEALTH],
+    minCharLevel: NOT_ON_CREATION,
     cooldown: {
       count: 3,
       timing: SkillTiming.RUN,
