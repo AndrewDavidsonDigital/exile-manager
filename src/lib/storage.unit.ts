@@ -9,12 +9,14 @@ test('Ensure window.localStorage is not accessed outside of its scope `storage.t
   const whiteListedFilesWindows = ['src\\lib\\storage.ts', 'src\\lib\\storage.unit.ts'];
   const whiteListedFiles = [
     ...whiteListedFilesWindows,
-    whiteListedFilesWindows.map(e => e.replaceAll('\\','/'))
+    ...(whiteListedFilesWindows.map(e => e.replaceAll('\\','/')))
   ];
 
   const fileList = getFileList();
 
   const filesWithBlackListedWord = readFileContents(fileList, stringThatShouldNotExist);
+
+  console.log(whiteListedFiles);
 
   const finalList = filesWithBlackListedWord.filter(file => {
     return (whiteListedFiles.indexOf(file) === -1)
