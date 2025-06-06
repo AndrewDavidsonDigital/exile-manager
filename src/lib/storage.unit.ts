@@ -6,7 +6,7 @@ import fs from 'fs';
  */
 test('Ensure window.localStorage is not accessed outside of its scope `storage.ts` or this test', () => {
   const stringThatShouldNotExist = 'localStorage';
-  const whiteListedFiles = ['src\\lib\\storage.ts', 'src\\lib\\storage.unit.ts'];
+  const whiteListedFiles = ['src\\lib\\storage.ts', 'src\\lib\\storage.unit.ts','src/lib/storage.ts', 'src/lib/storage.unit.ts'];
 
   const fileList = getFileList();
 
