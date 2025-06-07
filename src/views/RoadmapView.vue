@@ -47,7 +47,7 @@
       title: 'Leveling System 1.5',
       description: 'Allow better progression',
       priority: 'high',
-      status: 'pending',
+      status: 'completed',
       keyPoints: [
         'Keep attribute increases per level',
         'Add skills and skill-system',
@@ -100,12 +100,18 @@
     },
   ]
 
+  const Ordering: Map<FeatureStatusType, number> = new Map([
+    ['completed',2],
+    ['partial',1],
+    ['pending',0],
+  ]);
+
 </script>
 
 <template>
   <section class="flex flex-col items-center my-auto mx-2 gap-2 pt-4 pb-2">
     <template
-      v-for="feature, index in features"
+      v-for="feature, index in features.toSorted((a,b) => (Ordering.get(a.status)||0) - (Ordering.get(b.status)||0))"
       :key="`feature_${index}`"
     >
       <FluidElement 
