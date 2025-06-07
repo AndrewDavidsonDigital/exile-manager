@@ -1,5 +1,5 @@
 import { AffixTypes } from "@/lib/affixTypes";
-import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
+import { Attributes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
 import type { ISkill } from "@/lib/game";
 
 const NOT_ON_CREATION = 1;
@@ -18,7 +18,7 @@ export const skills: ISkill[] = [
     },
     effect: {
       type: AffixTypes.ADDITIVE,
-      target: "health",
+      target: Attributes.HEALTH,
       change: -20
     },
     cost: {
@@ -30,7 +30,7 @@ export const skills: ISkill[] = [
     _identifier: 'Aid',
     name: 'Aid',
     target: SkillTarget.SELF,
-    activationLayer: SkillActivationLayer.RESTING,
+    activationLayer: SkillActivationLayer.WORLD,
     triggerStates: [SkillTriggers.LOW_HEALTH],
     duration: {
       count: 5,
@@ -43,7 +43,7 @@ export const skills: ISkill[] = [
     },
     effect: {
       type: AffixTypes.ADDITIVE,
-      target: "health",
+      target: Attributes.HEALTH,
       change: 50
     },
     cost: {
@@ -69,7 +69,7 @@ export const skills: ISkill[] = [
     },
     effect: {
       type: AffixTypes.ADDITIVE,
-      target: "wrath",
+      target: Attributes.WRATH,
       change: 20
     },
     cost: {
@@ -95,7 +95,7 @@ export const skills: ISkill[] = [
     },
     effect: {
       type: AffixTypes.MULTIPLICATIVE,
-      target: "wrath",
+      target: Attributes.WRATH,
       change: 50
     },
     cost: {
@@ -116,7 +116,7 @@ export const skills: ISkill[] = [
     },
     effect: {
       type: AffixTypes.ADDITIVE,
-      target: "health",
+      target: Attributes.HEALTH,
       change: 50
     },
     cost: {
@@ -138,7 +138,7 @@ export const skills: ISkill[] = [
     },
     effect: {
       type: AffixTypes.ADDITIVE,
-      target: "health",
+      target: Attributes.HEALTH,
       change: 200
     },
     cost: {

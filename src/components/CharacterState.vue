@@ -399,12 +399,20 @@ function handleAddSkill(identifier: string){
         </div>
 
         <div class="px-2 mx-auto flex gap-2">
-          <div>
+          <div v-if="char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length > 0">
+            <span class="text-gray-400">World Skills:</span>
+            <span 
+              class="ml-2 place-self-center md:place-self-start" 
+            >
+              <span>{{ char.skills.filter(sk => sk.isEnabled && sk.activationLayer === SkillActivationLayer.WORLD).length }}</span>/<span>{{ Math.min(char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length,3) }}</span>
+            </span>
+          </div>
+          <div v-if="char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length > 0">
             <span class="text-gray-400">Skills:</span>
             <span 
               class="ml-2 place-self-center md:place-self-start" 
             >
-              <span>{{ char.skills.filter(sk => sk.isEnabled).length }}</span>/<span>{{ Math.min(char.skills.length) }}</span>
+              <span>{{ char.skills.filter(sk => sk.isEnabled && sk.activationLayer !== SkillActivationLayer.WORLD).length }}</span>/<span>{{ Math.min(char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length, 3) }}</span>
             </span>
           </div>
           <div>

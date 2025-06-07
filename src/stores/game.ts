@@ -468,36 +468,6 @@ export const useGameEngine = defineStore('gameEngine', {
       if (!this.character) return 0;
       return Math.min(0.75, this.character.stats.fortitude / 100);
     },
-
-    /**
-     * Calculates critical hit chance based on wrath
-     * @returns {number} Critical hit chance (0-1)
-     */
-    getCriticalChance(): number {
-      logger(`Calculating critical chance for ${this.character?.name}`);
-      if (!this.character) return 0;
-      return Math.min(0.5, this.character.stats.wrath / 100);
-    },
-
-    /**
-     * Calculates spell power multiplier based on affinity
-     * @returns {number} Spell power multiplier
-     */
-    getSpellPower(): number {
-      logger(`Calculating spell power for ${this.character?.name}`);
-      if (!this.character) return 1;
-      return 1 + (this.character.stats.affinity / 50);
-    },
-
-    /**
-     * Calculates success chance for luck-based actions based on fortune
-     * @returns {number} Success chance (0-1)
-     */
-    getFortuneChance(): number {
-      logger(`Calculating fortune chance for ${this.character?.name}`);
-      if (!this.character) return 0;
-      return Math.min(0.9, this.character.stats.fortune / 100);
-    },
   },
 
   actions: {
@@ -525,6 +495,7 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`${JSON.stringify(starters)}`);
       const randomStarterSkill = starters[Math.floor(Math.random() * starters.length)];
       if (randomStarterSkill && this.character) {
+        randomStarterSkill.isEnabled = true;
         randomStarterSkill.setTrigger = randomStarterSkill.triggerStates[0];
         this.character.skills.push(randomStarterSkill);
       }
@@ -1006,17 +977,18 @@ export const useGameEngine = defineStore('gameEngine', {
       mutableNewState.isDead = currentState.isDead;
 
       // v0.0.12 - passives | skills char bindings
-      if (mutableNewState.character && currentState.character){
-        mutableNewState.character.passives = [...currentState.character.passives];
+      if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('passives')){
+        mutableNewState.character.passives = [];
       }
-      if (mutableNewState.character && mutableNewState.character.skills && currentState.character && currentState.character.skills &&  typeof currentState.character === 'string'){
+      if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('skills')){
         mutableNewState.character.skills = [];
       }
-      
-      if (mutableNewState.character && currentState.character && currentState.character.pendingRewards &&  currentState.character.pendingRewards.passives && currentState.character.pendingRewards.skills) {
-        mutableNewState.character.pendingRewards = currentState.character.pendingRewards;
+      if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('cooldowns')){
+        mutableNewState.character.cooldowns = [];
       }
-
+      if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('pendingRewards')){
+        mutableNewState.character.pendingRewards = {skills: 0,passives: 0};
+      }
 
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);
      

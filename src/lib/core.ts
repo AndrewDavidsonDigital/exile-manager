@@ -186,6 +186,15 @@ export type MitigationType =
 | 'corruption_void'
 | 'corruption_mental'
 
+export enum Attributes {
+  FORTITUDE = 'fortitude',
+  FORTUNE = 'fortune',
+  AFFINITY = 'affinity',
+  WRATH = 'wrath',
+  HEALTH = 'health',
+  MANA = 'mana',
+}
+
 export type CharacterAttributeType = 'fortitude' | 'fortune' | 'affinity' | 'wrath' | 'health' | 'mana';
 
 export enum SkillTarget {

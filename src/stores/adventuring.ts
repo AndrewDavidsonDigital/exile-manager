@@ -12,7 +12,7 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { baseDamageFunction, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
+import { Attributes, baseDamageFunction, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
 import { AffixTypes } from '@/lib/affixTypes';
 
 type EncounterType = 
@@ -222,21 +222,27 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
           return canUse;
         });
-        console.log('___', availableSkills);
+        console.log('___ all:', availableSkills);
 
-        availableSkills.forEach(el => {
+        // Randomly select a skill if any are available
+        const selectedSkill = availableSkills.length > 0 
+          ? availableSkills[Math.floor(Math.random() * availableSkills.length)]
+          : null;
 
-          switch (el.cost.resource) {
+          
+        if (selectedSkill) {
+          console.log('___ chosen', selectedSkill);
+          switch (selectedSkill.cost.resource) {
             case SkillResource.HEALTH:
-              exileHealth -= el.cost.amount;
+              exileHealth -= selectedSkill.cost.amount;
               break;
 
             case SkillResource.MANA:
-              char.stats.currentMana -= el.cost.amount
+              char.stats.currentMana -= selectedSkill.cost.amount
               break;
 
             case SkillResource.GOLD:
-              char.gold -= el.cost.amount
+              char.gold -= selectedSkill.cost.amount
               break;
           
             default:
@@ -244,15 +250,15 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           }
 
           // PIVOT on Target
-          switch (el.target) {
+          switch (selectedSkill.target) {
 
             // Enemy
             case SkillTarget.ENEMY:
 
-              switch (el.effect.target) {
+              switch (selectedSkill.effect.target) {
                 case SkillResource.HEALTH: {
-                  const dmg = resolveAffixChange(monsterHealth, el.effect.change, el.effect.type);;
-                  logger(`Casting: ${el.name}: dealing ${dmg}`);
+                  const dmg = resolveAffixChange(monsterHealth, selectedSkill.effect.change, selectedSkill.effect.type);;
+                  logger(`Casting: ${selectedSkill.name}: dealing ${dmg}`);
                   monsterHealth = dmg;
                   break;
                 }
@@ -266,16 +272,21 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             // Exile
             case SkillTarget.SELF:
 
-              switch (el.effect.target) {
+              switch (selectedSkill.effect.target) {
                 case SkillResource.HEALTH: {
-                  const dmg = resolveAffixChange(monsterHealth, el.effect.change, el.effect.type);;
-                  logger(`Casting: ${el.name}: healing ${dmg}`);
+                  const dmg = resolveAffixChange(exileHealth, selectedSkill.effect.change, selectedSkill.effect.type);;
+                  logger(`Casting: ${selectedSkill.name}: healing ${selectedSkill.effect.change}`);
                   gameEngine.heal(dmg);
                   break;
                 }
+                case Attributes.WRATH: 
+                  // push buff to state
+                  console.log('asd');
+                  break;
 
                 default:
                   break;
+
               }
               
               break;
@@ -285,16 +296,15 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           }
 
           // set on cooldown:
-
           const newCooldown: ICooldowns = {
-            _identifier: el._identifier,
-            timing: el.cooldown.timing,
-            remaining: el.cooldown.startCooldownInstantly ? el.cooldown.count : (el.cooldown.count + (el.duration?.count || 0)),
+            _identifier: selectedSkill._identifier,
+            timing: selectedSkill.cooldown.timing,
+            remaining: selectedSkill.cooldown.startCooldownInstantly ? selectedSkill.cooldown.count : (selectedSkill.cooldown.count + (selectedSkill.duration?.count || 0)),
           }
 
           char.cooldowns.push(newCooldown);
 
-        });
+        }
 
         //------------------------------------------
 
@@ -485,6 +495,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       lootLossPercent
     };
   }
+  
 
   function processEncounter(
     encounter: IEncounter, 
@@ -492,7 +503,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     level: ILevel, 
     difficulty: IDifficulty,
     loggingDetail = false
-  ): { encounter: string, encounterType: JournalEntryType, encounterIcon: string} {
+  ): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
     let encounterType: JournalEntryType = 'Safe';
     let encounterIcon: string = '';
     const areaLevel = level.areaLevel + 1;
@@ -708,7 +719,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
     }
     
-    gameEngine.processCooldowns(SkillTiming.TURN);
+    if (encounter.type !== 'combat'){
+      gameEngine.processCooldowns(SkillTiming.TURN);
+    }
     return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
   }
 

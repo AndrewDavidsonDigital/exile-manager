@@ -75,8 +75,8 @@ function unequipItem() {
             {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
           </div>
           <div
-            v-for="affix in item.itemDetails.affixes.embedded"
-            :key="`emb-${slotName}-${affix.id}-${Date.now()}`"
+            v-for="affix,idx in item.itemDetails.affixes.embedded"
+            :key="`emb-${slotName}-${affix.id}-${idx}-${Date.now()}`"
             class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
           >
             <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
@@ -90,8 +90,8 @@ function unequipItem() {
             <span class="text-right opacity-50 text-amber-200">e</span>
           </div>
           <div
-            v-for="affix in item.itemDetails.affixes.prefix"
-            :key="`pre-${slotName}-${affix.id}-${Date.now()}`"
+            v-for="affix,idx in item.itemDetails.affixes.prefix"
+            :key="`pre-${slotName}-${affix.id}-${idx}-${Date.now()}`"
             class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
           >
             <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
@@ -105,8 +105,8 @@ function unequipItem() {
             <span class="text-right opacity-50 text-amber-200">p</span>
           </div>
           <div
-            v-for="affix in item.itemDetails.affixes.suffix"
-            :key="`suf-${slotName}-${affix.id}-${Date.now()}`"
+            v-for="affix,idx in item.itemDetails.affixes.suffix"
+            :key="`suf-${slotName}-${affix.id}-${idx}-${Date.now()}`"
             class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
           >
             <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">

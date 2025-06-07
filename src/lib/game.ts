@@ -221,11 +221,13 @@ export interface ICharacter {
   loot: ILoot[];
   passives: IPassive[];
   skills: ISkill[];
-  pendingRewards: {
-    skills: number,
-    passives: number,
-  },
+  pendingRewards: IPassives,
   cooldowns: ICooldowns[]
+}
+
+export interface IPassives{
+  skills: number,
+  passives: number,
 }
 
 export interface ICooldowns {
