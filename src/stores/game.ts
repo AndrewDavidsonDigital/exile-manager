@@ -803,7 +803,7 @@ export const useGameEngine = defineStore('gameEngine', {
       const type = loot.type;
       
       // Generate affixes based on tier
-      const affixes = generateAffixesForTier(tier, type);
+      const affixes = generateAffixesForTier(tier, type, loot.iLvl);
       
       // Update item details with generated affixes
       loot.itemDetails = {
