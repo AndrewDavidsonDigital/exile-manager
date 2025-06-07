@@ -16,7 +16,7 @@ import {
   generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
-import { AffixCategory, AffixType, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
@@ -24,7 +24,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.11';
@@ -489,6 +489,12 @@ export const useGameEngine = defineStore('gameEngine', {
         mitigationArmor.value = localArmor;
         retval.deflection = calculateDeflectionAttempts(localArmor, this.character.level);
       }
+
+      
+      retval.health = Math.floor(retval.health);
+      retval.maxHealth = Math.floor(retval.maxHealth);
+      retval.mana = Math.floor(retval.mana);
+      retval.maxMana = Math.floor(retval.maxMana);
 
       return retval;
     },

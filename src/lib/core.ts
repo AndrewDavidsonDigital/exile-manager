@@ -349,3 +349,53 @@ export enum AffixTypes {
   MULTIPLICATIVE = 'multiplicative',
   RANGE = 'range',
 }
+
+
+
+/**
+ * Represents the different types of affixes that can be applied to items
+ */
+export enum AffixType {
+  /** Immutable affixes that are inherent to the item, similar to Path of Exile's implicit modifiers */
+  EMBEDDED = 'embedded',
+  /** Primarily offensive stats but can include some highly effective defensive stats */
+  PREFIX = 'prefix',
+  /** Primarily defensive stats but can include some highly effective offensive stats */
+  SUFFIX = 'suffix'
+}
+
+/**
+ * Represents the different categories of affixes
+ */
+export enum AffixCategory {
+  /** Affixes relating to specifically offensive values */
+  ATTACK = 'attack',
+  /** Affixes relating to specifically defensive values */
+  DEFENSE = 'defense',
+  /** Affixes pertaining to armor rating values */
+  ARMOR = 'armor',
+  /** Affixes pertaining to evasion rating values */
+  EVASION = 'evasion',
+  /** Affixes relating the characters life */
+  LIFE = 'life',
+  /** Affixes relating the characters mana */
+  MANA = 'mana',
+  /** Affixes relating resistances explicity @deprecated not yet implemented */
+  RESISTANCE = 'resistance',
+  /** Affixes relating the characters base attributes */
+  ATTRIBUTE = 'attribute',
+  /** Affixes relating utility elements @deprecated not yet implemented */
+  UTILITY = 'utility',
+  /** Affixes relating elemental damage, both offensively and defensibly */
+  ELEMENTAL = 'elemental',
+  /** Affixes relating physical damage, both offensively and defensibly */
+  PHYSICAL = 'physical',
+  /** Affixes pertaining to critical strike chance */
+  CRITICAL = 'critical',
+  /** Affixes relating spell @deprecated not yet implemented */
+  SPELL = 'spell',
+  /** Affixes relating movement @deprecated not yet implemented */
+  MOVEMENT = 'movement',
+  /** Affixes relating crafting @deprecated not yet implemented */
+  CRAFTING = 'crafting'
+}

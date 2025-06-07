@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ICooldown, type ILoot, type ISkill, type ITemporalEffect } from '@/lib/game';
-import { AffixTypes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
+import { AffixCategory, AffixTypes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
-import { AffixCategory, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
+import { allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './FluidElement.vue';

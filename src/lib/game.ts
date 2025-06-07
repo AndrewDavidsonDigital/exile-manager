@@ -1,7 +1,9 @@
-import type { AffixCategory, IAffix, IBaseAffix } from './affixTypes';
-import { AffixType, allAffixes, isAffixRange } from './affixTypes';
+import type { IAffix, IBaseAffix } from './affixTypes';
+import { allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
 import { 
+  AffixCategory,
+  AffixType,
   AffixTypes,
   Attributes,
   TIER_SEPARATOR,
