@@ -121,22 +121,26 @@ export const DEFLECTION_CONSTANTS = {
   DODGE_DEFLECTION_BASE: 0,
 } as const;
 
+
+// 
+const affixLevelBand = 5;
+
 export function calculateDeflectionAttempts(armourValue: number, charLevel:number = 1): number{
   console.log(`----------------------------------------`);
   console.log(`calculateDeflectionAttempts: INIT: Armor: ${armourValue}, Level: ${charLevel}`);
   // get number of recursions.
-  const normalizedArmorValue = 10 * charLevel;
+  const normalizedArmorValue = 10 * Math.max(Math.floor(charLevel / affixLevelBand),1);
 
   return Math.floor(Math.min((armourValue / normalizedArmorValue), DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS))
 }
 
 
 export function armorMitigation( damageFunction: () => number, armourValue: number, charLevel:number = 1){
-  console.log(`----------------------------------------`);
-  console.log(`armorMitigation: INIT: Armor: ${armourValue}`);
+  // console.log(`----------------------------------------`);
+  // console.log(`armorMitigation: INIT: Armor: ${armourValue}`);
   // get number of recursions.
 
-  const normalizedArmorValue = 10 * charLevel;
+  const normalizedArmorValue = 10 * Math.max(Math.floor(charLevel / affixLevelBand),1);
 
   const recursions = Math.min((armourValue / normalizedArmorValue), DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS);
 

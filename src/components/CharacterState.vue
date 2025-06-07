@@ -670,7 +670,7 @@ function handleAddSkill(identifier: string){
                 <template v-if="groupedAffixes.prefix.length > 0">
                   <div class="space-y-2">
                     <h4 class="text-purple-400 font-medium">
-                      Prefix Affixes
+                      Prefixes
                     </h4>
                     <div class="pl-4 space-y-1">
                       <div
@@ -687,7 +687,7 @@ function handleAddSkill(identifier: string){
                 <template v-if="groupedAffixes.suffix.length > 0">
                   <div class="space-y-2">
                     <h4 class="text-yellow-400 font-medium">
-                      Suffix Affixes
+                      Suffixes
                     </h4>
                     <div class="pl-4 space-y-1">
                       <div
