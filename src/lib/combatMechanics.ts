@@ -126,8 +126,8 @@ export const DEFLECTION_CONSTANTS = {
 const affixLevelBand = 5;
 
 export function calculateDeflectionAttempts(armourValue: number, charLevel:number = 1): number{
-  console.log(`----------------------------------------`);
-  console.log(`calculateDeflectionAttempts: INIT: Armor: ${armourValue}, Level: ${charLevel}`);
+  // console.log(`----------------------------------------`);
+  // console.log(`calculateDeflectionAttempts: INIT: Armor: ${armourValue}, Level: ${charLevel}`);
   // get number of recursions.
   const normalizedArmorValue = 10 * Math.max(Math.floor(charLevel / affixLevelBand),1);
 
@@ -147,7 +147,7 @@ export function armorMitigation( damageFunction: () => number, armourValue: numb
   let baseDamage = damageFunction();
   let maxHit = baseDamage;
 
-  console.log(`armorMitigation: INIT: ${baseDamage}`);
+  // console.log(`armorMitigation: INIT: ${baseDamage}`);
 
   for (let i = 0; i < recursions; i++) {
 
@@ -155,11 +155,11 @@ export function armorMitigation( damageFunction: () => number, armourValue: numb
     baseDamage = Math.min(baseDamage, newHit);
     maxHit = Math.max(maxHit, newHit);
 
-    console.log(`armorMitigation: r[${i}] m:${baseDamage} r:${newHit}`);
+    // console.log(`armorMitigation: r[${i}] m:${baseDamage} r:${newHit}`);
   }
 
-  console.log(`armorMitigation: MAX: ${maxHit}`);
-  console.log(`armorMitigation: END: ${baseDamage}`);
+  // console.log(`armorMitigation: MAX: ${maxHit}`);
+  // console.log(`armorMitigation: END: ${baseDamage}`);
 
   return baseDamage;
 }

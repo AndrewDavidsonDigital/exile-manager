@@ -1,12 +1,7 @@
-import type { ItemTierType, ItemMutationType, ItemBase } from './core';
+import { type ItemTierType, type ItemMutationType, type ItemBase, AffixTypes } from './core';
 import { allItemTypes } from './itemUtils';
 import type { OneOf } from './typescript';
 
-export enum AffixTypes {
-  ADDITIVE = 'additive',
-  MULTIPLICATIVE = 'multiplicative',
-  RANGE = 'range',
-}
 
 /**
  * Represents an additive value modifier

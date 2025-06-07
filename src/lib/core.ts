@@ -329,3 +329,23 @@ export function baseDamageFunction(areaMulti:number, tierMulti:number, difficult
 }
 
 export const TIER_SEPARATOR = '_-_';
+
+export function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes){
+  switch (direction) {
+    case AffixTypes.ADDITIVE:
+      return rawValue + delta;
+      
+    case AffixTypes.MULTIPLICATIVE:
+      return rawValue * (1 + delta/100);
+  
+    default:
+      break;
+  }
+  return rawValue;
+}
+
+export enum AffixTypes {
+  ADDITIVE = 'additive',
+  MULTIPLICATIVE = 'multiplicative',
+  RANGE = 'range',
+}

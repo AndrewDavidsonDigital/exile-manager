@@ -6,6 +6,9 @@ import type {
   ICombatStat,
   IStatBuff,
   IPassive,
+  ITemporalEffect,
+  ISkill,
+  ICooldown,
 } from '@/lib/game';
 import { 
   generateClassStats,
@@ -13,7 +16,7 @@ import {
   generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
-import { AffixCategory, AffixType, AffixTypes, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { AffixCategory, AffixType, BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
@@ -21,7 +24,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
+import { AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.11';
@@ -94,6 +97,21 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Retrieving character: ${this.character?.name || 'none'}`);
       if (!this.character) return ErrorNumber.NOT_FOUND;
       return this.character;
+    },
+
+    getAvailablePassives(): IPassive[]{
+      if (!this.character) return [];
+
+      const charLevel = this.character.level;
+
+      return passives.filter(el => charLevel >= (el.minCharLevel || 0));
+    },
+    getAvailableSkills(): ISkill[]{
+      if (!this.character) return [];
+
+      const charLevel = this.character.level;
+
+      return skills.filter(el => charLevel >= (el.minCharLevel || 0));
     },
 
     getPassiveIds():string[]{
@@ -423,6 +441,22 @@ export const useGameEngine = defineStore('gameEngine', {
       //------------------------------------------------
       /* effects from mobs (poison, lower resists) . . .  */
 
+      this.character.temporalEffects.forEach(eff => {
+        switch (eff.effect.target) {
+          case Attributes.WRATH:
+            retval.attributes.wrath = Math.floor(resolveAffixChange(retval.attributes.wrath, eff.effect.change, eff.effect.type));
+            break;
+          
+          case Attributes.HEALTH: 
+            retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
+            retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
+            break;
+        
+          default:
+            break;
+        }
+      });
+
 
       //-------------------------------------
       // Finally add run post addition logic
@@ -503,10 +537,24 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    processCooldowns(timing: SkillTiming){
-      if (!this.character) return;
-      logger(`processCooldowns(${timing})`);
+    addTemporalEffect(effect: ITemporalEffect){
+      if(!this.character) return;
+      logger(`New temporal for: ${effect.name} with timing: ${effect.remaining} ${effect.timing}'s`);
+      this.character.temporalEffects.push(effect);
+    },
 
+    addCooldown(effect: ICooldown){
+      if(!this.character) return;
+      logger(`New cooldown for: ${effect.name} with timing: ${effect.remaining} ${effect.timing}'s`);
+      this.character.cooldowns.push(effect);
+    },
+
+    processGameTick(timing: SkillTiming){
+      if (!this.character) return;
+      logger(`processGameTick(${timing})`);
+
+
+      // Cooldowns
       const toRemove: number[] = [];
 
       this.character.cooldowns.forEach((el, idx) => {
@@ -519,7 +567,7 @@ export const useGameEngine = defineStore('gameEngine', {
       });
 
       toRemove.toReversed().forEach(idx => {
-        console.log(`Purge index at [${idx}]`);
+        logger(`Purge index at [${idx}]`);
         delete this.character?.cooldowns[idx];
       })
 
@@ -528,6 +576,31 @@ export const useGameEngine = defineStore('gameEngine', {
         logger(`updated CD's: ${JSON.stringify(this.character.cooldowns)})`);
       }
       
+      this.saveState();
+
+
+      // Temporals
+      const toRemoveTemporals: number[] = [];      
+
+      this.character.temporalEffects.forEach((el, idx) => {
+        if (el.timing === timing){
+          el.remaining--;
+          if (el.remaining <= 0){
+            toRemoveTemporals.push(idx);
+          }
+        }
+      });
+
+      toRemoveTemporals.toReversed().forEach(idx => {
+        logger(`Purge index at [${idx}]`);
+        delete this.character?.temporalEffects[idx];
+      })
+
+      if(toRemoveTemporals.length > 0){
+        this.character.temporalEffects = this.character.temporalEffects.filter(e=> e);
+        logger(`updated Temporal's: ${JSON.stringify(this.character.temporalEffects)})`);
+      }
+
       this.saveState();
     },
 
@@ -592,6 +665,7 @@ export const useGameEngine = defineStore('gameEngine', {
      */
     takeDamage(amount: number, applyReduction: boolean = true) {
       if (!this.character) return;
+      amount = Math.floor(amount);
       logger(`Taking ${amount} damage`);
       // console.log('takeDamage: Initial health', this.character.stats.currentHealth);
       
@@ -886,6 +960,8 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`New run(s): ${value}`);
       this.runs += value;
       this.saveState();
+
+      this.processGameTick(SkillTiming.RUN);
     },
 
     /**

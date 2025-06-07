@@ -57,6 +57,7 @@ const createCharacter = () => {
       skills: 0,
     },
     cooldowns: [],
+    temporalEffects: [],
   });
 
   $emit('character-created');

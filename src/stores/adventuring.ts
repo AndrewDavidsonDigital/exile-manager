@@ -3,17 +3,18 @@ import { ref } from 'vue';
 import { useGameEngine } from './game';
 import type { 
   IMonsterDamage,
-  ICharacter,
   ICombatStat,
-  ICooldowns,
+  ICooldown,
+  ITemporalEffect,
+  ICharacter,
+  ISkillCost,
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { Attributes, baseDamageFunction, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
-import { AffixTypes } from '@/lib/affixTypes';
+import { Attributes, baseDamageFunction, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
 
 type EncounterType = 
   'combat'
@@ -210,19 +211,19 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
 
       if(!shouldBail){
-
+        let spellDescription = '';
         // check to see if we should use skill
         const availableSkills = char.skills.filter(el => {
           if (el.activationLayer !== SkillActivationLayer.COMBAT) return;
           let canUse = el.isEnabled;
-          console.log(`___:CD ${isOffCooldown(char, el._identifier)}`);
-          console.log(`___:TR ${checkTriggerable(char, el.setTrigger || SkillTriggers.NONE)}`);
+          // console.log(`___:CD ${isOffCooldown(char, el._identifier)}`);
+          // console.log(`___:TR ${checkTriggerable(char, el.setTrigger || SkillTriggers.NONE)}`);
           canUse = canUse && isOffCooldown(char, el._identifier);
           canUse = canUse && checkTriggerable(char, el.setTrigger || SkillTriggers.NONE);
 
           return canUse;
         });
-        console.log('___ all:', availableSkills);
+        // console.log('___ all:', availableSkills);
 
         // Randomly select a skill if any are available
         const selectedSkill = availableSkills.length > 0 
@@ -231,7 +232,6 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
           
         if (selectedSkill) {
-          console.log('___ chosen', selectedSkill);
           switch (selectedSkill.cost.resource) {
             case SkillResource.HEALTH:
               exileHealth -= selectedSkill.cost.amount;
@@ -256,9 +256,10 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             case SkillTarget.ENEMY:
 
               switch (selectedSkill.effect.target) {
-                case SkillResource.HEALTH: {
+                case Attributes.HEALTH: {
                   const dmg = resolveAffixChange(monsterHealth, selectedSkill.effect.change, selectedSkill.effect.type);;
-                  logger(`Casting: ${selectedSkill.name}: dealing ${dmg}`);
+                  spellDescription = `Casting: ${selectedSkill.name}: dealing ${dmg}`;
+                  logger(spellDescription);
                   monsterHealth = dmg;
                   break;
                 }
@@ -273,17 +274,28 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             case SkillTarget.SELF:
 
               switch (selectedSkill.effect.target) {
-                case SkillResource.HEALTH: {
-                  const dmg = resolveAffixChange(exileHealth, selectedSkill.effect.change, selectedSkill.effect.type);;
-                  logger(`Casting: ${selectedSkill.name}: healing ${selectedSkill.effect.change}`);
+                case Attributes.HEALTH: {
+                  const dmg = resolveAffixChange(exileHealth, selectedSkill.effect.change, selectedSkill.effect.type);
+                  spellDescription = `Casting: ${selectedSkill.name}: healing ${selectedSkill.effect.change}`;
+                  logger(spellDescription);
                   gameEngine.heal(dmg);
                   break;
                 }
-                case Attributes.WRATH: 
+                case Attributes.WRATH: {
                   // push buff to state
-                  console.log('asd');
+                  if (selectedSkill.duration){
+                    spellDescription = `Casting: ${selectedSkill.name}: buffing ${Attributes.WRATH} by ${selectedSkill.effect.change} for ${selectedSkill.duration.count} ${selectedSkill.duration.timing}'s`;
+                    logger(spellDescription);
+                    const newBuff: ITemporalEffect = {
+                      effect: selectedSkill.effect,
+                      name: selectedSkill.name,
+                      timing: selectedSkill.duration.timing,
+                      remaining: selectedSkill.duration.count,
+                    }
+                    gameEngine.addTemporalEffect(newBuff);
+                  }
                   break;
-
+                }
                 default:
                   break;
 
@@ -295,14 +307,25 @@ export const useAdventuringStore = defineStore('adventuring', () => {
               break;
           }
 
+          const cooldownTime = selectedSkill.cooldown.startCooldownInstantly ? selectedSkill.cooldown.count : (selectedSkill.cooldown.count + (selectedSkill.duration?.count || 0));
+          logger(`new cooldown for: ${selectedSkill.name} with timing: ${cooldownTime}`);
           // set on cooldown:
-          const newCooldown: ICooldowns = {
+          const newCooldown: ICooldown = {
             _identifier: selectedSkill._identifier,
+            name: selectedSkill.name,
             timing: selectedSkill.cooldown.timing,
-            remaining: selectedSkill.cooldown.startCooldownInstantly ? selectedSkill.cooldown.count : (selectedSkill.cooldown.count + (selectedSkill.duration?.count || 0)),
+            remaining: cooldownTime,
           }
+          
+          gameEngine.addCooldown(newCooldown)
+          // char.cooldowns.push(newCooldown);
 
-          char.cooldowns.push(newCooldown);
+        // Log spell cast
+        combatLog.push(
+          `Round ${round}:\n` +
+          `\t\t\tYou cast ${selectedSkill.name}\n` +
+          `\t\t\t${spellDescription}`
+        );
 
         }
 
@@ -465,7 +488,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         }
       }
 
-      gameEngine.processCooldowns(SkillTiming.TURN);
+      gameEngine.processGameTick(SkillTiming.TURN);
 
       round++;
 
@@ -720,7 +743,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     }
     
     if (encounter.type !== 'combat'){
-      gameEngine.processCooldowns(SkillTiming.TURN);
+      gameEngine.processGameTick(SkillTiming.TURN);
     }
     return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
   }
@@ -815,27 +838,26 @@ const LOGGING_PREFIX = '🥷 Adventure:\t';
 function logger(message: string) {
   trace(`${LOGGING_PREFIX}${message}`);
 }
-
-function checkTriggerable(char: ICharacter, trigger: SkillTriggers): boolean{
+export function checkTriggerable(char: ICharacter, trigger: SkillTriggers): boolean{
   switch (trigger) {
     case SkillTriggers.ALWAYS:
       return true;
     
     case SkillTriggers.LOW_HEALTH:{
       const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
-      console.log(`___\t currentHP: ${healPercentage}%`);
+      // console.log(`___\t currentHP: ${healPercentage}%`);
       return healPercentage < 40
     }
 
     case SkillTriggers.MED_HEALTH:{
       const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
-      console.log(`___\t currentHP: ${healPercentage}%`);
+      // console.log(`___\t currentHP: ${healPercentage}%`);
       return healPercentage > 30 && healPercentage < 60
     }
 
     case SkillTriggers.HIGH_HEALTH:{
       const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
-      console.log(`___\t currentHP: ${healPercentage}%`);
+      // console.log(`___\t currentHP: ${healPercentage}%`);
       return healPercentage > 60
     }
 
@@ -845,20 +867,19 @@ function checkTriggerable(char: ICharacter, trigger: SkillTriggers): boolean{
   return false;
 }
 
-function isOffCooldown(char: ICharacter, identifier: string): boolean {
+export function isOffCooldown(char: ICharacter, identifier: string): boolean {
   return !(char.cooldowns?.find(cd => cd._identifier === identifier));
 }
 
-function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes){
-  switch (direction) {
-    case AffixTypes.ADDITIVE:
-      return rawValue + delta;
-      
-    case AffixTypes.MULTIPLICATIVE:
-      return rawValue * (1 + delta/100);
-  
-    default:
-      break;
+export function isAbleToAffordSkill(char: ICharacter, skillCost : ISkillCost):boolean{
+  switch (skillCost.resource) {
+    case SkillResource.GOLD:
+      return char.gold >= skillCost.amount;
+
+    case SkillResource.HEALTH:
+      return char.stats.currentHealth >= skillCost.amount;
+
+    case SkillResource.MANA:
+      return char.stats.currentMana >= skillCost.amount;
   }
-  return rawValue;
 }

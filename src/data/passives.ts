@@ -1,21 +1,48 @@
-import { AffixTypes } from "@/lib/affixTypes";
+import { AffixTypes, Attributes } from "@/lib/core";
 import type { IPassive } from "@/lib/game";
 
 export const passives: IPassive[] = [
   {
+    _identifier: 'Mana Veins', 
+    name:'Mana Veins', 
+    effect:{
+      target: Attributes.MANA,
+      change: 20, 
+      type: AffixTypes.MULTIPLICATIVE
+    }
+  },
+  {
+    _identifier: 'Blood of Giants',
+    name:'Blood of Giants', 
+    effect:{
+      target: Attributes.HEALTH,
+      change: 20, 
+      type: AffixTypes.MULTIPLICATIVE
+    }
+  },
+  {
     _identifier: 'Fortified Fortunes', 
     name:'Fortified Fortunes', 
     effect:{
-      target:'fortitude',
+      target: Attributes.FORTITUDE,
       change: 75, 
       type: AffixTypes.MULTIPLICATIVE
+    }
+  },
+  {
+    _identifier: 'Stoic', 
+    name:'Stoic',
+    effect:{
+      target: Attributes.FORTITUDE,
+      change: 12, 
+      type: AffixTypes.ADDITIVE
     }
   },
   {
     _identifier: 'Wrathful Embrace', 
     name:'Wrathful Embrace',
     effect:{
-      target:'wrath',
+      target: Attributes.WRATH,
       change: 12, 
       type: AffixTypes.ADDITIVE
     }
@@ -24,16 +51,7 @@ export const passives: IPassive[] = [
     _identifier: 'Fortuitus', 
     name:'Fortuitus',
     effect:{
-      target:'fortune',
-      change: 12, 
-      type: AffixTypes.ADDITIVE
-    }
-  },
-  {
-    _identifier: 'Stoic', 
-    name:'Stoic',
-    effect:{
-      target:'fortitude',
+      target: Attributes.FORTUNE,
       change: 12, 
       type: AffixTypes.ADDITIVE
     }
@@ -42,7 +60,7 @@ export const passives: IPassive[] = [
     _identifier: 'Arcanist', 
     name:'Arcanist',
     effect:{
-      target:'affinity',
+      target: Attributes.AFFINITY,
       change: 12, 
       type: AffixTypes.ADDITIVE
     }

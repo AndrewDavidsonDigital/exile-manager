@@ -1,9 +1,10 @@
-import type { AffixCategory, AffixTypes, IAffix, IBaseAffix } from './affixTypes';
+import type { AffixCategory, IAffix, IBaseAffix } from './affixTypes';
 import { AffixType, allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
 import { 
+  AffixTypes,
+  Attributes,
   TIER_SEPARATOR,
-  type CharacterAttributeType, 
   type ExileClassType, 
   type ICharacterStats, 
   type IClassStatRanges, 
@@ -171,7 +172,7 @@ export interface ILoot {
 
 
 export interface IStatBuff {
-  target: AffixCategory | CharacterAttributeType;
+  target: AffixCategory | Attributes;
   change: number;
   type: AffixTypes.ADDITIVE | AffixTypes.MULTIPLICATIVE | AffixTypes.RANGE;
 }
@@ -180,6 +181,7 @@ export interface IPassive {
   _identifier: string;      // unique identifier usually same as name, but immutable to allow for possible name changes 
   name: string;
   effect: IStatBuff;
+  minCharLevel?: number;
 }
 
 export interface ISkill {
@@ -200,11 +202,13 @@ export interface ISkill {
     timing: SkillTiming,
     startCooldownInstantly: boolean,
   };
-  cost: {
-    amount: number;
-    resource: SkillResource;
-  },
+  cost: ISkillCost,
   effect: IStatBuff;
+}
+
+export interface ISkillCost {
+  amount: number;
+  resource: SkillResource;
 }
 
 /**
@@ -216,13 +220,27 @@ export interface ICharacter {
   level: number;
   experience: number;
   stats: ICharacterStats;
+  temporalEffects: ITemporalEffect[];
   equipment: ICharacterEquipment;
   gold: number;
   loot: ILoot[];
   passives: IPassive[];
   skills: ISkill[];
   pendingRewards: IPassives,
-  cooldowns: ICooldowns[]
+  cooldowns: ICooldown[]
+}
+
+export interface ITemporalEffect extends IBaseTemporalEffect{
+  effect: IStatBuff;
+}
+export interface ICooldown extends IBaseTemporalEffect{
+  _identifier: string;
+}
+
+interface IBaseTemporalEffect {
+  name: string;
+  timing: SkillTiming,
+  remaining: number;
 }
 
 export interface IPassives{
@@ -230,11 +248,6 @@ export interface IPassives{
   passives: number,
 }
 
-export interface ICooldowns {
-    _identifier: string;
-    timing: SkillTiming,
-    remaining: number;
-}
 /**
  * Stat ranges for each character class
  */

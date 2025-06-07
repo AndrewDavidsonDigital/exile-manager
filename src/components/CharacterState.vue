@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ILoot } from '@/lib/game';
-import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ICooldown, type ILoot, type ISkill, type ITemporalEffect } from '@/lib/game';
+import { AffixTypes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
-import { AffixCategory, AffixTypes, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
+import { AffixCategory, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './FluidElement.vue';
 import { getAffixByType } from '@/lib/affixUtils';
 import { formatBaseAffixValue } from '@/lib/itemUtils';
-import { IconPassiveTree, IconSkills } from './icons';
+import { IconPassiveTree, IconSkills, IconWorldSkills } from './icons';
 import ModalDialog from './ModalDialog.vue';
 import SwitchToggle from './SwitchToggle.vue';
-import { passives } from '@/data/passives';
-import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
+import { isAbleToAffordSkill, isOffCooldown } from '@/stores/adventuring';
 
 
 interface Props {
@@ -39,9 +38,7 @@ const showPassivesModal = ref<boolean>(false);
 const showNewPassivesModal = ref<boolean>(false);
 const showSkillsModal = ref<boolean>(false);
 const showNewSkillsModal = ref<boolean>(false);
-
-const availablePassives = computed(() => passives.filter(el => !(gameEngine.getPassiveIds.includes(el._identifier))));
-const availableSkills = computed(() => skills.filter(el => !(gameEngine.getSkillIds.includes(el._identifier))));
+const showWorldSkillsModal = ref<boolean>(false);
 
 const hasEquippedItems = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return false;
@@ -52,6 +49,7 @@ const SKILLS_MODAL_ID = 'skills_modal_id';
 const PASSIVES_MODAL_ID = 'passive_modal_id';
 const NEW_SKILLS_MODAL_ID = 'new_skills_modal_id';
 const NEW_PASSIVES_MODAL_ID = 'new_passive_modal_id';
+const WORLD_SKILL_MODAL_ID = 'world_skill_modal_id';
 
 const PULSE_DURATION = 500;
 const LEVEL_UP_DURATION = 2000;
@@ -281,6 +279,13 @@ const groupedAffixes = computed(() => {
   };
 });
 
+function handleWorldSkillsClick(){
+  if (char === ErrorNumber.NOT_FOUND) return;
+
+  showWorldSkillsModal.value = !showWorldSkillsModal.value
+
+}
+
 function handleSkillsClick(){
   if (char === ErrorNumber.NOT_FOUND) return;
 
@@ -317,6 +322,49 @@ function handleAddSkill(identifier: string){
   }
 }
 
+function handleActivateWorldSkill(skill: ISkill){
+  if (char === ErrorNumber.NOT_FOUND) return;
+  // pay costs
+  switch (skill.cost.resource) {
+    case SkillResource.HEALTH:
+      gameEngine.takeDamage(skill.cost.amount);
+      break;
+
+    case SkillResource.MANA:
+      char.stats.currentMana -= skill.cost.amount
+      break;
+
+    case SkillResource.GOLD:
+      char.gold -= skill.cost.amount
+      break;
+  
+    default:
+      break;
+  }
+  if (skill.duration){
+    const newBuff: ITemporalEffect = {
+      effect: skill.effect,
+      name: skill.name,
+      timing: skill.duration.timing,
+      remaining: skill.duration.count,
+    }
+    gameEngine.addTemporalEffect(newBuff);
+  } else {
+    // what world skill doesn't have a duration??
+    // alchemy?
+    // crafting?
+  }
+  
+  const cooldownTime = skill.cooldown.startCooldownInstantly ? skill.cooldown.count : (skill.cooldown.count + (skill.duration?.count || 0));
+  // set on cooldown:
+  const newCooldown: ICooldown = {
+    _identifier: skill._identifier,
+    name: skill.name,
+    timing: skill.cooldown.timing,
+    remaining: cooldownTime,
+  }
+  gameEngine.addCooldown(newCooldown);
+}
 </script>
 
 <template>
@@ -349,6 +397,12 @@ function handleAddSkill(identifier: string){
             </div>
           </div>
           <div class="flex gap-2 ">
+            <button 
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              @click="handleWorldSkillsClick"
+            >
+              <IconWorldSkills class="opacity-50 hover:opacity-80" />
+            </button>
             <button 
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
               @click="handleSkillsClick"
@@ -398,8 +452,19 @@ function handleAddSkill(identifier: string){
           </div>
         </div>
 
+        <div class="px-2 mx-auto md:hidden">
+          <span class="text-gray-400">World Skills:</span>
+          <span 
+            class="ml-2 place-self-center md:place-self-start" 
+          >
+            <span>{{ char.skills.filter(sk => sk.isEnabled && sk.activationLayer === SkillActivationLayer.WORLD).length }}</span>/<span>{{ Math.min(char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length,3) }}</span>
+          </span>
+        </div>
         <div class="px-2 mx-auto flex gap-2">
-          <div v-if="char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length > 0">
+          <div
+            v-if="char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length > 0"
+            class="hidden md:block"
+          >
             <span class="text-gray-400">World Skills:</span>
             <span 
               class="ml-2 place-self-center md:place-self-start" 
@@ -577,25 +642,7 @@ function handleAddSkill(identifier: string){
                   >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_lightning')?.value || 0 }}%</span>
                 </span>
               </div>
-              <!--
-              <div class="ml-2  px-2">
-                <span class="text-gray-400">Sanity:</span>
-                <span 
-                  class="text-slate-400 ml-2 px-2"
-                  :class="{ 'pulse-dynamic': isManaPulsing }"
-                  :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-                >
-                  <span
-                    title="Void Corruption"
-                    class="text-purple-300"
-                  >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_void')?.value || 0 }}%  </span>
-                  <span
-                    title="Mental Corruption"
-                    class="text-pink-300"
-                  >{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'corruption_mental')?.value || 0 }}%  </span>
-                </span>
-              </div>
-              -->
+
               <template
                 v-for="stat in orderedStats"
                 :key="stat"
@@ -753,10 +800,17 @@ function handleAddSkill(identifier: string){
           <FluidElement
             class="p-3"
             :class="[
-              {'opacity-50': !(skill.isEnabled)}
+              {'opacity-50': !(skill.isEnabled) || !isOffCooldown(char, skill._identifier)},
+              {'!pointer-events-none': !isOffCooldown(char, skill._identifier)},
             ]"
           >
             <div class="flex flex-col gap-2">
+              <h4
+                v-if="!isOffCooldown(char, skill._identifier)"
+                class="text-base font-medium capitalize mx-auto text-indigo-400"
+              >
+                Cooldown Remaining {{ char.cooldowns.find(el => el._identifier === skill._identifier)?.remaining }} {{ skill.cooldown.timing }}'s
+              </h4>
               <div class="flex justify-between items-center">
                 <span class="inline-flex items-baseline-last">
                   <h4 class="text-lg font-medium capitalize">
@@ -876,6 +930,118 @@ function handleAddSkill(identifier: string){
     </section>
   </ModalDialog>
   <ModalDialog
+    :id="WORLD_SKILL_MODAL_ID"
+    :show="showWorldSkillsModal"
+    class="!p-[3%] md:!px-10 md:!pb-10  md:!pt-4"
+    @close="showWorldSkillsModal = false"
+  >
+    <section class="text-emerald-400">
+      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+        Activate World Skill
+      </h3>
+      <div
+        v-if="char !== ErrorNumber.NOT_FOUND"
+        class="flex gap-2 flex-wrap justify-center"
+      >
+        <template
+          v-for="skill,index in char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD)"
+          :key="`skills_${index}`"
+        >
+          <FluidElement
+            class="p-3"
+            :class="[
+              { 'opacity-50': !isOffCooldown(char, skill._identifier) || !isAbleToAffordSkill(char, skill.cost)},
+              { '!pointer-events-none' : !isAbleToAffordSkill(char, skill.cost)}
+            ]"
+          >
+            <div class="flex flex-col gap-2">
+              <h4
+                v-if="!isOffCooldown(char, skill._identifier)"
+                class="text-base font-medium capitalize mx-auto text-indigo-400"
+              >
+                Cooldown Remaining {{ char.cooldowns.find(el => el._identifier === skill._identifier)?.remaining }} {{ skill.cooldown.timing }}'s
+              </h4>
+              <div class="flex justify-between items-center">
+                <span class="inline-flex items-baseline-last">
+                  <h4 class="text-lg font-medium capitalize">
+                    {{ skill.name }}:
+                  </h4>
+                  <span
+                    class="text-sm text-gray-400 capitalize ml-2"
+                    :class="[
+                      { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
+                      { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
+                      { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
+                    ]"
+                  >
+                    {{ skill.activationLayer }}
+                  </span>
+                </span>
+              </div>
+              <div class="flex flex-col gap-1 text-sm text-gray-300">
+                <div class="flex gap-4 justify-between">
+                  <span
+                    class="capitalize"
+                  >
+                    Target: <span 
+                      :class="[
+                        { 'text-red-400': skill.target === SkillTarget.ENEMY },
+                        { 'text-teal-400': skill.target === SkillTarget.SELF },
+                      ]"
+                    >{{ skill.target }}</span>
+                  </span>
+                  <span class="capitalize">
+                    Cost: <span
+                      :class="[
+                        { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
+                        { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
+                        { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
+                      ]"
+                    >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
+                  </span>
+                </div>
+                <div class="flex gap-4 justify-between">
+                  <span
+                    v-if="skill.duration"
+                    class="capitalize"
+                  >
+                    Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
+                  </span>
+                  <span class="capitalize">
+                    Cooldown: <span
+                      :class="[
+                        { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
+                        { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
+                      ]"
+                    >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                    </span>
+                  </span>
+                </div>
+                <div class="text-sm text-gray-300 capitalize">
+                  Effect: {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                </div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <button
+                    class="w-fit mx-auto"
+                    :class="[
+                      {'pointer-events-none': !isOffCooldown(char, skill._identifier)},
+                    ]"
+                    @click="handleActivateWorldSkill(skill)"
+                  >
+                    <FluidElement class="w-fit px-2 py-1 hover:bg-emerald-950 duration-300 transition-colors">
+                      {{ isOffCooldown(char, skill._identifier) ? 'Activate' : 'On Cooldown' }}
+                    </FluidElement>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </FluidElement>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
+
+  <ModalDialog
     :id="NEW_PASSIVES_MODAL_ID"
     :show="showNewPassivesModal"
     disable-lite-dismiss
@@ -890,7 +1056,7 @@ function handleAddSkill(identifier: string){
         class="flex gap-2 flex-wrap justify-center"
       >
         <template
-          v-for="passive,index in (availablePassives.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
+          v-for="passive,index in (gameEngine.getAvailablePassives.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
           :key="`passives_${index}`"
         >
           <button 
@@ -916,7 +1082,6 @@ function handleAddSkill(identifier: string){
       </div>
     </section>
   </ModalDialog>
-
   <ModalDialog
     :id="NEW_SKILLS_MODAL_ID"
     :show="showNewSkillsModal"
@@ -932,7 +1097,7 @@ function handleAddSkill(identifier: string){
         class="flex gap-2 flex-wrap justify-center"
       >
         <template
-          v-for="skill,index in (availableSkills.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
+          v-for="skill,index in (gameEngine.getAvailableSkills.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
           :key="`skills_${index}`"
         >
           <button 

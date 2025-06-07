@@ -1,5 +1,6 @@
 import type { AffixValue, IBaseAffix } from '@/lib/affixTypes';
-import { BaseItemAffix, BASE_ITEM_AFFIX_CONFIG, AffixTypes } from './affixTypes';
+import { BaseItemAffix, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import { AffixTypes } from './core';
 
 /**
  * Gets the actual value from an affix based on its type

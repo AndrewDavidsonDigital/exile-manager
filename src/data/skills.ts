@@ -1,5 +1,4 @@
-import { AffixTypes } from "@/lib/affixTypes";
-import { Attributes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
+import { AffixTypes, Attributes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
 import type { ISkill } from "@/lib/game";
 
 const NOT_ON_CREATION = 1;
@@ -31,20 +30,20 @@ export const skills: ISkill[] = [
     name: 'Aid',
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.WORLD,
-    triggerStates: [SkillTriggers.LOW_HEALTH],
+    triggerStates: [SkillTriggers.NONE],
     duration: {
-      count: 5,
+      count: 2,
       timing: SkillTiming.RUN,
     },
     cooldown: {
-      count: 3,
+      count: 5,
       timing: SkillTiming.RUN,
       startCooldownInstantly: false,
     },
     effect: {
       type: AffixTypes.ADDITIVE,
       target: Attributes.HEALTH,
-      change: 50
+      change: 75
     },
     cost: {
       amount: 100,
@@ -120,7 +119,7 @@ export const skills: ISkill[] = [
       change: 50
     },
     cost: {
-      amount: 30,
+      amount: 50,
       resource: SkillResource.MANA,
     }
   },
@@ -142,7 +141,7 @@ export const skills: ISkill[] = [
       change: 200
     },
     cost: {
-      amount: 50,
+      amount: 80,
       resource: SkillResource.MANA,
     }
   }

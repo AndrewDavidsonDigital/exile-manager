@@ -4,6 +4,7 @@ import IconPause from "./IconPause.vue";
 import IconRefreshCC from './IconRefreshCC.vue';
 import IconPassiveTree from './IconPassiveTree.vue';
 import IconSkills from './IconSkills.vue';
+import IconWorldSkills from './IconWorldSkills.vue';
 
 
 export {
@@ -15,4 +16,5 @@ export {
 
   IconPassiveTree,
   IconSkills,
+  IconWorldSkills,
 };

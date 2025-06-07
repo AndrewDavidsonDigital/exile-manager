@@ -1,7 +1,7 @@
 import { type ICharacterEquipment } from './game';
 import type { AffixValue, IBaseAffix } from './affixTypes';
-import { AffixTypes, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
-import { ItemBase, type ItemTierType, type LootType } from './core';
+import { BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
+import { AffixTypes, ItemBase, type ItemTierType, type LootType } from './core';
 
 /**
  * List of all possible item types in the game
