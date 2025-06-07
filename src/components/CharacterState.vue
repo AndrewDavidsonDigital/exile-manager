@@ -398,6 +398,14 @@ function handleAddSkill(identifier: string){
           </div>
         </div>
 
+        <div class="px-2 mx-auto">
+          <span class="text-gray-400">Skills:</span>
+          <span 
+            class="ml-2 place-self-center md:place-self-start" 
+          >
+            <span>{{ char.skills.filter(sk => sk.isEnabled).length }}</span>/<span>{{ Math.min(char.skills.length) }}</span>
+          </span>
+        </div>
 
         <div
           class="
