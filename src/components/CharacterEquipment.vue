@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/lib/game';
+import { formatBaseAffixValue } from '@/lib/itemUtils';
 import { inject, ref } from 'vue';
 import type { AffixValue } from '@/lib/affixTypes';
 import { ErrorNumber } from '@/lib/typescript';
-import RomanNumeral from './RomanNumeral.vue';
-import { TIER_SEPARATOR } from '@/lib/core';
+import EquipmentSlot from './EquipmentSlot.vue';
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
@@ -126,7 +125,7 @@ const resetBrush = () => {
           Armor
         </summary>
         <div class="mt-2 grid grid-cols-3 gap-2">
-          <button 
+          <EquipmentSlot
             v-for="(item, slot) in { 
               shoulders: char.equipment.shoulders,
               head: char.equipment.head, 
@@ -136,101 +135,12 @@ const resetBrush = () => {
               feet: char.equipment.feet 
             }"
             :key="`arm-${slot}-${Date.now()}`"
-            class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-            :class="[
-              { 'opacity-50 pointer-events-none': !item },
-              { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
-            ]"
-            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
-            @touchend="() => activeBrush === 'none' && alertStats(item)"
-            @click="() => item && unequipItem(slot)"
-            @keydown.enter="() => item && unequipItem(slot)"
-            @keydown.space="() => item && unequipItem(slot)"
-          >
-            <span class="text-sm text-gray-400 capitalize">
-              <span 
-                :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
-              >{{ item ? item.itemDetails?.tier : '' }}</span>
-              {{ item ? item.type : slot.replace(/([A-Z])/g, ' $1').trim() }}
-            </span>
-            <div
-              v-if="item"
-              class="tooltip"
-              :style="`position-anchor: --accessory-${slot};`"
-            >
-              <div class="flex flex-col gap-1">
-                <p class="font-bold">
-                  {{ item.name }}
-                </p>
-                <template v-if="item.itemDetails">
-                  <p
-                    class="text-sm capitalize"
-                    :style="{
-                      'color': getTierColor(item.itemDetails.tier, item.identified)
-                    }"
-                  >
-                    {{ item.itemDetails.tier }}
-                  </p>
-                  <div
-                    v-if="item.itemDetails.baseDetails"
-                    class="text-sm text-amber-200 capitalize"
-                  >
-                    {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.embedded"
-                    :key="`emb-arm-${affix.id}-${Date.now()}`"
-                    class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">e</span>
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.prefix"
-                    :key="`pre-arm-${affix.id}-${Date.now()}`"
-                    class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">p</span>
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.suffix"
-                    :key="`suf-arm-${affix.id}-${Date.now()}`"
-                    class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">s</span>
-                  </div>
-                </template>
-                <template v-else>
-                  <p class="text-sm opacity-50">
-                    Item not identified
-                  </p>
-                </template>
-              </div>
-            </div>
-          </button>
+            :item="item"
+            :slot-name="slot"
+            :active-brush="activeBrush"
+            @unequip="() => unequipItem(slot)"
+            @alert-stats="() => alertStats(item)"
+          />
         </div>
       </details>
 
@@ -241,104 +151,15 @@ const resetBrush = () => {
           Weapons
         </summary>
         <div class="mt-2 grid grid-cols-1 gap-2">
-          <button 
+          <EquipmentSlot
             v-for="(item, slot) in { weapon: char.equipment.weapon }"
             :key="`weap-${slot}-${Date.now()}`"
-            class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-            :class="[
-              { 'opacity-50 pointer-events-none': !item },
-              { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
-            ]"
-            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
-            @touchend="() => activeBrush === 'none' && alertStats(item)"
-            @click="() => item && unequipItem(slot)"
-            @keydown.enter="() => item && unequipItem(slot)"
-            @keydown.space="() => item && unequipItem(slot)"
-          >
-            <span class="text-sm text-gray-400 capitalize">
-              <span 
-                :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
-              >{{ item ? item.itemDetails?.tier : '' }}</span>
-              {{ item ? item.type : slot.replace(/([A-Z])/g, ' $1').trim() }}
-            </span>
-            <div
-              v-if="item"
-              class="tooltip"
-              :style="`position-anchor: --accessory-${slot};`"
-            >
-              <div class="flex flex-col gap-1">
-                <p class="font-bold">
-                  {{ item.name }}
-                </p>
-                <template v-if="item.itemDetails">
-                  <p
-                    class="text-sm capitalize"
-                    :style="{
-                      'color': getTierColor(item.itemDetails.tier, item.identified)
-                    }"
-                  >
-                    {{ item.itemDetails.tier }}
-                  </p>
-                  <div
-                    v-if="item.itemDetails.baseDetails"
-                    class="text-sm text-amber-200 capitalize"
-                  >
-                    {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.embedded"
-                    :key="`emb-weap-${affix.id}-${Date.now()}`"
-                    class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">e</span>
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.prefix"
-                    :key="`pre-weap-${affix.id}-${Date.now()}`"
-                    class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">p</span>
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.suffix"
-                    :key="`suf-weap-${affix.id}-${Date.now()}`"
-                    class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">s</span>
-                  </div>
-                </template>
-                <template v-else>
-                  <p class="text-sm opacity-50">
-                    Item not identified
-                  </p>
-                </template>
-              </div>
-            </div>
-          </button>
+            :item="item"
+            :slot-name="slot"
+            :active-brush="activeBrush"
+            @unequip="() => unequipItem(slot)"
+            @alert-stats="() => alertStats(item)"
+          />
         </div>
       </details>
 
@@ -349,106 +170,18 @@ const resetBrush = () => {
           Accessories
         </summary>
         <div class="mt-2 grid grid-cols-3 gap-2">
-          <button 
+          <EquipmentSlot
             v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
             :key="`acc-${slot}-${Date.now()}`"
-            class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-            :class="[
-              { 'opacity-50 pointer-events-none': !item },
-              { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
-            ]"
-            :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slot};`]"
-            @touchend="() => activeBrush === 'none' && alertStats(item)"
-            @click="() => item && unequipItem(slot)"
-            @keydown.enter="() => item && unequipItem(slot)"
-            @keydown.space="() => item && unequipItem(slot)"
-          >
-            <span class="text-sm text-gray-400 capitalize">
-              <span 
-                :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
-              >{{ item ? item.itemDetails?.tier : '' }}</span>
-              {{ item ? item.type : slot.replace(/([A-Z])/g, ' $1').trim() }}
-            </span>
-            <div
-              v-if="item"
-              class="tooltip"
-              :style="`position-anchor: --accessory-${slot};`"
-            >
-              <div class="flex flex-col gap-1">
-                <p class="font-bold">
-                  {{ item.name }}
-                </p>
-                <template v-if="item.itemDetails">
-                  <p
-                    class="text-sm capitalize"
-                    :style="{
-                      'color': getTierColor(item.itemDetails.tier, item.identified)
-                    }"
-                  >
-                    {{ item.itemDetails.tier }}
-                  </p>
-                  <div
-                    v-if="item.itemDetails.baseDetails"
-                    class="text-sm text-amber-200 capitalize"
-                  >
-                    {{ item.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(item.itemDetails.baseDetails.value as AffixValue) }}
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.embedded"
-                    :key="`emb-acc-${affix.id}-${Date.now()}`"
-                    class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">e</span>
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.prefix"
-                    :key="`pre-acc-${affix.id}-${Date.now()}`"
-                    class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
-                  >                    
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">p</span>
-                  </div>
-                  <div
-                    v-for="affix in item.itemDetails.affixes.suffix"
-                    :key="`suf-acc-${affix.id}-${Date.now()}`"
-                    class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                      <span>{{ formatAffixDescription(affix) }}</span>
-                    </template>
-                    <span class="text-right opacity-50 text-amber-200">s</span>
-                  </div>
-                </template>
-                <template v-else>
-                  <p class="text-sm opacity-50">
-                    Item not identified
-                  </p>
-                </template>
-              </div>
-            </div>
-          </button>
+            :item="item"
+            :slot-name="slot"
+            :active-brush="activeBrush"
+            @unequip="() => unequipItem(slot)"
+            @alert-stats="() => alertStats(item)"
+          />
         </div>
       </details>
+
       <blockquote class="hidden md:block opacity-50 italic">
         Un-equip item by holding CTRL
       </blockquote>
@@ -476,19 +209,4 @@ const resetBrush = () => {
   details[open] {
     background-color: rgba(31, 41, 55, 0.4);
   }
-
-  .tooltip {
-    @apply fixed hidden bg-gray-900 border border-gray-600/40 rounded-md;
-    @apply text-gray-200 text-sm whitespace-nowrap;
-    @apply p-2 z-50;
-    @apply cursor-default;
-    top: anchor(bottom);
-    justify-self: anchor-center;
-  }
-
-  .tooltip-parent:hover .tooltip {
-    @apply block;
-  }
-
-
 </style> 
