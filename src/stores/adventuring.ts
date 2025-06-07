@@ -5,13 +5,15 @@ import type {
   IMonsterDamage,
   ICharacter,
   ICombatStat,
+  ICooldowns,
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { baseDamageFunction, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
+import { baseDamageFunction, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
+import { AffixTypes } from '@/lib/affixTypes';
 
 type EncounterType = 
   'combat'
@@ -209,6 +211,93 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
       if(!shouldBail){
 
+        // check to see if we should use skill
+        const availableSkills = char.skills.filter(el => {
+          if (el.activationLayer !== SkillActivationLayer.COMBAT) return;
+          let canUse = el.isEnabled;
+          console.log(`___:CD ${isOffCooldown(char, el._identifier)}`);
+          console.log(`___:TR ${checkTriggerable(char, el.setTrigger || SkillTriggers.NONE)}`);
+          canUse = canUse && isOffCooldown(char, el._identifier);
+          canUse = canUse && checkTriggerable(char, el.setTrigger || SkillTriggers.NONE);
+
+          return canUse;
+        });
+        console.log('___', availableSkills);
+
+        availableSkills.forEach(el => {
+
+          switch (el.cost.resource) {
+            case SkillResource.HEALTH:
+              exileHealth -= el.cost.amount;
+              break;
+
+            case SkillResource.MANA:
+              char.stats.currentMana -= el.cost.amount
+              break;
+
+            case SkillResource.GOLD:
+              char.gold -= el.cost.amount
+              break;
+          
+            default:
+              break;
+          }
+
+          // PIVOT on Target
+          switch (el.target) {
+
+            // Enemy
+            case SkillTarget.ENEMY:
+
+              switch (el.effect.target) {
+                case SkillResource.HEALTH: {
+                  const dmg = resolveAffixChange(monsterHealth, el.effect.change, el.effect.type);;
+                  logger(`Casting: ${el.name}: dealing ${dmg}`);
+                  monsterHealth = dmg;
+                  break;
+                }
+
+                default:
+                  break;
+              }
+
+              break;
+
+            // Exile
+            case SkillTarget.SELF:
+
+              switch (el.effect.target) {
+                case SkillResource.HEALTH: {
+                  const dmg = resolveAffixChange(monsterHealth, el.effect.change, el.effect.type);;
+                  logger(`Casting: ${el.name}: healing ${dmg}`);
+                  gameEngine.heal(dmg);
+                  break;
+                }
+
+                default:
+                  break;
+              }
+              
+              break;
+          
+            default:
+              break;
+          }
+
+          // set on cooldown:
+
+          const newCooldown: ICooldowns = {
+            _identifier: el._identifier,
+            timing: el.cooldown.timing,
+            remaining: el.cooldown.startCooldownInstantly ? el.cooldown.count : (el.cooldown.count + (el.duration?.count || 0)),
+          }
+
+          char.cooldowns.push(newCooldown);
+
+        });
+
+        //------------------------------------------
+
         // Calculate exile's base attack damage
         const exileDamage = Math.floor(exileStats.damagePerTick * (0.9 + Math.random() * 0.2));
 
@@ -365,6 +454,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           }
         }
       }
+
+      gameEngine.processCooldowns(SkillTiming.TURN);
+
       round++;
 
     }
@@ -616,6 +708,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
     }
     
+    gameEngine.processCooldowns(SkillTiming.TURN);
     return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
   }
 
@@ -708,4 +801,51 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 const LOGGING_PREFIX = '🥷 Adventure:\t';
 function logger(message: string) {
   trace(`${LOGGING_PREFIX}${message}`);
+}
+
+function checkTriggerable(char: ICharacter, trigger: SkillTriggers): boolean{
+  switch (trigger) {
+    case SkillTriggers.ALWAYS:
+      return true;
+    
+    case SkillTriggers.LOW_HEALTH:{
+      const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
+      console.log(`___\t currentHP: ${healPercentage}%`);
+      return healPercentage < 40
+    }
+
+    case SkillTriggers.MED_HEALTH:{
+      const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
+      console.log(`___\t currentHP: ${healPercentage}%`);
+      return healPercentage > 30 && healPercentage < 60
+    }
+
+    case SkillTriggers.HIGH_HEALTH:{
+      const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
+      console.log(`___\t currentHP: ${healPercentage}%`);
+      return healPercentage > 60
+    }
+
+    default:
+      break;
+  }
+  return false;
+}
+
+function isOffCooldown(char: ICharacter, identifier: string): boolean {
+  return !(char.cooldowns?.find(cd => cd._identifier === identifier));
+}
+
+function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes){
+  switch (direction) {
+    case AffixTypes.ADDITIVE:
+      return rawValue + delta;
+      
+    case AffixTypes.MULTIPLICATIVE:
+      return rawValue * (1 + delta/100);
+  
+    default:
+      break;
+  }
+  return rawValue;
 }

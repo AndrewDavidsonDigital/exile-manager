@@ -55,7 +55,8 @@ const createCharacter = () => {
     pendingRewards: {
       passives: 0,
       skills: 0,
-    }
+    },
+    cooldowns: [],
   });
 
   $emit('character-created');

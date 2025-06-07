@@ -21,7 +21,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
+import { DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.11';
@@ -525,9 +525,38 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`${JSON.stringify(starters)}`);
       const randomStarterSkill = starters[Math.floor(Math.random() * starters.length)];
       if (randomStarterSkill && this.character) {
+        randomStarterSkill.setTrigger = randomStarterSkill.triggerStates[0];
         this.character.skills.push(randomStarterSkill);
       }
 
+      this.saveState();
+    },
+
+    processCooldowns(timing: SkillTiming){
+      if (!this.character) return;
+      logger(`processCooldowns(${timing})`);
+
+      const toRemove: number[] = [];
+
+      this.character.cooldowns.forEach((el, idx) => {
+        if (el.timing === timing){
+          el.remaining--;
+          if (el.remaining <= 0){
+            toRemove.push(idx);
+          }
+        }
+      });
+
+      toRemove.toReversed().forEach(idx => {
+        console.log(`Purge index at [${idx}]`);
+        delete this.character?.cooldowns[idx];
+      })
+
+      if(toRemove.length > 0){
+        this.character.cooldowns = this.character.cooldowns.filter(e=> e);
+        logger(`updated CD's: ${JSON.stringify(this.character.cooldowns)})`);
+      }
+      
       this.saveState();
     },
 
@@ -550,6 +579,7 @@ export const useGameEngine = defineStore('gameEngine', {
       const skill = skills.find(p => p._identifier === skillIdentifier);
 
       if(skill){
+        skill.setTrigger = skill.triggerStates[0];
         this.character.skills.push(skill);
         this.character.pendingRewards.skills--;
         this.saveState();

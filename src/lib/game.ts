@@ -225,8 +225,14 @@ export interface ICharacter {
     skills: number,
     passives: number,
   },
+  cooldowns: ICooldowns[]
 }
 
+export interface ICooldowns {
+    _identifier: string;
+    timing: SkillTiming,
+    remaining: number;
+}
 /**
  * Stat ranges for each character class
  */

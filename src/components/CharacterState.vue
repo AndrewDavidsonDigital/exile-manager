@@ -398,13 +398,23 @@ function handleAddSkill(identifier: string){
           </div>
         </div>
 
-        <div class="px-2 mx-auto">
-          <span class="text-gray-400">Skills:</span>
-          <span 
-            class="ml-2 place-self-center md:place-self-start" 
-          >
-            <span>{{ char.skills.filter(sk => sk.isEnabled).length }}</span>/<span>{{ Math.min(char.skills.length) }}</span>
-          </span>
+        <div class="px-2 mx-auto flex gap-2">
+          <div>
+            <span class="text-gray-400">Skills:</span>
+            <span 
+              class="ml-2 place-self-center md:place-self-start" 
+            >
+              <span>{{ char.skills.filter(sk => sk.isEnabled).length }}</span>/<span>{{ Math.min(char.skills.length) }}</span>
+            </span>
+          </div>
+          <div>
+            <span class="text-gray-400">Passives:</span>
+            <span 
+              class="ml-2 place-self-center md:place-self-start" 
+            >
+              <span>{{ Math.min(char.passives.length) }}</span>
+            </span>
+          </div>
         </div>
 
         <div
@@ -755,7 +765,7 @@ function handleAddSkill(identifier: string){
                     {{ skill.activationLayer }}
                   </span>
                 </span>
-                <SwitchToggle 
+                <SwitchToggle
                   v-model="skill.isEnabled"
                 />
               </div>
