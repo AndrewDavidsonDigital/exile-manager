@@ -5,6 +5,8 @@ import { formatAffixDescription, type ILoot, type ICharacterEquipment } from '@/
 import { inject, ref } from 'vue';
 import type { AffixValue } from '@/lib/affixTypes';
 import { ErrorNumber } from '@/lib/typescript';
+import RomanNumeral from './RomanNumeral.vue';
+import { TIER_SEPARATOR } from '@/lib/core';
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
@@ -180,8 +182,14 @@ const resetBrush = () => {
                     :key="`emb-arm-${affix.id}-${Date.now()}`"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">e</span>
                   </div>
                   <div
@@ -189,8 +197,14 @@ const resetBrush = () => {
                     :key="`pre-arm-${affix.id}-${Date.now()}`"
                     class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">p</span>
                   </div>
                   <div
@@ -198,8 +212,14 @@ const resetBrush = () => {
                     :key="`suf-arm-${affix.id}-${Date.now()}`"
                     class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">s</span>
                   </div>
                 </template>
@@ -270,8 +290,14 @@ const resetBrush = () => {
                     :key="`emb-weap-${affix.id}-${Date.now()}`"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">e</span>
                   </div>
                   <div
@@ -279,8 +305,14 @@ const resetBrush = () => {
                     :key="`pre-weap-${affix.id}-${Date.now()}`"
                     class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">p</span>
                   </div>
                   <div
@@ -288,8 +320,14 @@ const resetBrush = () => {
                     :key="`suf-weap-${affix.id}-${Date.now()}`"
                     class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">s</span>
                   </div>
                 </template>
@@ -360,17 +398,29 @@ const resetBrush = () => {
                     :key="`emb-acc-${affix.id}-${Date.now()}`"
                     class="text-sm text-gray-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">e</span>
                   </div>
                   <div
                     v-for="affix in item.itemDetails.affixes.prefix"
                     :key="`pre-acc-${affix.id}-${Date.now()}`"
                     class="text-sm text-blue-400 grid grid-cols-[30px_1fr_30px]"
-                  >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                  >                    
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">p</span>
                   </div>
                   <div
@@ -378,8 +428,14 @@ const resetBrush = () => {
                     :key="`suf-acc-${affix.id}-${Date.now()}`"
                     class="text-sm text-green-400 grid grid-cols-[30px_1fr_30px]"
                   >
-                    <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-                    <span>{{ formatAffixDescription(affix) }}</span>
+                    <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                      <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
+                      <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
+                      <span>{{ formatAffixDescription(affix) }}</span>
+                    </template>
                     <span class="text-right opacity-50 text-amber-200">s</span>
                   </div>
                 </template>

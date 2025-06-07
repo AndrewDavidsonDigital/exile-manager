@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ILoot } from '@/lib/game';
-import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming } from '@/lib/core';
+import { SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
 import { AffixCategory, AffixTypes, allAffixes, BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { _cloneDeep } from '@/lib/object';
@@ -678,7 +678,7 @@ function handleAddSkill(identifier: string){
                         :key="affix.id"
                         class="text-gray-300"
                       >
-                        {{ formatConsolidatedAffix(affix) }}
+                        {{ formatConsolidatedAffix(affix).split(TIER_SEPARATOR) }}
                       </div>
                     </div>
                   </div>

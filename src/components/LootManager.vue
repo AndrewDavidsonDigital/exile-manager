@@ -10,7 +10,8 @@ import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './ModalDialog.vue';
 import { IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
-import type { ItemBase } from '@/lib/core';
+import { TIER_SEPARATOR, type ItemBase } from '@/lib/core';
+import RomanNumeral from './RomanNumeral.vue';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
@@ -483,7 +484,7 @@ const canCompare = computed(() => {
           @click="resetBrush();selectLootNeighbour(true)"
         >
           <FluidElement class="!py-1 !px-2">
-            >
+            {{ `>` }}
           </FluidElement>
         </button>
       </div>
@@ -534,23 +535,38 @@ const canCompare = computed(() => {
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
               :key="`em_${affix.id}_${aIndex}`"
-              class="text-sm text-gray-400"
+              class="text-sm text-gray-400 inline-flex justify-between w-full"
             >
-              {{ formatAffixDescription(affix) }}
+              <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                {{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" />
+              </template>
+              <template v-else>
+                {{ formatAffixDescription(affix) }}
+              </template>
             </div>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.prefix"
               :key="`pr_${affix.id}_${aIndex}`"
-              class="text-sm text-blue-400"
+              class="text-sm text-blue-400 inline-flex justify-between w-full"
             >
-              {{ formatAffixDescription(affix) }}
+              <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                {{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" />
+              </template>
+              <template v-else>
+                {{ formatAffixDescription(affix) }}
+              </template>
             </div>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.suffix"
               :key="`su_${affix.id}_${aIndex}`"
-              class="text-sm text-green-400"
+              class="text-sm text-green-400 inline-flex justify-between w-full"
             >
-              {{ formatAffixDescription(affix) }}
+              <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
+                {{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" />
+              </template>
+              <template v-else>
+                {{ formatAffixDescription(affix) }}
+              </template>
             </div>
           </div>
         </template>
@@ -749,8 +765,13 @@ const canCompare = computed(() => {
                 v-for="embedded,i in selectedLoot?.itemDetails?.affixes.embedded"
                 :key="`emb-${i}-selected-${Date.now()}`"
               >
-                <span class="text-sm text-teal-400">
-                  {{ formatAffixDescription(embedded) }}
+                <span class="text-sm text-teal-400 inline-flex justify-between">
+                  <template v-if="formatAffixDescription(embedded).split(TIER_SEPARATOR).length > 1">
+                    {{ formatAffixDescription(embedded).split(TIER_SEPARATOR)[0] }}  <RomanNumeral :count="Number(formatAffixDescription(embedded).split(TIER_SEPARATOR)[1])" />
+                  </template>
+                  <template v-else>
+                    {{ formatAffixDescription(embedded) }}
+                  </template>
                 </span>
               </template>
             </template>
@@ -767,8 +788,13 @@ const canCompare = computed(() => {
                 v-for="embedded,i in equippedItem?.itemDetails?.affixes.embedded"
                 :key="`emb-${i}-equipped-${Date.now()}`"
               >
-                <span class="text-sm text-teal-400">
-                  {{ formatAffixDescription(embedded) }}
+                <span class="text-sm text-teal-400 inline-flex justify-between">
+                  <template v-if="formatAffixDescription(embedded).split(TIER_SEPARATOR).length > 1">
+                    {{ formatAffixDescription(embedded).split(TIER_SEPARATOR)[0] }}  <RomanNumeral :count="Number(formatAffixDescription(embedded).split(TIER_SEPARATOR)[1])" />
+                  </template>
+                  <template v-else>
+                    {{ formatAffixDescription(embedded) }}
+                  </template>
                 </span>
               </template>
             </template>
@@ -788,8 +814,13 @@ const canCompare = computed(() => {
                 v-for="prefix,i in selectedLoot?.itemDetails?.affixes.prefix"
                 :key="`pre-${i}-selected-${Date.now()}`"
               >
-                <span class="text-sm text-teal-400">
-                  {{ formatAffixDescription(prefix) }}
+                <span class="text-sm text-teal-400 inline-flex justify-between">
+                  <template v-if="formatAffixDescription(prefix).split(TIER_SEPARATOR).length > 1">
+                    {{ formatAffixDescription(prefix).split(TIER_SEPARATOR)[0] }}  <RomanNumeral :count="Number(formatAffixDescription(prefix).split(TIER_SEPARATOR)[1])" />
+                  </template>
+                  <template v-else>
+                    {{ formatAffixDescription(prefix) }}
+                  </template>
                 </span>
               </template>
             </template>
@@ -806,8 +837,13 @@ const canCompare = computed(() => {
                 v-for="prefix,i in equippedItem?.itemDetails?.affixes.prefix"
                 :key="`pre-${i}-equipped-${Date.now()}`"
               >
-                <span class="text-sm text-teal-400">
-                  {{ formatAffixDescription(prefix) }}
+                <span class="text-sm text-teal-400 inline-flex justify-between">
+                  <template v-if="formatAffixDescription(prefix).split(TIER_SEPARATOR).length > 1">
+                    {{ formatAffixDescription(prefix).split(TIER_SEPARATOR)[0] }}  <RomanNumeral :count="Number(formatAffixDescription(prefix).split(TIER_SEPARATOR)[1])" />
+                  </template>
+                  <template v-else>
+                    {{ formatAffixDescription(prefix) }}
+                  </template>
                 </span>
               </template>
             </template>
@@ -827,8 +863,13 @@ const canCompare = computed(() => {
                 v-for="suffix,i in selectedLoot?.itemDetails?.affixes.suffix"
                 :key="`su-${i}-selected-${Date.now()}`"
               >
-                <span class="text-sm text-green-400">
-                  {{ formatAffixDescription(suffix) }}
+                <span class="text-sm text-green-400 inline-flex justify-between">
+                  <template v-if="formatAffixDescription(suffix).split(TIER_SEPARATOR).length > 1">
+                    {{ formatAffixDescription(suffix).split(TIER_SEPARATOR)[0] }}  <RomanNumeral :count="Number(formatAffixDescription(suffix).split(TIER_SEPARATOR)[1])" />
+                  </template>
+                  <template v-else>
+                    {{ formatAffixDescription(suffix) }}
+                  </template>
                 </span>
               </template>
             </template>
@@ -845,8 +886,13 @@ const canCompare = computed(() => {
                 v-for="suffix,i in equippedItem?.itemDetails?.affixes.suffix"
                 :key="`su-${i}-equipped-${Date.now()}`"
               >
-                <span class="text-sm text-green-400">
-                  {{ formatAffixDescription(suffix) }}
+                <span class="text-sm text-green-400 inline-flex justify-between">
+                  <template v-if="formatAffixDescription(suffix).split(TIER_SEPARATOR).length > 1">
+                    {{ formatAffixDescription(suffix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(suffix).split(TIER_SEPARATOR)[1])" />
+                  </template>
+                  <template v-else>
+                    {{ formatAffixDescription(suffix) }}
+                  </template>
                 </span>
               </template>
             </template>

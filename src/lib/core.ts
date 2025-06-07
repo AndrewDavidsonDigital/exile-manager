@@ -318,3 +318,5 @@ export interface IMonsterDamage {
 export function baseDamageFunction(areaMulti:number, tierMulti:number, difficultyMulti:number ){
   return Math.floor((5 + Math.random() * 10) * areaMulti * tierMulti * difficultyMulti);
 }
+
+export const TIER_SEPARATOR = '_-_';

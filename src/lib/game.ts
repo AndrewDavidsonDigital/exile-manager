@@ -1,23 +1,24 @@
 import type { AffixCategory, AffixTypes, IAffix, IBaseAffix } from './affixTypes';
 import { AffixType, allAffixes, isAffixRange } from './affixTypes';
 import type { AffixValue } from './affixTypes';
-import type { 
-  CharacterAttributeType, 
-  ExileClassType, 
-  ICharacterStats, 
-  IClassStatRanges, 
-  ILevel, 
-  IMitigation, 
-  ItemBase, 
-  ItemMutationType, 
-  ItemTierType, 
-  MitigationType,
-  MonsterType, 
-  SkillActivationLayer, 
-  SkillResource, 
-  SkillTarget, 
-  SkillTiming, 
-  SkillTriggers,
+import { 
+  TIER_SEPARATOR,
+  type CharacterAttributeType, 
+  type ExileClassType, 
+  type ICharacterStats, 
+  type IClassStatRanges, 
+  type ILevel, 
+  type IMitigation, 
+  type ItemBase, 
+  type ItemMutationType, 
+  type ItemTierType, 
+  type MitigationType,
+  type MonsterType, 
+  type SkillActivationLayer, 
+  type SkillResource, 
+  type SkillTarget, 
+  type SkillTiming, 
+  type SkillTriggers,
 } from './core';
 
 
@@ -460,7 +461,7 @@ function randomlySelectAffixFromCollection(affixCollection: IAffix[]){
  * @returns Formatted description string
  */
 function formatAffixCore(
-  affix: { id: string; category: string; value: AffixValue },
+  affix: { id: string; category: AffixCategory; value: AffixValue },
   options: { showRange?: boolean } = {}
 ): string {
   // Find the matching affix definition to get min/max values and original description
@@ -503,15 +504,23 @@ function formatAffixCore(
     }
   }
 
+  if (!(affix.id.endsWith('_-1'))){
+    const segment = affix.id.split('_');
+    let tier = segment[segment.length - 1];
+
+    description += `${TIER_SEPARATOR}${tier}`;
+  }
+
   return description;
 }
+
 
 /**
  * Formats an affix description by replacing the {value} placeholder with the actual value and showing the range if applicable.
  * @param affix The affix object containing id, category, and value (the rolled value).
  * @returns Formatted description string.
  */
-export function formatAffixDescription(affix: { id: string; category: string; value: AffixValue }): string {
+export function formatAffixDescription(affix: { id: string; category: AffixCategory; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: true });
 }
 
@@ -520,7 +529,7 @@ export function formatAffixDescription(affix: { id: string; category: string; va
  * @param affix The affix object containing id, category, and value (the total value).
  * @returns Formatted description string.
  */
-export function formatConsolidatedAffix(affix: { id: string; category: string; value: AffixValue }): string {
+export function formatConsolidatedAffix(affix: { id: string; category: AffixCategory; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: false });
 }
 
