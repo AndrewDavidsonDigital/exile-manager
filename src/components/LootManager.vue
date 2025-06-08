@@ -10,12 +10,13 @@ import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './ModalDialog.vue';
 import { IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
-import { TIER_SEPARATOR, type ItemBase } from '@/lib/core';
+import { allItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
 import RomanNumeral from './RomanNumeral.vue';
 
 const gameEngine = useGameEngine();
 const selectedLoot = ref<ILoot | undefined>();
 const lootFilter = ref<ItemBase | undefined>(undefined);
+const tierFilter = ref<ItemTierType | undefined>(undefined);
 const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
 const showCompareModal = ref(false);
@@ -129,16 +130,20 @@ const canAffordIdentification = (loot: ILoot): boolean => {
   return character.value.gold >= getIdentificationCost(loot);
 };
 
-function itemMatchesFilter(type: ItemBase, isIdentified :boolean) {
-  if (lootFilter.value === undefined) {
+function itemMatchesFilter(type: ItemBase, isIdentified: boolean, tier?: ItemTierType) {
+  if (lootFilter.value === undefined && tierFilter.value === undefined) {
     return false;
   }
 
-  if (!isIdentified){
+  if (!isIdentified && tierFilter.value === undefined) {
     return true;
   }
 
-  if (lootFilter.value !== type) {
+  if (lootFilter.value !== undefined && lootFilter.value !== type) {
+    return true;
+  }
+
+  if (tierFilter.value !== undefined && tierFilter.value !== tier) {
     return true;
   }
 
@@ -252,7 +257,7 @@ const canCompare = computed(() => {
     <!-- Main Loot List -->
     <FluidElement class="flex-1 flex flex-col gap-2">
       <!-- Tab Navigation -->
-      <div class="flex flex-col md:flex-row justify-between gap-x-2 gap-y-4 mb-4">
+      <div class="flex flex-col md:flex-row justify-between gap-x-2 gap-y-4 mb-2">
         <div class="flex gap-2">
           <button
             :class="[
@@ -323,7 +328,7 @@ const canCompare = computed(() => {
       </div>
 
       <!-- Filter Buttons -->
-      <div class="flex flex-wrap gap-1 mb-4">
+      <div class="flex flex-wrap gap-1 mb-2">
         <button
           :class="[
             { 'opacity-50': lootFilter !== undefined },
@@ -353,6 +358,38 @@ const canCompare = computed(() => {
         </button>
       </div>
 
+      <!-- Tier Filter Buttons -->
+      <div class="flex flex-wrap gap-1 mb-4">
+        <button
+          :class="[
+            { 'opacity-50': tierFilter !== undefined },
+            { 'pointer-events-none': tierFilter === undefined }
+          ]"
+          @click="tierFilter = undefined"
+        >
+          <FluidElement class="w-fit !p-1">
+            Clear Tier Filter
+          </FluidElement>
+        </button>
+        <button
+          v-for="tier in allItemTiers"
+          :key="tier"
+          :class="[
+            { 'opacity-30': tierFilter !== tier },
+            { 'pointer-events-none': tierFilter === tier }
+          ]"
+          @click="tierFilter = tier"
+        >
+          <FluidElement
+            class="w-fit !p-1"
+            :title="tier"
+            :style="{ color: getTierColor(tier, true) }"
+          >
+            {{ tier.charAt(0).toUpperCase() + tier.slice(1) }}
+          </FluidElement>
+        </button>
+      </div>
+
       <!-- Loot List -->
       <div class="flex flex-wrap gap-2">
         <template v-if="activeTab === 'inventory' && character !== -1 && character.loot.length > 0">
@@ -361,7 +398,7 @@ const canCompare = computed(() => {
             :key="`loot_${index}`"
             class="w-fit !p-2 !border cursor-pointer loot-item"
             :class="[
-              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified) },
+              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
             ]"
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
@@ -387,7 +424,7 @@ const canCompare = computed(() => {
             :key="`stash_${index}`"
             class="w-fit !p-2 !border cursor-pointer loot-item"
             :class="[
-              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified) },
+              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
             ]"
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)

@@ -47,6 +47,14 @@ export enum ItemBase {
 
 
 /**
+ * Represents possible item types that can be equipped or found
+ */
+export enum IBaseStats {
+  BASE_DAMAGE = 12,
+};
+
+
+/**
  * Represents the available character classes in the game
  */
 export type ExileClassType = 
@@ -108,6 +116,15 @@ export type ItemTierType =
   | 'abstract' //         1|3|0
   | 'infused'//           1|0|3
 ;
+
+export enum ItemTiers { 
+  BASIC = 'basic',              // 0|0|0
+  ENHANCED =  'enhanced',       // 1|0|1
+  EXCEPTIONAL =  'exceptional', // 2|1|1
+  ABSTRACT =  'abstract',       // 1|3|0
+  INFUSED =  'infused',         // 1|0|3
+};
+export const allItemTiers: ItemTiers[] = Object.values(ItemTiers);
 
 /**
  * Represents the different types of item mutations

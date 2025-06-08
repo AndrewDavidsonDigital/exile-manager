@@ -24,7 +24,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, IBaseStats, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.0.11';
@@ -148,7 +148,7 @@ export const useGameEngine = defineStore('gameEngine', {
         },
         accuracy: 100,
         criticalStrike: 0,
-        baseDamagePerTick: 15,
+        baseDamagePerTick: IBaseStats.BASE_DAMAGE,
         damagePerTick: 0,
         damage: {
           physical: 0,
