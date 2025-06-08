@@ -1,5 +1,5 @@
 import type { IAffix, IBaseAffix } from './affixTypes';
-import { allAffixes, isAffixRange } from './affixTypes';
+import { allAffixes } from '@/data/affixes';
 import type { AffixValue } from './affixTypes';
 import { 
   AffixCategory,
@@ -23,6 +23,7 @@ import {
   type SkillTiming, 
   type SkillTriggers,
 } from './core';
+import { isAffixRange } from './affixTypes';
 
 
 /**

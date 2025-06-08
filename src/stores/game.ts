@@ -16,7 +16,8 @@ import {
   generateAffixesForTier,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
-import { BaseItemAffix, allAffixes as affixDefinitions } from '@/lib/affixTypes';
+import { BaseItemAffix } from '@/lib/affixTypes';
+import { allAffixes as affixDefinitions } from '@/data/affixes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';

@@ -439,3 +439,12 @@ export const suffixAffixes: IAffix[] = [
     allowedBases: [...allItemTypes],
   }
 ];
+
+/**
+ * Combined list of all affixes
+ */
+export const allAffixes: IAffix[] = [
+  ...embeddedAffixes,
+  ...prefixAffixes,
+  ...suffixAffixes
+];

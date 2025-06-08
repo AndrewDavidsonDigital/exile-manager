@@ -1,7 +1,5 @@
-import { embeddedAffixes, prefixAffixes, suffixAffixes } from '@/data/affixes';
 import { type ItemTierType, type ItemMutationType, type ItemBase, AffixTypes, AffixType, AffixCategory } from './core';
 import type { OneOf } from './typescript';
-
 
 /**
  * Represents an additive value modifier
@@ -238,12 +236,3 @@ export interface IAffix {
     };
   };
 }
-
-/**
- * Combined list of all affixes
- */
-export const allAffixes: IAffix[] = [
-  ...embeddedAffixes,
-  ...prefixAffixes,
-  ...suffixAffixes
-];
