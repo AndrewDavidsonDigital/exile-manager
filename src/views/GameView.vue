@@ -14,7 +14,7 @@
   import SwitchToggle from '@/components/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
   import type { ILevel } from '@/lib/core';
-import { armorMitigation } from '@/lib/combatMechanics';
+  import { armorMitigation } from '@/lib/combatMechanics';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -25,6 +25,8 @@ import { armorMitigation } from '@/lib/combatMechanics';
   const activeTab = ref<TabType>('adventuring');
   const lastUpdate = ref<number>(Date.now());
   const reportingStyle = ref<boolean>(false);
+
+  const enableCheats = import.meta.env.DEV;
   
   type TabType = 'adventuring' | 'loot' | 'town';
   const modalShown = ref<boolean>(false);
@@ -61,7 +63,10 @@ import { armorMitigation } from '@/lib/combatMechanics';
       <FluidElement>
         <WorldState />
       </FluidElement>
-      <section class="flex flex-col">
+      <section
+        v-if="enableCheats"
+        class="flex flex-col"
+      >
         <div class="mx-auto w-fit">
           CHEATS
         </div>
