@@ -366,6 +366,10 @@ function handleActivateWorldSkill(skill: ISkill){
   }
   gameEngine.addCooldown(newCooldown);
 }
+
+
+const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 0);
+
 </script>
 
 <template>
@@ -399,6 +403,7 @@ function handleActivateWorldSkill(skill: ISkill){
           </div>
           <div class="flex gap-2 ">
             <button 
+              v-if="hasWorldSkill"
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
               @click="handleWorldSkillsClick"
             >
