@@ -18,6 +18,14 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.1',
+    highlights: [
+      'Fix issue with being re-offered already owned passives / skills',
+    ],
+    commit: 'f396782570e1a19b6bc499902420915ce88c56d7',
+    compare: 'v0.1.0...v0.1.1',
+  },
+  {
     version: '0.1.0',
     isBreaking: true,
     requiresPurge: true,
