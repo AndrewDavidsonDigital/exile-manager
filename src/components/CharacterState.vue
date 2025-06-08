@@ -735,7 +735,7 @@ function handleActivateWorldSkill(skill: ISkill){
                         :key="affix.id"
                         class="text-gray-300"
                       >
-                        {{ formatConsolidatedAffix(affix) }}
+                        {{ formatConsolidatedAffix(affix).split(TIER_SEPARATOR)[0] }}
                       </div>
                     </div>
                   </div>
@@ -752,7 +752,7 @@ function handleActivateWorldSkill(skill: ISkill){
                         :key="affix.id"
                         class="text-gray-300"
                       >
-                        {{ formatConsolidatedAffix(affix).split(TIER_SEPARATOR) }}
+                        {{ formatConsolidatedAffix(affix).split(TIER_SEPARATOR)[0] }}
                       </div>
                     </div>
                   </div>
@@ -769,7 +769,7 @@ function handleActivateWorldSkill(skill: ISkill){
                         :key="affix.id"
                         class="text-gray-300"
                       >
-                        {{ formatConsolidatedAffix(affix) }}
+                        {{ formatConsolidatedAffix(affix).split(TIER_SEPARATOR)[0] }}
                       </div>
                     </div>
                   </div>
@@ -781,6 +781,9 @@ function handleActivateWorldSkill(skill: ISkill){
       </template>
     </div>
   </FluidElement>
+
+
+
   <ModalDialog
     :id="SKILLS_MODAL_ID"
     :show="showSkillsModal"
