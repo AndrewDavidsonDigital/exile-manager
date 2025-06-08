@@ -14,6 +14,37 @@
 
   const features: IFeature[] = [
     {
+      title: 'Leveling System 1.6',
+      description: 'Skills and Passives offered Should not include those you already have',
+      priority: 'high',
+      status: 'completed',
+      keyPoints: [
+        'Add limiting support by Already acquired',
+      ],
+    },
+    {
+      title: 'Dynamic Passives',
+      description: 'Passives offered should be gated by some factors, class, char-level, progression',
+      priority: 'high',
+      status: 'pending',
+      keyPoints: [
+        'Add limiting support by CharLevel',
+        'Add limiting support by Char Class',
+        'Add limiting support by world state TBD (mission system 2.0)',
+      ],
+    },
+    {
+      title: 'More Dynamic Skills',
+      description: 'Skills offered should be gated by some factors, class, progression',
+      priority: 'high',
+      status: 'partial',
+      keyPoints: [
+        'Add limiting support by CharLevel',
+        'Add limiting support by Char Class',
+        'Add limiting support by world state TBD (mission system 2.0)',
+      ],
+    },
+    {
       title: 'Values Normalization',
       description: 'A full parse and normalization pass on all number values as these are out of wack due to multiple overhauls to items / combat',
       priority: 'high',
@@ -30,6 +61,17 @@
       status: 'pending',
       keyPoints: [
         'A more involved process of finding missions and progressing',
+      ],
+    },
+    {
+      title: 'Item System 2.5',
+      description: 'Items affixes need some love.',
+      priority: 'normal',
+      status: 'pending',
+      keyPoints: [
+        'Add Synergy system',
+        'Add ability for accessories to be stacked',
+        'Add Disturbance system for accessories',
       ],
     },
     {

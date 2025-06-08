@@ -104,15 +104,17 @@ export const useGameEngine = defineStore('gameEngine', {
       if (!this.character) return [];
 
       const charLevel = this.character.level;
+      const charPassives = this.character.passives;
 
-      return passives.filter(el => charLevel >= (el.minCharLevel || 0));
+      return passives.filter(el => charLevel >= (el.minCharLevel || 0) && !(charPassives.find(f => f._identifier === el._identifier)));
     },
     getAvailableSkills(): ISkill[]{
       if (!this.character) return [];
 
       const charLevel = this.character.level;
+      const charSkills = this.character.skills;
 
-      return skills.filter(el => charLevel >= (el.minCharLevel || 0));
+      return skills.filter(el => charLevel >= (el.minCharLevel || 0) && !(charSkills.find(f => f._identifier === el._identifier)));
     },
 
     getPassiveIds():string[]{
