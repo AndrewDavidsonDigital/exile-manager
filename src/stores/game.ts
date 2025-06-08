@@ -27,7 +27,7 @@ import { ErrorNumber } from '@/lib/typescript';
 import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, IBaseStats, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.0.11';
+const VERSION_NUMBER = '0.1.0';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
