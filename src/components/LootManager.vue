@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FluidElement from '@/components/FluidElement.vue';
 import { useGameEngine } from '@/stores/game';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { ILoot } from '@/lib/game';
 import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
@@ -12,8 +12,10 @@ import { IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
 import { allItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
 import RomanNumeral from './RomanNumeral.vue';
+import { useAdventuringStore } from '@/stores/adventuring';
 
 const gameEngine = useGameEngine();
+const adventuringEngine = useAdventuringStore();
 const selectedLoot = ref<ILoot | undefined>();
 const lootFilter = ref<ItemBase | undefined>(undefined);
 const tierFilter = ref<ItemTierType | undefined>(undefined);
@@ -92,6 +94,15 @@ const equipSelectedLoot = (isMobile:boolean = false) => {
     }
   }  
 };
+
+const isAdventuring = computed(() => adventuringEngine.isAdventuring);
+
+watch(isAdventuring, (newValue) => {
+  if (newValue){
+    resetBrush();
+  }
+});
+
 
 const handleEquipmentSwap = () => {
   if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
