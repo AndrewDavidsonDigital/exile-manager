@@ -18,6 +18,23 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.0',
+    isBreaking: true,
+    requiresPurge: true,
+    highlights: [
+      'Tweak leveling system',
+      'Add passives',
+      'Add combat skills',
+      'Add world skills',
+      'Add Loot Tier filter',
+      'UI pass on Items',
+      'Affixes now all have upto tier-3',
+      'Affixes are now level gated within bands relative to the itemLevel',
+    ],
+    commit: '78d4143f2d7f703448e957bc06402d7c9aca2816',
+    compare: 'v0.0.11...v0.1.0',
+  },
+  {
     version: '0.0.11',
     highlights: [
       'Fix bug with death recap modal being dismissible',
