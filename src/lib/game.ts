@@ -589,7 +589,7 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string, iLevel
     affix.allowedTiers.includes(tier) && iLevel >= (affix?.minILevel ||0) && iLevel < (affix?.maxILevel || Infinity)
   );
 
-  console.log(`given iLevel: [${iLevel}]`, allowedAffixes);
+  // console.log(`given iLevel: [${iLevel}]`, allowedAffixes);
 
   // Generate each type of affix using the helper function
   if (affixCounts.embedded > 0) {
