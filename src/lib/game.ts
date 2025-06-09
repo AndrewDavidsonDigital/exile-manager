@@ -185,6 +185,7 @@ export interface IPassive {
   name: string;
   effect: IStatBuff;
   minCharLevel?: number;
+  requiredClass?: ExileClassType[];
 }
 
 export interface ISkill {
@@ -196,6 +197,7 @@ export interface ISkill {
   setTrigger?:SkillTriggers;
   isEnabled?: boolean;
   minCharLevel?: number;
+  requiredClass?: ExileClassType[];
   duration?: {
     count: number;
     timing: SkillTiming,

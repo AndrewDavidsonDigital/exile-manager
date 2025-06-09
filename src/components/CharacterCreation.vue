@@ -6,7 +6,8 @@ import {
   EXILE_CLASSES, 
   CLASS_DESCRIPTIONS, 
   BASE_STATS,
-  DIFFICULTY_SETTINGS
+  DIFFICULTY_SETTINGS,
+  ExileClass
 } from '@/lib/core';
 import { FANTASY_NAMES } from '@/lib/characters';
 import { IconRepeat } from './icons';
@@ -18,7 +19,7 @@ const $emit = defineEmits<{
 
 const gameEngine = useGameEngine();
 const characterName = ref('');
-const selectedClass = ref<ExileClassType>('Spellsword');
+const selectedClass = ref<ExileClassType>(ExileClass.SPELLSWORD);
 const selectedDifficulty = ref<DifficultyType>('Normal');
 
 // Randomly select initial class

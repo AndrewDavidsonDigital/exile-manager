@@ -14,7 +14,7 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { Attributes, baseDamageFunction, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
 
 type EncounterType = 
   'combat'
@@ -287,6 +287,36 @@ export const useAdventuringStore = defineStore('adventuring', () => {
                   // push buff to state
                   if (selectedSkill.duration){
                     spellDescription = `Casting: ${selectedSkill.name}: buffing ${Attributes.WRATH} by ${selectedSkill.effect.change} for ${selectedSkill.duration.count} ${selectedSkill.duration.timing}'s`;
+                    logger(spellDescription);
+                    const newBuff: ITemporalEffect = {
+                      effect: selectedSkill.effect,
+                      name: selectedSkill.name,
+                      timing: selectedSkill.duration.timing,
+                      remaining: selectedSkill.duration.count,
+                    }
+                    gameEngine.addTemporalEffect(newBuff);
+                  }
+                  break;
+                }
+
+                case AffixCategory.PHYSICAL:{
+                  if (selectedSkill.duration){
+                    spellDescription = `Casting: ${selectedSkill.name}: buffing ${AffixCategory.PHYSICAL} damage by ${selectedSkill.effect.change} for ${selectedSkill.duration.count} ${selectedSkill.duration.timing}'s`;
+                    logger(spellDescription);
+                    const newBuff: ITemporalEffect = {
+                      effect: selectedSkill.effect,
+                      name: selectedSkill.name,
+                      timing: selectedSkill.duration.timing,
+                      remaining: selectedSkill.duration.count,
+                    }
+                    gameEngine.addTemporalEffect(newBuff);
+                  }
+                  break;
+                }
+
+                case AffixCategory.ELEMENTAL:{
+                  if (selectedSkill.duration){
+                    spellDescription = `Casting: ${selectedSkill.name}: buffing ${AffixCategory.ELEMENTAL} damage by ${selectedSkill.effect.change} for ${selectedSkill.duration.count} ${selectedSkill.duration.timing}'s`;
                     logger(spellDescription);
                     const newBuff: ITemporalEffect = {
                       effect: selectedSkill.effect,

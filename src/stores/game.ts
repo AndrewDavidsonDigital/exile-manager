@@ -105,16 +105,28 @@ export const useGameEngine = defineStore('gameEngine', {
 
       const charLevel = this.character.level;
       const charPassives = this.character.passives;
+      const charClass = this.character.class;
 
-      return passives.filter(el => charLevel >= (el.minCharLevel || 0) && !(charPassives.find(f => f._identifier === el._identifier)));
+      return passives.filter(
+        el => 
+           charLevel >= (el.minCharLevel || 0) 
+        && !(charPassives.find(f => f._identifier === el._identifier))
+        && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
+      );
     },
     getAvailableSkills(): ISkill[]{
       if (!this.character) return [];
 
       const charLevel = this.character.level;
       const charSkills = this.character.skills;
+      const charClass = this.character.class;
 
-      return skills.filter(el => charLevel >= (el.minCharLevel || 0) && !(charSkills.find(f => f._identifier === el._identifier)));
+      return skills.filter(
+        el => 
+           charLevel >= (el.minCharLevel || 0) 
+        && !(charSkills.find(f => f._identifier === el._identifier))
+        && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
+      );
     },
 
     getPassiveIds():string[]{
@@ -454,7 +466,20 @@ export const useGameEngine = defineStore('gameEngine', {
             retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
             retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
             break;
-        
+
+          case AffixCategory.PHYSICAL:
+            retval.damage.physical = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type));
+
+            break;
+          
+          case AffixCategory.ELEMENTAL:{
+            const value = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type)) / 3;
+            retval.damage.elemental.fire = Math.floor(retval.damage.elemental.fire +value);
+            retval.damage.elemental.cold = Math.floor(retval.damage.elemental.cold +value);
+            retval.damage.elemental.lightning = Math.floor(retval.damage.elemental.lightning +value);
+            break;
+          }
+
           default:
             break;
         }

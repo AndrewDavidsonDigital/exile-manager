@@ -53,14 +53,18 @@ export enum IBaseStats {
   BASE_DAMAGE = 12,
 };
 
-
+export enum ExileClass {
+  SPELLSWORD = 'Spellsword',
+  CHAOS_MAGE= 'Chaos Mage',
+  REAVER = 'Reaver',
+};
 /**
  * Represents the available character classes in the game
  */
 export type ExileClassType = 
-  'Spellsword' 
-| 'Chaos Mage' 
-| 'Reaver'
+  ExileClass.SPELLSWORD 
+| ExileClass.CHAOS_MAGE 
+| ExileClass.REAVER
 ;
 
 /**
@@ -278,7 +282,8 @@ export const DIFFICULTY_SETTINGS: ReadonlyMap<DifficultyType, IDifficulty> = new
 /**
  * List of available character classes in the game
  */
-export const EXILE_CLASSES: ExileClassType[] = ['Spellsword', 'Chaos Mage', 'Reaver'];
+export const EXILE_CLASSES: ExileClass[] = Object.values(ExileClass);
+
 
 /**
  * Descriptions for each character class

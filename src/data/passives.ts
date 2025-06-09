@@ -1,21 +1,32 @@
-import { AffixTypes, Attributes } from "@/lib/core";
+import { AffixTypes, Attributes, ExileClass } from "@/lib/core";
 import type { IPassive } from "@/lib/game";
 
 export const passives: IPassive[] = [
   {
-    _identifier: 'Mana Veins', 
-    name:'Mana Veins', 
+    _identifier: 'Thick Skin', 
+    name:'Thick Skin', 
     effect:{
-      target: Attributes.MANA,
-      change: 20, 
+      target: Attributes.HEALTH,
+      change: 15, 
       type: AffixTypes.MULTIPLICATIVE
-    }
+    },
+    requiredClass: [ExileClass.CHAOS_MAGE, ExileClass.SPELLSWORD],
   },
   {
     _identifier: 'Blood of Giants',
     name:'Blood of Giants', 
     effect:{
       target: Attributes.HEALTH,
+      change: 20, 
+      type: AffixTypes.MULTIPLICATIVE
+    },
+    requiredClass: [ExileClass.REAVER],
+  },
+  {
+    _identifier: 'Mana Veins', 
+    name:'Mana Veins', 
+    effect:{
+      target: Attributes.MANA,
       change: 20, 
       type: AffixTypes.MULTIPLICATIVE
     }

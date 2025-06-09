@@ -1,4 +1,4 @@
-import { AffixTypes, Attributes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
+import { AffixCategory, AffixTypes, Attributes, ExileClass, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
 import type { ISkill } from "@/lib/game";
 
 const NOT_ON_CREATION = 1;
@@ -18,7 +18,7 @@ export const skills: ISkill[] = [
     effect: {
       type: AffixTypes.ADDITIVE,
       target: Attributes.HEALTH,
-      change: -20
+      change: -40
     },
     cost: {
       amount: 30,
@@ -142,6 +142,58 @@ export const skills: ISkill[] = [
     },
     cost: {
       amount: 80,
+      resource: SkillResource.MANA,
+    }
+  },
+  {
+    _identifier: 'Alloyed Blade',
+    name: 'Alloyed Blade',
+    target: SkillTarget.SELF,
+    activationLayer: SkillActivationLayer.COMBAT,
+    triggerStates: [SkillTriggers.ALWAYS],
+    requiredClass: [ExileClass.REAVER],
+    cooldown: {
+      count: 5,
+      timing: SkillTiming.TURN,
+      startCooldownInstantly: true,
+    },
+    effect: {
+      type: AffixTypes.ADDITIVE,
+      target: AffixCategory.PHYSICAL,
+      change: 20
+    },
+    duration: {
+      count: 2,
+      timing: SkillTiming.TURN,
+    },
+    cost: {
+      amount: 50,
+      resource: SkillResource.MANA,
+    }
+  },
+  {
+    _identifier: 'Elemental Fracture',
+    name: 'Elemental Fracture',
+    target: SkillTarget.SELF,
+    activationLayer: SkillActivationLayer.COMBAT,
+    triggerStates: [SkillTriggers.ALWAYS],
+    requiredClass: [ExileClass.SPELLSWORD],
+    cooldown: {
+      count: 5,
+      timing: SkillTiming.TURN,
+      startCooldownInstantly: true,
+    },
+    effect: {
+      type: AffixTypes.ADDITIVE,
+      target: AffixCategory.ELEMENTAL,
+      change: 20
+    },
+    duration: {
+      count: 2,
+      timing: SkillTiming.TURN,
+    },
+    cost: {
+      amount: 50,
       resource: SkillResource.MANA,
     }
   }
