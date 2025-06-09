@@ -342,7 +342,7 @@ function handleAddSkill(identifier: string){
 }
 
 function handleActivateWorldSkill(skill: ISkill){
-  if (char === ErrorNumber.NOT_FOUND) return;
+  if (char === ErrorNumber.NOT_FOUND || !isAbleToAffordSkill(char, skill.cost)) return;
   // pay costs
   switch (skill.cost.resource) {
     case SkillResource.HEALTH:

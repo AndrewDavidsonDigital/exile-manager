@@ -728,14 +728,14 @@ export const useGameEngine = defineStore('gameEngine', {
      */
     recoverMana(amount: number, isPercent: boolean = false) {
       if (!this.character) return;
-      logger(`Recovering ${amount} mana${isPercent ? ' %' : ''}`);
       
       let newMana;
       if (isPercent) {
-        newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + (this.character.stats.mana * (100 / amount)));
+        newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + Math.floor(this.character.stats.mana * (amount / 100)));
       }else{
         newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + amount);
       }
+      logger(`Revoring ${amount} mana${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(this.character.stats.mana * (amount / 100 )) : amount}]`);
       this.updateStats({ currentMana: newMana });
     },
 

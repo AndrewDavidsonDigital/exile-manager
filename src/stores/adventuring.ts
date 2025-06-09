@@ -221,6 +221,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           // console.log(`___:TR ${checkTriggerable(char, el.setTrigger || SkillTriggers.NONE)}`);
           canUse = canUse && isOffCooldown(char, el._identifier);
           canUse = canUse && checkTriggerable(char, el.setTrigger || SkillTriggers.NONE);
+          canUse = canUse && isAbleToAffordSkill(char, el.cost);
 
           return canUse;
         });
