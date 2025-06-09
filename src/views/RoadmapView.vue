@@ -46,7 +46,7 @@
       title: 'Dynamic Passives',
       description: 'Passives offered should be gated by some factors, class, char-level, progression',
       priority: 'high',
-      status: 'pending',
+      status: 'completed',
       keyPoints: [
         'Add limiting support by CharLevel',
         'Add limiting support by Char Class',
@@ -57,7 +57,7 @@
       title: 'More Dynamic Skills',
       description: 'Skills offered should be gated by some factors, class, progression',
       priority: 'high',
-      status: 'partial',
+      status: 'completed',
       keyPoints: [
         'Add limiting support by CharLevel',
         'Add limiting support by Char Class',
@@ -87,7 +87,7 @@
       title: 'Item System 2.5',
       description: 'Items affixes need some love.',
       priority: 'normal',
-      status: 'completed',
+      status: 'pending',
       keyPoints: [
         'Add Synergy system',
         'Add ability for accessories to be stacked',
@@ -98,7 +98,7 @@
       title: 'Item System 2.0',
       description: 'Items need some base values, item type should also limit affix availability.',
       priority: 'normal',
-      status: 'partial',
+      status: 'completed',
       keyPoints: [
         'Basic tier items will have a use',
         'Basic tier items wont need to be identified',
@@ -171,7 +171,7 @@
 </script>
 
 <template>
-  <section class="flex flex-col items-center my-auto mx-2 gap-2 pt-4 pb-2">
+  <section class="flex flex-col items-center m-2 pb-10 gap-2 overflow-y-scroll overflow-x-clip scrollbar max-h-[80dvh]">
     <template
       v-for="feature, index in features.toSorted((a,b) => (Ordering.get(a.status)||0) - (Ordering.get(b.status)||0))"
       :key="`feature_${index}`"
@@ -222,4 +222,22 @@
       </FluidElement>
     </template>
   </section>
+  <section class="mask-b"></section>
 </template>
+
+<style scoped>
+  @reference "@/assets/main.css";
+  .mask-b{
+    @apply relative;
+    @apply before:absolute before:w-[calc(100%_-_1rem)] before:h-16 before:bottom-0 before:left-0;
+    @apply before:bg-slate-800;
+  }
+  .mask-b::before {
+    mask-image: linear-gradient(
+      to bottom, 
+      transparent,
+      black 80%
+    );
+    @apply z-10;
+  }
+</style>
