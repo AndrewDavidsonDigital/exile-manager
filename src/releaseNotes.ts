@@ -18,6 +18,18 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.3',
+    highlights: [
+      'Complete the last aspects of Item System 2.5',
+      'Embedded Affix are also limited by item type',
+      'Fixed issue with over-recovering mana, and over spending (negative mana)',
+      'Added support for Class bases limits to some passives and skills',
+      'Fixed issue where defeating an enemy in 1-shot meant a cooldown tick didn\'t occur',
+    ],
+    commit: 'b1dc7f14750b226f2689acba8f811b9b351b9d26',
+    compare: 'v0.1.2...v0.1.3',
+  },
+  {
     version: '0.1.2',
     highlights: [
       'Loot Brushes (delete / ID) are now force de-selected when starting an adventure',
