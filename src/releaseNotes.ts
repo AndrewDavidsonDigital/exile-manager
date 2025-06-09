@@ -18,6 +18,15 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.2',
+    highlights: [
+      'Loot Brushes (delete / ID) are now force de-selected when starting an adventure',
+      'Level up choice for cases when neither skill nor passive is landed',
+    ],
+    commit: '192cd562ee97b4d48f3b7be481ea8f6e1989004b',
+    compare: 'v0.1.1...v0.1.2',
+  },
+  {
     version: '0.1.1',
     highlights: [
       'Fix issue with being re-offered already owned passives / skills',
