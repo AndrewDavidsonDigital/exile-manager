@@ -560,7 +560,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
             <span 
               class="text-blue-400 ml-2 px-2 py-1 place-self-center md:place-self-start"
               :class="{ 'pulse-dynamic': isManaPulsing }"
-              :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
+              :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-mana-loss)' : 'var(--pulse-color-mana)' }"
             ><span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
             </span>
           </div>
@@ -1272,6 +1272,8 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
     --pulse-color-loot: rgba(255, 215, 0, 0.1);
     --pulse-color-damage: rgba(255, 0, 0, 0.1);
     --pulse-color-heal: rgba(0, 255, 255, 0.1);
+    --pulse-color-mana: rgba(0, 179, 255, 0.1);
+    --pulse-color-mana-loss: rgba(124, 211, 255, 0.1);
     --level-up-color: rgb(255, 213, 0);
     --core-ui-border-color: oklch(20.8% 0.042 265.755);
 
