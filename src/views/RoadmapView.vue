@@ -26,9 +26,9 @@
     },
     {
       title: 'Leveling System 1.7',
-      description: 'Skills and Passives offered Should not include those you already have',
+      description: 'Leveling up should always give the user a choice',
       priority: 'high',
-      status: 'pending',
+      status: 'completed',
       keyPoints: [
         'When a levelUp doesn\'t give a new passive or skill, we should still have some user selection (+2 to a selectable stat || +5 to HP / Mana)',
       ],
@@ -87,7 +87,7 @@
       title: 'Item System 2.5',
       description: 'Items affixes need some love.',
       priority: 'normal',
-      status: 'pending',
+      status: 'completed',
       keyPoints: [
         'Add Synergy system',
         'Add ability for accessories to be stacked',

@@ -13,7 +13,7 @@ import type {
 import { 
   generateClassStats,
   ITEM_TIER_COSTS,
-  generateAffixesForTier,
+  generateAffixesForTierAndType,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
 import { BaseItemAffix } from '@/lib/affixTypes';
@@ -897,7 +897,7 @@ export const useGameEngine = defineStore('gameEngine', {
       const type = loot.type;
       
       // Generate affixes based on tier
-      const affixes = generateAffixesForTier(tier, type, loot.iLvl);
+      const affixes = generateAffixesForTierAndType(tier, type, loot.iLvl);
       
       // Update item details with generated affixes
       loot.itemDetails = {

@@ -564,7 +564,7 @@ export function formatConsolidatedAffix(affix: { id: string; category: AffixCate
  * @param _type NYI: The item's type (currently unused but kept for future use)
  * @returns Object containing arrays of generated affixes with their roll values
  */
-export function generateAffixesForTier(tier: ItemTierType, _type: string, iLevel: number) {
+export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase, iLevel: number) {
   const affixes = {
     embedded: [] as Array<{
       id: string;
@@ -588,7 +588,9 @@ export function generateAffixesForTier(tier: ItemTierType, _type: string, iLevel
 
   // Filter affixes that are allowed for this tier
   const allowedAffixes = allAffixes.filter((affix: IAffix) => 
-    affix.allowedTiers.includes(tier) && iLevel >= (affix?.minILevel ||0) && iLevel < (affix?.maxILevel || Infinity)
+    affix.allowedTiers.includes(tier) 
+      && affix.allowedBases.includes(type)
+      && iLevel >= (affix?.minILevel ||0) && iLevel < (affix?.maxILevel || Infinity)
   );
 
   // console.log(`given iLevel: [${iLevel}]`, allowedAffixes);
