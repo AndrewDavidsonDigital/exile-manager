@@ -55,6 +55,7 @@ const createCharacter = () => {
     pendingRewards: {
       passives: 0,
       skills: 0,
+      stats: 0,
     },
     cooldowns: [],
     temporalEffects: [],

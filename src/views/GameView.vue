@@ -14,7 +14,6 @@
   import SwitchToggle from '@/components/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
   import type { ILevel } from '@/lib/core';
-  import { armorMitigation } from '@/lib/combatMechanics';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -72,16 +71,18 @@
         </div>
         <div class="flex gap-2 justify-center">
           <button
+            v-if="gameEngine.character"
             class="w-fit"
-            @click="gameEngine.addPassive('Wrathful Embrace')"
+            @click="gameEngine.character.pendingRewards.passives++"
           >
             <FluidElement>
               add passive
             </FluidElement>
           </button>
           <button
+            v-if="gameEngine.character"
             class="w-fit"
-            @click="gameEngine.addSkill('Heal')"
+            @click="gameEngine.character.pendingRewards.skills++"
           >
             <FluidElement>
               add Skill
@@ -93,14 +94,6 @@
           >
             <FluidElement>
               LevelUp
-            </FluidElement>
-          </button>
-          <button
-            class="w-fit"
-            @click="armorMitigation(() => Math.floor((5 + Math.random() * 10) * 5 * 1 * 1), 173, gameEngine.character?.level || 1)"
-          >
-            <FluidElement>
-              Test Armor
             </FluidElement>
           </button>
         </div>

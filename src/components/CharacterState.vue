@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ICooldown, type ILoot, type ISkill, type ITemporalEffect } from '@/lib/game';
-import { AffixCategory, AffixTypes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
+import { AffixCategory, AffixTypes, attributeIncrease, Attributes, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
 import { BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAffix } from '@/lib/affixTypes';
 import { allAffixes } from '@/data/affixes';
@@ -10,7 +10,7 @@ import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './FluidElement.vue';
 import { getAffixByType } from '@/lib/affixUtils';
 import { formatBaseAffixValue } from '@/lib/itemUtils';
-import { IconPassiveTree, IconSkills, IconWorldSkills } from './icons';
+import { IconPassiveTree, IconSkills, IconStatIncrease, IconWorldSkills } from './icons';
 import ModalDialog from './ModalDialog.vue';
 import SwitchToggle from './SwitchToggle.vue';
 import { ErrorNumber } from '@/lib/typescript';
@@ -40,6 +40,7 @@ const showNewPassivesModal = ref<boolean>(false);
 const showSkillsModal = ref<boolean>(false);
 const showNewSkillsModal = ref<boolean>(false);
 const showWorldSkillsModal = ref<boolean>(false);
+const showAddStatsModal = ref<boolean>(false);
 
 const hasEquippedItems = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return false;
@@ -51,6 +52,7 @@ const PASSIVES_MODAL_ID = 'passive_modal_id';
 const NEW_SKILLS_MODAL_ID = 'new_skills_modal_id';
 const NEW_PASSIVES_MODAL_ID = 'new_passive_modal_id';
 const WORLD_SKILL_MODAL_ID = 'world_skill_modal_id';
+const ADD_STATS_MODAL_ID = 'add_stats_modal_id';
 
 const PULSE_DURATION = 500;
 const LEVEL_UP_DURATION = 2000;
@@ -252,7 +254,7 @@ const groupedAffixes = computed(() => {
   Object.values(char.equipment).forEach((item: ILoot) => {
     // console.log(item?.itemDetails?.baseDetails);
     if (item?.itemDetails) {
-      // Add base affix if it exists
+      // abase affix if it exists
       if (item.itemDetails.baseDetails) {
         affixes.base.push({
           id: `base_${item.itemDetails.baseDetails.affix}_-1`,
@@ -280,11 +282,27 @@ const groupedAffixes = computed(() => {
   };
 });
 
+function handleIncreaseStat(stat: Attributes){
+  if (char === ErrorNumber.NOT_FOUND) return;
+
+  if (char.pendingRewards.stats > 0){
+    gameEngine.increaseStat(stat, attributeIncrease[stat]);
+    char.pendingRewards.stats--;
+  }
+
+  showAddStatsModal.value = !showAddStatsModal.value
+}
+
 function handleWorldSkillsClick(){
   if (char === ErrorNumber.NOT_FOUND) return;
 
   showWorldSkillsModal.value = !showWorldSkillsModal.value
+}
 
+function handleStatsClick(){
+  if (char === ErrorNumber.NOT_FOUND) return;
+
+  showAddStatsModal.value = !showAddStatsModal.value
 }
 
 function handleSkillsClick(){
@@ -439,6 +457,22 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                 `"
               />
             </button>
+            <button
+              v-if="char.pendingRewards.stats > 0"
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              @click="handleStatsClick"
+            >
+              <IconStatIncrease 
+                :class="[
+                  {'animate-colour-pulse': char.pendingRewards.stats > 0 && !showPassivesModal},
+                  {'opacity-50 hover:opacity-80': !(char.pendingRewards.stats)},
+                ]"
+                :style="`
+                  --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
+                  --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
+                `"
+              />
+            </button>
           </div>
           <div class="text-right font-bold text-white capitalize">
             <h3
@@ -570,8 +604,6 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                 <span class="text-gray-400">Damage:</span>
                 <span 
                   class="text-slate-400 ml-2 px-2 py-1"
-                  :class="{ 'pulse-dynamic': isManaPulsing }"
-                  :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
                 ><span>~{{ gameEngine.getCombatStats.damagePerTick }} (
                   <span
                     title="Base"
@@ -614,22 +646,14 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               </div>
               <div class="ml-2  px-2">
                 <span class="text-gray-400">Mitigation:</span>
-                <span 
-                  class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start"
-                  :class="{ 'pulse-dynamic': isManaPulsing }"
-                  :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-                >
+                <span class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start">
                   <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value">Dodge: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value || 0 }}%</span>
                   <span v-if="gameEngine.getCombatStats.deflection">Deflect: {{ gameEngine.getCombatStats.deflection || 0 }}</span>
                 </span>
               </div>
               <div class="ml-2  px-2">
                 <span class="text-gray-400">Resist:</span>
-                <span 
-                  class="text-slate-400 ml-2 px-2 inline-flex gap-x-1 w-full justify-center md:justify-start"
-                  :class="{ 'pulse-dynamic': isManaPulsing }"
-                  :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' }"
-                >
+                <span class="text-slate-400 ml-2 px-2 inline-flex gap-x-1 w-full justify-center md:justify-start">
                   <span
                     title="Physical Resist"
                     class="text-slate-400"
@@ -1192,6 +1216,46 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                       {{ trigger }}
                     </button>
                   </div>
+                </div>
+              </div>
+            </FluidElement>
+          </button>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
+  <ModalDialog
+    :id="ADD_STATS_MODAL_ID"
+    :show="showAddStatsModal"
+    class="!p-[3%] md:!px-10 md:!pb-10  md:!pt-4"
+    @close="showAddStatsModal = false"
+  >
+    <section class="text-emerald-400">
+      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+        Increase a single attribute
+      </h3>
+      <div
+        v-if="char !== ErrorNumber.NOT_FOUND"
+        class="flex gap-2 flex-wrap justify-center"
+      >
+        <template
+          v-for="stat,index in Attributes"
+          :key="`stats_${index}`"
+        >
+          <button 
+            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5"
+            @click="handleIncreaseStat(stat)"
+          >
+            <FluidElement
+              class="p-3 hover:border-amber-400  duration-300 transition-all"
+            >
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <span class="inline-flex items-baseline-last">
+                    <h4 class="text-lg font-medium capitalize">
+                      {{ stat }} +{{ attributeIncrease[stat] }}
+                    </h4>
+                  </span>
                 </div>
               </div>
             </FluidElement>

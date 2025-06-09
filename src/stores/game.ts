@@ -667,6 +667,13 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
+    increaseStat(stat: Attributes, change: number) {
+      if (!this.character) return;
+      logger(`Updating stat(${stat}) by ${change}`);
+      this.character.stats[stat] += change;
+      this.saveState();
+    },
+
     /**
      * Takes damage from the character's health
      * @param {number} amount - Amount of damage to take
@@ -787,9 +794,10 @@ export const useGameEngine = defineStore('gameEngine', {
       // else
       // passive every 3 levels 
       //  skill  every 4 levels
+      // for any fallthrough levels add stat inc screen
       if (this.character.level === 2) {
         this.character.pendingRewards.passives++;
-      } else {
+      } else if (this.character.level % 4 === 1 || this.character.level % 3 === 1) {
         if (this.character.level % 4 === 1) {
           this.character.pendingRewards.skills++;
         } 
@@ -797,6 +805,8 @@ export const useGameEngine = defineStore('gameEngine', {
         if (this.character.level !== 3 && this.character.level % 3 === 1) {
           this.character.pendingRewards.passives++;
         }
+      } else {
+        this.character.pendingRewards.stats++;
       }
       
       logger(`Character leveled up to ${this.character.level}`);
@@ -1061,7 +1071,7 @@ export const useGameEngine = defineStore('gameEngine', {
       mutableNewState.difficulty = currentState.difficulty;
       mutableNewState.isDead = currentState.isDead;
 
-      // v0.0.12 - passives | skills char bindings
+      // v0.1.0 - passives | skills char bindings
       if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('passives')){
         mutableNewState.character.passives = [];
       }
@@ -1072,7 +1082,12 @@ export const useGameEngine = defineStore('gameEngine', {
         mutableNewState.character.cooldowns = [];
       }
       if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('pendingRewards')){
-        mutableNewState.character.pendingRewards = {skills: 0,passives: 0};
+        mutableNewState.character.pendingRewards = {skills: 0,passives: 0, stats: 0};
+      }
+
+      // v0.1.3
+      if (mutableNewState.character && currentState.character?.pendingRewards &&  !Object.keys(currentState.character.pendingRewards).includes('stats')){
+        mutableNewState.character.pendingRewards.stats = 0;
       }
 
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);

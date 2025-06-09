@@ -229,7 +229,7 @@ export interface ICharacter {
   loot: ILoot[];
   passives: IPassive[];
   skills: ISkill[];
-  pendingRewards: IPassives,
+  pendingRewards: IUpgrades,
   cooldowns: ICooldown[]
 }
 
@@ -246,9 +246,10 @@ interface IBaseTemporalEffect {
   remaining: number;
 }
 
-export interface IPassives{
+export interface IUpgrades{
   skills: number,
   passives: number,
+  stats: number,
 }
 
 /**
@@ -257,7 +258,7 @@ export interface IPassives{
 export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   'Spellsword': {
     health: { min: 10, max: 20 },
-    mana: { min: 10, max: 20 },
+    mana: { min: 5, max: 10 },
     affinity: { min: 3, max: 5 },    // Aligned 3-5 to maintain relative difference
     wrath: { min: 1, max: 3 },       // Aligned 2-4
     fortune: { min: -2, max: 0 },    // Non-aligned
@@ -265,7 +266,7 @@ export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   },
   'Chaos Mage': {
     health: { min: 5, max: 10 },
-    mana: { min: 15, max: 30 },
+    mana: { min: 5, max: 30 },
     affinity: { min: 4, max: 6 },    // Aligned 4-6
     fortune: { min: 1, max: 3 },     // Aligned 1-3
     wrath: { min: -3, max: -1 },     // Non-aligned
@@ -273,7 +274,7 @@ export const CLASS_STAT_RANGES: Record<ExileClassType, IClassStatRanges> = {
   },
   'Reaver': {
     health: { min: 15, max: 30 },
-    mana: { min: 5, max: 10 },
+    mana: { min: 2, max: 5 },
     wrath: { min: 4, max: 6 },       // Aligned 4-6
     fortitude: { min: 1, max: 3 },   // Aligned 1-3
     affinity: { min: -3, max: -1 },  // Non-aligned

@@ -214,6 +214,15 @@ export enum Attributes {
 
 export type CharacterAttributeType = 'fortitude' | 'fortune' | 'affinity' | 'wrath' | 'health' | 'mana';
 
+export const attributeIncrease = {
+  health: 5,
+  mana: 5,
+  fortitude: 2,
+  fortune: 2,
+  wrath: 2,
+  affinity: 2,
+}
+
 export enum SkillTarget {
   ENEMY = 'enemy',
   SELF = 'self',
@@ -301,9 +310,9 @@ export interface ICharacterStats {
  */
 export const BASE_STATS: ICharacterStats = {
   currentHealth: 100,
-  currentMana: 100,
+  currentMana: 40,
   health: 100,
-  mana: 100,
+  mana: 40,
   fortitude: 10,
   fortune: 10,
   wrath: 10,
