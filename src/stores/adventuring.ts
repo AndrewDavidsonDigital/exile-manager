@@ -192,6 +192,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
     // Simulate combat rounds until someone dies
     while (exileHealth > 0 && monsterHealth > 0 && !shouldBail) {
+      gameEngine.processGameTick(SkillTiming.TURN);
 
       // Check if exile is about to die (less than 20% health)
       if (exileHealth <= exileStats.health * 0.2 && Math.random() < 0.3) { // 30% chance to escape when below 20% health
@@ -488,7 +489,6 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         }
       }
 
-      gameEngine.processGameTick(SkillTiming.TURN);
 
       round++;
 
