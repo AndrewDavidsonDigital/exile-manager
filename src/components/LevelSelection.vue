@@ -44,7 +44,7 @@ function startAdventuring(){
       >
         <h2>
           Select Level <span
-            class="duration-300 ease-in-out transition-all"
+            class="duration-300 ease-in-out transition-all inline-flex w-fit "
             :class="[
               { 'rotate-90': isCollapsed }
             ]"
