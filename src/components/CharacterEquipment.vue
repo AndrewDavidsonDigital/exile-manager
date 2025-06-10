@@ -91,100 +91,156 @@ const resetBrush = () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div>
     <template v-if="char !== ErrorNumber.NOT_FOUND">
       <!-- Brush Tools -->
-      <div class="flex justify-between gap-2 mb-2 md:hidden">
-        <button
-          class="w-fit"
-          :class="[
-            { 'opacity-50': activeBrush !== 'unequip' },
-            { 'pointer-events-none': activeBrush === 'unequip' }
-          ]"
-          @click="activeBrush = activeBrush === 'unequip' ? 'none' : 'unequip'"
-        >
-          <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
-            Unequip Brush
+      <section class="md:hidden flex flex-col gap-2">
+        <div class="flex justify-between gap-2 mb-2">
+          <button
+            class="w-fit"
+            :class="[
+              { 'opacity-50': activeBrush !== 'unequip' },
+              { 'pointer-events-none': activeBrush === 'unequip' }
+            ]"
+            @click="activeBrush = activeBrush === 'unequip' ? 'none' : 'unequip'"
+          >
+            <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
+              Unequip Brush
+            </div>
+          </button>
+          <button
+            v-if="activeBrush !== 'none'"
+            class="w-fit"
+            @click="resetBrush"
+          >
+            <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
+              Reset
+            </div>
+          </button>
+        </div>
+
+        <!-- Armor -->
+        <details class="group">
+          <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex gap-2 mx-auto w-fit">
+            <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+            Armor
+          </summary>
+          <div class="mt-2 grid grid-cols-3 gap-2">
+            <EquipmentSlot
+              v-for="(item, slot) in { 
+                shoulders: char.equipment.shoulders,
+                head: char.equipment.head, 
+                arms: char.equipment.arms,
+                chest: char.equipment.chest, 
+                legs: char.equipment.legs, 
+                feet: char.equipment.feet 
+              }"
+              :key="`arm-${slot}-${Date.now()}`"
+              :item="item"
+              :slot-name="slot"
+              :active-brush="activeBrush"
+              @unequip="() => unequipItem(slot)"
+              @alert-stats="() => alertStats(item)"
+            />
           </div>
-        </button>
-        <button
-          v-if="activeBrush !== 'none'"
-          class="w-fit"
-          @click="resetBrush"
-        >
-          <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
-            Reset
+        </details>
+
+        <!-- Weapons -->
+        <details class="group">
+          <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
+            <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+            Weapons
+          </summary>
+          <div class="mt-2 grid grid-cols-1 gap-2">
+            <EquipmentSlot
+              v-for="(item, slot) in { weapon: char.equipment.weapon }"
+              :key="`weap-${slot}-${Date.now()}`"
+              :item="item"
+              :slot-name="slot"
+              :active-brush="activeBrush"
+              @unequip="() => unequipItem(slot)"
+              @alert-stats="() => alertStats(item)"
+            />
           </div>
-        </button>
-      </div>
+        </details>
 
-      <!-- Armor -->
-      <details class="group">
-        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex gap-2 mx-auto w-fit">
-          <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
-          Armor
-        </summary>
-        <div class="mt-2 grid grid-cols-3 gap-2">
-          <EquipmentSlot
-            v-for="(item, slot) in { 
-              shoulders: char.equipment.shoulders,
-              head: char.equipment.head, 
-              arms: char.equipment.arms,
-              chest: char.equipment.chest, 
-              legs: char.equipment.legs, 
-              feet: char.equipment.feet 
-            }"
-            :key="`arm-${slot}-${Date.now()}`"
-            :item="item"
-            :slot-name="slot"
-            :active-brush="activeBrush"
-            @unequip="() => unequipItem(slot)"
-            @alert-stats="() => alertStats(item)"
-          />
-        </div>
-      </details>
+        <!-- Accessories -->
+        <details class="group">
+          <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
+            <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+            Accessories
+          </summary>
+          <div class="mt-2 grid grid-cols-3 gap-2">
+            <EquipmentSlot
+              v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
+              :key="`acc-${slot}-${Date.now()}`"
+              :item="item"
+              :slot-name="slot"
+              :active-brush="activeBrush"
+              @unequip="() => unequipItem(slot)"
+              @alert-stats="() => alertStats(item)"
+            />
+          </div>
+        </details>
+      </section>
 
-      <!-- Weapons -->
-      <details class="group">
-        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
-          <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
-          Weapons
-        </summary>
-        <div class="mt-2 grid grid-cols-1 gap-2">
-          <EquipmentSlot
-            v-for="(item, slot) in { weapon: char.equipment.weapon }"
-            :key="`weap-${slot}-${Date.now()}`"
-            :item="item"
-            :slot-name="slot"
-            :active-brush="activeBrush"
-            @unequip="() => unequipItem(slot)"
-            @alert-stats="() => alertStats(item)"
-          />
-        </div>
-      </details>
+      <section class="hidden md:block">
+        <!-- Equipment -->
+        <details
+          class="group"
+          open
+        >
+          <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex gap-2 mx-auto w-fit">
+            <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
+            Equipment
+          </summary>
+          <div class="mt-2 grid grid-cols-3 gap-2 pb-2">
+            <EquipmentSlot
+              v-for="(item, slot) in { 
+                shoulders: char.equipment.shoulders,
+                head: char.equipment.head, 
+                arms: char.equipment.arms,
+                chest: char.equipment.chest, 
+                legs: char.equipment.legs, 
+                feet: char.equipment.feet 
+              }"
+              :key="`arm-${slot}-${Date.now()}`"
+              :item="item"
+              :slot-name="slot"
+              :active-brush="activeBrush"
+              @unequip="() => unequipItem(slot)"
+              @alert-stats="() => alertStats(item)"
+            />
+          </div>
 
-      <!-- Accessories -->
-      <details class="group">
-        <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-300 flex items-center justify-center gap-2">
-          <span class="transform group-open:rotate-90 transition-transform text-gray-400">></span>
-          Accessories
-        </summary>
-        <div class="mt-2 grid grid-cols-3 gap-2">
-          <EquipmentSlot
-            v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
-            :key="`acc-${slot}-${Date.now()}`"
-            :item="item"
-            :slot-name="slot"
-            :active-brush="activeBrush"
-            @unequip="() => unequipItem(slot)"
-            @alert-stats="() => alertStats(item)"
-          />
-        </div>
-      </details>
+          <div class="mt-2 grid grid-cols-1 gap-2 pb-2">
+            <EquipmentSlot
+              v-for="(item, slot) in { weapon: char.equipment.weapon }"
+              :key="`weap-${slot}-${Date.now()}`"
+              :item="item"
+              :slot-name="slot"
+              :active-brush="activeBrush"
+              @unequip="() => unequipItem(slot)"
+              @alert-stats="() => alertStats(item)"
+            />
+          </div>
 
-      <blockquote class="hidden md:block opacity-50 italic">
-        Un-equip item by holding CTRL
-      </blockquote>
+          <div class="mt-2 grid grid-cols-3 gap-2 pb-2">
+            <EquipmentSlot
+              v-for="(item, slot) in { neck: char.equipment.neck, leftHand: char.equipment.leftHand, rightHand: char.equipment.rightHand }"
+              :key="`acc-${slot}-${Date.now()}`"
+              :item="item"
+              :slot-name="slot"
+              :active-brush="activeBrush"
+              @unequip="() => unequipItem(slot)"
+              @alert-stats="() => alertStats(item)"
+            />
+          </div>
+        </details>
+        <blockquote class="opacity-50 italic">
+          Un-equip item by holding CTRL
+        </blockquote>
+      </section>
     </template>
   </div>
 </template>
