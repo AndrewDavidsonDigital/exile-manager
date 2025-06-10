@@ -559,7 +559,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.isDead = false;
 
       // auto select a skill
-      const starters = skills.filter(sk => !(sk.minCharLevel));
+      const starters = this.getAvailableSkills;
       logger(`${JSON.stringify(starters)}`);
       const randomStarterSkill = starters[Math.floor(Math.random() * starters.length)];
       if (randomStarterSkill && this.character) {
