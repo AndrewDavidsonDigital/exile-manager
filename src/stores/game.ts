@@ -560,7 +560,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
       // auto select a skill
       const starters = this.getAvailableSkills;
-      logger(`${JSON.stringify(starters)}`);
+      // logger(`${JSON.stringify(starters)}`);
       const randomStarterSkill = starters[Math.floor(Math.random() * starters.length)];
       if (randomStarterSkill && this.character) {
         randomStarterSkill.isEnabled = true;
