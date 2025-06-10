@@ -14,7 +14,8 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, type MonsterType } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type IMitigation, type JournalEntryType } from '@/lib/core';
+import type { ILevel } from '@/data/levels';
 
 type EncounterType = 
   'combat'
@@ -153,7 +154,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
   type MobTierType = ['basic', 1.0] | ['elite', 2.5] | ['boss', 5];
   interface ISimMonster {
-    type: MonsterType,
+    type: MonsterTypes,
     health: number,
     experience: number,
     damageInfo: IMonsterDamage

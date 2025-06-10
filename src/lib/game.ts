@@ -6,17 +6,16 @@ import {
   AffixType,
   AffixTypes,
   Attributes,
+  MonsterTypes,
   TIER_SEPARATOR,
   type ExileClassType, 
   type ICharacterStats, 
   type IClassStatRanges, 
-  type ILevel, 
   type IMitigation, 
   type ItemBase, 
   type ItemMutationType, 
   type ItemTierType, 
   type MitigationType,
-  type MonsterType, 
   type SkillActivationLayer, 
   type SkillResource, 
   type SkillTarget, 
@@ -24,59 +23,6 @@ import {
   type SkillTriggers,
 } from './core';
 import { isAffixRange } from './affixTypes';
-
-
-/**
- * List of all available game levels
- */
-export const levels: ILevel[] = [
-  {
-    areaLevel: 0,
-    description: "Washed up on the edge of a reef.",
-    name: "The first last stand",
-    lootTags: ['armor', 'weapons'],
-    areaLuckDelta: 0.3,
-    encounterBase: 4,
-    encounterRangeDeltas: 1,
-    monsterTypes: ['undead']
-  },
-  {
-    areaLevel: 1,
-    description: "Having survived the last stand you progress on towards tomorrow",
-    name: "Beach",
-    lootTags: ['armor', 'weapons'],
-    encounterBase: 5,
-    encounterRangeDeltas: 1,
-    monsterTypes: ['beast', 'humanoid']
-  },
-  {
-    areaLevel: 2,
-    description: "LORE TBD",
-    name: "Mini Boss",
-    lootTags: ['currency', 'accessory'],
-    encounterBase: 6,
-    encounterRangeDeltas: 2,
-    monsterTypes: ['beast', 'elemental']
-  },
-  {
-    areaLevel: 3,
-    description: "LORE TBD",
-    name: "Beach3",
-    lootTags: ['weapons'],
-    encounterBase: 7,
-    encounterRangeDeltas: 2,
-    monsterTypes: ['undead', 'abomination']
-  },
-  {
-    areaLevel: 4,
-    description: "LORE TBD",
-    name: "Boss",
-    lootTags: ['currency', 'accessory'],
-    encounterBase: 8,
-    encounterRangeDeltas: 3,
-    monsterTypes: ['abomination']
-  },
-];
 
 
 /**
@@ -340,7 +286,7 @@ export interface IMonsterDamage {
 /**
  * Damage configurations for each monster type
  */
-export const MONSTER_DAMAGE_TYPES: Record<MonsterType, IMonsterDamage> = {
+export const MONSTER_DAMAGE_TYPES: Record<MonsterTypes, IMonsterDamage> = {
   'undead': {
     primary: 'physical',
     secondary: 'corruption_void',

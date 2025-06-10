@@ -9,11 +9,10 @@
   import { useGameEngine } from '@/stores/game';
   import { useAdventuringStore } from '@/stores/adventuring';
   import { computed, ref, watch } from 'vue';
-  import { levels } from '@/lib/game';
   import ModalDialog from '@/components/ModalDialog.vue';
   import SwitchToggle from '@/components/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
-  import type { ILevel } from '@/lib/core';
+import { levels, type ILevel } from '@/data/levels';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();

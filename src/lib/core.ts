@@ -70,13 +70,13 @@ export type ExileClassType =
 /**
  * Represents the different types of monsters that can be encountered
  */
-export type MonsterType = 
-  'undead' 
-| 'beast' 
-| 'humanoid' 
-| 'elemental' 
-| 'abomination'
-;
+export enum MonsterTypes { 
+  UNDEAD = 'undead' ,
+  BEAST = 'beast' ,
+  HUMANOID = 'humanoid' ,
+  ELEMENTAL = 'elemental' ,
+  ABOMINATION = 'abomination',
+}
 
 /**
  * Represents a journal entry with its type and message
@@ -86,19 +86,6 @@ export interface IJournalEntry {
   message: string;
 }
 
-/**
- * Represents a game level with its properties and configuration
- */
-export interface ILevel {
-  areaLevel: number;
-  name: string;
-  description: string;
-  lootTags: LootType[];
-  areaLuckDelta?: number;
-  encounterBase: number;
-  encounterRangeDeltas: number;
-  monsterTypes: MonsterType[];
-}
 
 /**
  * Represents the different tiers of items in the game
