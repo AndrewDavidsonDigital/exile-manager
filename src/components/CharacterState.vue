@@ -816,12 +816,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   <ModalDialog
     :id="SKILLS_MODAL_ID"
     :show="showSkillsModal"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showSkillsModal = false"
   >
-    <section class="text-emerald-400">
+    <section class="text-emerald-400 mx-auto">
       <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
         Skills
       </h3>
+      <button
+        class="absolute top-2 right-2 w-fit"
+        @click="showSkillsModal = false"
+      >
+        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+          <div class="font-semibold text-slate-300">
+            X
+          </div>
+        </FluidElement>
+      </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="space-y-3"
@@ -932,12 +943,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   <ModalDialog
     :id="PASSIVES_MODAL_ID"
     :show="showPassivesModal"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showPassivesModal = false"
   >
-    <section class="text-emerald-400">
-      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+    <section class="text-emerald-400 mx-auto">
+      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Passives
       </h3>
+      <button
+        class="absolute top-2 right-2 w-fit"
+        @click="showPassivesModal = false"
+      >
+        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+          <div class="font-semibold text-slate-300">
+            X
+          </div>
+        </FluidElement>
+      </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="space-y-3"
@@ -965,13 +987,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   <ModalDialog
     :id="WORLD_SKILL_MODAL_ID"
     :show="showWorldSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10  md:!pt-4"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showWorldSkillsModal = false"
   >
-    <section class="text-emerald-400">
-      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+    <section class="text-emerald-400 mx-auto">
+      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Activate World Skill
       </h3>
+      <button
+        class="absolute top-2 right-2 w-fit"
+        @click="showWorldSkillsModal = false"
+      >
+        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+          <div class="font-semibold text-slate-300">
+            X
+          </div>
+        </FluidElement>
+      </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
@@ -1078,12 +1110,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
     :id="NEW_PASSIVES_MODAL_ID"
     :show="showNewPassivesModal"
     disable-lite-dismiss
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showNewPassivesModal = false"
   >
-    <section class="text-emerald-400">
-      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+    <section class="text-emerald-400 mx-auto">
+      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Select a new Passive
       </h3>
+      <button
+        class="absolute top-2 right-2 w-fit"
+        @click="showNewPassivesModal = false"
+      >
+        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+          <div class="font-semibold text-slate-300">
+            X
+          </div>
+        </FluidElement>
+      </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
@@ -1118,13 +1161,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   <ModalDialog
     :id="NEW_SKILLS_MODAL_ID"
     :show="showNewSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10  md:!pt-4"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showNewSkillsModal = false"
   >
-    <section class="text-emerald-400">
-      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+    <section class="text-emerald-400 mx-auto">
+      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Select a new Skills
       </h3>
+      <button
+        class="absolute top-2 right-2 w-fit"
+        @click="showNewSkillsModal = false"
+      >
+        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+          <div class="font-semibold text-slate-300">
+            X
+          </div>
+        </FluidElement>
+      </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
@@ -1227,13 +1280,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   <ModalDialog
     :id="ADD_STATS_MODAL_ID"
     :show="showAddStatsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10  md:!pt-4"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showAddStatsModal = false"
   >
-    <section class="text-emerald-400">
-      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+    <section class="text-emerald-400 mx-auto">
+      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Increase a single attribute
       </h3>
+      <button
+        class="absolute top-2 right-2 w-fit"
+        @click="showAddStatsModal = false"
+      >
+        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
+          <div class="font-semibold text-slate-300">
+            X
+          </div>
+        </FluidElement>
+      </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
