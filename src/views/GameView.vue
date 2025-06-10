@@ -12,7 +12,8 @@
   import ModalDialog from '@/components/ModalDialog.vue';
   import SwitchToggle from '@/components/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
-import { levels, type ILevel } from '@/data/levels';
+  import { levels } from '@/data/levels';
+  import type { ILevel } from '@/lib/core';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();

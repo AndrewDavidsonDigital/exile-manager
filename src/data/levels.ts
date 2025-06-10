@@ -1,37 +1,5 @@
-import { MonsterTypes, type LootType } from "@/lib/core";
+import { LevelEncounters, MonsterTypes, type ILevel  } from "@/lib/core";
 
-/**
- * Represents a game level with its properties and configuration
- */
-export interface ILevel {
-  areaLevel: number;
-  name: string;
-  description: string;
-  lootTags: LootType[];
-  areaLuckDelta?: number;
-  encounterBase: number;
-  encounterRangeDeltas: number;
-  monsterTypes: MonsterTypes[];
-  encounters: IEncounterConfig[],
-}
-
-export interface IEncounterConfig {
-  type: LevelEncounters,
-  weighting: number,
-}
-
-export enum LevelEncounters {
-  COMBAT = 0,
-  RECOVERY,
-  TRAP,
-  TREASURE,
-  CORRUPTED,
-
-  CUSTOM_A,
-  CUSTOM_B,
-  CUSTOM_C,
-
-}
 
 /**
  * List of all available game levels

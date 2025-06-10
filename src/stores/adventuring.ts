@@ -14,8 +14,7 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type IMitigation, type JournalEntryType } from '@/lib/core';
-import type { ILevel } from '@/data/levels';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType } from '@/lib/core';
 
 type EncounterType = 
   'combat'

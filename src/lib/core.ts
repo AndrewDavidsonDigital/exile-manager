@@ -1,3 +1,18 @@
+// -------------------------------------------------------------------------------
+// -------------------------------GAME CONFIG-------------------------------------
+// -------------------------------------------------------------------------------
+
+
+/**
+ * Represents the difficulty settings for the game
+ */
+export interface IDifficulty {
+  name: DifficultyType;
+  dangerMultiplier: number;
+  lootMultiplier: number;
+}
+
+
 /**
  * Represents the available difficulty levels for the game
  */
@@ -8,14 +23,13 @@ export type DifficultyType =
 ;
 
 /**
- * Represents the different categories of loot that can be found
+ * Difficulty settings for the game with their respective multipliers
  */
-export type LootType = 
-  'armor' 
-| 'weapons' 
-| 'accessory' 
-| 'currency'
-;
+export const DIFFICULTY_SETTINGS: ReadonlyMap<DifficultyType, IDifficulty> = new Map<DifficultyType, IDifficulty>([
+  ['Easy', { name: 'Easy', dangerMultiplier: 0.5, lootMultiplier: 1.0 }],
+  ['Normal', { name: 'Normal', dangerMultiplier: 1.0, lootMultiplier: 1.0 }],
+  ['Hard', { name: 'Hard', dangerMultiplier: 2.0, lootMultiplier: 0.8 }]
+]);
 
 /**
  * Represents the different types of journal entries that can be encountered
@@ -27,44 +41,6 @@ export type JournalEntryType =
 | 'Safe' 
 | 'Treasure' 
 | 'Horror'
-;
-
-/**
- * Represents possible item types that can be equipped or found
- */
-export enum ItemBase { 
-  DAGGERS = 'Daggers',
-  SHIELD = 'Sword & Shield',
-  AMULET = 'Amulet',
-  RING = 'Ring',
-  BOOTS = 'Boots',
-  GLOVES = 'Gloves',
-  HELMET = 'Helmet',
-  ARMOR = 'Armor',
-  SHOULDER = 'Shoulders',
-  PANTS = 'Pants',
-};
-
-
-/**
- * Represents possible item types that can be equipped or found
- */
-export enum IBaseStats {
-  BASE_DAMAGE = 12,
-};
-
-export enum ExileClass {
-  SPELLSWORD = 'Spellsword',
-  CHAOS_MAGE= 'Chaos Mage',
-  REAVER = 'Reaver',
-};
-/**
- * Represents the available character classes in the game
- */
-export type ExileClassType = 
-  ExileClass.SPELLSWORD 
-| ExileClass.CHAOS_MAGE 
-| ExileClass.REAVER
 ;
 
 /**
@@ -86,54 +62,25 @@ export interface IJournalEntry {
   message: string;
 }
 
+// -------------------------------------------------------------------------------
+// ---------------------------------CHARACTER-------------------------------------
+// -------------------------------------------------------------------------------
 
-/**
- * Represents the different tiers of items in the game
- * 
- * basic: No affixes
- * 
- * enhanced: 1 embedded, 1 suffix
- * 
- * exceptional: 2 embedded, 1 prefix, 1 suffix
- * 
- * abstract: 1 embedded, 3 prefixes
- * 
- * infused: 1 embedded, 3 suffixes
- */
-export type ItemTierType = 
-    'basic' //            0|0|0
-  | 'enhanced' //         1|0|1
-  | 'exceptional' //      2|1|1
-  | 'abstract' //         1|3|0
-  | 'infused'//           1|0|3
-;
 
-export enum ItemTiers { 
-  BASIC = 'basic',              // 0|0|0
-  ENHANCED =  'enhanced',       // 1|0|1
-  EXCEPTIONAL =  'exceptional', // 2|1|1
-  ABSTRACT =  'abstract',       // 1|3|0
-  INFUSED =  'infused',         // 1|0|3
+export enum ExileClass {
+  SPELLSWORD = 'Spellsword',
+  CHAOS_MAGE= 'Chaos Mage',
+  REAVER = 'Reaver',
 };
-export const allItemTiers: ItemTiers[] = Object.values(ItemTiers);
-
 /**
- * Represents the different types of item mutations
- * 
- * crystallized: Adds elemental properties
- * 
- * corrupted: Adds corruption properties
- * 
- * voided: Adds void properties
- * 
- * cursed: Adds curse properties
+ * Represents the available character classes in the game
  */
-export type ItemMutationType = 
-    'crystallized'  // 
-  | 'corrupted'     //
-  | 'voided'        //
-  | 'cursed'        //
+export type ExileClassType = 
+  ExileClass.SPELLSWORD 
+| ExileClass.CHAOS_MAGE 
+| ExileClass.REAVER
 ;
+
 
 /**
  * Represents a damage mitigation value for a specific type
@@ -193,6 +140,7 @@ export type MitigationType =
 | 'elemental_lightning'
 | 'corruption_void'
 | 'corruption_mental'
+;
 
 export enum Attributes {
   FORTITUDE = 'fortitude',
@@ -247,24 +195,7 @@ export enum SkillTriggers {
   HIGH_MANA = 'High Mana',
 }
 
-/**
- * Represents the difficulty settings for the game
- */
-export interface IDifficulty {
-  name: DifficultyType;
-  dangerMultiplier: number;
-  lootMultiplier: number;
-}
 
-
-/**
- * Difficulty settings for the game with their respective multipliers
- */
-export const DIFFICULTY_SETTINGS: ReadonlyMap<DifficultyType, IDifficulty> = new Map<DifficultyType, IDifficulty>([
-  ['Easy', { name: 'Easy', dangerMultiplier: 0.5, lootMultiplier: 1.0 }],
-  ['Normal', { name: 'Normal', dangerMultiplier: 1.0, lootMultiplier: 1.0 }],
-  ['Hard', { name: 'Hard', dangerMultiplier: 2.0, lootMultiplier: 0.8 }]
-]);
 
 /**
  * List of available character classes in the game
@@ -331,6 +262,96 @@ export interface IClassStatRanges {
   fortitude: IStatRange;
 }
 
+
+// -------------------------------------------------------------------------------
+// -----------------------------------ITEMS---------------------------------------
+// -------------------------------------------------------------------------------
+
+
+/**
+ * Represents the different categories of loot that can be found
+ */
+export type LootType = 
+  'armor' 
+| 'weapons' 
+| 'accessory' 
+| 'currency'
+;
+
+/**
+ * Represents possible item types that can be equipped or found
+ */
+export enum ItemBase { 
+  DAGGERS = 'Daggers',
+  SHIELD = 'Sword & Shield',
+  AMULET = 'Amulet',
+  RING = 'Ring',
+  BOOTS = 'Boots',
+  GLOVES = 'Gloves',
+  HELMET = 'Helmet',
+  ARMOR = 'Armor',
+  SHOULDER = 'Shoulders',
+  PANTS = 'Pants',
+};
+
+
+/**
+ * Represents possible item types that can be equipped or found
+ */
+export enum IBaseStats {
+  BASE_DAMAGE = 12,
+};
+
+
+/**
+ * Represents the different tiers of items in the game
+ * 
+ * basic: No affixes
+ * 
+ * enhanced: 1 embedded, 1 suffix
+ * 
+ * exceptional: 2 embedded, 1 prefix, 1 suffix
+ * 
+ * abstract: 1 embedded, 3 prefixes
+ * 
+ * infused: 1 embedded, 3 suffixes
+ */
+export type ItemTierType = 
+    'basic' //            0|0|0
+  | 'enhanced' //         1|0|1
+  | 'exceptional' //      2|1|1
+  | 'abstract' //         1|3|0
+  | 'infused'//           1|0|3
+;
+
+export enum ItemTiers { 
+  BASIC = 'basic',              // 0|0|0
+  ENHANCED =  'enhanced',       // 1|0|1
+  EXCEPTIONAL =  'exceptional', // 2|1|1
+  ABSTRACT =  'abstract',       // 1|3|0
+  INFUSED =  'infused',         // 1|0|3
+};
+export const allItemTiers: ItemTiers[] = Object.values(ItemTiers);
+
+/**
+ * Represents the different types of item mutations
+ * 
+ * crystallized: Adds elemental properties
+ * 
+ * corrupted: Adds corruption properties
+ * 
+ * voided: Adds void properties
+ * 
+ * cursed: Adds curse properties
+ */
+export type ItemMutationType = 
+    'crystallized'  // 
+  | 'corrupted'     //
+  | 'voided'        //
+  | 'cursed'        //
+;
+
+
 /**
  * Represents the damage configuration for a monster type
  */
@@ -345,6 +366,11 @@ export interface IMonsterDamage {
 export function baseDamageFunction(areaMulti:number, tierMulti:number, difficultyMulti:number ){
   return Math.floor((5 + Math.random() * 10) * areaMulti * tierMulti * difficultyMulti);
 }
+
+
+// -------------------------------------------------------------------------------
+// -----------------------------------AFFIXES-------------------------------------
+// -------------------------------------------------------------------------------
 
 export const TIER_SEPARATOR = '_-_';
 
@@ -417,3 +443,48 @@ export enum AffixCategory {
   /** Affixes relating crafting @deprecated not yet implemented */
   CRAFTING = 'crafting'
 }
+
+
+
+// -------------------------------------------------------------------------------
+// -----------------------------------LEVELS--------------------------------------
+// -------------------------------------------------------------------------------
+
+
+/**
+ * Represents a game level with its properties and configuration
+ */
+export interface ILevel {
+  areaLevel: number;
+  name: string;
+  description: string;
+  lootTags: LootType[];
+  areaLuckDelta?: number;
+  encounterBase: number;
+  encounterRangeDeltas: number;
+  monsterTypes: MonsterTypes[];
+  encounters: IEncounterConfig[],
+}
+
+export interface IEncounterConfig {
+  type: LevelEncounters,
+  weighting: number,
+}
+
+export enum LevelEncounters {
+  COMBAT = 0,
+  RECOVERY,
+  TRAP,
+  TREASURE,
+  CORRUPTED,
+
+  CUSTOM_A,
+  CUSTOM_B,
+  CUSTOM_C,
+
+}
+
+
+// -------------------------------------------------------------------------------
+// ------------------------------------NEXT---------------------------------------
+// -------------------------------------------------------------------------------

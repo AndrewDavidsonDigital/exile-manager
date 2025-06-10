@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FluidElement from '@/components/FluidElement.vue';
-import type { ILevel } from '@/data/levels';
+import type { ILevel } from '@/lib/core';
 import { computed, watch, ref } from 'vue';
 
 interface Props {
