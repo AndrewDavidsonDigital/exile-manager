@@ -1,4 +1,4 @@
-import { DynamicZone, DynamicZoneLevelAnchor, LevelEncounters, MonsterTypes, type IEncounter, type ILevel  } from "@/lib/core";
+import { DynamicZone, DynamicZoneLevelAnchor, LevelEncounters, LevelType, MonsterTypes, type IEncounter, type ILevel  } from "@/lib/core";
 
 
 /**
@@ -47,7 +47,8 @@ export const levels: ILevel[] = [
         type: LevelEncounters.CUSTOM_A,
         weighting: 1,
       },
-    ]
+    ],
+    type: LevelType.DEFAULT,
   },
   {
     _identifier: 'init_reef_1',

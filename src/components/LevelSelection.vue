@@ -64,10 +64,10 @@ function resolveBackground(level: ILevel): BackgroundTypes {
   >
     <div class="flex items-center gap-2 w-full mb-2 relative">
       <button 
-        class="mx-auto text-sm w-fit"
+        class="md:mx-auto text-sm w-fit"
         @click="isCollapsed = !isCollapsed"
       >
-        <h2>
+        <h2 class="mr-auto md:mx-auto">
           Select Level <span
             class="duration-300 ease-in-out transition-all inline-flex w-fit "
             :class="[
@@ -90,7 +90,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
         :key="`level_button_${index}`"
       >
         <FluidElement 
-          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && !hideLowLevel)"
+          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel)"
           class="
             w-fit min-w-[15vw]
             !p-2 !border 

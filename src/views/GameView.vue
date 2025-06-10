@@ -35,12 +35,14 @@
     if (selectedLevel.value) {
       adventuringStore.startAdventuring(selectedLevel.value, reportingStyle.value);
     }
-    setTimeout(
-      ()=>{
-        document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
-      },
-      500
-    )
+    if (window.innerWidth > 768){
+      setTimeout(
+        ()=>{
+          document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
+        },
+        500
+      )
+    }
   }
 
   watch(isCharAlive, (newVal) => {
@@ -173,14 +175,15 @@
             v-if="selectedLevel?.type === LevelType.DEFAULT"
             class="w-fit py-1 hover:scale-125 transition-all duration-300"
           >
-            <span v-if="!(selectedLevel.preface)">Approach: {{ selectedLevel.name }}</span>
+            <span v-if="selectedLevel.preface === undefined">Approach: {{ selectedLevel.name }}</span>
             <span v-else>{{ selectedLevel.preface }} {{ selectedLevel.name }}</span>
           </FluidElement>
           <FluidElement
             v-else
             class="w-fit py-1 hover:scale-125 transition-all duration-300"
           >
-            Approach
+            <span v-if="selectedLevel?.preface === undefined">Approach:</span>
+            <span v-else>{{ selectedLevel.preface }} </span>
             <span
               v-for="segment, index in selectedLevel?.name.split(': ')"
               :key="`naming_${index}`"
