@@ -498,9 +498,13 @@ function formatAffixCore(
   if (!affixDef && affix.id.endsWith('_-1')) {
     const [type, category] = affix.id.split('_');
     affixDef = allAffixes.find(a => a.type === type && a.category === category);
+    // console.log(`finding affix by cat:'${category}, type: '${type}'`);
   }
   
-  if (!affixDef) return 'Unknown Affix';
+  if (!affixDef) {
+    // console.log(`unknown affix for id [${affix.id}]`);
+    return 'Unknown Affix';
+  };
 
   let description = affixDef.description;
 

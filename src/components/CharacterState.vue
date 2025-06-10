@@ -233,9 +233,9 @@ const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory
     }
   });
 
-  return Array.from(consolidated.entries()).map(([category, { value, originalAffix }]) => ({
+  return Array.from(consolidated.entries()).map(([_key, { value, originalAffix }]) => ({
     ...originalAffix,
-    id: `${originalAffix.type}_${category}_-1`, // Create new ID with tier -1
+    id: `${originalAffix.type}_${originalAffix.category}_-1`, // Create new ID with tier -1
     value
   }));
 };
