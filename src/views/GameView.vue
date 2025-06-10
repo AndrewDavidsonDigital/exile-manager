@@ -231,7 +231,10 @@
           </FluidElement>
         </button>
       </FluidElement>
-      <article class="mask-b -mt-2">
+      <article
+        v-if="adventuringStore.adventureJournal.length > 2"
+        class="mask-b -mt-2"
+      >
       </article>
     </template>
     <template v-else>
