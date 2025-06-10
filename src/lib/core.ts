@@ -488,3 +488,42 @@ export enum LevelEncounters {
 // -------------------------------------------------------------------------------
 // ------------------------------------NEXT---------------------------------------
 // -------------------------------------------------------------------------------
+
+/**
+ * Calculates scaled experience based on character level and area level
+ * @param baseExp The base experience amount
+ * @param characterLevel The character's current level
+ * @param areaLevel The level of the area
+ * @returns The scaled experience amount
+ */
+export function calculateScaledExperience(baseExp: number, characterLevel: number, areaLevel: number): number {
+  const levelDiff = areaLevel - characterLevel;
+  const MAX_BONUS_LEVEL_DIFF = 5; // The level difference at which max bonus is achieved
+  const MIN_SCALE_FACTOR = 0.1; // Minimum experience multiplier (10% of baseExp)
+  const DECAY_RANGE_LEVELS = 10; // Number of levels over which XP decays after peak
+
+  let scaleFactor: number;
+
+  if (levelDiff <= 0) {
+    // Area level is equal to or less than character level
+    // Experience scales down aggressively, capping at MIN_SCALE_FACTOR
+    scaleFactor = Math.max(MIN_SCALE_FACTOR, 1 + (levelDiff * 0.4));
+  } else if (levelDiff <= MAX_BONUS_LEVEL_DIFF) {
+    // Area level is higher than character level, up to MAX_BONUS_LEVEL_DIFF
+    // Experience increases linearly with a 20% bonus per level difference
+    scaleFactor = 1 + (levelDiff * 0.2);
+  } else {
+    // Area level is more than MAX_BONUS_LEVEL_DIFF higher than character level
+    // Experience decreases from the peak bonus down to the minimum
+    const peakScaleFactor = 1 + (MAX_BONUS_LEVEL_DIFF * 0.2); // Calculate the max bonus achieved at MAX_BONUS_LEVEL_DIFF
+    const decaySlope = (peakScaleFactor - MIN_SCALE_FACTOR) / DECAY_RANGE_LEVELS; // Rate of decay
+
+    // Calculate the scaled factor based on the difference from the decay start
+    scaleFactor = peakScaleFactor - (decaySlope * (levelDiff - MAX_BONUS_LEVEL_DIFF));
+
+    // Ensure the scale factor does not drop below the minimum
+    scaleFactor = Math.max(MIN_SCALE_FACTOR, scaleFactor);
+  }
+
+  return Math.floor(baseExp * scaleFactor);
+}

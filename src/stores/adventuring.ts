@@ -11,10 +11,10 @@ import type {
 } from '@/lib/game';
 import { MONSTER_DAMAGE_TYPES } from '@/lib/game';
 import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
-import { armorMitigation, calculateCriticalChance, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
+import { armorMitigation, calculateCriticalChance, calculateDamageTick, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience } from '@/lib/core';
 
 type EncounterType = 
   'combat'
@@ -104,13 +104,6 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   const adventureInterval = ref<number>(0);
   const adventureJournal = ref<IJournalEntry[]>([]);
   const ADVENTURE_TICK_DELTA = 1500;
-
-
-  function calculateScaledExperience(baseExp: number, characterLevel: number, areaLevel: number): number {
-    const levelDiff = areaLevel - characterLevel;
-    const scaleFactor = Math.max(0.1, 1 + (levelDiff * 0.2));
-    return Math.floor(baseExp * scaleFactor);
-  }
 
   function generateEncounter(level: ILevel, loggingDetail = false): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
     logger(`Generating encounter for level: ${level.name}-${level.areaLevel}, with logging: ${loggingDetail? 'verbose' : 'concise'}`);
@@ -364,7 +357,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         //------------------------------------------
 
         // Calculate exile's base attack damage
-        const exileDamage = Math.floor(exileStats.damagePerTick * (0.9 + Math.random() * 0.2));
+        const exileDamage = calculateDamageTick(exileStats.damagePerTick);
 
         // Calculate critical strike chance and effect
         const criticalChance = calculateCriticalChance(exileStats.criticalStrike);

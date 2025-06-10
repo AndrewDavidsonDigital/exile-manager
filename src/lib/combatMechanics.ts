@@ -65,7 +65,7 @@ export const DODGE_CONSTANTS = {
   /** 5% base dodge chance */
   DODGE_CHANCE_BASE: 0.05,
   /** Scaling factor for dodge chance calculation */
-  DODGE_CHANCE_SCALING: 0.0001,
+  DODGE_CHANCE_SCALING: 0.00156,
 } as const;
 
 /**
@@ -96,7 +96,7 @@ export function calculateDodgeChance(evasion: number, level: number): number {
 const MIN_LEVEL = 1;
 const MAX_LEVEL = 100;
 const MIN_EVASION = 40;
-const MAX_EVASION = 1000;
+const MAX_EVASION = 2000;
 
 /**
  * Calculates the total critical strike chance based on affix bonuses
@@ -162,4 +162,8 @@ export function armorMitigation( damageFunction: () => number, armourValue: numb
   // console.log(`armorMitigation: END: ${baseDamage}`);
 
   return baseDamage;
+}
+
+export function calculateDamageTick(dpt: number){
+  return Math.floor(dpt * (0.9 + Math.random() * 0.2));
 }
