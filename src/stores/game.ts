@@ -25,7 +25,8 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, IBaseStats, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type IMitigation, type LootType } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, IBaseStats, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType } from '@/lib/core';
+import { levels } from '@/data/levels';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.1.3';
@@ -36,6 +37,7 @@ const DEFAULT_STATE = <Readonly<IGameEngine>> {
   difficulty: 'Easy',
   character: undefined,
   isDead: false,
+  knownLocations: [],
 }
 
 interface IGameEngine {
@@ -44,7 +46,8 @@ interface IGameEngine {
   character: ICharacter | undefined;
   difficulty: DifficultyType;
   isDead: boolean;
-  stash?: ILoot[];
+  stash?: ILoot[];  
+  knownLocations: ILevel[],
 }
 
 export const useGameEngine = defineStore('gameEngine', {
@@ -88,6 +91,11 @@ export const useGameEngine = defineStore('gameEngine', {
       if (retval)
         return retval;
       return ErrorNumber.NOT_FOUND;
+    },
+
+    getAvailableLevels(): ILevel[] {
+      if (! this.knownLocations) return [];
+      return this.knownLocations;
     },
 
     /**
@@ -545,6 +553,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.difficulty = 'Easy';
       this.character = undefined;
       this.isDead = false;
+      this.knownLocations = [];
       this.saveState();
     },
     /**
@@ -568,7 +577,27 @@ export const useGameEngine = defineStore('gameEngine', {
         this.character.skills.push(randomStarterSkill);
       }
 
+      this.knownLocations = [levels[0]];
+
       this.saveState();
+    },
+
+    addLocation(level: ILevel){
+      if (level && this.knownLocations){
+        this.knownLocations.push(level);
+      }
+
+
+      this.saveState();
+    },
+
+    removeLocation(level: ILevel){
+      if (this.knownLocations){
+        const locationIndex =  this.knownLocations.findIndex(el => el._identifier === level._identifier);
+        if (locationIndex !== -1 && this.knownLocations[locationIndex].uses === 0){
+          this.knownLocations.splice(locationIndex,1);
+        }
+      }
     },
 
     addTemporalEffect(effect: ITemporalEffect){
@@ -844,7 +873,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    addLoot(amount: number, areaLevel: number, lootTags?: LootType[]){
+    addLoot(amount: number, areaLevel: number, levelMultiplier: number, lootTags?: LootType[]){
       if (!this.character) return;
       logger(`Adding ${amount} loot items for ${this.character.name}`);
 
@@ -856,7 +885,7 @@ export const useGameEngine = defineStore('gameEngine', {
       // Calculate fortune multiplier (10 is baseline, exponential scaling capped at 2x)
       const fortuneDelta = this.character.stats.fortune - 10;
       const fortuneMultiplier = Math.min(2, Math.max(0.5, 1 + (Math.pow(Math.abs(fortuneDelta), 1.5) / 100) * Math.sign(fortuneDelta)));
-      const totalLoot = Math.floor(amount * fortuneMultiplier);
+      const totalLoot = Math.floor(amount * fortuneMultiplier * levelMultiplier);
 
       // Generate random loot items
       for (let i = 0; i < totalLoot; i++) {
@@ -1134,52 +1163,6 @@ export const useGameEngine = defineStore('gameEngine', {
 
 function logger(message: string) {
   trace(`${LOGGING_PREFIX}${message}`);
-}
-
-/**
- * Generates a random string using the last segment of a UUID and replaces random characters with special symbols
- * @returns {string} Random string with potential special characters
- */
-function generateRandomId(): string {
-  let baseId = '';
-  try {
-    baseId = crypto.randomUUID().split('-')[4]; // Get the last segment instead of first
-  }
-  catch {
-    logger(`falling back to alternative ID generation as we dont have access to crypto`);
-    baseId = generateFallbackId();
-  }
-  
-  const specialChars = '!@#$%^&*';
-  const numReplacements = Math.floor(Math.random() * 5); // 0 to 4 replacements
-  
-  let result = baseId;
-  for (let i = 0; i < numReplacements; i++) {
-    // Pick a random index between 1 and length-2 to avoid first and last characters
-    const randomIndex = Math.floor(Math.random() * (result.length - 2)) + 1;
-    const randomSpecialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
-    result = result.substring(0, randomIndex) + randomSpecialChar + result.substring(randomIndex + 1);
-  }
-  
-  return result;
-}
-
-/**
- * Generates a fallback unique ID when crypto.randomUUID() is not available
- * Uses timestamp, random numbers, and Math.random() to create a unique string
- * @returns {string} A unique string ID
- */
-function generateFallbackId(): string {
-  const randomStr = Math.random().toString(36).substring(2, 8); // Get 6 random chars
-  const randomNum = Math.floor(Math.random() * 10000).toString().padStart(6, '0'); // 6 digit random number
-  
-  // Combine and shuffle the segments
-  const combined = randomStr + randomNum;
-  const shuffled = combined.split('')
-    .sort(() => Math.random() - 0.5)
-    .join('');
-  
-  return shuffled;
 }
 
 function resolveMitigation(_character: ICharacter): IMitigation[]{

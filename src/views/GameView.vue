@@ -12,8 +12,7 @@
   import ModalDialog from '@/components/ModalDialog.vue';
   import SwitchToggle from '@/components/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
-  import { levels } from '@/data/levels';
-  import type { ILevel } from '@/lib/core';
+  import { LevelType, type ILevel } from '@/lib/core';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -133,7 +132,7 @@
             v-model="selectedLevel"
             :toggle="lastUpdate"
             :class="isCharAlive ? '' : 'pointer-events-none opacity-50'"
-            :levels="levels"
+            :levels="gameEngine.getAvailableLevels"
             :character-level="levelDelta"
             :is-adventuring="adventuringStore.isAdventuring"
             @start-adventuring="() => startAdventuring()"
@@ -166,15 +165,36 @@
         <button
           class="w-fit"
           :class="[
-            {'pointer-events-none blur-xs': adventuringStore.isAdventuring || !isCharAlive || !selectedLevel }
+            {'pointer-events-none blur-xs': adventuringStore.isAdventuring || !isCharAlive || !selectedLevel || selectedLevel.uses === 0 }
           ]"
           @click="startAdventuring()"
         >
-          <FluidElement class="w-fit py-1">
-            Start Run: {{ selectedLevel?.name }}
+          <FluidElement
+            v-if="selectedLevel?.type === LevelType.DEFAULT"
+            class="w-fit py-1 hover:scale-125 transition-all duration-300"
+          >
+            <span v-if="!(selectedLevel.preface)">Approach: {{ selectedLevel.name }}</span>
+            <span v-else>{{ selectedLevel.preface }} {{ selectedLevel.name }}</span>
+          </FluidElement>
+          <FluidElement
+            v-else
+            class="w-fit py-1 hover:scale-125 transition-all duration-300"
+          >
+            Approach
+            <span
+              v-for="segment, index in selectedLevel?.name.split(': ')"
+              :key="`naming_${index}`"
+              class="transition-all"
+              :class="[
+                { 'blurred' : index === 1 },
+              ]"
+            >
+              {{ segment }}{{ index === 0 ? ': ' : '' }}
+            </span>
           </FluidElement>
         </button>
       </div>
+
       <FluidElement
         :id="REPORT_DOM_ID"
         class="h-full max-h-[50dvh] md:max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip !pt-2"
@@ -308,5 +328,10 @@
       black 80%
     );
     @apply z-10;
+  }
+
+  .blurred {
+    filter: blur(2px);
+    opacity: 0.7;
   }
 </style>

@@ -455,15 +455,68 @@ export enum AffixCategory {
  * Represents a game level with its properties and configuration
  */
 export interface ILevel {
+  _identifier: string;
   areaLevel: number;
   name: string;
   description: string;
+  preface?: string;
   lootTags: LootType[];
   areaLuckDelta?: number;
   encounterBase: number;
   encounterRangeDeltas: number;
   monsterTypes: MonsterTypes[];
-  encounters: IEncounterConfig[],
+  encounters: IEncounterConfig[];
+  completionRules: IProgression[];
+  dynamicCompletions: IDynamicProgression[];
+  uses?: number;
+  type?: LevelType;
+  zone?: DynamicZone;
+}
+
+export enum LevelType {
+  DEFAULT = 'Default',
+  BONUS = 'Bonus',
+  INFINITE = 'Infinite',
+}
+
+export enum DynamicZone {
+  CAVE = 'Cave',
+  FORREST = 'Forrest',
+  ISLAND = 'Island',
+
+  RIFT = 'Rift',
+
+  CORRUPTED = 'Corrupted',
+  VOID = 'Void Touched',
+  CRYSTALLIZED = 'Crystallized',
+  ABYSS = 'Abyss',
+}
+
+export enum DynamicZoneLevelAnchor {
+  CHARACTER = 0,
+  ZONE
+}
+
+export interface IDynamicProgression {
+  _identifier: string;
+  type: DynamicZone;
+  weighting: number;
+  limits: number;
+  areaLevelDelta: number;
+  areaLevelAnchor: DynamicZoneLevelAnchor;
+  name?: string;
+  description?: string;
+  dynamicCompletions?: IDynamicProgression[];
+  encounters: IEncounterConfig[];
+  lootTags?: LootType[];
+  areaLuckDelta?: number;
+
+}
+
+export interface IProgression {
+  _identifier: string;
+  weighting: number;
+  limits?: number;
 }
 
 export interface IEncounterConfig {
@@ -482,6 +535,15 @@ export enum LevelEncounters {
   CUSTOM_B,
   CUSTOM_C,
 
+}
+
+
+export interface IEncounter {
+  type: LevelEncounters;
+  description: string;
+  minLevel: number;
+  alignment: 'positive' | 'negative' | 'neutral';
+  weight?: number, // never instantiate this
 }
 
 
@@ -526,4 +588,59 @@ export function calculateScaledExperience(baseExp: number, characterLevel: numbe
   }
 
   return Math.floor(baseExp * scaleFactor);
+}
+
+/**
+ * Generates a random string using the last segment of a UUID and replaces random characters with special symbols
+ * @returns {string} Random string with potential special characters
+ */
+export function generateRandomId(): string {
+  let baseId = '';
+  try {
+    baseId = crypto.randomUUID().split('-')[4]; // Get the last segment instead of first
+  }
+  catch {
+    console.log(`falling back to alternative ID generation as we dont have access to crypto`);
+    baseId = generateFallbackId();
+  }
+  
+  const specialChars = '!@#$%^&*';
+  const numReplacements = Math.floor(Math.random() * 5); // 0 to 4 replacements
+  
+  let result = baseId;
+  for (let i = 0; i < numReplacements; i++) {
+    // Pick a random index between 1 and length-2 to avoid first and last characters
+    const randomIndex = Math.floor(Math.random() * (result.length - 2)) + 1;
+    const randomSpecialChar = specialChars[Math.floor(Math.random() * specialChars.length)];
+    result = result.substring(0, randomIndex) + randomSpecialChar + result.substring(randomIndex + 1);
+  }
+  
+  return result;
+}
+
+/**
+ * Generates a fallback unique ID when crypto.randomUUID() is not available
+ * Uses timestamp, random numbers, and Math.random() to create a unique string
+ * @returns {string} A unique string ID
+ */
+function generateFallbackId(): string {
+  const randomStr = Math.random().toString(36).substring(2, 8); // Get 6 random chars
+  const randomNum = Math.floor(Math.random() * 10000).toString().padStart(6, '0'); // 6 digit random number
+  
+  // Combine and shuffle the segments
+  const combined = randomStr + randomNum;
+  const shuffled = combined.split('')
+    .sort(() => Math.random() - 0.5)
+    .join('');
+  
+  return shuffled;
+}
+
+
+
+export enum BackgroundTypes {
+  DEFAULT = 0,
+  WAVE,
+  STARS,
+  FIREFLIES,
 }

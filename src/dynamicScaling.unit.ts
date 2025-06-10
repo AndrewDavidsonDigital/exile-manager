@@ -184,7 +184,7 @@ test('Encounter generation scaling', () => {
     
     // Add loot with baseline amount
     const baseAmount = 10;
-    game.addLoot(baseAmount, areaLevel);
+    game.addLoot(baseAmount, areaLevel, 1);
     
     // Verify loot generation scales with area level
     if (game.character?.loot) {
@@ -312,7 +312,7 @@ test('Fortune stat scaling', () => {
     game.init(mockCharacter);
     
     // Add loot and verify scaling
-    game.addLoot(baseLootAmount, 50);
+    game.addLoot(baseLootAmount, 50, 1);
     
     if (game.character?.loot) {
       const lootCount = game.character.loot.length;

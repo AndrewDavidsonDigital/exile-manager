@@ -1,31 +1,47 @@
-import { LevelEncounters, MonsterTypes, type ILevel  } from "@/lib/core";
+import { DynamicZone, DynamicZoneLevelAnchor, LevelEncounters, MonsterTypes, type IEncounter, type ILevel  } from "@/lib/core";
 
 
 /**
  * List of all available game levels
+ * _identifier pattern `${progression}_${location}_#`
  */
 export const levels: ILevel[] = [
   {
-    areaLevel: 0,
+    _identifier: 'init_reef_0',
+    areaLevel: 1,
     description: "Washed up on the edge of a reef.",
-    name: "The first last stand",
+    name: "Get your bearings",
+    preface: 'Attempt to',
+    dynamicCompletions: [],
+    completionRules: [
+      {
+        _identifier: 'init_reef_1',
+        weighting: 80,
+        limits: 2,
+      },
+      {
+        _identifier: 'init_reef_1_2',
+        weighting: 20,
+        limits: 4,
+      }
+    ],
     lootTags: ['armor', 'weapons'],
-    areaLuckDelta: 0.3,
+    areaLuckDelta: 1,
     encounterBase: 4,
     encounterRangeDeltas: 1,
     monsterTypes: [MonsterTypes.UNDEAD],
     encounters: [
       {
         type: LevelEncounters.COMBAT,
-        weighting: 2,
+        weighting: 55,
       },
       {
         type: LevelEncounters.RECOVERY,
-        weighting: 2,
+        weighting: 25,
       },
       {
         type: LevelEncounters.TREASURE,
-        weighting: 1,
+        weighting: 19,
       },
       {
         type: LevelEncounters.CUSTOM_A,
@@ -34,131 +50,479 @@ export const levels: ILevel[] = [
     ]
   },
   {
-    areaLevel: 1,
-    description: "Having survived the last stand you progress on towards tomorrow",
-    name: "Beach",
-    lootTags: ['armor', 'weapons'],
-    encounterBase: 5,
+    _identifier: 'init_reef_1',
+    areaLevel: 2,
+    description: "Swim along the edge to shore",
+    name: "Attempt to Swim",
+    preface: '',
+    dynamicCompletions: [],
+    completionRules: [
+      {
+        _identifier: 'init_reef_2',
+        weighting: 80,
+      },
+      {
+        _identifier: 'init_reef_1_2',
+        weighting: 20,
+        limits: 5,
+      }
+    ],
+    lootTags: ['accessory'],
+    areaLuckDelta: 0.75,
+    encounterBase: 4,
     encounterRangeDeltas: 1,
-    monsterTypes: [MonsterTypes.BEAST, MonsterTypes.HUMANOID],
+    monsterTypes: [MonsterTypes.UNDEAD, MonsterTypes.HUMANOID],
     encounters: [
       {
         type: LevelEncounters.COMBAT,
-        weighting: 3,
+        weighting: 55,
       },
       {
         type: LevelEncounters.RECOVERY,
-        weighting: 1,
+        weighting: 20,
       },
       {
         type: LevelEncounters.TRAP,
-        weighting: 1,
+        weighting: 10,
       },
       {
         type: LevelEncounters.TREASURE,
-        weighting: 2,
+        weighting: 14,
       },
       {
         type: LevelEncounters.CUSTOM_A,
-        weighting: 2,
+        weighting: 0.33,
       },
       {
         type: LevelEncounters.CUSTOM_B,
-        weighting: 1,
+        weighting: 0.33,
       },
       {
         type: LevelEncounters.CUSTOM_C,
-        weighting: 1,
+        weighting: 0.33,
       },
     ]
   },
   {
+    _identifier: 'init_reef_1_2',
     areaLevel: 2,
-    description: "LORE TBD",
-    name: "Mini Boss",
-    lootTags: ['currency', 'accessory'],
-    encounterBase: 6,
+    description: "Traverse over the reef",
+    name: "Cross Reef",
+    preface: 'Attempt to',
+    dynamicCompletions: [
+      {
+        _identifier: 'init_cave',
+        type: DynamicZone.CAVE,
+        areaLevelDelta: 0,
+        limits: 2,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.ZONE,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 45,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_island',
+        type: DynamicZone.ISLAND,
+        areaLevelDelta: 0,
+        limits: 5,
+        weighting: 10,
+        areaLevelAnchor: DynamicZoneLevelAnchor.ZONE,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 55,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 10,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_rift',
+        type: DynamicZone.RIFT,
+        areaLevelDelta: 0,
+        limits: 2,
+        weighting: 20,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 2.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 40,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.RECOVERY,
+            weighting: 25,
+          },
+          {
+            type: LevelEncounters.CORRUPTED,
+            weighting: 15,
+          },
+        ]
+      }
+    ],
+    completionRules: [
+      {
+        _identifier: 'init_reef_2',
+        weighting: 75,
+      }
+    ],
+    lootTags: ['armor'],
+    areaLuckDelta: 0.75,
+    encounterBase: 3,
     encounterRangeDeltas: 2,
-    monsterTypes: [MonsterTypes.BEAST, MonsterTypes.ELEMENTAL],
+    monsterTypes: [MonsterTypes.BEAST, MonsterTypes.UNDEAD],
     encounters: [
       {
         type: LevelEncounters.COMBAT,
-        weighting: 2,
+        weighting: 55,
       },
       {
         type: LevelEncounters.RECOVERY,
-        weighting: 2,
+        weighting: 20,
+      },
+      {
+        type: LevelEncounters.TRAP,
+        weighting: 10,
       },
       {
         type: LevelEncounters.TREASURE,
-        weighting: 1,
+        weighting: 14,
       },
       {
         type: LevelEncounters.CUSTOM_A,
-        weighting: 1,
+        weighting: 0.33,
       },
       {
         type: LevelEncounters.CUSTOM_B,
-        weighting: 1,
+        weighting: 0.33,
       },
       {
         type: LevelEncounters.CUSTOM_C,
-        weighting: 1,
+        weighting: 0.33,
       },
     ]
   },
   {
+    _identifier: 'init_reef_2',
     areaLevel: 3,
-    description: "LORE TBD",
-    name: "Beach3",
-    lootTags: ['weapons'],
-    encounterBase: 7,
+    description: "Managing to make landfall, you start to look around",
+    name: "Beach",
+    preface: 'Explore the',
+    dynamicCompletions: [
+      {
+        _identifier: 'init_cave',
+        type: DynamicZone.CAVE,
+        areaLevelDelta: 0,
+        limits: 2,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.ZONE,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 45,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_island',
+        type: DynamicZone.ISLAND,
+        areaLevelDelta: 0,
+        limits: 5,
+        weighting: 10,
+        areaLevelAnchor: DynamicZoneLevelAnchor.ZONE,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 55,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 10,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_rift',
+        type: DynamicZone.RIFT,
+        areaLevelDelta: 0,
+        limits: 2,
+        weighting: 20,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 2.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 40,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.RECOVERY,
+            weighting: 25,
+          },
+          {
+            type: LevelEncounters.CORRUPTED,
+            weighting: 15,
+          },
+        ]
+      },
+    ],
+    completionRules: [
+      {
+        _identifier: 'init_reef_3',
+        weighting: 100,
+      }
+    ],
+    lootTags: ['armor', 'weapons'],
+    areaLuckDelta: 0.8,
+    encounterBase: 4,
     encounterRangeDeltas: 2,
-    monsterTypes: [MonsterTypes.UNDEAD, MonsterTypes.ABOMINATION],
+    monsterTypes: [MonsterTypes.BEAST, MonsterTypes.UNDEAD],
     encounters: [
       {
         type: LevelEncounters.COMBAT,
-        weighting: 2,
+        weighting: 55,
       },
       {
         type: LevelEncounters.RECOVERY,
-        weighting: 2,
+        weighting: 20,
+      },
+      {
+        type: LevelEncounters.TRAP,
+        weighting: 10,
+      },
+      {
+        type: LevelEncounters.TREASURE,
+        weighting: 14,
       },
       {
         type: LevelEncounters.CUSTOM_A,
-        weighting: 1,
+        weighting: 0.33,
       },
       {
         type: LevelEncounters.CUSTOM_B,
-        weighting: 1,
+        weighting: 0.33,
       },
       {
         type: LevelEncounters.CUSTOM_C,
-        weighting: 1,
+        weighting: 0.33,
       },
     ]
   },
   {
+    _identifier: 'init_reef_3',
     areaLevel: 4,
-    description: "LORE TBD",
-    name: "Boss",
-    lootTags: ['currency', 'accessory'],
-    encounterBase: 8,
-    encounterRangeDeltas: 3,
-    monsterTypes: [MonsterTypes.ABOMINATION],
+    description: "You hear something lumbering towards you from inland",
+    name: "Brace",
+    preface: 'Prepare to ',
+    dynamicCompletions: [
+      {
+        _identifier: 'init_cave',
+        type: DynamicZone.CAVE,
+        areaLevelDelta: 2,
+        limits: 3,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 45,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_island',
+        type: DynamicZone.ISLAND,
+        areaLevelDelta: 1,
+        limits: 3,
+        weighting: 10,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 55,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 10,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_rift',
+        type: DynamicZone.RIFT,
+        areaLevelDelta: 1,
+        limits: 2,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 2.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 40,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.RECOVERY,
+            weighting: 25,
+          },
+          {
+            type: LevelEncounters.CORRUPTED,
+            weighting: 15,
+          },
+        ]
+      },
+    ],
+    completionRules: [],
+    lootTags: ['armor'],
+    areaLuckDelta: 0.5,
+    encounterBase: 4,
+    encounterRangeDeltas: 2,
+    monsterTypes: [MonsterTypes.ABOMINATION, MonsterTypes.ELEMENTAL],
     encounters: [
       {
-        type: LevelEncounters.CORRUPTED,
-        weighting: 2,
-      },
-      {
         type: LevelEncounters.COMBAT,
-        weighting: 3,
+        weighting: 80,
       },
       {
-        type: LevelEncounters.TREASURE,
-        weighting: 1,
+        type: LevelEncounters.RECOVERY,
+        weighting: 20,
       },
     ]
+  }
+];
+
+export const ENCOUNTERS: IEncounter[] = [
+  {
+    type: LevelEncounters.COMBAT,
+    description: 'A group of hostile creatures appears!',
+    minLevel: 0,
+    alignment: 'negative'
   },
+  {
+    type: LevelEncounters.TREASURE,
+    description: 'You discover a hidden cache!',
+    minLevel: 0,
+    alignment: 'positive'
+  },
+  {
+    type: LevelEncounters.TRAP,
+    description: 'You trigger a hidden trap!',
+    minLevel: 1,
+    alignment: 'negative'
+  },
+  {
+    type: LevelEncounters.CORRUPTED,
+    description: 'A corrupted being, twisted by dark forces, emerges from the shadows!',
+    minLevel: 2,
+    alignment: 'negative'
+  },
+  {
+    type: LevelEncounters.RECOVERY,
+    description: 'The path ahead is quiet and uneventful...',
+    minLevel: 0,
+    alignment: 'neutral'
+  },
+  {
+    type: LevelEncounters.CUSTOM_A,
+    description: 'You meet a fickle fisherman, Roiden, who serves up some of his catch',
+    minLevel: 0,
+    alignment: 'neutral'
+  },
+  {
+    type: LevelEncounters.CUSTOM_B,
+    description: 'You encounter a fickle fisherman, Roiden, who force-feeds you his bait',
+    minLevel: 2,
+    alignment: 'neutral'
+  },
+  // update this to be a force activation of a new mission once mission revamp is done,
+  // think goblin-queen from d3
+  // treasure map to Archie's Perch, signed Vedorys / Syrodev
+  {
+    type: LevelEncounters.CUSTOM_C,
+    description: 'You spy a Long necked loot turtle, miraculously speeding out of sight.\n In its wake, you find a trail of coins seemingly forming the word Vedorys',
+    minLevel: 0,
+    alignment: 'neutral'
+  }
 ];

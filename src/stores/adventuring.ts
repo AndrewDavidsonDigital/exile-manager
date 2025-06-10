@@ -14,88 +14,9 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, calculateDamageTick, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType } from '@/lib/core';
+import { ENCOUNTERS, levels } from '@/data/levels';
 
-type EncounterType = 
-  'combat'
-| 'treasure'
-| 'trap'
-| 'corrupted'
-| 'recover'
-| 'customA'
-| 'customB'
-| 'customC'
-;
-
-interface IEncounter {
-  type: EncounterType;
-  description: string;
-  weight: number;
-  minLevel: number;
-  alignment: 'positive' | 'negative' | 'neutral';
-}
-
-const ENCOUNTERS: IEncounter[] = [
-  {
-    type: 'combat',
-    description: 'A group of hostile creatures appears!',
-    weight: 60,
-    minLevel: 0,
-    alignment: 'negative'
-  },
-  {
-    type: 'treasure',
-    description: 'You discover a hidden cache!',
-    weight: 12,
-    minLevel: 0,
-    alignment: 'positive'
-  },
-  {
-    type: 'trap',
-    description: 'You trigger a hidden trap!',
-    weight: 15,
-    minLevel: 1,
-    alignment: 'negative'
-  },
-  {
-    type: 'corrupted',
-    description: 'A corrupted being, twisted by dark forces, emerges from the shadows!',
-    weight: 5,
-    minLevel: 2,
-    alignment: 'negative'
-  },
-  {
-    type: 'recover',
-    description: 'The path ahead is quiet and uneventful...',
-    weight: 25,
-    minLevel: 0,
-    alignment: 'neutral'
-  },
-  {
-    type: 'customA',
-    description: 'You meet a mythical fisherman, Roiden, who serves up some of his catch',
-    weight: 1,
-    minLevel: 0,
-    alignment: 'neutral'
-  },
-  {
-    type: 'customB',
-    description: 'You encounter a mythical fisherman, Roiden, who force-feeds you his bait',
-    weight: 1,
-    minLevel: 2,
-    alignment: 'neutral'
-  },
-  // update this to be a force activation of a new mission once mission revamp is done,
-  // think goblin-queen from d3
-  // treasure map to Archie's Perch, signed Vedorys / Syrodev
-  {
-    type: 'customC',
-    description: 'You spy a Long necked loot turtle, miraculously speeding out of sight.\n In its wake, you find a trail of coins seemingly forming the word Vedorys',
-    weight: 0.5,
-    minLevel: 0,
-    alignment: 'neutral'
-  }
-];
 
 export const useAdventuringStore = defineStore('adventuring', () => {
   const gameEngine = useGameEngine();
@@ -110,24 +31,39 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     const difficulty = gameEngine.getDifficulty;
     if (difficulty === ErrorNumber.NOT_FOUND) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '' };
 
+    const levelTypes = level.encounters.map(e => e.type);
+
+    const levelWeightingTypes: Record<LevelEncounters, number> = Object.fromEntries(
+      level.encounters.map(enc => [enc.type, enc.weighting])
+    ) as Record<LevelEncounters, number>;
+  
+    
     const availableEncounters = ENCOUNTERS
-      .filter(enc => enc.minLevel <= level.areaLevel)
+      .filter(
+        enc => (
+           enc.minLevel <= level.areaLevel
+        && levelTypes.includes(enc.type)
+        )
+      )
       .map(enc => {
         const adjustedEncounter = { ...enc };
+        adjustedEncounter.weight = levelWeightingTypes[enc.type];
         if (enc.alignment === 'negative') {
-          adjustedEncounter.weight = Math.floor(enc.weight * difficulty.dangerMultiplier);
+          adjustedEncounter.weight = Math.floor(levelWeightingTypes[enc.type] * difficulty.dangerMultiplier);
         }
         return adjustedEncounter;
       });
 
-    const totalWeight = availableEncounters.reduce((sum, enc) => sum + enc.weight, 0);
+
+    const totalWeight = availableEncounters.reduce((sum, enc) => sum + levelWeightingTypes[enc.type], 0);
     const random = Math.random() * totalWeight;
     
     let weightSum = 0;
     let selectedEncounter: IEncounter | null = null;
-    
+
+
     for (const encounter of availableEncounters) {
-      weightSum += encounter.weight;
+      weightSum += (encounter.weight || 0);
       if (random <= weightSum) {
         selectedEncounter = encounter;
         break;
@@ -145,6 +81,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   }
 
   type MobTierType = ['basic', 1.0] | ['elite', 2.5] | ['boss', 5];
+
   interface ISimMonster {
     type: MonsterTypes,
     health: number,
@@ -556,7 +493,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     const areaLevel = level.areaLevel + 1;
 
     switch (encounter.type) {
-      case 'combat': {
+      case LevelEncounters.COMBAT: {
         const encounteredMonster = level.monsterTypes[Math.floor(Math.random() * level.monsterTypes.length)];
         const mobTier: MobTierType = ['basic', 1.0];
         const char = gameEngine.getCharacter;
@@ -603,7 +540,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           if (typeof char !== 'number') {
             // 30% chance for loot drop
             if (Math.random() < 0.3) {
-              gameEngine.addLoot(1, level.areaLevel); // Add 1 loot item using existing function
+              const areaDelta = level.areaLuckDelta || 1;
+              gameEngine.addLoot(1, level.areaLevel, areaDelta); // Add 1 loot item using existing function
             }
 
             // Gold reward based on monster exp and fortune
@@ -657,7 +595,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         break;
       }
       
-      case 'treasure': {
+      case LevelEncounters.TREASURE: {
         const gold = generateGoldWithBias(
           Math.floor(Math.random() * 50) * difficulty.lootMultiplier, 
           level.lootTags,
@@ -666,7 +604,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
         const loot = Math.floor(Math.random() * 5);
         // Use weighted item type based on level's loot tags
-        gameEngine.addLoot(loot, level.areaLevel, level.lootTags); // Pass loot tags to addLoot
+        const areaDelta = level.areaLuckDelta || 1;
+        gameEngine.addLoot(loot, level.areaLevel, areaDelta, level.lootTags); // Pass loot tags to addLoot
 
         if (gold > 0){
           encounter.description += `\n- ${gold} Gold`
@@ -684,7 +623,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         break;
       }
       
-      case 'trap': {
+      case LevelEncounters.TRAP: {
         const trapDamage = Math.floor((Math.random() * 10) + 5) * difficulty.dangerMultiplier;
         gameEngine.takeDamage(trapDamage);
         // gameEngine.modifyStat('fortitude', -1);
@@ -697,7 +636,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         break;
       }
       
-      case 'corrupted': {
+      case LevelEncounters.CORRUPTED: {
         const corruptionDamage = Math.floor(Math.random() * 30) * difficulty.dangerMultiplier;
         gameEngine.takeDamage(corruptionDamage);
         // gameEngine.modifyStat('affinity', -2);
@@ -711,7 +650,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         break;
       }
       
-      case 'recover': {
+      case LevelEncounters.RECOVERY: {
         const restoreAmount = Math.floor(Math.random() * 9) + 7; // Random number between 7 and 15
         gameEngine.heal(restoreAmount, true);
         gameEngine.recoverMana(restoreAmount, true);
@@ -725,7 +664,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       // custom Roiden event Good
-      case 'customA': {
+      case LevelEncounters.CUSTOM_A: {
         const restoreAmount = Math.floor(Math.random() * 51) + 10; // Random number between 10 and 60
         gameEngine.heal(restoreAmount, true);
         gameEngine.addExperience(calculateScaledExperience(10, charLevel, areaLevel));
@@ -738,7 +677,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       // custom Roiden event Bad
-      case 'customB': {
+      case LevelEncounters.CUSTOM_B: {
         if (! (gameEngine.character)){
           break;
         }
@@ -753,7 +692,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       
       // custom Vedorys event
-      case 'customC': {
+      case LevelEncounters.CUSTOM_C: {
         const charBasedGold = (gameEngine.character?.level || 1) * 100;
         const goldChange = generateNormalGold() + charBasedGold;
         gameEngine.updateGold(goldChange);
@@ -766,7 +705,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
     }
     
-    if (encounter.type !== 'combat'){
+    if (encounter.type !== LevelEncounters.COMBAT){
       gameEngine.processGameTick(SkillTiming.TURN);
     }
     return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
@@ -782,6 +721,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     logger(`Starting Adventure to: ${selectedLevel.name}`);
     logger(`Encounters: ${encounters}`);
     adventureInterval.value = encounters;
+    if (selectedLevel.uses){
+      selectedLevel.uses--;
+    }
     
     const entry: IJournalEntry = {
       message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] 🤺 You embark on your adventure at ${selectedLevel.name}`,
@@ -808,7 +750,209 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       gameEngine.heal(50, true);
       gameEngine.recoverMana(50, true);
 
+      if (selectedLevel.uses === 0){
+        // need to remove limited location.
+        gameEngine.removeLocation(selectedLevel);
+      }
+
       gameEngine.incrementRuns();
+
+      const shouldCascade = (Math.random() > 0.5 ? true : false);
+
+      if (selectedLevel.completionRules.length > 0){
+        // Select next level based on weighted probabilities
+        const totalWeight = Math.max(100, selectedLevel.completionRules.reduce((sum, rule) => sum + rule.weighting, 0));
+        const random = Math.random() * totalWeight;
+        let weightSum = 0;
+        let selectedRule = null; // Default to first rule if something goes wrong
+
+        for (const rule of selectedLevel.completionRules) {
+          weightSum += rule.weighting;
+          if (random <= weightSum) {
+            selectedRule = rule;
+            break;
+          }
+        }
+
+        // Find the next level based on the selected rule's identifier
+        if (selectedRule){
+          const nextLevel = levels.find((level: ILevel) => level._identifier === selectedRule._identifier);
+          if (nextLevel){
+            if(selectedRule.limits){
+              nextLevel.uses = selectedRule.limits;
+            }
+            nextLevel.type = LevelType.DEFAULT;
+            if (! gameEngine.getAvailableLevels.find(el => el._identifier === nextLevel._identifier)){
+              logger(`Add new level ${nextLevel.name}`);
+              gameEngine.addLocation(nextLevel);
+            }else{
+              logger(`Don't need to add an already added level ${nextLevel.name}`);
+            }
+          }
+        }
+      } else if (selectedLevel?.type !== LevelType.BONUS && shouldCascade){
+        // for now add a temp infinite progression
+        let areaLevel = gameEngine.character?.level || selectedLevel.areaLevel;
+        areaLevel+= Math.ceil(Math.random() * 2);
+
+        const randomEncounterCounts = 2 + Math.random() * 4;
+        const randomEncounterCountDelta = Math.random() * 3;
+
+        // Randomly select 1-2 item types
+        const randomLoots: LootType[] = ['armor', 'weapons', 'accessory']
+          .sort(() => Math.random() - 0.5)
+          .slice(0, Math.floor(Math.random() * 2) + 1) as LootType[];
+
+        // Randomly select 1-2 monster types
+        const randomMonsters = Object.values(MonsterTypes)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, Math.floor(Math.random() * 2) + 1);
+
+
+        const uses = Math.ceil(1 + Math.random()  * (Math.random() > 0.5 ? -1 : 1));
+        const description = `An unknown location`;
+        const name = `Unknown: ${generateRandomId()}`;
+
+        const placeholderContent: ILevel = {
+          _identifier: `unknown_location_${name}`,
+          description: description,
+          name: name,
+          areaLevel,
+          areaLuckDelta: 0,
+          encounterBase: Math.floor(randomEncounterCounts),
+          encounterRangeDeltas: Math.floor(randomEncounterCountDelta),
+          lootTags: randomLoots,
+          monsterTypes: randomMonsters,
+          encounters: [
+            {
+              type: LevelEncounters.COMBAT,
+              weighting: 55,
+            },
+            {
+              type: LevelEncounters.RECOVERY,
+              weighting: 20,
+            },
+            {
+              type: LevelEncounters.TRAP,
+              weighting: 10,
+            },
+            {
+              type: LevelEncounters.TREASURE,
+              weighting: 14,
+            },
+            {
+              type: LevelEncounters.CUSTOM_A,
+              weighting: 0.33,
+            },
+            {
+              type: LevelEncounters.CUSTOM_B,
+              weighting: 0.33,
+            },
+            {
+              type: LevelEncounters.CUSTOM_C,
+              weighting: 0.33,
+            },
+          ],
+          uses: uses,
+          dynamicCompletions: [],
+          completionRules: [],
+          type: LevelType.INFINITE,
+        }
+
+        logger(`Add new PLACEHOLDER level ${placeholderContent.name}`);
+        gameEngine.addLocation(placeholderContent);
+      }
+
+      if (selectedLevel.dynamicCompletions.length > 0){
+        // Calculate total weight of all dynamic completions
+        const totalWeight = Math.max(100, selectedLevel.dynamicCompletions.reduce((sum, completion) => sum + completion.weighting, 0));
+        const random = Math.random() * totalWeight;
+        let weightSum = 0;
+        let selectedBonus = null;
+
+        // Select a completion based on weighted probability
+        for (const completion of selectedLevel.dynamicCompletions) {
+          weightSum += completion.weighting;
+          if (random <= weightSum) {
+            selectedBonus = completion;
+            break;
+          }
+        }
+
+        // Find the next level based on the selected completion's identifier
+        if (selectedBonus) {
+          let areaLevel = selectedBonus.areaLevelAnchor === DynamicZoneLevelAnchor.CHARACTER ? gameEngine.character?.level || selectedLevel.areaLevel :  selectedLevel.areaLevel;
+          areaLevel+= selectedBonus.areaLevelDelta;
+
+          const randomEncounterCounts = 2 + Math.random() * 4;
+          const randomEncounterCountDelta = Math.random() * 3;
+
+          // Randomly select 1-2 item types
+          const randomLoots: LootType[] = ['armor', 'weapons', 'accessory']
+            .sort(() => Math.random() - 0.5)
+            .slice(0, Math.floor(Math.random() * 2) + 1) as LootType[];
+
+          // Randomly select 1-2 monster types
+          const randomMonsters = Object.values(MonsterTypes)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, Math.floor(Math.random() * 2) + 1);
+
+          let description = '';
+          let name = '';
+          let preface = '';
+          const uses = Math.ceil(selectedBonus.limits + (Math.random() * 2)  * (Math.random() > 0.5 ? -1 : 1));
+          switch (selectedBonus.type) {
+            case DynamicZone.CAVE:
+              description = `An entrance to a secluded cave`;
+              name = `${DynamicZone.CAVE}: ${generateRandomId()}`;
+              preface = 'Approach the ';
+              break;
+
+            case DynamicZone.ISLAND:
+              description = `You can make out an Island just off-shore`;
+              name = `${DynamicZone.ISLAND}: ${generateRandomId()}`;
+              preface = 'Explore the ';
+              break;
+
+            case DynamicZone.RIFT:
+              description = `This rift hums with a sense of urgency`;
+              name = `${DynamicZone.RIFT}: ${generateRandomId()}`;
+              preface = 'Investigate the ';
+              break;
+          
+            default:
+              description = `An unknown location`;
+              name = generateRandomId();
+              break;
+          }
+
+          const bonusContent: ILevel = {
+            _identifier: `${selectedBonus._identifier}_${name}`,
+            description: description,
+            name: name,
+            areaLevel,
+            preface,
+            areaLuckDelta: selectedBonus.areaLevelDelta,
+            encounterBase: Math.floor(randomEncounterCounts),
+            encounterRangeDeltas: Math.floor(randomEncounterCountDelta),
+            lootTags: randomLoots,
+            monsterTypes: randomMonsters,
+            encounters: selectedBonus.encounters, 
+            uses: uses,
+            dynamicCompletions: [],
+            completionRules: [],
+            type: LevelType.BONUS,
+            zone: selectedBonus.type,
+          }
+          if (!gameEngine.getAvailableLevels.find(el => el._identifier === bonusContent._identifier)) {
+            logger(`Add new bonus level ${bonusContent.name}`);
+            gameEngine.addLocation(bonusContent);
+          } else {
+            logger(`Don't need to add an already added bonus level ${bonusContent.name}`);
+          }
+        }
+      }
+      
       return;
     }
 
