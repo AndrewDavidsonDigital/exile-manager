@@ -1,0 +1,65 @@
+
+/*
+ * Animation profile for Water waves pattern
+ * src: https://codepen.io/porsake/pen/JjydjLz
+ */
+
+:root {
+  --wave-animation-delay: 0;
+}
+
+:has(>.wave-parent) {
+  position: relative;
+  overflow: hidden;
+}
+.wave-parent .wave {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  @apply bg-blue-500/50;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+  transition: 0.5s;
+
+}
+.wave-parent .wave span {
+  content: "";
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  top:0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  background: #000;
+  opacity: 1;
+  
+  --wave-animation-duration: 5s;
+  animation: animate var(--wave-animation-duration) linear infinite;
+  /* animation: animate var(--wave-animation-duration) linear var(--wave-animation-delay) infinite; */
+}
+
+.wave-parent .wave span:nth-child(1) {
+  border-radius: 45%;
+  @apply bg-neutral-900/80;
+  --wave-animation-duration: 5s;
+}
+
+.wave-parent .wave span:nth-child(2) {
+  border-radius: 40%;
+  @apply bg-neutral-900/80;
+  --wave-animation-duration: 10s;
+}
+.wave-parent .wave span:nth-child(3) {
+  border-radius: 42.5%;
+  @apply bg-neutral-900/80;
+  --wave-animation-duration: 15s;
+}
+
+@keyframes animate {
+  0% {
+    transform: translate(-50%, -75%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -75%) rotate(360deg);
+  }
+}
