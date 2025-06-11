@@ -137,7 +137,7 @@
   animation-duration: 13s;
 }
 .firefly:nth-child(2)::after {
-  animation-duration: 11s, calc(7939ms + var(--firefly-animation-delta));
+  animation-duration: 13s, calc(7939ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(1379ms + var(--firefly-animation-delay));
 }
 
@@ -231,7 +231,7 @@
   animation-duration: 13s;
 }
 .firefly:nth-child(3)::after {
-  animation-duration: 11s, calc(5508ms + var(--firefly-animation-delta));
+  animation-duration: 13s, calc(5508ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(1545ms + var(--firefly-animation-delay));
 }
 
@@ -301,7 +301,7 @@
   animation-duration: 13s;
 }
 .firefly:nth-child(4)::after {
-  animation-duration: 11s, calc(7655ms + var(--firefly-animation-delta));
+  animation-duration: 13s, calc(7655ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(2128ms + var(--firefly-animation-delay));
 }
 
@@ -380,7 +380,7 @@
   animation-duration: 12s;
 }
 .firefly:nth-child(5)::after {
-  animation-duration: 11s, calc(6724ms + var(--firefly-animation-delta));
+  animation-duration: 12s, calc(6724ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(4315ms + var(--firefly-animation-delay));
 }
 
@@ -447,7 +447,7 @@
   animation-duration: 14s;
 }
 .firefly:nth-child(6)::after {
-  animation-duration: 11s, calc(10073ms + var(--firefly-animation-delta));
+  animation-duration: 14s, calc(10073ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(4262ms + var(--firefly-animation-delay));
 }
 
@@ -547,7 +547,7 @@
   animation-duration: 13s;
 }
 .firefly:nth-child(7)::after {
-  animation-duration: 11s, calc(10506ms + var(--firefly-animation-delta));
+  animation-duration: 13s, calc(10506ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(7170ms + var(--firefly-animation-delay));
 }
 
@@ -626,7 +626,7 @@
   animation-duration: 18s;
 }
 .firefly:nth-child(8)::after {
-  animation-duration: 11s, calc(7128ms + var(--firefly-animation-delta));
+  animation-duration: 18s, calc(7128ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(2718ms + var(--firefly-animation-delay));
 }
 
@@ -711,7 +711,7 @@
   animation-duration: 9s;
 }
 .firefly:nth-child(9)::after {
-  animation-duration: 11s, calc(10724ms + var(--firefly-animation-delta));
+  animation-duration: 9s, calc(10724ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(5934ms + var(--firefly-animation-delay));
 }
 
@@ -808,7 +808,7 @@
   animation-duration: 17s;
 }
 .firefly:nth-child(10)::after {
-  animation-duration: 11s, calc(9389ms + var(--firefly-animation-delta));
+  animation-duration: 17s, calc(9389ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(4603ms + var(--firefly-animation-delay));
 }
 
@@ -893,7 +893,7 @@
   animation-duration: 14s;
 }
 .firefly:nth-child(11)::after {
-  animation-duration: 11s, calc(7076ms + var(--firefly-animation-delta));
+  animation-duration: 14s, calc(7076ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(4244ms + var(--firefly-animation-delay));
 }
 
@@ -987,7 +987,7 @@
   animation-duration: 17s;
 }
 .firefly:nth-child(12)::after {
-  animation-duration: 11s, calc(10143ms + var(--firefly-animation-delta));
+  animation-duration: 17s, calc(10143ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(573ms + var(--firefly-animation-delay));
 }
 
@@ -1139,7 +1139,7 @@
   animation-duration: 9s;
 }
 .firefly:nth-child(14)::after {
-  animation-duration: 11s, calc(10444ms + var(--firefly-animation-delta));
+  animation-duration: 9s, calc(10444ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(5529ms + var(--firefly-animation-delay));
 }
 
@@ -1239,7 +1239,7 @@
   animation-duration: 15s;
 }
 .firefly:nth-child(15)::after {
-  animation-duration: 11s, calc(8395ms + var(--firefly-animation-delta));
+  animation-duration: 15s, calc(8395ms + var(--firefly-animation-delta));
   animation-delay: 0ms, calc(1731ms + var(--firefly-animation-delay));
 }
 

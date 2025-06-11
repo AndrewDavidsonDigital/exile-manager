@@ -7,6 +7,20 @@
 
 :root {
   --star-rise-animation-delay: 0ms;
+  --stars-1: 151px 156px #FFF , 347px 128px #FFF , 108px 134px #FFF , 1px 72px #FFF , 53px 69px #FFF , 186px 110px #FFF , 387px 108px #FFF , 233px 155px #FFF , 127px 134px #FFF , 203px 37px #FFF , 75px 3px #FFF , 189px 102px #FFF , 162px 21px #FFF , 328px 92px #FFF , 364px 1px #FFF , 400px 54px #FFF , 314px 12px #FFF , 103px 113px #FFF , 322px 199px #FFF , 266px 78px #FFF , 347px 152px #FFF , 383px 191px #FFF , 322px 195px #FFF , 223px 117px #FFF , 355px 84px #FFF , 195px 90px #FFF , 271px 61px #FFF , 315px 99px #FFF , 310px 14px #FFF , 248px 90px #FFF , 77px 186px #FFF , 70px 177px #FFF , 193px 152px #FFF , 398px 130px #FFF , 132px 199px #FFF , 22px 164px #FFF , 136px 102px #FFF , 189px 136px #FFF , 60px 124px #FFF , 280px 195px #FFF , 388px 123px #FFF , 291px 86px #FFF , 367px 8px #FFF , 391px 35px #FFF , 315px 97px #FFF , 122px 28px #FFF , 250px 48px #FFF , 147px 128px #FFF , 230px 85px #FFF , 84px 163px #FFF , 302px 181px #FFF , 305px 40px #FFF , 190px 187px #FFF , 303px 3px #FFF , 389px 148px #FFF , 86px 137px #FFF , 83px 37px #FFF , 272px 163px #FFF , 22px 177px #FFF , 205px 72px #FFF , 43px 157px #FFF , 17px 37px #FFF , 159px 74px #FFF , 210px 140px #FFF , 4px 95px #FFF , 105px 168px #FFF , 195px 184px #FFF , 279px 111px #FFF , 166px 93px #FFF , 258px 66px #FFF;
+  --stars-2: 172px 169px #FFF , 217px 198px #FFF , 63px 3px #FFF , 91px 116px #FFF , 121px 136px #FFF , 388px 93px #FFF , 320px 37px #FFF , 351px 92px #FFF , 128px 147px #FFF , 312px 104px #FFF , 314px 130px #FFF , 370px 40px #FFF , 146px 22px #FFF , 345px 11px #FFF , 227px 107px #FFF , 171px 74px #FFF , 214px 60px #FFF , 273px 126px #FFF , 376px 176px #FFF , 146px 101px #FFF;
+  --stars-3: 379px 77px #FFF , 316px 151px #FFF , 303px 58px #FFF , 291px 120px #FFF , 182px 157px #FFF , 358px 54px #FFF , 106px 127px #FFF , 86px 16px #FFF , 164px 170px #FFF , 235px 111px #FFF;
+  
+  --stars-A: var(--stars-2);
+  --stars-B: var(--stars-3);
+  
+  --stars-2b: 338px 127px #FFFFFF , 169px 126px #FFFFFF , 241px 108px #FFFFFF , 371px 163px #FFFFFF , 153px 11px #FFFFFF , 5px 48px #FFFFFF , 159px 21px #FFFFFF , 333px 64px #FFFFFF , 89px 11px #FFFFFF , 249px 127px #FFFFFF , 187px 38px #FFFFFF , 288px 187px #FFFFFF , 154px 93px #FFFFFF , 64px 125px #FFFFFF , 117px 44px #FFFFFF , 303px 104px #FFFFFF , 335px 109px #FFFFFF , 14px 92px #FFFFFF , 160px 36px #FFFFFF , 396px 131px #FFFFFF;
+  --stars-3b: 272px 101px #FFFFFF , 28px 153px #FFFFFF , 31px 53px #FFFFFF , 87px 105px #FFFFFF , 47px 92px #FFFFFF , 21px 131px #FFFFFF , 373px 140px #FFFFFF , 166px 31px #FFFFFF , 236px 41px #FFFFFF , 378px 186px #FFFFFF;
+}
+
+[data-star-pivot=true]{
+  --stars-A: var(--stars-2b);
+  --stars-B: var(--stars-3b);
 }
 
 :has(>.star-rise-parent){
@@ -17,7 +31,7 @@
   width: 1px;
   height: 1px;
   background: transparent;
-  box-shadow: 151px 156px #FFF , 347px 128px #FFF , 108px 134px #FFF , 1px 72px #FFF , 53px 69px #FFF , 186px 110px #FFF , 387px 108px #FFF , 233px 155px #FFF , 127px 134px #FFF , 203px 37px #FFF , 75px 3px #FFF , 189px 102px #FFF , 162px 21px #FFF , 328px 92px #FFF , 364px 1px #FFF , 400px 54px #FFF , 314px 12px #FFF , 103px 113px #FFF , 322px 199px #FFF , 266px 78px #FFF , 347px 152px #FFF , 383px 191px #FFF , 322px 195px #FFF , 223px 117px #FFF , 355px 84px #FFF , 195px 90px #FFF , 271px 61px #FFF , 315px 99px #FFF , 310px 14px #FFF , 248px 90px #FFF , 77px 186px #FFF , 70px 177px #FFF , 193px 152px #FFF , 398px 130px #FFF , 132px 199px #FFF , 22px 164px #FFF , 136px 102px #FFF , 189px 136px #FFF , 60px 124px #FFF , 280px 195px #FFF , 388px 123px #FFF , 291px 86px #FFF , 367px 8px #FFF , 391px 35px #FFF , 315px 97px #FFF , 122px 28px #FFF , 250px 48px #FFF , 147px 128px #FFF , 230px 85px #FFF , 84px 163px #FFF , 302px 181px #FFF , 305px 40px #FFF , 190px 187px #FFF , 303px 3px #FFF , 389px 148px #FFF , 86px 137px #FFF , 83px 37px #FFF , 272px 163px #FFF , 22px 177px #FFF , 205px 72px #FFF , 43px 157px #FFF , 17px 37px #FFF , 159px 74px #FFF , 210px 140px #FFF , 4px 95px #FFF , 105px 168px #FFF , 195px 184px #FFF , 279px 111px #FFF , 166px 93px #FFF , 258px 66px #FFF;
+  box-shadow: var(--stars-1);
   opacity: 0;
   animation: 
     stars-fade-in 2s linear forwards,
@@ -30,7 +44,7 @@
   width: 1px;
   height: 1px;
   background: transparent;
-  box-shadow: 151px 156px #FFF , 347px 128px #FFF , 108px 134px #FFF , 1px 72px #FFF , 53px 69px #FFF , 186px 110px #FFF , 387px 108px #FFF , 233px 155px #FFF , 127px 134px #FFF , 203px 37px #FFF , 75px 3px #FFF , 189px 102px #FFF , 162px 21px #FFF , 328px 92px #FFF , 364px 1px #FFF , 400px 54px #FFF , 314px 12px #FFF , 103px 113px #FFF , 322px 199px #FFF , 266px 78px #FFF , 347px 152px #FFF , 383px 191px #FFF , 322px 195px #FFF , 223px 117px #FFF , 355px 84px #FFF , 195px 90px #FFF , 271px 61px #FFF , 315px 99px #FFF , 310px 14px #FFF , 248px 90px #FFF , 77px 186px #FFF , 70px 177px #FFF , 193px 152px #FFF , 398px 130px #FFF , 132px 199px #FFF , 22px 164px #FFF , 136px 102px #FFF , 189px 136px #FFF , 60px 124px #FFF , 280px 195px #FFF , 388px 123px #FFF , 291px 86px #FFF , 367px 8px #FFF , 391px 35px #FFF , 315px 97px #FFF , 122px 28px #FFF , 250px 48px #FFF , 147px 128px #FFF , 230px 85px #FFF , 84px 163px #FFF , 302px 181px #FFF , 305px 40px #FFF , 190px 187px #FFF , 303px 3px #FFF , 389px 148px #FFF , 86px 137px #FFF , 83px 37px #FFF , 272px 163px #FFF , 22px 177px #FFF , 205px 72px #FFF , 43px 157px #FFF , 17px 37px #FFF , 159px 74px #FFF , 210px 140px #FFF , 4px 95px #FFF , 105px 168px #FFF , 195px 184px #FFF , 279px 111px #FFF , 166px 93px #FFF , 258px 66px #FFF;
+  box-shadow: var(--stars-1);
 }
 
 .stars2 {
@@ -38,7 +52,7 @@
   height: 2px;
   background: transparent;
   opacity: 0;
-  box-shadow: 172px 169px #FFF , 217px 198px #FFF , 63px 3px #FFF , 91px 116px #FFF , 121px 136px #FFF , 388px 93px #FFF , 320px 37px #FFF , 351px 92px #FFF , 128px 147px #FFF , 312px 104px #FFF , 314px 130px #FFF , 370px 40px #FFF , 146px 22px #FFF , 345px 11px #FFF , 227px 107px #FFF , 171px 74px #FFF , 214px 60px #FFF , 273px 126px #FFF , 376px 176px #FFF , 146px 101px #FFF;
+  box-shadow: var(--stars-A);
   animation: 
     stars-fade-in 2s linear forwards,
     animStar 100s linear var(--star-rise-animation-delay) infinite;
@@ -50,7 +64,7 @@
   width: 2px;
   height: 2px;
   background: transparent;
-  box-shadow: 172px 169px #FFF , 217px 198px #FFF , 63px 3px #FFF , 91px 116px #FFF , 121px 136px #FFF , 388px 93px #FFF , 320px 37px #FFF , 351px 92px #FFF , 128px 147px #FFF , 312px 104px #FFF , 314px 130px #FFF , 370px 40px #FFF , 146px 22px #FFF , 345px 11px #FFF , 227px 107px #FFF , 171px 74px #FFF , 214px 60px #FFF , 273px 126px #FFF , 376px 176px #FFF , 146px 101px #FFF;
+  box-shadow: var(--stars-A);
 }
 
 .stars3 {
@@ -58,7 +72,7 @@
   height: 3px;
   background: transparent;
   opacity: 0;
-  box-shadow: 379px 77px #FFF , 316px 151px #FFF , 303px 58px #FFF , 291px 120px #FFF , 182px 157px #FFF , 358px 54px #FFF , 106px 127px #FFF , 86px 16px #FFF , 164px 170px #FFF , 235px 111px #FFF;
+  box-shadow: var(--stars-B);
   animation: 
     stars-fade-in 2s linear forwards,
     animStar 150s linear var(--star-rise-animation-delay) infinite;
@@ -70,7 +84,7 @@
   width: 3px;
   height: 3px;
   background: transparent;
-  box-shadow: 379px 77px #FFF , 316px 151px #FFF , 303px 58px #FFF , 291px 120px #FFF , 182px 157px #FFF , 358px 54px #FFF , 106px 127px #FFF , 86px 16px #FFF , 164px 170px #FFF , 235px 111px #FFF;
+  box-shadow: var(--stars-B);
 }
 
 @keyframes animStar {

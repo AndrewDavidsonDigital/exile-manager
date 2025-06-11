@@ -145,6 +145,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
               v-else-if="resolveBackground(level) === BackgroundTypes.STARS"
               class="relative"
               :style="`--star-rise-animation-delay: ${(Math.random() * 3) * 2000 * (Math.random() * 3) % 1200}ms;`"
+              :data-star-pivot="`${Math.random() > 0.5}`"
             >
               <div 
                 v-for="i in 3"
