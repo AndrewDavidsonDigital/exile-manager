@@ -114,9 +114,12 @@ function resolveBackground(level: ILevel): BackgroundTypes {
               { 'wave-parent' : resolveBackground(level) === BackgroundTypes.WAVE },
               { 'firefly-parent' : resolveBackground(level) === BackgroundTypes.FIREFLIES },
               { 'star-rise-parent' : resolveBackground(level) === BackgroundTypes.STARS },
-              { 'hue-rotate-dynamic saturate-50': level.type === LevelType.INFINITE },
+              { 'animate-pulse-fade hue-rotate-dynamic saturate-50': level.type === LevelType.INFINITE },
             ]"
-            :style="`--dynamic-hue-rotate: ${(Math.floor(100 + Math.random() * 400)) % 360}deg;`"
+            :style="
+              `--dynamic-hue-rotate: ${(Math.floor(100 + Math.random() * 400)) % 360}deg;`+
+                `--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`
+            "
           >
             <div
               v-if="resolveBackground(level) === BackgroundTypes.WAVE"
@@ -242,8 +245,42 @@ function resolveBackground(level: ILevel): BackgroundTypes {
 <style lang="css" scoped>
   @reference "@/assets/main.css";
 
+  * {
+    --pulse-delay: 0ms;
+  }
+
   .blurred {
     filter: blur(2px);
     opacity: 0.7;
+  } 
+
+  .animate-pulse-fade {
+    animation-delay: var(--pulse-delay) !important;
+    animation: pulse-fade 3.5s linear infinite;
   }
+
+  @keyframes pulse-fade {
+  0%,100% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  55% {
+    opacity: 0.6;
+  }
+  60% {
+    opacity: 0.75;
+  }
+  75%{
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.8;
+  }
+}
+
 </style>
