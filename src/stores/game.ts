@@ -957,7 +957,7 @@ export const useGameEngine = defineStore('gameEngine', {
       loot.itemDetails = {
         tier,
         mutations: loot.itemDetails?.mutations || [],
-        baseDetails: resolveBaseAffixFromTypeAndTier(type, tier),
+        baseDetails: resolveBaseAffixFromTypeAndTier(type, tier, loot.iLvl),
         affixes: {
           embedded: affixes.embedded,
           prefix: affixes.prefix,

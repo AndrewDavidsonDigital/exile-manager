@@ -247,7 +247,7 @@ const baseAffixTierScalingMap: Record<ItemTierType, number> = {
  * @param tier The item tier
  * @returns The selected base affix configuration
  */
-export function resolveBaseAffixFromTypeAndTier(type: ItemBase, tier: ItemTierType): IBaseAffix {
+export function resolveBaseAffixFromTypeAndTier(type: ItemBase, tier: ItemTierType, iLvl: number): IBaseAffix {
   // Map the item type to the corresponding config section
   const configSection = mapItemTypeToAffixCategory(type);
   
@@ -263,26 +263,33 @@ export function resolveBaseAffixFromTypeAndTier(type: ItemBase, tier: ItemTierTy
   const selectedAffix = availableAffixes[randomIndex];
   
   // Get the scaling multiplier for this tier
-  const scalingMultiplier = baseAffixTierScalingMap[tier];
+  const tierScalingMultiplier = baseAffixTierScalingMap[tier];
   
-  // Scale the value based on the tier and value type
+  // Calculate item level scaling
+  // Base values for levels 1-5, then linear scaling up to 6x at level 100
+  const ilvlScalingMultiplier = iLvl <= 5 ? 1 : 1 + ((iLvl - 5) / 95) * 5;
+  
+  // Combine both scaling factors
+  const totalScalingMultiplier = tierScalingMultiplier * ilvlScalingMultiplier;
+  
+  // Scale the value based on the tier, item level, and value type
   const scaledValue = (() => {
     switch (selectedAffix.value.type) {
       case AffixTypes.ADDITIVE:
         return {
           type: selectedAffix.value.type,
-          value: Math.round(selectedAffix.value.value * scalingMultiplier)
+          value: Math.round(selectedAffix.value.value * totalScalingMultiplier)
         };
       case AffixTypes.MULTIPLICATIVE:
         return {
           type: selectedAffix.value.type,
-          value: Math.round(selectedAffix.value.value * scalingMultiplier)
+          value: Math.round(selectedAffix.value.value * totalScalingMultiplier)
         };
       case AffixTypes.RANGE:
         return {
           type: AffixTypes.RANGE,
-          minValue: Math.round(selectedAffix.value.minValue * scalingMultiplier),
-          maxValue: Math.round(selectedAffix.value.maxValue * scalingMultiplier)
+          minValue: Math.round(selectedAffix.value.minValue * totalScalingMultiplier),
+          maxValue: Math.round(selectedAffix.value.maxValue * totalScalingMultiplier)
         };
       default:
         return selectedAffix.value;
