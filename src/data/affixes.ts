@@ -2,8 +2,44 @@ import { type IAffix } from "@/lib/affixTypes";
 import { AffixCategory, AffixType, Attributes, ItemBase } from "@/lib/core";
 import { allItemTypes } from "@/lib/itemUtils";
 
+export enum AffixTiers {
+  ONE = 1,
+  TWO,
+  THREE,
+  FOUR,
+  FIVE,
+  SIX,
+  SEVEN,
+  EIGHT,
+  NINE,
+  TEN,
+  ELEVEN,
+}
+
+export interface IAffixLevelConfig {
+  minILevel: number,
+  maxILevel: number,
+}
+
+export const AffixLevelTiers: Map<AffixTiers, IAffixLevelConfig> = new Map([
+  [AffixTiers.ONE,    {minILevel: 0, maxILevel: 10}],
+  [AffixTiers.TWO,    {minILevel: 5, maxILevel: 15}],
+  [AffixTiers.THREE,  {minILevel: 10,maxILevel: 16}],
+  [AffixTiers.FOUR,   {minILevel: 14,maxILevel: 20}],
+  [AffixTiers.FIVE,   {minILevel: 18,maxILevel: 25}],
+  [AffixTiers.SIX,    {minILevel: 20,maxILevel: 30}],
+  [AffixTiers.SEVEN,  {minILevel: 25,maxILevel: 37}],
+  [AffixTiers.EIGHT,  {minILevel: 35,maxILevel: 49}],
+  [AffixTiers.NINE,   {minILevel: 45,maxILevel: 62}],
+  [AffixTiers.TEN,    {minILevel: 55,maxILevel: 75}],
+  [AffixTiers.ELEVEN, {minILevel: 65,maxILevel: Infinity}],
+])
+
 /**
  * List of all available embedded affixes
+ * 
+ * TODO: extract minILevel and maxILevel and tier into a config and tier into an enum
+ * 
  */
 export const embeddedAffixes: IAffix[] = [
   // Defense Category
