@@ -1458,9 +1458,9 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   }
 
 
-.animate-colour-pulse {
-  animation: colour-pulse-dynamic 3s ease-in-out forwards infinite;
-}
+  .animate-colour-pulse {
+    animation: colour-pulse-dynamic 3s ease-in-out forwards infinite;
+  }
 
 @keyframes colour-pulse-dynamic {
   0% {

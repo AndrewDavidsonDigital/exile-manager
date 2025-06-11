@@ -348,7 +348,7 @@ const canCompare = computed(() => {
           @click="lootFilter = undefined"
         >
           <FluidElement class="w-fit !p-1">
-            Clear Filter
+            All Types
           </FluidElement>
         </button>
         <button
@@ -379,7 +379,7 @@ const canCompare = computed(() => {
           @click="tierFilter = undefined"
         >
           <FluidElement class="w-fit !p-1">
-            Clear Tier Filter
+            All Tiers
           </FluidElement>
         </button>
         <button
@@ -409,7 +409,7 @@ const canCompare = computed(() => {
             :key="`loot_${index}`"
             class="w-fit !p-2 !border cursor-pointer loot-item"
             :class="[
-              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
+              { 'opacity-20 grayscale pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
             ]"
             :style="{
               '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
@@ -1011,6 +1011,8 @@ const canCompare = computed(() => {
   border-color: var(--loot-border-color-selected) !important;
 }
 
+/* Temp-remove colourations as mutations do nothing atm */
+/*
 .loot-item[data-cursed="true"][data-identified="true"] {
   border-color: var(--loot-border-color-cursed);
 }
@@ -1026,6 +1028,7 @@ const canCompare = computed(() => {
 .loot-item[data-void-touched="true"][data-identified="true"] {
   border-color: var(--loot-border-color-void);
 }
+*/
 
 .loot-item[data-selected="true"] {
   border-color: var(--loot-border-color-selected);
