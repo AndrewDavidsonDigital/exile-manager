@@ -25,7 +25,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, IBaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType } from '@/lib/core';
 import { levels } from '@/data/levels';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
@@ -166,8 +166,8 @@ export const useGameEngine = defineStore('gameEngine', {
         mana: this.character.stats.currentMana,
         maxHealth: this.character.stats.health,
         maxMana: this.character.stats.mana,
-        healthRegen: IBaseStats.BASE_HEALTH_REGEN,
-        manaRegen: IBaseStats.BASE_MANA_REGEN,
+        healthRegen: BaseStats.BASE_HEALTH_REGEN,
+        manaRegen: BaseStats.BASE_MANA_REGEN,
         mitigation: resolveMitigation(this.character),
         attributes: {
           fortitude: this.character.stats.fortitude,
@@ -177,7 +177,7 @@ export const useGameEngine = defineStore('gameEngine', {
         },
         accuracy: 100,
         criticalStrike: 0,
-        baseDamagePerTick: IBaseStats.BASE_DAMAGE,
+        baseDamagePerTick: BaseStats.BASE_DAMAGE,
         damagePerTick: 0,
         damage: {
           physical: 0,
@@ -247,11 +247,16 @@ export const useGameEngine = defineStore('gameEngine', {
               }
               break;
             case AffixCategory.ARMOR:
-              // Physical damage from prefix, Armour Value from EMBEDDED
+              // Physical damage from prefix, Armour Value from EMBEDDED, phys-resist as suffix
               if (affixDef.type === AffixType.EMBEDDED) {
                 localArmor += getAffixValue(affix);
               } else if (affixDef.type === AffixType.PREFIX) {
                 retval.damage.physical += resolveAverageOfRange(getAffixValueRange(affix));
+              } else if (affixDef.type === AffixType.SUFFIX) {
+                const mitigation = retval.mitigation.find(m => m.key === 'physical');
+                if (mitigation) {
+                  mitigation.value += getAffixValue(affix);
+                }
               }
               break;
             case AffixCategory.DEFENSE:
@@ -314,12 +319,12 @@ export const useGameEngine = defineStore('gameEngine', {
                 }
               }
               break;
-            case AffixCategory.CRITICAL:
-              // evasion only on PREFIX
-              if (affixDef.type === AffixType.PREFIX) {
-                retval.criticalStrike += getAffixValue(affix);
-              }
-              break;
+              case AffixCategory.CRITICAL:
+                // evasion only on PREFIX
+                if (affixDef.type === AffixType.PREFIX) {
+                  retval.criticalStrike += getAffixValue(affix);
+                }
+                break;
           }
         });
 
@@ -886,7 +891,10 @@ export const useGameEngine = defineStore('gameEngine', {
       // for any fallthrough levels add stat inc screen
       if (this.character.level === 2) {
         this.character.pendingRewards.passives++;
-      } else if (this.character.level % 4 === 1 || this.character.level % 3 === 1) {
+      } else if (
+        (this.character.level % 4 === 1 && this.getAvailableSkills.length > this.character.pendingRewards.skills ) || 
+        (this.character.level % 3 === 1 && this.getAvailablePassives.length > this.character.pendingRewards.passives)
+      ){
         if (this.character.level % 4 === 1) {
           this.character.pendingRewards.skills++;
         } 
