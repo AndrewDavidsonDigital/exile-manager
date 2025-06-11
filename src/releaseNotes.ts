@@ -18,6 +18,32 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.4',
+    highlights: [
+      'Initial work on dynamic mission system',
+      'Initial progression flow of base missions is in',
+      'Logical framework for Ad-hock generating levels',
+      'Support for transient missions',
+      'Support for finding a new bonus mission',
+      'Small UI tweaks for equipment',
+      'Added dedicated close modal buttons for some modals, IOS not supporting light-dismiss yet :(',
+      'Fixed an issue where initial starter skills were not filtered by class',
+      'Addition of mana regen as both a mechanic and affix set',
+      'Addition of health regen as both a mechanic and affix set',
+      'Fix an issue with Physical resistance not calculating',
+      'Added missing logic for capping resistances at 75%',
+      'Normalization pass over most affixes',
+      'All affixes now have additional tiers (T4->T11)',
+      'Internal tooling to visualize the scaling curves',
+      'Mobile UI refinement',
+      'Ability to auto-salvage items by tiers',
+      'Fixed a bug where once out of passives or skills (temporary fix) you\'d still be offered them as levelup rewards',
+      'Fixed some inaccurate reporting in the combat log',
+    ],
+    commit: '',
+    compare: 'v0.1.3...v0.1.4',
+  },
+  {
     version: '0.1.3',
     highlights: [
       'Complete the last aspects of Item System 2.5',
