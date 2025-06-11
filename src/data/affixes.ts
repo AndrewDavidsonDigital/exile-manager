@@ -303,7 +303,7 @@ export const embeddedAffixes: IAffix[] = [
   },
   {
     id: 'embedded_elemental_9',
-    name: 'Ethereal',
+    name: 'Numinous',
     type: AffixType.EMBEDDED,
     category: AffixCategory.ELEMENTAL,
     tier: 9,
@@ -1027,7 +1027,7 @@ export const embeddedAffixes: IAffix[] = [
   },
   {
     id: 'embedded_affinity_2',
-    name: 'Mystic',
+    name: 'Vaporous',
     type: AffixType.EMBEDDED,
     category: AffixCategory.ATTRIBUTE,
     tier: 2,
@@ -1042,7 +1042,7 @@ export const embeddedAffixes: IAffix[] = [
   },
   {
     id: 'embedded_affinity_3',
-    name: 'Ethereal',
+    name: 'Ephemeral',
     type: AffixType.EMBEDDED,
     category: AffixCategory.ATTRIBUTE,
     tier: 3,
@@ -1087,7 +1087,7 @@ export const embeddedAffixes: IAffix[] = [
   },
   {
     id: 'embedded_affinity_6',
-    name: 'Astral',
+    name: 'Enchanted',
     type: AffixType.EMBEDDED,
     category: AffixCategory.ATTRIBUTE,
     tier: 6,
@@ -1147,7 +1147,7 @@ export const embeddedAffixes: IAffix[] = [
   },
   {
     id: 'embedded_affinity_10',
-    name: 'Astral',
+    name: 'Thaumaturgic',
     type: AffixType.EMBEDDED,
     category: AffixCategory.ATTRIBUTE,
     tier: 10,
