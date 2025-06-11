@@ -130,6 +130,10 @@ function resolveBackground(level: ILevel): BackgroundTypes {
             <div
               v-else-if="resolveBackground(level) === BackgroundTypes.FIREFLIES"
               class="relative"
+              :style="
+                `--firefly-animation-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;` +
+                  `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;`
+              "
             >
               <span 
                 v-for="i in 15"
@@ -140,6 +144,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
             <div
               v-else-if="resolveBackground(level) === BackgroundTypes.STARS"
               class="relative"
+              :style="`--star-rise-animation-delay: ${(Math.random() * 3) * 2000 * (Math.random() * 3) % 1200}ms;`"
             >
               <div 
                 v-for="i in 3"
