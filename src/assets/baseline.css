@@ -65,3 +65,9 @@ details > summary {
 .z-nav{
   z-index: 10000;
 }
+
+
+.hue-rotate-dynamic {
+  --tw-hue-rotate: hue-rotate(var(--dynamic-hue-rotate, 0));
+  filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
+}

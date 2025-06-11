@@ -114,7 +114,9 @@ function resolveBackground(level: ILevel): BackgroundTypes {
               { 'wave-parent' : resolveBackground(level) === BackgroundTypes.WAVE },
               { 'firefly-parent' : resolveBackground(level) === BackgroundTypes.FIREFLIES },
               { 'star-rise-parent' : resolveBackground(level) === BackgroundTypes.STARS },
+              { 'hue-rotate-dynamic saturate-50': level.type === LevelType.INFINITE },
             ]"
+            :style="`--dynamic-hue-rotate: ${(Math.floor(100 + Math.random() * 400)) % 360}deg;`"
           >
             <div
               v-if="resolveBackground(level) === BackgroundTypes.WAVE"
