@@ -248,7 +248,7 @@
             v-else
             class="w-fit py-1 hover:scale-125 transition-all duration-300"
           >
-            <span v-if="selectedLevel?.preface === undefined">Approach:</span>
+            <span v-if="selectedLevel?.preface === undefined">Approach: </span>
             <span v-else>{{ selectedLevel.preface }} </span>
             <span
               v-for="segment, index in selectedLevel?.name.split(': ')"
