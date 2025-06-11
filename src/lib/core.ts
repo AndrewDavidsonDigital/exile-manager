@@ -298,10 +298,11 @@ export enum ItemBase {
 /**
  * Represents possible item types that can be equipped or found
  */
-export enum IBaseStats {
+export enum BaseStats {
   BASE_DAMAGE = 12,
   BASE_HEALTH_REGEN = 3,
   BASE_MANA_REGEN = 2,
+  BASE_MAX_RESISTANCE = 75,
 };
 
 

@@ -14,7 +14,7 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, calculateDamageTick, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType, BaseStats } from '@/lib/core';
 import { ENCOUNTERS, levels } from '@/data/levels';
 
 
@@ -371,8 +371,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
               const secondaryDamage = monsterDamage - primaryDamage;
               
               // Get percentage-based mitigations
-              const primaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0;
-              const secondaryMitigation = exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0;
+              const primaryMitigation = Math.min(BaseStats.BASE_MAX_RESISTANCE, exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0);
+              const secondaryMitigation = Math.min(BaseStats.BASE_MAX_RESISTANCE, exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0);
               
               if (primaryMitigation > 0) {
                 usedMitigations.add(simMonster.damageInfo.primary);
