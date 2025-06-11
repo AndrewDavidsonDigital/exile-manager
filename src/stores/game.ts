@@ -29,7 +29,7 @@ import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT
 import { levels } from '@/data/levels';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.1.3';
+const VERSION_NUMBER = '0.1.4';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,

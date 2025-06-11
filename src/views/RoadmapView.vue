@@ -78,9 +78,11 @@
       title: 'Mission System 2.0',
       description: 'A full revamp of the missions system',
       priority: 'normal',
-      status: 'pending',
+      status: 'completed',
       keyPoints: [
-        'A more involved process of finding missions and progressing',
+        'A core progression framework for missions',
+        'System to spawn infinitely more content',
+        'System to Randomly spawn sub-zones relative to both char-level and / or previous zone level',
       ],
     },
     {
