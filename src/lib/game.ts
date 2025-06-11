@@ -36,6 +36,8 @@ export interface ICombatStat {
   mana: number;
   maxHealth: number;
   maxMana: number;
+  healthRegen: number;
+  manaRegen: number;
   criticalStrike: number;
   deflection?: number;
   mitigation: IMitigation[];

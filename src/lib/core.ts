@@ -300,6 +300,8 @@ export enum ItemBase {
  */
 export enum IBaseStats {
   BASE_DAMAGE = 12,
+  BASE_HEALTH_REGEN = 3,
+  BASE_MANA_REGEN = 2,
 };
 
 

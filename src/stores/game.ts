@@ -162,6 +162,8 @@ export const useGameEngine = defineStore('gameEngine', {
         mana: this.character.stats.currentMana,
         maxHealth: this.character.stats.health,
         maxMana: this.character.stats.mana,
+        healthRegen: IBaseStats.BASE_HEALTH_REGEN,
+        manaRegen: IBaseStats.BASE_MANA_REGEN,
         mitigation: resolveMitigation(this.character),
         attributes: {
           fortitude: this.character.stats.fortitude,
@@ -213,12 +215,20 @@ export const useGameEngine = defineStore('gameEngine', {
           // Use switch statement for better readability and maintainability
           switch (affix.category) {
             case AffixCategory.LIFE:
-              retval.health += getAffixValue(affix);
-              retval.maxHealth += getAffixValue(affix);
+              if (affixDef.type === AffixType.PREFIX) {
+                retval.healthRegen += getAffixValue(affix);
+              } else if (affixDef.type === AffixType.SUFFIX) {
+                retval.health += getAffixValue(affix);
+                retval.maxHealth += getAffixValue(affix);
+              }
               break;
             case AffixCategory.MANA:
-              retval.mana += getAffixValue(affix);
-              retval.maxMana += getAffixValue(affix);
+              if (affixDef.type === AffixType.PREFIX) {
+                retval.manaRegen += getAffixValue(affix);
+              } else if (affixDef.type === AffixType.SUFFIX) {
+                retval.mana += getAffixValue(affix);
+                retval.maxMana += getAffixValue(affix);
+              }
               break;
             case AffixCategory.ATTRIBUTE:
               // Check the affix tags to determine which attribute it affects
@@ -250,7 +260,7 @@ export const useGameEngine = defineStore('gameEngine', {
               }
               break;
             case AffixCategory.EVASION:
-              // evasion only on embeded
+              // evasion only on embedded
               if (affixDef.type === AffixType.EMBEDDED) {
                 localEvasion += getAffixValue(affix);
               }
@@ -664,6 +674,13 @@ export const useGameEngine = defineStore('gameEngine', {
         logger(`updated Temporal's: ${JSON.stringify(this.character.temporalEffects)})`);
       }
 
+      // recovery
+      const stats = this.getCombatStats;
+      if (stats !== ErrorNumber.NOT_FOUND){
+        this.heal(Math.max(stats.healthRegen,0));
+        this.recoverMana(Math.max(stats.manaRegen,0));
+      }
+
       this.saveState();
     },
 
@@ -791,7 +808,7 @@ export const useGameEngine = defineStore('gameEngine', {
       }else{
         newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + amount);
       }
-      logger(`Revoring ${amount} mana${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(stats.maxMana * (amount / 100 )) : amount}]`);
+      logger(`Recovering ${amount} mana${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(stats.maxMana * (amount / 100 )) : amount}]`);
       this.updateStats({ currentMana: newMana });
     },
 
