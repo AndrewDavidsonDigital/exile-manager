@@ -1693,7 +1693,7 @@ export const prefixAffixes: IAffix[] = [
   },
   // Health Regeneration Category
   {
-    id: 'prefix_health_regen_1',
+    id: 'prefix_healthRegen_1',
     name: 'Vital',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1708,7 +1708,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_2',
+    id: 'prefix_healthRegen_2',
     name: 'Vigorous',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1723,7 +1723,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_3',
+    id: 'prefix_healthRegen_3',
     name: 'Regenerative',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1738,7 +1738,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_4',
+    id: 'prefix_healthRegen_4',
     name: 'Restorative',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1753,7 +1753,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_5',
+    id: 'prefix_healthRegen_5',
     name: 'Revitalizing',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1768,7 +1768,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_6',
+    id: 'prefix_healthRegen_6',
     name: 'Rejuvenating',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1783,7 +1783,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_7',
+    id: 'prefix_healthRegen_7',
     name: 'Restoring',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1798,7 +1798,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_8',
+    id: 'prefix_healthRegen_8',
     name: 'Healing',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1813,7 +1813,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_9',
+    id: 'prefix_healthRegen_9',
     name: 'Mending',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1828,7 +1828,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_10',
+    id: 'prefix_healthRegen_10',
     name: 'Vitalizing',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1843,7 +1843,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.ARMOR, ItemBase.SHOULDER, ItemBase.PANTS],
   },
   {
-    id: 'prefix_health_regen_11',
+    id: 'prefix_healthRegen_11',
     name: 'Immortal',
     type: AffixType.PREFIX,
     category: AffixCategory.LIFE,
@@ -1859,7 +1859,7 @@ export const prefixAffixes: IAffix[] = [
   },
   // Mana Regeneration Category
   {
-    id: 'prefix_mana_regen_1',
+    id: 'prefix_manaRegen_1',
     name: 'Ethereal',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1874,7 +1874,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_2',
+    id: 'prefix_manaRegen_2',
     name: 'Mystic',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1889,7 +1889,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_3',
+    id: 'prefix_manaRegen_3',
     name: 'Arcane',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1904,7 +1904,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_4',
+    id: 'prefix_manaRegen_4',
     name: 'Enchanted',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1919,7 +1919,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_5',
+    id: 'prefix_manaRegen_5',
     name: 'Mystical',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1934,7 +1934,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_6',
+    id: 'prefix_manaRegen_6',
     name: 'Celestial',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1949,7 +1949,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_7',
+    id: 'prefix_manaRegen_7',
     name: 'Astral',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1964,7 +1964,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_8',
+    id: 'prefix_manaRegen_8',
     name: 'Cosmic',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1979,7 +1979,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_9',
+    id: 'prefix_manaRegen_9',
     name: 'Primordial',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -1994,7 +1994,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_10',
+    id: 'prefix_manaRegen_10',
     name: 'Divine',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,
@@ -2009,7 +2009,7 @@ export const prefixAffixes: IAffix[] = [
     allowedBases: [ItemBase.BOOTS, ItemBase.GLOVES, ItemBase.HELMET],
   },
   {
-    id: 'prefix_mana_regen_11',
+    id: 'prefix_manaRegen_11',
     name: 'Transcendent',
     type: AffixType.PREFIX,
     category: AffixCategory.MANA,

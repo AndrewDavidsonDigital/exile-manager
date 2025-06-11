@@ -371,9 +371,9 @@ export const useAdventuringStore = defineStore('adventuring', () => {
               const secondaryDamage = monsterDamage - primaryDamage;
               
               // Get percentage-based mitigations
-              const primaryMitigation = Math.min(BaseStats.BASE_MAX_RESISTANCE, exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0);
-              const secondaryMitigation = Math.min(BaseStats.BASE_MAX_RESISTANCE, exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0);
-              
+              const primaryMitigation = Math.min(BaseStats.BASE_MAX_RESISTANCE, (exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.primary)?.value || 0));
+              const secondaryMitigation = Math.min(BaseStats.BASE_MAX_RESISTANCE, (exileStats.mitigation.find((m: IMitigation) => m.key === simMonster.damageInfo.secondary)?.value || 0));
+
               if (primaryMitigation > 0) {
                 usedMitigations.add(simMonster.damageInfo.primary);
               }
@@ -528,6 +528,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           // add reduced experience on miraculous escape
           gameEngine.addExperience(simMonster.experience * 0.2);
           gameEngine.updateStats({ currentHealth: 1 }); // Set health to 1 on miraculous escape
+
         } else if (combatResult.combatOutcome.startsWith('Defeat!')) {
           gameEngine.updateStats({ currentHealth: 0 }); // Set health to 0 on defeat
           gameEngine.isDead = true; // Also set isDead to true on defeat
@@ -565,7 +566,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         const activeMitigations = Array.from(combatResult.usedMitigations)
           .map(key => {
             const mitigation = exileStats.mitigation.find(m => m.key === key);
-            return mitigation ? `${key}: ${mitigation.value}%` : '';
+            return mitigation ? `${key}: ${Math.min(BaseStats.BASE_MAX_RESISTANCE,mitigation.value)}%` : '';
           })
           .filter(m => m !== '')
           .join(', ');
@@ -1040,15 +1041,18 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     }
 
     const tickResult = generateEncounter(selectedLevel, loggingDetail);
+
+    if (tickResult.encounter.includes('Escape')){
+      if (selectedLevel.uses === 0){
+        // need to remove limited location.
+        gameEngine.removeLocation(selectedLevel);
+      }
+      console.log('ESCAPED: ',tickResult);
+    }
     
     const entry: IJournalEntry = {
       message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] ${tickResult.encounterIcon} ${tickResult.encounter}`,
       type: tickResult.encounterType,
-    }
-    
-
-    if (loggingDetail){
-      // entry.message += tickResult.encounter.
     }
 
 

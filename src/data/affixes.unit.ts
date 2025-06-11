@@ -86,3 +86,20 @@ test('Ensure there affix names are unique within affix slot', () => {
     throw new Error(`Found ${violations.length} affix slots with duplicate names:\n${errorMessage}`);
   }
 }); 
+
+test('Ensure that affix identifiers have only 3 segments  {slot}_{cat}_#', () => {
+  // Check each affix's name format
+  const violations = allAffixes.filter(affix => {
+    const segments = affix.id.split('_');
+    return segments.length !== 3;
+  });
+
+  // If we found any violations, create a detailed error message
+  if (violations.length > 0) {
+    const errorMessage = violations.map(affix => 
+      `Affix "${affix.name}" (${affix.id}): Expected format {slot}_{cat}_# but got ${affix.name.split('_').length} segments`
+    ).join('\n');
+    
+    throw new Error(`Found ${violations.length} affixes with incorrect name format:\n${errorMessage}`);
+  }
+});
