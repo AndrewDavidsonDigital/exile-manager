@@ -13,6 +13,7 @@
   import SwitchToggle from '@/components/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
   import { LevelType, type ILevel } from '@/lib/core';
+  import { IconHelm, IconMap, IconTreasureChest, IconVillage } from '@/components/icons';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -23,6 +24,19 @@
   const activeTab = ref<TabType>('adventuring');
   const lastUpdate = ref<number>(Date.now());
   const reportingStyle = ref<boolean>(false);
+  const isCharPaneVisible = ref<boolean>(true);
+  const cheatsToggle = ref<boolean>(false);
+
+  const hasLevelUpRewards = computed(
+    () => 
+      gameEngine.getCharacter !== ErrorNumber.NOT_FOUND 
+      ? (
+           gameEngine.getCharacter.pendingRewards.passives > 0 
+        || gameEngine.getCharacter.pendingRewards.skills > 0 
+        || gameEngine.getCharacter.pendingRewards.stats > 0
+      ) 
+      : false
+  );
 
   const enableCheats = import.meta.env.DEV;
   
@@ -35,14 +49,14 @@
     if (selectedLevel.value) {
       adventuringStore.startAdventuring(selectedLevel.value, reportingStyle.value);
     }
-    if (window.innerWidth > 768){
-      setTimeout(
-        ()=>{
-          document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
-        },
-        500
-      )
-    }
+    // if (window.innerWidth > 768){
+    //   setTimeout(
+    //     ()=>{
+    //       document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
+    //     },
+    //     500
+    //   )
+    // }
   }
 
   watch(isCharAlive, (newVal) => {
@@ -58,13 +72,54 @@
 </script>
 
 <template>
-  <section class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)]">
+  <section class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)] relative">
     <template v-if="hasCharacter">
-      <FluidElement>
-        <WorldState />
-      </FluidElement>
+      <article
+        class="flex gap-2 justify-center sticky top-4 z-1000 -mt-4 [&>button]:mb-auto"
+        :class="[
+          { '[&>button]:opacity-50 [&>button]:pointer-events-none' : adventuringStore.isAdventuring },
+        ]"
+      >
+        <span>
+          <button
+            class="transition-all duration-200"
+            :class="[
+              { '-translate-y-4 opacity-75' : !isCharPaneVisible },
+            ]"
+            @click="isCharPaneVisible = !isCharPaneVisible"
+          >
+            <FluidElement
+              class="w-fit"
+              :class="[
+                { 'animate-snake-border' : hasLevelUpRewards },
+              ]"
+            >
+              <span class="hidden md:inline">{{ !isCharPaneVisible ? 'See ' : 'Hide' }} Char</span>
+              <span class="md:hidden"><IconHelm :class="[{ 'grayscale' : !isCharPaneVisible}]" /></span>
+            </FluidElement>
+          </button>
+        </span>
+        <button @click="activeTab = 'adventuring'; lastUpdate = Date.now()">
+          <FluidElement class="w-fit">
+            <span class="hidden md:inline">Go Adventuring</span>
+            <span class="md:hidden"><IconMap class="opacity-50" /></span>
+          </FluidElement>
+        </button>
+        <button @click="activeTab = 'loot'">
+          <FluidElement class="w-fit">
+            <span class="hidden md:inline">Manage Loot</span>
+            <span class="md:hidden"><IconTreasureChest class="opacity-50" /></span>
+          </FluidElement>
+        </button>
+        <button @click="activeTab = 'town'">
+          <FluidElement class="w-fit">
+            <span class="hidden md:inline">Goto Town - NYI</span>
+            <span class="md:hidden"><IconVillage class="opacity-50" /></span>
+          </FluidElement>
+        </button>
+      </article>
       <section
-        v-if="enableCheats"
+        v-if="enableCheats && cheatsToggle"
         class="flex flex-col"
       >
         <div class="mx-auto w-fit">
@@ -99,28 +154,6 @@
           </button>
         </div>
       </section>
-      <article
-        class="flex gap-2 justify-center"
-        :class="[
-          { 'opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
-        ]"
-      >
-        <button @click="activeTab = 'adventuring'; lastUpdate = Date.now()">
-          <FluidElement class="w-fit">
-            Go Adventuring
-          </FluidElement>
-        </button>
-        <button @click="activeTab = 'loot'">
-          <FluidElement class="w-fit">
-            Manage Loot
-          </FluidElement>
-        </button>
-        <button @click="activeTab = 'town'">
-          <FluidElement class="w-fit">
-            Goto Town - NYI
-          </FluidElement>
-        </button>
-      </article>
       <section
         class="grid-area-stack"
         :class="[
@@ -151,9 +184,12 @@
           </FluidElement>
         </article>
       </section>
-      <div class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]">
+      <div
+        v-if="isCharPaneVisible"
+        class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]"
+      >
         <CharacterState class="w-full order-2" />
-        <FluidElement class="w-full hidden md:block order-3">
+        <FluidElement class="w-full hidden md:block order-3 ">
           <CharacterEquipment />
         </FluidElement>
         <FluidElement
@@ -259,6 +295,9 @@
         class="mask-b -mt-2"
       >
       </article>
+      <FluidElement>
+        <WorldState />
+      </FluidElement>
     </template>
     <template v-else>
       <CharacterCreation
@@ -266,6 +305,7 @@
       />
     </template>
   </section>
+
   <ModalDialog
     id="gameModal"
     :show="modalShown"
@@ -319,6 +359,12 @@
 </template>
 <style scoped>
   @reference "@/assets/main.css";
+
+  *{
+    --core-ui-border-color: transparent; /* oklch(69.6% 0.17 162.48) */
+    --snake-color: oklch(78.9% 0.154 211.53);
+  }
+
   .mask-b{
     @apply relative;
     @apply before:absolute before:w-[calc(100%_-_0.75rem)] before:h-16 before:bottom-[1px] before:left-[1px] before:rounded-bl-xl;
@@ -336,5 +382,45 @@
   .blurred {
     filter: blur(2px);
     opacity: 0.7;
+  }
+
+  @keyframes snake-border {
+    0% {
+      background-position: 0% 0;
+    }
+    100% {
+      background-position: 150% 0;
+    }
+  }
+
+  .animate-snake-border {
+    position: relative;
+    border: 2px solid transparent;
+  }
+
+  .animate-snake-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    padding: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--core-ui-border-color) 0%,
+      var(--core-ui-border-color) 25%,
+      color-mix(in srgb, var(--snake-color) 20%, var(--core-ui-border-color)) 30%,
+      var(--snake-color) 40%,
+      var(--snake-color) 60%,
+      color-mix(in srgb, var(--snake-color) 20%, var(--core-ui-border-color)) 70%,
+      var(--core-ui-border-color) 75%,
+      var(--core-ui-border-color) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: snake-border 2s linear infinite forwards;
   }
 </style>

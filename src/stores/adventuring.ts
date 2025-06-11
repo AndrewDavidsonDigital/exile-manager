@@ -811,10 +811,11 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         const uses = Math.ceil(1 + Math.random()  * (Math.random() > 0.5 ? -1 : 1));
         const description = `An unknown location`;
-        const name = `Unknown: ${generateRandomId()}`;
+        const id = generateRandomId();
+        const name = `Unknown: ${id}`;
 
         const placeholderContent: ILevel = {
-          _identifier: `unknown_location_${name}`,
+          _identifier: `unknown_location_${id}`,
           description: description,
           name: name,
           areaLevel,
@@ -854,7 +855,88 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             },
           ],
           uses: uses,
-          dynamicCompletions: [],
+          dynamicCompletions: [
+            {
+              _identifier: 'init_cave',
+              type: DynamicZone.CAVE,
+              areaLevelDelta: 2,
+              limits: 2,
+              weighting: 15,
+              areaLevelAnchor: DynamicZoneLevelAnchor.ZONE,
+              areaLuckDelta: 1.2,
+              encounters: [
+                {
+                  type: LevelEncounters.COMBAT,
+                  weighting: 45,
+                },
+                {
+                  type: LevelEncounters.CUSTOM_C,
+                  weighting: 1,
+                },
+                {
+                  type: LevelEncounters.TRAP,
+                  weighting: 20,
+                },
+                {
+                  type: LevelEncounters.TREASURE,
+                  weighting: 25,
+                },
+              ]
+            },
+            {
+              _identifier: 'init_island',
+              type: DynamicZone.ISLAND,
+              areaLevelDelta: 5,
+              limits: 5,
+              weighting: 10,
+              areaLevelAnchor: DynamicZoneLevelAnchor.ZONE,
+              areaLuckDelta: 1.5,
+              encounters: [
+                {
+                  type: LevelEncounters.COMBAT,
+                  weighting: 55,
+                },
+                {
+                  type: LevelEncounters.CUSTOM_C,
+                  weighting: 1,
+                },
+                {
+                  type: LevelEncounters.TRAP,
+                  weighting: 10,
+                },
+                {
+                  type: LevelEncounters.TREASURE,
+                  weighting: 25,
+                },
+              ]
+            },
+            {
+              _identifier: 'init_rift',
+              type: DynamicZone.RIFT,
+              areaLevelDelta: 0,
+              limits: 2,
+              weighting: 30,
+              areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+              areaLuckDelta: 2.0,
+              encounters: [
+                {
+                  type: LevelEncounters.COMBAT,
+                  weighting: 40,
+                },
+                {
+                  type: LevelEncounters.TREASURE,
+                  weighting: 20,
+                },
+                {
+                  type: LevelEncounters.RECOVERY,
+                  weighting: 25,
+                },
+                {
+                  type: LevelEncounters.CORRUPTED,
+                  weighting: 15,
+                },
+              ]
+            }],
           completionRules: [],
           type: LevelType.INFINITE,
         }
@@ -900,34 +982,35 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           let description = '';
           let name = '';
           let preface = '';
+          const id = generateRandomId();
           const uses = Math.ceil(selectedBonus.limits + (Math.random() * 2)  * (Math.random() > 0.5 ? -1 : 1));
           switch (selectedBonus.type) {
             case DynamicZone.CAVE:
               description = `An entrance to a secluded cave`;
-              name = `${DynamicZone.CAVE}: ${generateRandomId()}`;
+              name = `${DynamicZone.CAVE}: ${id}`;
               preface = 'Approach the ';
               break;
 
             case DynamicZone.ISLAND:
               description = `You can make out an Island just off-shore`;
-              name = `${DynamicZone.ISLAND}: ${generateRandomId()}`;
+              name = `${DynamicZone.ISLAND}: ${id}`;
               preface = 'Explore the ';
               break;
 
             case DynamicZone.RIFT:
               description = `This rift hums with a sense of urgency`;
-              name = `${DynamicZone.RIFT}: ${generateRandomId()}`;
+              name = `${DynamicZone.RIFT}: ${id}`;
               preface = 'Investigate the ';
               break;
           
             default:
               description = `An unknown location`;
-              name = generateRandomId();
+              name = id;
               break;
           }
 
           const bonusContent: ILevel = {
-            _identifier: `${selectedBonus._identifier}_${name}`,
+            _identifier: `${selectedBonus._identifier}_${id}`,
             description: description,
             name: name,
             areaLevel,
