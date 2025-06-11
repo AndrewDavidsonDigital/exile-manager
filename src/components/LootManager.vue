@@ -10,9 +10,10 @@ import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './ModalDialog.vue';
 import { IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
-import { allItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
+import { allItemTiers, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
 import RomanNumeral from './RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
+import SwitchToggle from './SwitchToggle.vue';
 
 const gameEngine = useGameEngine();
 const adventuringEngine = useAdventuringStore();
@@ -102,7 +103,6 @@ watch(isAdventuring, (newValue) => {
     resetBrush();
   }
 });
-
 
 const handleEquipmentSwap = () => {
   if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
@@ -293,7 +293,38 @@ const canCompare = computed(() => {
             </FluidElement>
           </button>
         </div>
-        
+        <div class="flex flex-col gap-1">
+          <span
+            class="ml-2 md:mx-auto opacity-80"
+            :class="[
+              { 'grayscale opacity-50' : !(gameEngine.autoSalvage) },
+            ]"
+          >Auto Salvage</span>
+          <div class="flex gap-2 w-fit h-fit items-center">
+            <SwitchToggle
+              v-model="gameEngine.autoSalvage" 
+              :class="!gameEngine.autoSalvage ? 'opacity-50' : ''"
+            />
+            <label>
+              <select 
+                v-model="gameEngine.autoSalvageTier"
+                class="capitalize text-center bg-slate-800 rounded-sm border-emerald-700 border"
+                :class="[
+                  { 'pointer-events-none grayscale opacity-50' : !(gameEngine.autoSalvage) },
+                ]"
+              >
+                <option
+                  v-for="tier,index in ItemTiers"
+                  :key="`autosalvage_${index}`"
+                  :value="tier"
+                  class="capitalize bg-slate-800"
+                >
+                  {{ tier }}
+                </option>
+              </select>
+            </label>
+          </div>
+        </div>
         <!-- Brush Tools -->
         <div class="flex gap-2">
           <button

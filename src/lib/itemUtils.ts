@@ -1,7 +1,7 @@
 import { type ICharacterEquipment } from './game';
 import type { AffixValue, IBaseAffix } from './affixTypes';
 import { BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
-import { AffixTypes, ItemBase, type ItemTierType, type LootType } from './core';
+import { AffixTypes, ItemBase, ItemTiers, type ItemTierType, type LootType } from './core';
 
 /**
  * List of all possible item types in the game
@@ -159,7 +159,7 @@ export const generateGoldWithBias = (baseGold: number, lootTags: LootType[]): nu
  * @param maxLevel The maximum possible level (defaults to 40)
  * @returns A randomly selected ItemTierType based on weighted probabilities
  */
-export function generateItemTier(sourceLevel: number, maxLevel: number = 40): ItemTierType {
+export function generateItemTier(sourceLevel: number, maxLevel: number = 40): ItemTiers {
   // Calculate the normalized level (0 to 1)
   const normalizedLevel = Math.min(1, sourceLevel / maxLevel);
   
@@ -197,12 +197,12 @@ export function generateItemTier(sourceLevel: number, maxLevel: number = 40): It
   for (const { tier, weight } of finalWeights) {
     random -= weight;
     if (random <= 0) {
-      return tier;
+      return tier as ItemTiers;
     }
   }
 
   // Fallback to basic tier (should never reach here)
-  return 'basic';
+  return ItemTiers.BASIC;
 }
 
 /**

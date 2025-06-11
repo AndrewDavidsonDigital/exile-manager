@@ -25,7 +25,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, IBaseStats, ItemBase, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, IBaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType } from '@/lib/core';
 import { levels } from '@/data/levels';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
@@ -38,6 +38,8 @@ const DEFAULT_STATE = <Readonly<IGameEngine>> {
   character: undefined,
   isDead: false,
   knownLocations: [],
+  autoSalvageTier: ItemTiers.BASIC,
+  autoSalvage: false,
 }
 
 interface IGameEngine {
@@ -48,6 +50,8 @@ interface IGameEngine {
   isDead: boolean;
   stash?: ILoot[];  
   knownLocations: ILevel[],
+  autoSalvageTier: ItemTiers,
+  autoSalvage: boolean;
 }
 
 export const useGameEngine = defineStore('gameEngine', {
@@ -564,6 +568,8 @@ export const useGameEngine = defineStore('gameEngine', {
       this.character = undefined;
       this.isDead = false;
       this.knownLocations = [];
+      this.autoSalvageTier = ItemTiers.BASIC;
+      this.autoSalvage = false;
       this.saveState();
     },
     /**
@@ -589,6 +595,16 @@ export const useGameEngine = defineStore('gameEngine', {
 
       this.knownLocations = [levels[0]];
 
+      this.saveState();
+    },
+
+    setAutoSalvage(enabled: boolean){
+      this.autoSalvage = enabled;
+      this.saveState();
+    },
+
+    setAutoSalvageTier(tier: ItemTiers){
+      this.autoSalvageTier = tier;
       this.saveState();
     },
 
@@ -911,6 +927,17 @@ export const useGameEngine = defineStore('gameEngine', {
         // Generate a random item type using weighted system if loot tags are provided
         const type: ItemBase = lootTags ? getWeightedItemType(lootTags) : allItemTypes[Math.floor(Math.random() * allItemTypes.length)];
 
+        const tier = generateItemTier(this.character.level);
+
+        // automatic salvage logic
+        if (this.autoSalvage && (tier === this.autoSalvageTier || allItemTiers.indexOf(tier) < allItemTiers.indexOf(this.autoSalvageTier)))  {
+          const lootValue = ITEM_TIER_COSTS[tier] / 10;
+
+          this.updateGold(lootValue);
+          logger(`Auto Salvaged a ${tier} item for ${lootValue} gold`);
+          continue;
+        }
+
         const id = generateRandomId(); // Temporary name until identified;
         const iLevel = generateItemLevel(areaLevel);
         const newLoot: ILoot = {
@@ -925,7 +952,7 @@ export const useGameEngine = defineStore('gameEngine', {
             isVoidTouched: Math.random() < 0.01, // 1% chance to be voidTouched
           },
           itemDetails: {
-            tier: generateItemTier(this.character.level),
+            tier,
             mutations: [],
             affixes: {
               embedded: [],
@@ -1162,6 +1189,10 @@ export const useGameEngine = defineStore('gameEngine', {
       if (mutableNewState.character && currentState.character?.pendingRewards &&  !Object.keys(currentState.character.pendingRewards).includes('stats')){
         mutableNewState.character.pendingRewards.stats = 0;
       }
+
+      // v0.1.4 //force default state
+      mutableNewState.autoSalvageTier = DEFAULT_STATE.autoSalvageTier;
+      mutableNewState.autoSalvage = DEFAULT_STATE.autoSalvage;
 
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);
      

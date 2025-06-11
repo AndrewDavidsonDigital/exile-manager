@@ -77,7 +77,7 @@
       <article
         class="flex gap-2 justify-center sticky top-4 z-1000 -mt-4 [&>button]:mb-auto"
         :class="[
-          { '[&>button]:opacity-50 [&>button]:pointer-events-none' : adventuringStore.isAdventuring },
+          { '[&>button]:opacity-50 [&>button]:grayscale [&>button]:pointer-events-none' : adventuringStore.isAdventuring },
         ]"
       >
         <span>
@@ -89,7 +89,7 @@
             @click="isCharPaneVisible = !isCharPaneVisible"
           >
             <FluidElement
-              class="w-fit"
+              class="w-fit !border-cyan-500/75"
               :class="[
                 { 'animate-snake-border' : hasLevelUpRewards },
               ]"
@@ -99,22 +99,52 @@
             </FluidElement>
           </button>
         </span>
-        <button @click="activeTab = 'adventuring'; lastUpdate = Date.now()">
-          <FluidElement class="w-fit">
+        <button
+          class="transition-all duration-200"
+          :class="[
+            { '-translate-y-4 opacity-75' : activeTab !== 'adventuring' },
+          ]" 
+          @click="activeTab = 'adventuring'; lastUpdate = Date.now()"
+        >
+          <FluidElement class="w-fit !pt-6">
             <span class="hidden md:inline">Go Adventuring</span>
-            <span class="md:hidden"><IconMap class="opacity-50" /></span>
+            <span class="md:hidden"><IconMap class="opacity-50 mx-auto" /><span
+              class="text-sm"
+              :class="[
+                { 'opacity-0' : gameEngine.knownLocations.length > 0}
+              ]"
+            >({{ gameEngine.knownLocations.length }})</span></span>
           </FluidElement>
         </button>
-        <button @click="activeTab = 'loot'">
-          <FluidElement class="w-fit">
+        <button
+          class="transition-all duration-200"
+          :class="[
+            { '-translate-y-4 opacity-75' : activeTab !== 'loot' },
+          ]"
+          @click="activeTab = 'loot'"
+        >
+          <FluidElement class="w-fit !pt-6">
             <span class="hidden md:inline">Manage Loot</span>
-            <span class="md:hidden"><IconTreasureChest class="opacity-50" /></span>
+            <span class="md:hidden"><IconTreasureChest class="opacity-50 mx-auto" /><span
+              class="text-sm"
+              :class="[
+                { 'opacity-0' : gameEngine.character && gameEngine.character.loot.length > 0}
+              ]"
+            >({{ gameEngine.character?.loot.length }})</span></span>
           </FluidElement>
         </button>
-        <button @click="activeTab = 'town'">
-          <FluidElement class="w-fit">
+        <button
+          class="transition-all duration-200"
+          :class="[
+            { '-translate-y-4 opacity-75' : activeTab !== 'town' },
+          ]"
+          @click="activeTab = 'town'"
+        >
+          <FluidElement class="w-fit !pt-6">
             <span class="hidden md:inline">Goto Town - NYI</span>
-            <span class="md:hidden"><IconVillage class="opacity-50" /></span>
+            <span class="md:hidden"><IconVillage class="opacity-50 mx-auto" /><span
+              class="text-sm"
+            >(NYI)</span></span>
           </FluidElement>
         </button>
       </article>
@@ -157,7 +187,7 @@
       <section
         class="grid-area-stack"
         :class="[
-          { 'opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
+          { 'grayscale opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
         ]"
       >
         <article

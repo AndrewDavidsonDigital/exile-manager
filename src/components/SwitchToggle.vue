@@ -1,5 +1,11 @@
 <script setup lang="ts">
 
+interface Props {
+  class?: string;
+}
+
+const props = defineProps<Props>();
+
 const model = defineModel();
 
 function update() {
@@ -9,12 +15,13 @@ function update() {
 </script>
 
 <template>
-  <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-  <input
-    v-model="model"
-    type="checkbox"
-    class="hidden"
-  >
+  <label>
+    <input
+      v-model="model"
+      type="checkbox"
+      class="hidden"
+    >
+  </label>
   <button 
     class="
       dark:bg-slate-600 dark:outline-emerald-400 
@@ -25,6 +32,7 @@ function update() {
       transition-all duration-300 ease-in
       cursor-pointer
     "
+    :class="props.class"
     @click="update"
   >
     <div 
