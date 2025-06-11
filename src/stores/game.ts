@@ -764,15 +764,17 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {number} amount - Amount of health to restore
      */
     heal(amount: number, isPercent: boolean = false) {
-      if (!this.character) return;
+      const stats = this.getCombatStats;
+      if (!this.character || stats === ErrorNumber.NOT_FOUND) return;
       
       let newHealth;
       if (isPercent) {
-        newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + Math.floor(this.character.stats.health * (amount / 100)));
+        newHealth = Math.min(stats.maxHealth, stats.health + Math.floor(stats.maxHealth * (amount / 100)));
       }else{
-        newHealth = Math.min(this.character.stats.health, this.character.stats.currentHealth + amount);
+        newHealth = Math.min(stats.maxHealth, stats.health + amount);
       }
-      logger(`Healing ${amount} health${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(this.character.stats.health * (amount / 100 )) : amount}]`);
+
+      logger(`Healing ${amount} health${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(stats.maxHealth * (amount / 100 )) : amount}]`);
       this.updateStats({ currentHealth: newHealth });
     },
 
@@ -781,15 +783,16 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {number} amount - Amount of health to restore
      */
     recoverMana(amount: number, isPercent: boolean = false) {
-      if (!this.character) return;
+      const stats = this.getCombatStats;
+      if (!this.character || stats === ErrorNumber.NOT_FOUND) return;
       
       let newMana;
       if (isPercent) {
-        newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + Math.floor(this.character.stats.mana * (amount / 100)));
+        newMana = Math.min(stats.maxMana, stats.mana + Math.floor(stats.maxMana * (amount / 100)));
       }else{
-        newMana = Math.min(this.character.stats.mana, this.character.stats.currentMana + amount);
+        newMana = Math.min(stats.maxMana, stats.mana + amount);
       }
-      logger(`Revoring ${amount} mana${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(this.character.stats.mana * (amount / 100 )) : amount}]`);
+      logger(`Recovering ${amount} mana${isPercent ? ' %' : ''} as [${isPercent ? Math.floor(stats.maxMana * (amount / 100 )) : amount}]`);
       this.updateStats({ currentMana: newMana });
     },
 
