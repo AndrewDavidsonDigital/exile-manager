@@ -121,6 +121,8 @@ const orderedStats = computed(() => {
 });
 
 const experienceWidth = computed(() =>  char !== ErrorNumber.NOT_FOUND ? `${ Math.round((char.experience / (char.level * 100)) * 100) }%` : '0%');
+const healthWidth = computed(() =>  char !== ErrorNumber.NOT_FOUND ? `${ Math.round((char.stats.currentHealth / char.stats.health) * 100) }%` : '0%');
+const manaWidth = computed(() =>  char !== ErrorNumber.NOT_FOUND ? `${ Math.round((char.stats.currentMana / char.stats.mana) * 100) }%` : '0%');
 
 const healthColorClass = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return '';
@@ -398,7 +400,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
     <div 
       class="
       flex flex-col 
-      gap-3 p-4 
+      gap-1 md:gap-3 md:p-4 py-2 px-3
       bg-gray-800 
       relative
       rounded-lg border-4 
@@ -419,7 +421,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               Level {{ char.level }} {{ char.class }}
             </div>
           </div>
-          <div class="flex gap-2 ">
+          <div class="gap-2 hidden md:flex">
             <button 
               v-if="hasWorldSkill"
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
@@ -492,36 +494,72 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           </div>
         </div>
 
-        <div class="px-2 mx-auto md:hidden">
-          <span class="text-gray-400">World Skills:</span>
-          <span 
-            class="ml-2 place-self-center md:place-self-start" 
-          >
-            <span>{{ char.skills.filter(sk => sk.isEnabled && sk.activationLayer === SkillActivationLayer.WORLD).length }}</span>/<span>{{ Math.min(char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length,3) }}</span>
-          </span>
-        </div>
-        <div class="px-2 mx-auto flex gap-2">
+        <div
+          class="px-2 mx-auto flex gap-2 -mt-2 md:mt-0"
+        >
           <div
             v-if="char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length > 0"
-            class="hidden md:block"
+            class="flex"
           >
-            <span class="text-gray-400">World Skills:</span>
+            <span class="text-gray-400 hidden md:block">World Skills:</span>
+            <button 
+              v-if="hasWorldSkill"
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause md:hidden"
+              @click="handleWorldSkillsClick"
+            >
+              <IconWorldSkills class="opacity-50 hover:opacity-80" />
+            </button>
             <span 
               class="ml-2 place-self-center md:place-self-start" 
             >
               <span>{{ char.skills.filter(sk => sk.isEnabled && sk.activationLayer === SkillActivationLayer.WORLD).length }}</span>/<span>{{ Math.min(char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length,3) }}</span>
             </span>
           </div>
-          <div v-if="char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length > 0">
-            <span class="text-gray-400">Skills:</span>
+          <div
+            v-if="char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length > 0"
+            class="flex"
+          >
+            <span class="text-gray-400 hidden md:block">Skills:</span>
+            <button 
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause md:hidden"
+              @click="handleSkillsClick"
+            >
+              <IconSkills
+                :class="[
+                  {'animate-colour-pulse': char.pendingRewards.skills > 0 && !showSkillsModal},
+                  {'opacity-50 hover:opacity-80': !(char.pendingRewards.skills)},
+                ]"
+                :style="`
+                  --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
+                  --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
+                `"
+              />
+            </button>
             <span 
               class="ml-2 place-self-center md:place-self-start" 
             >
               <span>{{ char.skills.filter(sk => sk.isEnabled && sk.activationLayer !== SkillActivationLayer.WORLD).length }}</span>/<span>{{ Math.min(char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length, 3) }}</span>
             </span>
           </div>
-          <div>
-            <span class="text-gray-400">Passives:</span>
+          <div
+            class="flex"
+          >
+            <span class="text-gray-400 hidden md:block">Passives:</span>
+            <button
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause md:hidden"
+              @click="handlePassivesClick"
+            >
+              <IconPassiveTree 
+                :class="[
+                  {'animate-colour-pulse': char.pendingRewards.passives > 0 && !showPassivesModal},
+                  {'opacity-50 hover:opacity-80': !(char.pendingRewards.passives)},
+                ]"
+                :style="`
+                  --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
+                  --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
+                `"
+              />
+            </button>
             <span 
               class="ml-2 place-self-center md:place-self-start" 
             >
@@ -532,7 +570,8 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
 
         <div
           class="
-          grid grid-cols-1 md:grid-cols-2 
+          hidden md:grid
+          grid-cols-1 md:grid-cols-2 
           gap-2 items-center
           text-sm
 
@@ -564,6 +603,61 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               :class="{ 'pulse-dynamic': isManaPulsing }"
               :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-mana-loss)' : 'var(--pulse-color-mana)' }"
             ><span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div
+          class="
+          flex md:hidden justify-center
+          gap-2 mt-1
+          text-sm
+        "
+        >
+          <div 
+            :title="`Regen: ${gameEngine.getCombatStats.healthRegen}`"
+            class="
+              ml-3 px-2 
+              place-self-end 
+              w-full 
+              text-right 
+              text-mlg
+              border rounded-l-xl rounded-r-md
+              relative
+
+              bg-emerald-400/10
+
+              after:bg-emerald-700
+              after:absolute
+              after:right-0 after:rounded-r-md
+              after_w-dynamic-health after:h-full after:rounded-l-xl after:transition-all after:duration-500 after:ease-in-out
+            " 
+          >
+            <span class="relative z-10 text-white">{{ gameEngine.getCombatStats.health }}/<span>{{ gameEngine.getCombatStats.maxHealth }}</span>
+            </span>
+          </div>
+          <div 
+            :title="`Regen: ${gameEngine.getCombatStats.manaRegen}`"
+            class="
+              text-blue-400 
+              mr-3 px-2 
+              place-self-start 
+              text-mlg
+              w-full 
+              border rounded-r-xl rounded-l-md
+              relative
+
+              bg-blue-500/15
+
+              after:bg-cyan-700/80
+              after:absolute
+              after:left-0
+              after:rounded-r-xl after:rounded-l-md 
+              after_w-dynamic-mana after:h-full after:transition-all after:duration-500 after:ease-in-out
+            " 
+          >
+            <span class="relative z-10 text-white">
+              <span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
             </span>
           </div>
         </div>
@@ -690,7 +784,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
 
         <div 
           class="
-          w-full h-3.5
+          w-full h-5
           bg-emerald-700/30
           self-end
           mx-auto md:mt-2 
@@ -698,14 +792,16 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           border border-slate-600/50 rounded-full
           
           after:bg-emerald-700
+          after:absolute
           after:bg-gradient-to-tr after:via-40%
           after:from-emerald-900 after:via-emerald-800/50 after:to-teal-500/50
-          after:absolute
           after_w-dynamic after:h-full after:rounded-full after:transition-all after:duration-500 after:ease-in-out
 
-          before:absolute before:size-full
+          before:absolute before:size-full before:my-auto
           before_current-percent before:text-slate-300 before:z-10 
-          before:text-center before:text-xs
+          before:text-center before:text-mlg
+
+          before:translate-y-[calc(-1.25ch_+_50%)]
         "
           :style="`--num:${Math.min(100, Math.round((char.experience / (char.level * 100)) * 100))};`"
         >
@@ -1372,6 +1468,14 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
 
   .after_w-dynamic::after {
     width: v-bind(experienceWidth);
+    max-width: 100%;
+  }
+  .after_w-dynamic-health::after {
+    width: v-bind(healthWidth);
+    max-width: 100%;
+  }
+  .after_w-dynamic-mana::after {
+    width: v-bind(manaWidth);
     max-width: 100%;
   }
 
