@@ -59,10 +59,23 @@ function resolveBackground(level: ILevel): BackgroundTypes {
 
 <template>
   <FluidElement
-    class="flex gap-2 flex-col items-center"
+    class="flex flex-col items-center scrollbar md:overflow-auto overflow-y-scroll overflow-x-clip max-h-[50dvh] md:max-h-[unset]"
     :class="props.class"
   >
-    <div class="flex items-center gap-2 w-full mb-2 relative">
+    <div 
+      class="
+        flex items-center gap-2 
+        mb-2 
+        
+        sticky md:relative
+        w-[calc(100%_+_2.5rem)] md:w-full 
+        -top-6 md:top-0 
+
+        pl-8 py-2 md:p-0
+
+        z-100 bg-neutral-900
+      "
+    >
       <button 
         class="md:mx-auto text-sm w-fit"
         @click="isCollapsed = !isCollapsed"
@@ -77,7 +90,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
         </h2>
       </button>
       
-      <div class="content-center flex items-center gap-2 absolute top-0 right-0">
+      <div class="content-center flex items-center gap-2 absolute top-2 md:top-0 right-4 md:right-0">
         {{ hideLowLevel ? 'Hide' : 'Show' }} Low efficiency <SwitchToggle v-model="hideLowLevel" />
       </div>
     </div>
@@ -92,9 +105,9 @@ function resolveBackground(level: ILevel): BackgroundTypes {
         <FluidElement 
           v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel)"
           class="
-            w-fit min-w-[15vw]
+            w-fit min-w-[15vw] md:min-w-[unset]
             !p-2 !border 
-            md:max-w-[20vw]
+            md:max-w-[250px]
 
             transition-all duration-500
             hover:z-100
@@ -157,7 +170,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
               ></div>
             </div>
             <button
-              class="flex flex-col mx-auto z-10"
+              class="flex flex-col mx-auto z-10 items-center"
               :disabled="isAdventuring"
               @click="$emit('update:modelValue', level)"
             >
@@ -191,7 +204,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
               <p class="text-sm opacity-50">
                 {{ level.description }}
               </p>
-              <div class="flex justify-between">
+              <div class="flex justify-between w-full">
                 <p class="text-sm opacity-50">
                   lvl: {{ level.areaLevel }}
                 </p>
