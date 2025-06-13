@@ -111,7 +111,7 @@
             <span class="md:hidden"><IconMap class="opacity-50 mx-auto" /><span
               class="text-sm"
               :class="[
-                { 'opacity-0' : gameEngine.knownLocations.length > 0}
+                { 'opacity-0' : gameEngine.knownLocations.length <= 0}
               ]"
             >({{ gameEngine.knownLocations.length }})</span></span>
           </FluidElement>
@@ -128,7 +128,7 @@
             <span class="md:hidden"><IconTreasureChest class="opacity-50 mx-auto" /><span
               class="text-sm"
               :class="[
-                { 'opacity-0' : gameEngine.character && gameEngine.character.loot.length > 0}
+                { 'opacity-0' : gameEngine.character && gameEngine.character.loot.length <= 0}
               ]"
             >({{ gameEngine.character?.loot.length }})</span></span>
           </FluidElement>
