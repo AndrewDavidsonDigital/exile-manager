@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import FluidElement from '@/components/FluidElement.vue';
-import PillElement from '@/components/PillElement.vue';
+  import FluidElement from '@/components/elements/FluidElement.vue';
+import PillElement from '@/components/elements/PillElement.vue';
   import { entries } from '@/journal';
   import type { IEntry } from '@/journal';
 import { ErrorNumber } from '@/lib/typescript';

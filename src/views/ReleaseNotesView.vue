@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import FluidElement from '@/components/FluidElement.vue';
+  import FluidElement from '@/components/elements/FluidElement.vue';
   import { releases } from '@/releaseNotes';
 
   const gitBaseUrl = "https://github.com/AndrewDavidsonDigital/exile-manager/"

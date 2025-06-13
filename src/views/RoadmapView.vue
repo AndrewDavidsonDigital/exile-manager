@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import FluidElement from '@/components/FluidElement.vue';
+  import FluidElement from '@/components/elements/FluidElement.vue';
 
   type FeatureStatusType = 'completed' | 'partial' | 'pending';
   type FeaturePriorityType = 'high' | 'normal' | 'low';

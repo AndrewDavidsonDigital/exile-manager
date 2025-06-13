@@ -40,7 +40,7 @@ export interface ICombatStat {
   manaRegen: number;
   criticalStrike: number;
   deflection?: number;
-  mitigation: IMitigation[];
+  mitigation: IMitigation[];  // TODO: this really needs to be a map; new Map<MitigationType, number>()
   attributes: {
     fortitude: number;    // Mental and physical endurance
     fortune: number;      // Luck and chance-based outcomes

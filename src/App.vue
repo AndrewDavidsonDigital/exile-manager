@@ -1,16 +1,20 @@
 <script setup lang="ts">
   import { RouterView, useRoute } from 'vue-router'
   import AudioEngine from './AudioEngine.vue';
-  import NavigationElement from './components/NavigationElement.vue';
+  import NavigationElement from './components/elements/NavigationElement.vue';
   import { useBgmEngine } from './stores/audio';
-  import { onMounted, onUnmounted, provide, ref } from 'vue';
+  import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
   import { trace } from './lib/logging';
-
-  const currentRoute = useRoute();
-
+  import { useConfigurationStore } from './stores/configuration';
+  
   import bgmTrack from '@/assets/audio/bgm_track.mp3';
   import GameBanner from './components/GameBanner.vue';
   import FooterElement from './components/FooterElement.vue';
+import { toggleScrollLock } from './lib/ui';
+import OptionSettings from './components/OptionSettings.vue';
+
+  const configuration = useConfigurationStore();
+  const currentRoute = useRoute();
 
   const LOGGING_PREFIX = '🎮 INIT:';
   const bgmEngine = useBgmEngine();
@@ -55,6 +59,19 @@
     )
   });
 
+  const showOptionsPanel = computed(() => configuration.isOpen);
+
+  watch(showOptionsPanel, (newValue) => {
+    const scrollRoot = document.getElementById('scrollRoot')
+    if(newValue){
+      scrollRoot ? toggleScrollLock(true, scrollRoot ) : null;
+      console.warn('OPEN OPTIONS');
+    }else{
+      scrollRoot ? toggleScrollLock(false, scrollRoot ) : null;
+      console.warn('CLOSE SETTINGS');
+    }
+  })
+
 </script>
 
 <template>
@@ -65,4 +82,25 @@
     <RouterView />
     <FooterElement />
   </main>
+  <aside
+    class="
+      duration-500 transition-all translate-x-full 
+      w-screen h-screen 
+      fixed top-0 right-0 
+      z-nav 
+      
+      bg-gradient-to-r from-transparent via-5% via-black/50 to-black/50
+      
+      flex justify-end
+    "
+    :class="[
+      { '!translate-x-0' : showOptionsPanel }
+    ]"
+  >
+    <div
+      class="my-6 p-6 h-[calc(100dvh_-_3rem)] w-[calc(100%_-_2rem)] md:w-1/2 rounded-l-lg  bg-slate-700 text-emerald-500 border-2 border-emerald-800"
+    >
+      <OptionSettings />
+    </div>
+  </aside>
 </template>

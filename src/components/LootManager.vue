@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FluidElement from '@/components/FluidElement.vue';
+import FluidElement from '@/components/elements/FluidElement.vue';
 import { useGameEngine } from '@/stores/game';
 import { computed, ref, watch } from 'vue';
 import type { ILoot } from '@/lib/game';
@@ -7,13 +7,13 @@ import { ITEM_TIER_COSTS } from '@/lib/game';
 import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
-import ModalDialog from './ModalDialog.vue';
+import ModalDialog from './elements/ModalDialog.vue';
 import { IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
 import { allItemTiers, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
-import RomanNumeral from './RomanNumeral.vue';
+import RomanNumeral from './elements/RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
-import SwitchToggle from './SwitchToggle.vue';
+import SwitchToggle from './elements/SwitchToggle.vue';
 
 const gameEngine = useGameEngine();
 const adventuringEngine = useAdventuringStore();

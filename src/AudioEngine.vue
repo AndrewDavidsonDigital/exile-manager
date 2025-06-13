@@ -1,12 +1,15 @@
 
 <script setup lang="ts">
-  import { onMounted } from 'vue';
+  import { computed, onMounted, watch } from 'vue';
   import { useBgmEngine } from '&audio'
-  import { useConfiguration } from './stores/configuration';
-
+  import { useConfigurationStore } from './stores/configuration';
 
   const bgmEngine = useBgmEngine();
-  const config = useConfiguration();
+  const config = useConfigurationStore();
+
+  const masterValue = computed(() => config.audio.master);
+  const bgmValue = computed(() => config.audio.bgm);
+  // const sfxValue = computed(() => config.audio.sfx);
 
   onMounted(() => {
     // need small delay to ensure config has been loaded & init'd 
@@ -19,6 +22,26 @@
 
     }, 100);
   });
+
+  watch(masterValue, (newValue)=>{
+    // console.log(`AUDIO: new masterVolume: ${newValue}`);
+    bgmEngine.setVolumeMulti(newValue);
+    bgmEngine.volumeRefresh();
+
+    config.save();
+  });
+
+  watch(bgmValue, (newValue)=>{
+    // console.log(`AUDIO: new masterVolume: ${newValue}`);
+    bgmEngine.setVolume(newValue);
+    bgmEngine.volumeRefresh();
+
+    config.save();
+  });
+
+  // watch(sfxValue, (newValue)=>{
+  //   console.log(`AUDIO: new masterVolume: ${newValue}`);
+  // });
 
 </script>
 

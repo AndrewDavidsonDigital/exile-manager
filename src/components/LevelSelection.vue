@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import FluidElement from '@/components/FluidElement.vue';
+import FluidElement from '@/components/elements/FluidElement.vue';
 import { BackgroundTypes, DynamicZone, LevelType, type ILevel } from '@/lib/core';
 import { computed, watch, ref } from 'vue';
-import SwitchToggle from './SwitchToggle.vue';
+import SwitchToggle from './elements/SwitchToggle.vue';
 
 interface Props {
   levels: ILevel[];

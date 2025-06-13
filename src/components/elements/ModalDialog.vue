@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { trace } from '@/lib/logging';
+import { toggleScrollLock } from '@/lib/ui';
   import { ref, watch } from 'vue';
 
   const LOGGING_PREFIX = '▫️Modal:\t';
@@ -17,13 +18,14 @@
 
 
   watch(() => props.show, (newValue) => {
-    let scrollRoot = document.getElementById('scrollRoot')
+    let scrollRoot = document.getElementById('scrollRoot');
     if(newValue){
       dialogRef.value?.showModal();
       dialogRef.value?.blur();
       
+      
       if(scrollRoot){
-        scrollRoot.style.overflow = 'hidden';
+        toggleScrollLock(true, scrollRoot);
       }
 
       $emit('open');
@@ -32,12 +34,12 @@
       dialogRef.value?.close()
       
       if(scrollRoot){
-        scrollRoot.style.overflow = '';
+        toggleScrollLock(false, scrollRoot);
       }
       $emit('close');
       // console.log(`**** ${Date.now()}`);
     }
-  })
+  });
 
   /**
    * wrapper function for onClose, so when closed NON-programmatically (backdrop click)
@@ -49,8 +51,9 @@
     if (props.show){
       let scrollRoot = document.getElementById('scrollRoot')
       if(scrollRoot){
-        scrollRoot.style.overflow = '';
+        toggleScrollLock(false, scrollRoot);
       }
+
       $emit('close');
     }
   };

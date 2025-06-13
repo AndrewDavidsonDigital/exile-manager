@@ -7,14 +7,15 @@ import { BaseItemAffix, isAffixRange, type AffixValue, type IAffix, type IBaseAf
 import { allAffixes } from '@/data/affixes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
-import FluidElement from './FluidElement.vue';
+import FluidElement from './elements/FluidElement.vue';
 import { getAffixByType } from '@/lib/affixUtils';
 import { formatBaseAffixValue } from '@/lib/itemUtils';
 import { IconPassiveTree, IconSkills, IconStatIncrease, IconWorldSkills } from './icons';
-import ModalDialog from './ModalDialog.vue';
-import SwitchToggle from './SwitchToggle.vue';
+import ModalDialog from './elements/ModalDialog.vue';
+import SwitchToggle from './elements/SwitchToggle.vue';
 import { ErrorNumber } from '@/lib/typescript';
 import { isAbleToAffordSkill, isOffCooldown } from '@/stores/adventuring';
+import { useConfigurationStore } from '@/stores/configuration';
 
 
 interface Props {
@@ -42,7 +43,7 @@ const showNewSkillsModal = ref<boolean>(false);
 const showWorldSkillsModal = ref<boolean>(false);
 const showAddStatsModal = ref<boolean>(false);
 
-const showHealthManaBars = ref<boolean>(false);
+const configuration = useConfigurationStore();
 
 const hasEquippedItems = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return false;
@@ -590,7 +591,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           </div>
         </div>
 
-        <template v-if="showHealthManaBars">
+        <template v-if="configuration.ui.healthManaBars">
           <div
             class="
               hidden md:flex justify-center

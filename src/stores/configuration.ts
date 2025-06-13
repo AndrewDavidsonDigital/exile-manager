@@ -1,4 +1,5 @@
 import { pluckKeys } from '@/lib/array';
+import { _cloneDeep } from '@/lib/object';
 import { useConfig } from '@/lib/storage';
 import { defineStore } from 'pinia'
 
@@ -17,14 +18,15 @@ labelMap_EN.set('type', 'Type');
 
 const CONFIG_KEYS = Object.freeze([
   'audio',
-  'text',
-  'cursor',
+  'ui'
 ]);
 
 export interface IConfiguration {
   audio: IAudioConfiguration;
-  text: ITextConfiguration;
+  ui: IUiConfig;
+  isOpen: boolean;
 }
+
 export interface ITextConfiguration {
   displayRatio: number,
   autoWaitRatio: number,
@@ -34,24 +36,33 @@ export interface IAudioConfiguration {
   master: number,
   bgm: number,
   sfx: number,
-  voice: number,
 }
+
+export interface IUiConfig {
+  healthManaBars: boolean;
+}
+
 const DEFAULT_STATE: IConfiguration = Object.freeze({
   audio: {
     master: 0.5,
     bgm: 0.5,
     sfx: 0.7,
-    voice: 0.7,
   },
-  text: {
-    displayRatio: 1,
-    autoWaitRatio: 1,
+  ui:{
+    healthManaBars: false,
   },
+  isOpen: false,
 });
 
-export const useConfiguration = defineStore('configuration', {
+export const useConfigurationStore = defineStore('configuration', {
   state: () => {
-    return {...DEFAULT_STATE}
+    return _cloneDeep(DEFAULT_STATE) as IConfiguration;
+  },
+
+  getters: {
+    getConfigurables(): Partial<IConfiguration>{
+      return pluckKeys({...this}, CONFIG_KEYS) as Partial<IConfiguration>;
+    },
   },
 
   actions: {
@@ -70,10 +81,8 @@ export const useConfiguration = defineStore('configuration', {
       const localInstance = pluckKeys({...this}, CONFIG_KEYS);      
       useConfig().set(JSON.stringify(localInstance));
     },
-    update(_accessPath: string, _value: any){
-    },
-    getConfigurables(){
-      return pluckKeys({...this}, CONFIG_KEYS);
+    updateAudio(subKey: keyof typeof this.audio, value: number){
+      this.audio[subKey] = value;
     },
   },
 })

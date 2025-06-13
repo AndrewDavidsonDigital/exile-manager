@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import CharacterEquipment from '@/components/CharacterEquipment.vue';
   import CharacterState from '@/components/CharacterState.vue';
-  import FluidElement from '@/components/FluidElement.vue';
+  import FluidElement from '@/components/elements/FluidElement.vue';
   import WorldState from '@/components/WorldState.vue';
   import CharacterCreation from '@/components/CharacterCreation.vue';
   import LevelSelection from '@/components/LevelSelection.vue';
@@ -9,14 +9,16 @@
   import { useGameEngine } from '@/stores/game';
   import { useAdventuringStore } from '@/stores/adventuring';
   import { computed, ref, watch } from 'vue';
-  import ModalDialog from '@/components/ModalDialog.vue';
-  import SwitchToggle from '@/components/SwitchToggle.vue';
+  import ModalDialog from '@/components/elements/ModalDialog.vue';
+  import SwitchToggle from '@/components/elements/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
   import { LevelType, type ILevel } from '@/lib/core';
-  import { IconHelm, IconMap, IconTreasureChest, IconVillage } from '@/components/icons';
+  import { IconCog, IconHelm, IconMap, IconTreasureChest, IconVillage } from '@/components/icons';
+  import { useConfigurationStore } from '@/stores/configuration';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
+  const configurationStore = useConfigurationStore();
   const hasCharacter = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND);
   const isCharAlive = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND && !(gameEngine.isDead));
   const selectedLevel = ref<ILevel>();
@@ -67,6 +69,10 @@
 
   function scrollIntoView(){
     document.querySelector("#_activity-report")?.scroll({ top:0, behavior :'smooth' })
+  }
+
+  function toggleSettings(){
+    configurationStore.isOpen  = !configurationStore.isOpen;
   }
 
 </script>
@@ -147,6 +153,22 @@
             >(NYI)</span></span>
           </FluidElement>
         </button>
+        <span>
+          <button
+            class="transition-all duration-200"
+            :class="[
+              { '-translate-y-4 opacity-75' : !configurationStore.isOpen },
+            ]"
+            @click="toggleSettings"
+          >
+            <FluidElement
+              class="w-fit"
+            >
+              <span class="hidden md:inline"> Settings </span>
+              <span class="md:hidden"><IconCog :class="[{ 'grayscale' : !isCharPaneVisible}]" /></span>
+            </FluidElement>
+          </button>
+        </span>
       </article>
       <section
         v-if="enableCheats && cheatsToggle"

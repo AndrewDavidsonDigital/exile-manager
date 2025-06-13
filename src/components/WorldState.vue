@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import FluidElement from './FluidElement.vue';
+import FluidElement from './elements/FluidElement.vue';
 import { ErrorNumber } from '@/lib/typescript';
 
 const gameEngine = useGameEngine();

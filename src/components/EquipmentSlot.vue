@@ -2,7 +2,7 @@
 import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot } from '@/lib/game';
 import type { AffixValue } from '@/lib/affixTypes';
-import RomanNumeral from './RomanNumeral.vue';
+import RomanNumeral from './elements/RomanNumeral.vue';
 import { TIER_SEPARATOR } from '@/lib/core';
 import { inject } from 'vue';
 
