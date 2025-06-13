@@ -42,6 +42,8 @@ const showNewSkillsModal = ref<boolean>(false);
 const showWorldSkillsModal = ref<boolean>(false);
 const showAddStatsModal = ref<boolean>(false);
 
+const showHealthManaBars = ref<boolean>(false);
+
 const hasEquippedItems = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return false;
   return Object.values(char.equipment).some(item => item !== undefined);
@@ -566,46 +568,124 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               <span>{{ Math.min(char.passives.length) }}</span>
             </span>
           </div>
-        </div>
-
-        <div
-          class="
-          hidden md:grid
-          grid-cols-1 md:grid-cols-2 
-          gap-2 items-center
-          text-sm
-
-          [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
-          [&>div]:text-center md:[&>div]:text-left
-        "
-        >
-          <div class="ml-2 px-2">
-            <span class="text-gray-400">Health:</span>
-            <span 
-              :title="`Regen: ${gameEngine.getCombatStats.healthRegen}`"
-              class="ml-2 px-2 py-1  place-self-center md:place-self-start" 
-              :class="{ 'pulse-dynamic': isHealthPulsing }"
-              :style="[
-                { '--pulse-color': healthPulseType === 'damage' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' },
-              ]"
+          <div
+            class="flex md:hidden"
+          >
+            <button
+              v-if="char.pendingRewards.stats > 0"
+              class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              @click="handleStatsClick"
             >
-              <span
-                class="health-color"
-                :style="healthColorClass"
-              >{{ gameEngine.getCombatStats.health }}</span>/<span>{{ gameEngine.getCombatStats.maxHealth }}</span>
-            </span>
-          </div>
-          <div class="ml-2 px-2">
-            <span class="text-gray-400">Mana:</span>
-            <span 
-              :title="`Regen: ${gameEngine.getCombatStats.manaRegen}`"
-              class="text-blue-400 ml-2 px-2 py-1 place-self-center md:place-self-start"
-              :class="{ 'pulse-dynamic': isManaPulsing }"
-              :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-mana-loss)' : 'var(--pulse-color-mana)' }"
-            ><span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
-            </span>
+              <IconStatIncrease 
+                :class="[
+                  {'animate-colour-pulse': char.pendingRewards.stats > 0 && !showPassivesModal},
+                  {'opacity-50 hover:opacity-80': !(char.pendingRewards.stats)},
+                ]"
+                :style="`
+                  --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
+                  --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
+                `"
+              />
+            </button>
           </div>
         </div>
+
+        <template v-if="showHealthManaBars">
+          <div
+            class="
+              hidden md:flex justify-center
+              gap-4 my-1
+              text-sm
+            "
+          >
+            <div 
+              :title="`Regen: ${gameEngine.getCombatStats.healthRegen}`"
+              class="
+                ml-3 px-2 
+                place-self-end 
+                w-full 
+                text-right 
+                text-mlg
+                border rounded-l-xl rounded-r-md
+                relative
+
+                bg-emerald-400/10
+
+                after:bg-emerald-700
+                after:absolute
+                after:right-0 after:rounded-r-md
+                after_w-dynamic-health after:h-full after:rounded-l-xl after:transition-all after:duration-500 after:ease-out
+              " 
+            >
+              <span class="relative z-10 text-white">{{ gameEngine.getCombatStats.health }}/<span>{{ gameEngine.getCombatStats.maxHealth }}</span>
+              </span>
+            </div>
+            <div 
+              :title="`Regen: ${gameEngine.getCombatStats.manaRegen}`"
+              class="
+                text-blue-400 
+                mr-3 px-2 
+                place-self-start 
+                text-mlg
+                w-full 
+                border rounded-r-xl rounded-l-md
+                relative
+
+                bg-blue-500/15
+
+                after:bg-cyan-700/80
+                after:absolute
+                after:left-0
+                after:rounded-r-xl after:rounded-l-md 
+                after_w-dynamic-mana after:h-full after:transition-all after:duration-500 after:ease-out
+              " 
+            >
+              <span class="relative z-10 text-white">
+                <span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
+              </span>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <div
+            class="
+              hidden md:grid
+              grid-cols-1 md:grid-cols-2 
+              gap-2 items-center
+              text-sm
+
+              [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
+              [&>div]:text-center md:[&>div]:text-left
+            "
+          >
+            <div class="ml-2 px-2">
+              <span class="text-gray-400">Health:</span>
+              <span 
+                :title="`Regen: ${gameEngine.getCombatStats.healthRegen}`"
+                class="ml-2 px-2 py-1  place-self-center md:place-self-start" 
+                :class="{ 'pulse-dynamic': isHealthPulsing }"
+                :style="[
+                  { '--pulse-color': healthPulseType === 'damage' ? 'var(--pulse-color-damage)' : 'var(--pulse-color-heal)' },
+                ]"
+              >
+                <span
+                  class="health-color"
+                  :style="healthColorClass"
+                >{{ gameEngine.getCombatStats.health }}</span>/<span>{{ gameEngine.getCombatStats.maxHealth }}</span>
+              </span>
+            </div>
+            <div class="ml-2 px-2">
+              <span class="text-gray-400">Mana:</span>
+              <span 
+                :title="`Regen: ${gameEngine.getCombatStats.manaRegen}`"
+                class="text-blue-400 ml-2 px-2 py-1 place-self-center md:place-self-start"
+                :class="{ 'pulse-dynamic': isManaPulsing }"
+                :style="{ '--pulse-color': manaPulseType === 'loss' ? 'var(--pulse-color-mana-loss)' : 'var(--pulse-color-mana)' }"
+              ><span>{{ gameEngine.getCombatStats.mana }}</span>/<span>{{ gameEngine.getCombatStats.maxMana }}</span>
+              </span>
+            </div>
+          </div>
+        </template>
 
         <div
           class="
@@ -630,7 +710,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               after:bg-emerald-700
               after:absolute
               after:right-0 after:rounded-r-md
-              after_w-dynamic-health after:h-full after:rounded-l-xl after:transition-all after:duration-500 after:ease-in-out
+              after_w-dynamic-health after:h-full after:rounded-l-xl after:transition-all after:duration-500 after:ease-out
             " 
           >
             <span class="relative z-10 text-white">{{ gameEngine.getCombatStats.health }}/<span>{{ gameEngine.getCombatStats.maxHealth }}</span>
@@ -653,7 +733,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               after:absolute
               after:left-0
               after:rounded-r-xl after:rounded-l-md 
-              after_w-dynamic-mana after:h-full after:transition-all after:duration-500 after:ease-in-out
+              after_w-dynamic-mana after:h-full after:transition-all after:duration-500 after:ease-out
             " 
           >
             <span class="relative z-10 text-white">
@@ -795,13 +875,13 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           after:absolute
           after:bg-gradient-to-tr after:via-40%
           after:from-emerald-900 after:via-emerald-800/50 after:to-teal-500/50
-          after_w-dynamic after:h-full after:rounded-full after:transition-all after:duration-500 after:ease-in-out
+          after_w-dynamic after:h-full after:rounded-full after:transition-all after:duration-500 after:ease-out
 
           before:absolute before:size-full before:my-auto
           before_current-percent before:text-slate-300 before:z-10 
           before:text-center before:text-mlg
 
-          before:translate-y-[calc(-1.25ch_+_50%)]
+          before:translate-y-[calc(-1.25ch_+_50%)] before:md:translate-y-0 
         "
           :style="`--num:${Math.min(100, Math.round((char.experience / (char.level * 100)) * 100))};`"
         >
