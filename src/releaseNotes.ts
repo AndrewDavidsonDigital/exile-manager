@@ -18,6 +18,17 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.5',
+    highlights: [
+      'Settings menu',
+      'Engine Updates',
+      'Health/Mana Bars for mobile',
+      'Toggleable Health/Mana Bars for desktop',
+    ],
+    commit: '',
+    compare: 'v0.1.4...v0.1.5',
+  },
+  {
     version: '0.1.4',
     isBreaking: true,
     requiresPurge: true,
