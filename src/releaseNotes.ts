@@ -19,6 +19,8 @@ export interface IRelease {
 export const releases: IRelease[] = [
   {
     version: '0.1.4',
+    isBreaking: true,
+    requiresPurge: true,
     highlights: [
       'Initial work on dynamic mission system',
       'Initial progression flow of base missions is in',
