@@ -5,6 +5,7 @@
   interpolate-size: allow-keywords;
 }
 
+
 @theme {
   --spacing-content: 1200px;
   
@@ -14,8 +15,8 @@
   --text-mlg--font-weight: 400; 
 
   --text-xs: 0.5rem;
-  --text-xs--line-height: calc(--text-tiny * 1.25); 
-  --text-xs--letter-spacing: calc(--text-tiny / 10); 
+  --text-xs--line-height: calc(--text-xs * 1.25); 
+  --text-xs--letter-spacing: calc(--text-xs / 10); 
   --text-xs--font-weight: 400; 
 
   --text-tiny: 0.25rem;
