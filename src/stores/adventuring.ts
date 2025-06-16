@@ -863,6 +863,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             },
           ],
           uses: uses,
+          maxUses: uses,
           dynamicCompletions: [
             {
               _identifier: 'init_cave',
@@ -1030,6 +1031,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             monsterTypes: randomMonsters,
             encounters: selectedBonus.encounters, 
             uses: uses,
+            maxUses: uses,
             dynamicCompletions: [],
             completionRules: [],
             type: LevelType.BONUS,

@@ -471,6 +471,7 @@ export interface ILevel {
   encounters: IEncounterConfig[];
   completionRules: IProgression[];
   dynamicCompletions: IDynamicProgression[];
+  maxUses?: number;
   uses?: number;
   type?: LevelType;
   zone?: DynamicZone;

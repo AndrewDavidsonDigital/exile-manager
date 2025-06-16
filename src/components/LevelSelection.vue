@@ -112,6 +112,8 @@ function resolveBackground(level: ILevel): BackgroundTypes {
             transition-all duration-500
             hover:z-100
             hover:scale-125
+
+            group
           "
           :class="[
             { '!border-neutral-600' : (level.areaLevel - characterLevel) < -1},
@@ -218,6 +220,31 @@ function resolveBackground(level: ILevel): BackgroundTypes {
                   :key="`tags_${index}_${tIndex}`"
                 >
                   {{ tag }}
+                </p>
+              </div>
+              <div 
+                v-if="level.type !== LevelType.DEFAULT"
+                class="flex text-sm gap-2 mx-auto capitalize text-red-400 blurred duration-700 transition-all"
+                :class="[
+                  { 'group-hover:!blur-none ' : (level.maxUses || 0) > (level.uses || 0) },
+                ]"
+              >
+                <p
+                  v-for="mob,mobIndex in level.monsterTypes" 
+                  :key="`tags_${index}_${mobIndex}`"
+                >
+                  {{ mob }}
+                </p>
+              </div>
+              <div 
+                v-else
+                class="flex text-sm gap-2 mx-auto capitalize text-red-400"
+              >
+                <p
+                  v-for="mob,mobIndex in level.monsterTypes" 
+                  :key="`tags_${index}_${mobIndex}`"
+                >
+                  {{ mob }}
                 </p>
               </div>
             </button>
