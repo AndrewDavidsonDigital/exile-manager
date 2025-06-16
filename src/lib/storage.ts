@@ -59,8 +59,12 @@ export function useLogging() {
  */
 export function useConfig() {
   return {
-    'get': () => get('exileManagerEngine_config'),
-    'set': (value: string) => set('exileManagerEngine_config', value)
+    'get': () => {
+      const state = get('exileManagerEngine_config');
+      return state ? JSON.parse(state) : null;
+    },
+    'set': (value: string) => set('exileManagerEngine_config', value),
+    '$set': (value: object) => set('exileManagerEngine_config', JSON.stringify(value)),
   }
 }
 

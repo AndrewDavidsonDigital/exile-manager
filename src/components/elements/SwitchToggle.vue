@@ -6,10 +6,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const $emit = defineEmits<{
+  (_e: 'updated'): void
+}>();
+
 const model = defineModel();
 
 function update() {
   model.value = !(model.value);
+  $emit('updated');
 }
 
 </script>

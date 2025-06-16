@@ -56,6 +56,14 @@ const DEFAULT_STATE: IConfiguration = Object.freeze({
 
 export const useConfigurationStore = defineStore('configuration', {
   state: () => {
+    const configState = useConfig();
+    const savedState = configState.get();
+    
+    // Initialize state from storage if it exists
+    if (savedState) {
+      return savedState as IConfiguration;
+    }
+    
     return _cloneDeep(DEFAULT_STATE) as IConfiguration;
   },
 
@@ -76,13 +84,22 @@ export const useConfigurationStore = defineStore('configuration', {
           this[key as keyof IConfiguration] = settings[key];
         });
       }
+      this.saveState();
+    },
+    /**
+     * Saves the current game state to storage
+     */
+    saveState() {
+      useConfig().$set(this.$state);
     },
     save() {
       const localInstance = pluckKeys({...this}, CONFIG_KEYS);      
       useConfig().set(JSON.stringify(localInstance));
+      this.saveState();
     },
     updateAudio(subKey: keyof typeof this.audio, value: number){
       this.audio[subKey] = value;
+      this.saveState();
     },
   },
 })
