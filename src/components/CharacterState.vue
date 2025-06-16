@@ -771,7 +771,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               text-sm
 
               md:!grid 
-              md:-my-3
+              md:-mb-3
 
               [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
               [&>div]:text-center md:[&>div]:text-left
@@ -780,7 +780,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               <div class="ml-2 px-2">
                 <span class="text-gray-400">Damage:</span>
                 <span 
-                  class="text-slate-400 ml-2 px-2 py-1"
+                  class="text-slate-400 ml-2 px-2"
                 ><span>~{{ gameEngine.getCombatStats.damagePerTick }} (
                   <span
                     title="Base"
