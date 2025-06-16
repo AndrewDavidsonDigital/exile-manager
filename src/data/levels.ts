@@ -525,5 +525,48 @@ export const ENCOUNTERS: IEncounter[] = [
     description: 'You spy a Long necked loot turtle, miraculously speeding out of sight.\n In its wake, you find a trail of coins seemingly forming the word Vedorys',
     minLevel: 0,
     alignment: 'neutral'
+  },
+  {
+    type: LevelEncounters.CUSTOM_C_BOSS,
+    description: 'You see the falling remains of a Long necked turtle plummeting to the ground.',
+    minLevel: 0,
+    alignment: 'negative'
   }
 ];
+
+export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
+  [ 'CUSTOM_C',
+    {
+      _identifier: 'vedorys_perch_0',
+      areaLevel: -1,
+      description: "Patches of Fur litter the path ahead.",
+      name: "Archie's Perch",
+      preface: 'Explore ',
+      dynamicCompletions: [],
+      completionRules: [],
+      lootTags: ['currency'],
+      areaLuckDelta: 1.5,
+      encounterBase: 10,
+      encounterRangeDeltas: 5,
+      monsterTypes: [],
+      encounters: [
+        {
+          type: LevelEncounters.CUSTOM_C_BOSS,
+          weighting: 1,
+        },
+        {
+          type: LevelEncounters.TRAP,
+          weighting: 29,
+        },
+        {
+          type: LevelEncounters.RECOVERY,
+          weighting: 35,
+        },
+        {
+          type: LevelEncounters.TREASURE,
+          weighting: 35,
+        },
+      ],
+      type: LevelType.DEFAULT,
+    },]
+]) 

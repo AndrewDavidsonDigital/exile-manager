@@ -55,11 +55,18 @@ function resolveBackground(level: ILevel): BackgroundTypes {
   return BackgroundTypes.DEFAULT
 }
 
+function sortLevel(a: ILevel, b: ILevel){
+  if (a.areaLevel === -1 ){
+    return 1;
+  }
+  return a.areaLevel - b.areaLevel;
+}
+
 </script>
 
 <template>
   <FluidElement
-    class="flex flex-col items-center scrollbar md:overflow-auto overflow-y-scroll overflow-x-clip max-h-[50dvh] md:max-h-[unset]"
+    class="flex flex-col items-center scrollbar overflow-y-scroll overflow-x-clip max-h-[50dvh] md:max-h-[unset]"
     :class="props.class"
   >
     <div 
@@ -99,11 +106,11 @@ function resolveBackground(level: ILevel): BackgroundTypes {
       :class="{ 'max-h-0 !my-0 overflow-clip': isCollapsed, 'max-h-[1000px]': !isCollapsed }"
     >
       <template
-        v-for="level, index in levels.toSorted((a,b) => a.areaLevel - b.areaLevel)"
+        v-for="level, index in levels.toSorted((a,b) => sortLevel(a,b))"
         :key="`level_button_${index}`"
       >
         <FluidElement 
-          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel)"
+          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1)"
           class="
             w-fit min-w-[15vw] md:min-w-[unset]
             !p-2 !border 
@@ -116,10 +123,10 @@ function resolveBackground(level: ILevel): BackgroundTypes {
             group
           "
           :class="[
-            { '!border-neutral-600' : (level.areaLevel - characterLevel) < -1},
-            { '!border-emerald-600' : (level.areaLevel - characterLevel) <= 0},
-            { '!border-amber-600' : (level.areaLevel - characterLevel) > 0},
-            { '!border-red-600' : (level.areaLevel - characterLevel) > 2},
+            { '!border-neutral-600' : level.areaLevel !== -1 && (level.areaLevel - characterLevel) < -1},
+            { '!border-emerald-600' : level.areaLevel !== -1 && (level.areaLevel - characterLevel) <= 0},
+            { '!border-amber-600' : level.areaLevel !== -1 && (level.areaLevel - characterLevel) > 0},
+            { '!border-red-600' : level.areaLevel !== -1 && (level.areaLevel - characterLevel) > 2},
             { 'pointer-events-none' : isAdventuring },
           ]"
         >
@@ -208,7 +215,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
               </p>
               <div class="flex justify-between w-full">
                 <p class="text-sm opacity-50">
-                  lvl: {{ level.areaLevel }}
+                  lvl: {{ level.areaLevel !== -1 ? level.areaLevel : characterLevel + 2 }}
                 </p>
                 <p class="text-sm opacity-50">
                   ({{ level.encounterBase - level.encounterRangeDeltas }} - {{ level.encounterBase + level.encounterRangeDeltas }})

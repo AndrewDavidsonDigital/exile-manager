@@ -15,6 +15,7 @@
   import { LevelType, type ILevel } from '@/lib/core';
   import { IconCog, IconHelm, IconMap, IconTreasureChest, IconVillage } from '@/components/icons';
   import { useConfigurationStore } from '@/stores/configuration';
+import { CUSTOM_LEVELS } from '@/data/levels';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -178,6 +179,15 @@
           CHEATS
         </div>
         <div class="flex gap-2 justify-center">
+          <button
+            v-if="gameEngine.character"
+            class="w-fit"
+            @click="gameEngine.addLocation(CUSTOM_LEVELS.get('CUSTOM_C'))"
+          >
+            <FluidElement>
+              Archie
+            </FluidElement>
+          </button>
           <button
             v-if="gameEngine.character"
             class="w-fit"

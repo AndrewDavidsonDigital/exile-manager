@@ -538,6 +538,7 @@ export enum LevelEncounters {
   CUSTOM_A,
   CUSTOM_B,
   CUSTOM_C,
+  CUSTOM_C_BOSS,
 
 }
 
