@@ -604,6 +604,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         gameEngine.updateGold(gold);
         gameEngine.addExperience(calculateScaledExperience(5, charLevel, areaLevel));
         const loot = Math.floor(Math.random() * 5);
+
+        const oldLootCount = gameEngine.character?.loot.length || 0;
         // Use weighted item type based on level's loot tags
         const areaDelta = level.areaLuckDelta || 1;
         gameEngine.addLoot(loot, level.areaLevel, areaDelta, level.lootTags); // Pass loot tags to addLoot
@@ -612,7 +614,12 @@ export const useAdventuringStore = defineStore('adventuring', () => {
           encounter.description += `\n- ${gold} Gold`
         }
         if (loot > 0){
-          encounter.description += `\n- ${loot} Item${loot === 1 ? '' : 's'}`
+          if ( gameEngine.character?.loot.length && oldLootCount < gameEngine.character.loot.length){
+            const lootDelta = gameEngine.character.loot.length - oldLootCount;
+            encounter.description += `\n- ${lootDelta} Item${lootDelta === 1 ? '' : 's'}`
+          } else {
+            encounter.description += `\n- ${loot} Item${loot === 1 ? '' : 's'} salvaged to gold`
+          }
         }
         
         if (gold === 0 && loot === 0 ){
