@@ -35,7 +35,7 @@ const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
   runs: 0,
   difficulty: 'Easy',
-  character: undefined,
+  character: null,
   isDead: false,
   knownLocations: [],
   autoSalvageTier: ItemTiers.BASIC,
@@ -45,7 +45,7 @@ const DEFAULT_STATE = <Readonly<IGameEngine>> {
 interface IGameEngine {
   version: string;
   runs: number;
-  character: ICharacter | undefined;
+  character: ICharacter | null;
   difficulty: DifficultyType;
   isDead: boolean;
   stash?: ILoot[];  
@@ -570,7 +570,7 @@ export const useGameEngine = defineStore('gameEngine', {
       logger('Restarting game state');
       this.runs = 0;
       this.difficulty = 'Easy';
-      this.character = undefined;
+      this.character = null;
       this.isDead = false;
       this.knownLocations = [];
       this.autoSalvageTier = ItemTiers.BASIC;
