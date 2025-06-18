@@ -25,7 +25,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatM
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition } from '@/lib/core';
 import { levels } from '@/data/levels';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
@@ -629,6 +629,20 @@ export const useGameEngine = defineStore('gameEngine', {
 
 
       this.saveState();
+    },
+
+    addLocationIff(level: ILevel, condition: AddLevelCondition){
+      switch (condition) {
+        case AddLevelCondition.NOT_EXISTING:{
+          const existing = this.knownLocations.find(el => el._identifier === level._identifier);
+          if (!existing){
+            return this.addLocation(level);
+          }
+          return;
+        }
+        default:
+          break;
+      }
     },
 
     removeLocation(level: ILevel){

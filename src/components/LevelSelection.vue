@@ -3,6 +3,7 @@ import FluidElement from '@/components/elements/FluidElement.vue';
 import { BackgroundTypes, DynamicZone, LevelType, type ILevel } from '@/lib/core';
 import { computed, watch, ref } from 'vue';
 import SwitchToggle from './elements/SwitchToggle.vue';
+import { UNKNOWN_USES } from '@/data/levels';
 
 interface Props {
   levels: ILevel[];
@@ -182,81 +183,100 @@ function sortLevel(a: ILevel, b: ILevel){
               ></div>
             </div>
             <button
-              class="flex flex-col mx-auto z-10 items-center"
+              class="flex flex-col mx-auto z-10 items-center justify-between"
               :disabled="isAdventuring"
               @click="$emit('update:modelValue', level)"
             >
-              <p v-if="level.type === LevelType.DEFAULT">
-                {{ level.name }}
-              </p>
-              <p v-else>
-                <span
-                  v-for="segment, nameInd in level.name.split(': ')"
-                  :key="`naming_${index}-${nameInd}`"
-                  class="transition-all"
-                  :class="[
-                    { 'blurred' : nameInd === 1 },
-                  ]"
+              <article class="flex flex-col w-full mx-auto items-center">
+                <p v-if="level.type === LevelType.DEFAULT">
+                  {{ level.name }}
+                </p>
+                <p v-else>
+                  <span
+                    v-for="segment, nameInd in level.name.split(': ')"
+                    :key="`naming_${index}-${nameInd}`"
+                    class="transition-all"
+                    :class="[
+                      { 'blurred' : nameInd === 1 },
+                    ]"
+                  >
+                    {{ segment }}{{ nameInd === 0 ? ': ' : '' }}
+                  </span>
+                </p>
+                <p
+                  v-if="UNKNOWN_USES.has(level._identifier)"
+                  class="text-amber-600 selection:!bg-amber-400/30"
                 >
-                  {{ segment }}{{ nameInd === 0 ? ': ' : '' }}
-                </span>
-              </p>
-              <p
-                v-if="level.uses !== undefined"
-                class="text-amber-600 "
-              >
-                {{ level.uses }}
-              </p>
-              <p
-                v-else
-                class="text-amber-600/50"
-              >
-                ထ
-              </p>
-              <p class="text-sm opacity-50">
-                {{ level.description }}
-              </p>
-              <div class="flex justify-between w-full">
+                  ???
+                </p>
+                <p
+                  v-else-if="level.uses !== undefined"
+                  class="text-amber-600 selection:!bg-amber-400/30"
+                >
+                  {{ level.uses }}
+                </p>
+                <p
+                  v-else
+                  class="text-amber-600/50 selection:!bg-amber-400/30"
+                >
+                  ထ
+                </p>
                 <p class="text-sm opacity-50">
-                  lvl: {{ level.areaLevel !== -1 ? level.areaLevel : characterLevel + 2 }}
+                  {{ level.description }}
                 </p>
-                <p class="text-sm opacity-50">
-                  ({{ level.encounterBase - level.encounterRangeDeltas }} - {{ level.encounterBase + level.encounterRangeDeltas }})
-                </p>
-              </div>
-              <div class="flex text-sm gap-2 mx-auto capitalize text-cyan-600">
-                <p
-                  v-for="tag,tIndex in level.lootTags" 
-                  :key="`tags_${index}_${tIndex}`"
-                >
-                  {{ tag }}
-                </p>
-              </div>
-              <div 
-                v-if="level.type !== LevelType.DEFAULT"
-                class="flex text-sm gap-2 mx-auto capitalize text-red-400 blurred duration-700 transition-all"
-                :class="[
-                  { 'group-hover:!blur-none ' : (level.maxUses || 0) > (level.uses || 0) },
-                ]"
-              >
-                <p
-                  v-for="mob,mobIndex in level.monsterTypes" 
-                  :key="`tags_${index}_${mobIndex}`"
-                >
-                  {{ mob }}
-                </p>
-              </div>
-              <div 
-                v-else
-                class="flex text-sm gap-2 mx-auto capitalize text-red-400"
-              >
-                <p
-                  v-for="mob,mobIndex in level.monsterTypes" 
-                  :key="`tags_${index}_${mobIndex}`"
-                >
-                  {{ mob }}
-                </p>
-              </div>
+              </article>
+              <article class="flex flex-col w-full mx-auto items-center">
+                <div class="flex justify-between w-full">
+                  <p class="text-sm opacity-50">
+                    lvl: {{ level.areaLevel !== -1 ? level.areaLevel : characterLevel + 2 }}
+                  </p>
+                  <p class="text-sm opacity-50">
+                    ({{ level.encounterBase - level.encounterRangeDeltas }} - {{ level.encounterBase + level.encounterRangeDeltas }})
+                  </p>
+                </div>
+                <div class="flex text-sm gap-2 mx-auto capitalize text-cyan-600 selection:!bg-cyan-400/30">
+                  <p
+                    v-for="tag,tIndex in level.lootTags" 
+                    :key="`tags_${index}_${tIndex}`"
+                  >
+                    {{ tag }}
+                  </p>
+                </div>
+                <template v-if="level.monsterTypes.length > 0">
+                  <div 
+                    v-if="level.type !== LevelType.DEFAULT"
+                    class="flex text-sm gap-2 mx-auto capitalize text-red-400 blurred duration-700 transition-all selection:!bg-red-400/40"
+                    :class="[
+                      { 'group-hover:!blur-none ' : (level.maxUses || 0) > (level.uses || 0) },
+                    ]"
+                  >
+                    <p
+                      v-for="mob,mobIndex in level.monsterTypes" 
+                      :key="`tags_${index}_${mobIndex}`"
+                    >
+                      {{ mob }}
+                    </p>
+                  </div>
+                  <div 
+                    v-else
+                    class="flex text-sm gap-2 mx-auto capitalize text-red-400"
+                  >
+                    <p
+                      v-for="mob,mobIndex in level.monsterTypes" 
+                      :key="`tags_${index}_${mobIndex}`"
+                    >
+                      {{ mob }}
+                    </p>
+                  </div>
+                </template>
+                <template v-else>
+                  <div 
+                    class="flex text-sm gap-2 mx-auto capitalize text-red-400"
+                  >
+                    <p>Unknown</p>
+                  </div>
+                </template>
+              </article>
             </button>
           </article>
         </FluidElement>

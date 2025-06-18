@@ -649,3 +649,9 @@ export enum BackgroundTypes {
   STARS,
   FIREFLIES,
 }
+
+
+export enum AddLevelCondition {
+  NOT_EXISTING = 0,
+  NO_MORE_THAN_TWO,
+}

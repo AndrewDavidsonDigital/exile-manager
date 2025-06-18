@@ -539,7 +539,7 @@ export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
     {
       _identifier: 'vedorys_perch_0',
       areaLevel: -1,
-      description: "Patches of Fur litter the path ahead.",
+      description: "Patches of Fur litter the way ahead.",
       name: "Archie's Perch",
       preface: 'Explore ',
       dynamicCompletions: [],
@@ -570,3 +570,7 @@ export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
       type: LevelType.DEFAULT,
     },]
 ]) 
+
+export const UNKNOWN_USES: Set<string> = new Set([
+  'vedorys_perch_0',
+])
