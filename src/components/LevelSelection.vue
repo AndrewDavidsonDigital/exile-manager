@@ -59,6 +59,9 @@ function sortLevel(a: ILevel, b: ILevel){
   if (a.areaLevel === -1 ){
     return 1;
   }
+  if (b.areaLevel === -1 ){
+    return -1;
+  }
   return a.areaLevel - b.areaLevel;
 }
 
