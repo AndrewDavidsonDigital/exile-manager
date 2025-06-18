@@ -519,11 +519,11 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
             </span>
           </div>
           <div
-            v-if="char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length > 0"
+            v-if="char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length > 0 || char.pendingRewards.skills > 0"
             class="flex"
           >
             <span class="text-gray-400 hidden md:block">Skills:</span>
-            <button 
+            <button  
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause md:hidden"
               @click="handleSkillsClick"
             >
