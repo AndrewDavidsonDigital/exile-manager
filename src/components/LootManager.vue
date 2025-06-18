@@ -268,7 +268,7 @@ const canCompare = computed(() => {
     <!-- Main Loot List -->
     <FluidElement class="flex-1 flex flex-col gap-2">
       <!-- Tab Navigation -->
-      <div class="flex flex-col md:flex-row justify-between gap-x-2 gap-y-4 mb-2">
+      <div class="flex flex-col lg:flex-row justify-between gap-x-2 gap-y-4 mb-2">
         <div class="flex gap-2">
           <button
             :class="[
@@ -295,7 +295,7 @@ const canCompare = computed(() => {
         </div>
         <div class="flex flex-col gap-1">
           <span
-            class="ml-2 md:mx-auto opacity-80"
+            class="ml-2 lg:mx-auto opacity-80"
             :class="[
               { 'grayscale opacity-50' : !(gameEngine.autoSalvage) },
             ]"
@@ -324,6 +324,28 @@ const canCompare = computed(() => {
               </select>
             </label>
           </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            :class="[
+              { 'grayscale pointer-events-none': !gameEngine.getAffordIdAll }
+            ]"
+            @click="gameEngine.attemptIdAll()"
+          >
+            <FluidElement class="w-fit !p-2">
+              {{ `[🔍]` }}
+            </FluidElement>
+          </button>
+          <button
+            :class="[
+              { 'grayscale pointer-events-none': (gameEngine.character?.loot.length || 0) <= 0 }
+            ]"
+            @click="gameEngine.attemptSalvageAll()"
+          >
+            <FluidElement class="w-fit !p-2">
+              {{ `[❌]` }}
+            </FluidElement>
+          </button>
         </div>
         <!-- Brush Tools -->
         <div class="flex gap-2">

@@ -112,6 +112,15 @@ export const useGameEngine = defineStore('gameEngine', {
       return this.character;
     },
 
+    getLootWorth(): number | ErrorNumber.NOT_FOUND {
+      if (!this.character) return ErrorNumber.NOT_FOUND;
+      return this.character.loot.reduce((a,b) => a + ITEM_TIER_COSTS[b.itemDetails?.tier || ItemTiers.BASIC], 0) || 0;
+    },
+    getAffordIdAll(): boolean {
+      if (!this.character) return false;
+      return (this.character.loot.reduce((a,b) => a + ITEM_TIER_COSTS[b.itemDetails?.tier || ItemTiers.BASIC], 0) || 0) < this.character.gold;
+    },
+
     getAvailablePassives(): IPassive[]{
       if (!this.character) return [];
 
@@ -979,7 +988,31 @@ export const useGameEngine = defineStore('gameEngine', {
 
       this.saveState();
     },
+    attemptSalvageAll() {
+      logger('attemptSalvageAll');
+      if (!this.character || this.character.loot.length <= 0) return;
 
+      for (let index = this.character.loot.length -1; index >= 0; index--) {
+        const loot = this.character.loot[index];
+
+        if(! loot.itemDetails){
+          continue;
+        }
+        const lootValue = ITEM_TIER_COSTS[loot.itemDetails.tier] / 10;
+  
+        this.updateGold(lootValue);
+
+        this.character.loot.splice(index, 1);
+      }
+    },
+    attemptIdAll() {
+      logger('attemptIdAll');
+      if (!this.getAffordIdAll || !this.character || this.character.loot.length <= 0) return;
+
+      this.character?.loot.forEach(el => {
+        this._identifyItem(el);
+      });
+    },
     /**
      * Internal helper method to handle item identification logic
      * @param {ILoot} loot - The item to identify

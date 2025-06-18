@@ -61,11 +61,13 @@ import { resolveLabelFromKey } from '@/lib/language';
           :key="`settings_config_${index}-${confIndex}`"
           class="flex justify-between gap-2 items-center md:max-w-1/3"
         >
-          <p class="ml-4">{{ resolveLabelFromKey(config) }}{{ configuration.ui.healthManaBars ? 'Use Bars' : 'Use Text' }}</p>
-          <SwitchToggle
-            v-model="configuration.ui.healthManaBars"
-            @updated="configuration.saveState"
-          ></SwitchToggle>
+          <span class="hidden md:block">
+            <p class="ml-4">{{ resolveLabelFromKey(config) }}{{ configuration.ui.healthManaBars ? 'Use Bars' : 'Use Text' }}</p>
+            <SwitchToggle
+              v-model="configuration.ui.healthManaBars"
+              @updated="configuration.saveState"
+            ></SwitchToggle>
+          </span>
         </span>
       </template>
     </template>
