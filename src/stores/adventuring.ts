@@ -16,6 +16,7 @@ import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
 import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType, BaseStats, AddLevelCondition } from '@/lib/core';
 import { CUSTOM_LEVELS, ENCOUNTERS, levels } from '@/data/levels';
+import { _cloneDeep } from '@/lib/object';
 
 
 export const useAdventuringStore = defineStore('adventuring', () => {
@@ -26,10 +27,10 @@ export const useAdventuringStore = defineStore('adventuring', () => {
   const adventureJournal = ref<IJournalEntry[]>([]);
   const ADVENTURE_TICK_DELTA = 1500;
 
-  function generateEncounter(level: ILevel, loggingDetail = false): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
+  function generateEncounter(level: ILevel, loggingDetail = false): IEcounter {
     logger(`Generating encounter for level: ${level.name}-${level.areaLevel}, with logging: ${loggingDetail? 'verbose' : 'concise'}`);
     const difficulty = gameEngine.getDifficulty;
-    if (difficulty === ErrorNumber.NOT_FOUND) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '' };
+    if (difficulty === ErrorNumber.NOT_FOUND) return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '', abortConfig: null };
 
     const levelTypes = level.encounters.map(e => e.type);
 
@@ -75,7 +76,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     }
 
     const character = gameEngine.getCharacter;
-    if (typeof character === 'number') return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: ''};
+    if (typeof character === 'number') return {encounter: 'Something went wrong...', encounterType: 'Danger', encounterIcon: '', abortConfig: null };
 
     return processEncounter(selectedEncounter, character.level, level, difficulty, loggingDetail);
   }
@@ -479,17 +480,30 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       lootLossPercent
     };
   }
+
+  interface IEcounterAbort{
+    shouldConcludeAdventure: boolean;
+    shouldRemoveMap: boolean;
+  };
+
   
+  interface IEcounter{ 
+    encounter: string, 
+    encounterType: JournalEntryType, 
+    encounterIcon: string,
+    abortConfig: IEcounterAbort | null,
+  }
 
   function processEncounter(
     encounter: IEncounter, 
     charLevel: number, 
     level: ILevel, 
     difficulty: IDifficulty,
-    loggingDetail = false
-  ): { encounter: string, encounterType: JournalEntryType, encounterIcon: string } {
+    loggingDetail = false,
+  ): IEcounter {
     let encounterType: JournalEntryType = 'Safe';
     let encounterIcon: string = '';
+    let abortConfig: IEcounterAbort | null = null;
     const areaLevel = level.areaLevel + 1;
 
     switch (encounter.type) {
@@ -513,12 +527,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
 
         // remove loot if there was some lost
         if (combatResult.lootLossPercent) {
-          const lootToLose = Math.floor(char.loot.length * (combatResult.lootLossPercent / 100));
-          
-          // Reduce loot array using splice
-          if (lootToLose > 0) {
-            char.loot.splice(-lootToLose);
-          }
+          gameEngine.removeLoot(combatResult.lootLossPercent, true);
         }
 
         // Apply combat outcome to exile's health
@@ -702,7 +711,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       // custom Vedorys event
       case LevelEncounters.CUSTOM_C: {
         const charBasedGold = (gameEngine.character?.level || 1) * 100;
-        const goldChange = generateNormalGold() + charBasedGold;
+        // reduce to a third since we now get the mission
+        const goldChange = Math.floor((generateNormalGold() + charBasedGold) / 3);
         gameEngine.updateGold(goldChange);
         
         encounter.description += `\n- quickly collect ${goldChange} gold`
@@ -711,18 +721,40 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         encounterIcon = '💰';
 
         if (CUSTOM_LEVELS.has('CUSTOM_C') ){
-          const level = CUSTOM_LEVELS.get('CUSTOM_C');
+          const level = _cloneDeep(CUSTOM_LEVELS.get('CUSTOM_C'));
           if (level) gameEngine.addLocationIff(level, AddLevelCondition.NOT_EXISTING);
         }
         break;
       }
       // custom Vedorys event Level
       case LevelEncounters.CUSTOM_C_BOSS: {
-        
-        encounter.description += `\n- ARCHIE ARCHIE ARCHIE ARCHIE ARCHIE`
+        // loose 50% of loot and 20% from stash and 70% of gold and 20% of health
 
-        encounterType = 'Treasure';
+        encounter.description += `\n- ARCHIE NOOOOOoooooooooo!`
+
+        const lootLost = gameEngine.removeLoot(50, true);
+        const stashLootLost = gameEngine.removeStashLoot(20, true);
+
+        let lostGold = 0;
+        if (gameEngine.character){
+          lostGold = Math.floor(gameEngine.character.gold * 0.7);
+          gameEngine.updateGold(lostGold, false);
+          const damageToTake = Math.floor(gameEngine.character.stats.currentHealth * 0.75);
+          gameEngine.takeDamage(damageToTake, false);
+        }
+
+
+        encounter.description += `\n- The treasure cat plunders your loot ${lootLost} and ${lostGold ? '-' + lostGold + ' gold,' : ''} wounding you in the process.`;
+        if (stashLootLost) encounter.description += ` You also sense your stash is not as full as you remember.`;
+
+        encounterType = 'Danger';
         encounterIcon = '🐈‍⬛';
+
+        abortConfig = {
+          shouldConcludeAdventure: true,
+          shouldRemoveMap: true,
+        };
+
         break;
       }
     }
@@ -730,7 +762,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     if (encounter.type !== LevelEncounters.COMBAT){
       gameEngine.processGameTick(SkillTiming.TURN);
     }
-    return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon };
+    return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon, abortConfig: abortConfig };
   }
 
   function startAdventuring(selectedLevel: ILevel, loggingDetail = false) {
@@ -1072,14 +1104,23 @@ export const useAdventuringStore = defineStore('adventuring', () => {
       }
       console.log('ESCAPED: ',tickResult);
     }
-    
+
     const entry: IJournalEntry = {
       message: `[${new Date(Date.now()).toLocaleTimeString('en-AU', { hour12: false}) }] ${tickResult.encounterIcon} ${tickResult.encounter}`,
       type: tickResult.encounterType,
     }
 
-
     adventureJournal.value.push(entry);
+
+    if (tickResult.abortConfig !== null) {
+      if (tickResult.abortConfig.shouldRemoveMap){
+        gameEngine.removeLocation(selectedLevel, true);
+      }
+      if (tickResult.abortConfig.shouldConcludeAdventure){
+        adventureInterval.value = 0;
+        return;
+      }
+    }
     adventureInterval.value--;
 
     // Check if character is dead

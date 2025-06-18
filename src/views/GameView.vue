@@ -182,7 +182,7 @@ import { CUSTOM_LEVELS } from '@/data/levels';
           <button
             v-if="gameEngine.character"
             class="w-fit"
-            @click="gameEngine.addLocation(CUSTOM_LEVELS.get('CUSTOM_C'))"
+            @click="gameEngine.addLocation(CUSTOM_LEVELS.get('CUSTOM_C')!)"
           >
             <FluidElement>
               Archie

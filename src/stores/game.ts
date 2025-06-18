@@ -645,10 +645,10 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    removeLocation(level: ILevel){
+    removeLocation(level: ILevel, force: boolean = false){
       if (this.knownLocations){
         const locationIndex =  this.knownLocations.findIndex(el => el._identifier === level._identifier);
-        if (locationIndex !== -1 && this.knownLocations[locationIndex].uses === 0){
+        if (locationIndex !== -1 && (this.knownLocations[locationIndex].uses === 0 || force)){
           this.knownLocations.splice(locationIndex,1);
         }
       }
@@ -860,10 +860,14 @@ export const useGameEngine = defineStore('gameEngine', {
      * Updates character gold
      * @param {number} amount - Amount to add (can be negative)
      */
-    updateGold(amount: number) {
+    updateGold(amount: number, isGain = true) {
       if (!this.character) return;
-      logger(`Updating gold for ${this.character.name}: ${amount}`);
-      this.character.gold += amount;
+      logger(`Updating gold for ${this.character.name}: ${isGain? '' : '-'}${amount}`);
+      if  (isGain){
+        this.character.gold += amount;
+      } else {
+        this.character.gold -= amount;
+      }
       this.saveState();
     },
 
@@ -1124,6 +1128,52 @@ export const useGameEngine = defineStore('gameEngine', {
       this.character.loot.push(item);
       this.stash.splice(stashIndex, 1);
       this.saveState();
+    },
+
+    /**
+     * Removes a specified number of loot items from the Stash
+     * @param {number} lootCount - The number of loot items to remove, or percentage if asPercent is true
+     * @param {boolean} [asPercent=false] - Whether lootCount should be treated as a percentage of total loot
+     */
+    removeStashLoot(lootCount:number, asPercent: boolean = false): number{
+      if(!this.stash) return 0;
+      let lootToLose = lootCount;
+      if (asPercent){
+        lootToLose = Math.floor(this.stash.length * (lootCount / 100));
+      }
+          
+      // Randomly remove loot items
+      if (lootToLose > 0) {
+        for (let i = 0; i < lootToLose && this.stash.length > 0; i++) {
+          const randomIndex = Math.floor(Math.random() * this.stash.length);
+          this.stash.splice(randomIndex, 1);
+        }
+      }
+
+      return lootToLose;
+    },
+
+    /**
+     * Removes a specified number of loot items from the character's inventory
+     * @param {number} lootCount - The number of loot items to remove, or percentage if asPercent is true
+     * @param {boolean} [asPercent=false] - Whether lootCount should be treated as a percentage of total loot
+     */
+    removeLoot(lootCount:number, asPercent: boolean = false): number{
+      if (!this.character) return 0;
+      let lootToLose = lootCount;
+      if (asPercent){
+        lootToLose = Math.floor(this.character.loot.length * (lootCount / 100));
+      }
+          
+      // Reduce loot array using splice
+      if (lootToLose > 0) {
+        for (let i = 0; i < lootToLose && this.character.loot.length > 0; i++) {
+          const randomIndex = Math.floor(Math.random() * this.character.loot.length);
+          this.character.loot.splice(randomIndex, 1);
+        }
+      }
+
+      return lootToLose;
     },
 
     /**

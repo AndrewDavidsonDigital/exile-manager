@@ -5,7 +5,7 @@
  * @param from Variable to replicate
  * @returns a new instance of the object `from`
  */
-export function _cloneDeep<Type>(from: Type) {
+export function _cloneDeep<Type>(from: Type): Type {
   return JSON.parse(JSON.stringify(from));
 }
 

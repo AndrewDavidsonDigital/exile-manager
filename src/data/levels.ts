@@ -549,14 +549,15 @@ export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
       encounterBase: 10,
       encounterRangeDeltas: 5,
       monsterTypes: [],
+      uses: 1,
       encounters: [
         {
           type: LevelEncounters.CUSTOM_C_BOSS,
-          weighting: 1,
+          weighting: 5,
         },
         {
           type: LevelEncounters.TRAP,
-          weighting: 29,
+          weighting: 25,
         },
         {
           type: LevelEncounters.RECOVERY,
