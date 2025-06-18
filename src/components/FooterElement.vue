@@ -34,7 +34,7 @@
   >
     <BgmBar />
     <button 
-      class=" border border-black px-2 rounded-lg bg-amber-700 text-black"
+      class=" border border-black px-2 rounded-lg bg-amber-700 text-black selection:!bg-amber-400/40"
       :class="[
         {'pointer-events-none': adventuringStore.isAdventuring },
       ]"

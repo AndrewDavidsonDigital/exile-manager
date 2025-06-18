@@ -66,3 +66,8 @@ input[type=range].thin-slider{
   @apply bg-slate-700/50;
   @apply w-[0.5em];
 }
+
+
+body *::selection {
+  @apply bg-emerald-400/40;
+}
