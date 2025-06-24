@@ -119,7 +119,8 @@ test('Level up rewards distribution', () => {
       temporalEffects: [],
       equipment: {},
       loot: [],
-      cooldowns: []
+      cooldowns: [],
+      refreshes: 0,
     };
     
     // Initialize game with mock character
@@ -176,7 +177,8 @@ test('Encounter generation scaling', () => {
         skills: 0,
         passives: 0,
         stats: 0
-      }
+      },
+      refreshes: 0,
     };
     
     // Initialize game with mock character
@@ -307,7 +309,8 @@ test('Fortune stat scaling', () => {
         skills: 0,
         passives: 0,
         stats: 0
-      }
+      },
+      refreshes: 0,
     };
     
     // Initialize game with mock character
@@ -363,7 +366,8 @@ test('Currency bias scaling', () => {
       skills: 0,
       passives: 0,
       stats: 0
-    }
+    },
+    refreshes: 0,
   };
   
   // Initialize game with mock character
