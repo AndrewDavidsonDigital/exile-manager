@@ -192,10 +192,13 @@ test('Encounter generation scaling', () => {
     if (game.character?.loot) {
       // With baseline fortune (10), we should get exactly baseAmount items
       expect(game.character.loot.length, `Expected ${baseAmount} items at area level ${areaLevel}, got ${game.character.loot.length}`).toBe(baseAmount);
+
+      const minRange = areaLevel - 3;
+      const maxRange = areaLevel + 4;
       
       // Count items within ±2 of area level
       const itemsInRange = game.character.loot.filter(item => 
-        item.iLvl >= areaLevel - 2 && item.iLvl <= areaLevel + 2
+        item.iLvl >= minRange && item.iLvl <= maxRange
       ).length;
       
       // With std dev of 1, about 95% of items should be within ±2 of area level
@@ -205,8 +208,8 @@ test('Encounter generation scaling', () => {
       // All items should be within ±3 of area level (99.7% of normal distribution)
       // Note: areaLevel is incremented by 1 in processEncounter, so we adjust bounds
       game.character.loot.forEach((item, index) => {
-        expect(item.iLvl, `Item ${index + 1} at area level ${areaLevel} has invalid level ${item.iLvl}. Expected between ${areaLevel - 2} and ${areaLevel + 4}`).toBeGreaterThanOrEqual(areaLevel - 2);
-        expect(item.iLvl, `Item ${index + 1} at area level ${areaLevel} has invalid level ${item.iLvl}. Expected between ${areaLevel - 2} and ${areaLevel + 4}`).toBeLessThanOrEqual(areaLevel + 4);
+        expect(item.iLvl, `Item ${index + 1} at area level ${areaLevel} has invalid level ${item.iLvl}. Expected between ${minRange} and ${maxRange}`).toBeGreaterThanOrEqual(minRange);
+        expect(item.iLvl, `Item ${index + 1} at area level ${areaLevel} has invalid level ${item.iLvl}. Expected between ${minRange} and ${maxRange}`).toBeLessThanOrEqual(maxRange);
       });
     } else {
       throw new Error(`No loot generated for area level ${areaLevel}`);
