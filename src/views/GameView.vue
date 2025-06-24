@@ -180,6 +180,15 @@ import { CUSTOM_LEVELS } from '@/data/levels';
         </div>
         <div class="flex gap-2 justify-center">
           <button
+            v-if="gameEngine.character && Object.keys(gameEngine.character).includes('refreshes')"
+            class="w-fit"
+            @click="gameEngine.addRefresh()"
+          >
+            <FluidElement>
+              Add Refresh
+            </FluidElement>
+          </button>
+          <button
             v-if="gameEngine.character"
             class="w-fit"
             @click="gameEngine.addLocation(CUSTOM_LEVELS.get('CUSTOM_C')!)"

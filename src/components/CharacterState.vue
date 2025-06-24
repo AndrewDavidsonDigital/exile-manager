@@ -10,7 +10,7 @@ import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './elements/FluidElement.vue';
 import { getAffixByType } from '@/lib/affixUtils';
 import { formatBaseAffixValue } from '@/lib/itemUtils';
-import { IconPassiveTree, IconSkills, IconStatIncrease, IconWorldSkills } from './icons';
+import { IconPassiveTree, IconRefreshCC, IconSkills, IconStatIncrease, IconWorldSkills } from './icons';
 import ModalDialog from './elements/ModalDialog.vue';
 import SwitchToggle from './elements/SwitchToggle.vue';
 import { ErrorNumber } from '@/lib/typescript';
@@ -1335,6 +1335,17 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           </button>
         </template>
       </div>
+      <div
+        v-if="char !== ErrorNumber.NOT_FOUND && gameEngine.hasRefreshes"
+        class="mx-auto w-fit mt-2"
+      >
+        <button
+          class="hover:rotate-360 duration-3000 transition-all"
+          @click="gameEngine.refreshPassives"
+        >
+          <IconRefreshCC />
+        </button>
+      </div>
     </section>
   </ModalDialog>
   <ModalDialog
@@ -1453,6 +1464,17 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
             </FluidElement>
           </button>
         </template>
+      </div>
+      <div
+        v-if="char !== ErrorNumber.NOT_FOUND && gameEngine.hasRefreshes"
+        class="mx-auto w-fit mt-2"
+      >
+        <button
+          class="hover:rotate-360 duration-3000 transition-all"
+          @click="gameEngine.refreshSkills"
+        >
+          <IconRefreshCC />
+        </button>
       </div>
     </section>
   </ModalDialog>

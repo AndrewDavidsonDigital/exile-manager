@@ -181,7 +181,8 @@ export interface ICharacter {
   passives: IPassive[];
   skills: ISkill[];
   pendingRewards: IUpgrades,
-  cooldowns: ICooldown[]
+  cooldowns: ICooldown[];
+  refreshes: number;  
 }
 
 export interface ITemporalEffect extends IBaseTemporalEffect{

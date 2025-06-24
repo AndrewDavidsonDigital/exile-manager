@@ -89,6 +89,11 @@ export const useGameEngine = defineStore('gameEngine', {
       logger('Checking version')
       return this.version !== VERSION_NUMBER;
     },
+    hasRefreshes():boolean{
+      if (!(this.character && this.character.refreshes)) return false;
+
+      return this.character.refreshes > 0
+    },
     getVersions(): {save: string;game:string}{
       logger('Resolving version')
       return {
@@ -647,6 +652,28 @@ export const useGameEngine = defineStore('gameEngine', {
     setAutoSalvageTier(tier: ItemTiers){
       this.autoSalvageTier = tier;
       this.saveState();
+    },
+    addRefresh(){
+      if(! this.character) return;
+
+      this.character.refreshes += 1;
+    },
+
+    refreshPassives(){
+      if (!this.character) return [];
+
+      if (this.character.refreshes !== undefined && this.character.refreshes > 0){
+        this.character.refreshes -= 1;
+        this.nextRewards.passives = [];
+      }
+    },
+    refreshSkills(){
+      if (!this.character) return [];
+
+      if (this.character.refreshes !== undefined && this.character.refreshes > 0){
+        this.character.refreshes -= 1;
+        this.nextRewards.skills = [];
+      }
     },
 
     addLocation(level: ILevel){
@@ -1335,8 +1362,11 @@ export const useGameEngine = defineStore('gameEngine', {
       mutableNewState.autoSalvage = DEFAULT_STATE.autoSalvage;
 
       // v0.1.6
-      if (mutableNewState.character && currentState.nextRewards){
+      if (mutableNewState && currentState.nextRewards){
         mutableNewState.nextRewards = currentState.nextRewards;
+      }
+      if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('refreshes')){
+        mutableNewState.character.refreshes = 0;
       }
 
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);

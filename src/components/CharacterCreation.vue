@@ -60,6 +60,7 @@ const createCharacter = () => {
     },
     cooldowns: [],
     temporalEffects: [],
+    refreshes: 0,
   });
 
   $emit('character-created');
