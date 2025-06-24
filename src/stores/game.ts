@@ -27,6 +27,7 @@ import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
 import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition } from '@/lib/core';
 import { levels } from '@/data/levels';
+import { nextTick } from 'vue';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.1.5';
@@ -38,8 +39,17 @@ const DEFAULT_STATE = <Readonly<IGameEngine>> {
   character: null,
   isDead: false,
   knownLocations: [],
+  nextRewards: {
+    passives: [],
+    skills: [],
+  },
   autoSalvageTier: ItemTiers.BASIC,
   autoSalvage: false,
+}
+
+interface INextRewards {
+  passives: IPassive[],
+  skills: ISkill[],
 }
 
 interface IGameEngine {
@@ -50,6 +60,7 @@ interface IGameEngine {
   isDead: boolean;
   stash?: ILoot[];  
   knownLocations: ILevel[],
+  nextRewards: INextRewards,
   autoSalvageTier: ItemTiers,
   autoSalvage: boolean;
 }
@@ -128,12 +139,17 @@ export const useGameEngine = defineStore('gameEngine', {
       const charPassives = this.character.passives;
       const charClass = this.character.class;
 
-      return passives.filter(
-        el => 
-           charLevel >= (el.minCharLevel || 0) 
-        && !(charPassives.find(f => f._identifier === el._identifier))
-        && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
-      );
+      if (this.nextRewards.passives.length === 0){
+        this.nextRewards.passives = passives.filter(
+          el => 
+             charLevel >= (el.minCharLevel || 0) 
+          && !(charPassives.find(f => f._identifier === el._identifier))
+          && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
+        ).toSorted(
+          () => 0.5 - Math.random()
+        ).slice(0, 3);
+      }
+      return this.nextRewards.passives;
     },
     getAvailableSkills(): ISkill[]{
       if (!this.character) return [];
@@ -142,12 +158,17 @@ export const useGameEngine = defineStore('gameEngine', {
       const charSkills = this.character.skills;
       const charClass = this.character.class;
 
-      return skills.filter(
-        el => 
-           charLevel >= (el.minCharLevel || 0) 
-        && !(charSkills.find(f => f._identifier === el._identifier))
-        && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
-      );
+      if (this.nextRewards.skills.length === 0){
+        this.nextRewards.skills = skills.filter(
+          el => 
+            charLevel >= (el.minCharLevel || 0) 
+          && !(charSkills.find(f => f._identifier === el._identifier))
+          && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
+        ).toSorted(
+          () => 0.5 - Math.random()
+        ).slice(0, 3);
+      }
+      return this.nextRewards.skills;
     },
 
     getPassiveIds():string[]{
@@ -609,6 +630,12 @@ export const useGameEngine = defineStore('gameEngine', {
 
       this.knownLocations = [levels[0]];
 
+      nextTick(() => {
+        this.nextRewards.passives = [];
+        this.nextRewards.skills = [];
+        this.saveState();
+      });
+
       this.saveState();
     },
 
@@ -750,6 +777,10 @@ export const useGameEngine = defineStore('gameEngine', {
         skill.setTrigger = skill.triggerStates[0];
         this.character.skills.push(skill);
         this.character.pendingRewards.skills--;
+        nextTick(() => {
+          this.nextRewards.skills = [];
+          this.saveState();
+        });
         this.saveState();
       }
     },
@@ -767,6 +798,10 @@ export const useGameEngine = defineStore('gameEngine', {
       if(passive){
         this.character.passives.push(passive);
         this.character.pendingRewards.passives--;
+        nextTick(() => {
+          this.nextRewards.passives = [];
+          this.saveState();
+        });
         this.saveState();
       }
     },
@@ -1298,6 +1333,11 @@ export const useGameEngine = defineStore('gameEngine', {
       // v0.1.4 //force default state
       mutableNewState.autoSalvageTier = DEFAULT_STATE.autoSalvageTier;
       mutableNewState.autoSalvage = DEFAULT_STATE.autoSalvage;
+
+      // v0.1.6
+      if (mutableNewState.character && currentState.nextRewards){
+        mutableNewState.nextRewards = currentState.nextRewards;
+      }
 
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);
      

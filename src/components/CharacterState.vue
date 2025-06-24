@@ -1311,7 +1311,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
         class="flex gap-2 flex-wrap justify-center"
       >
         <template
-          v-for="passive,index in (gameEngine.getAvailablePassives.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
+          v-for="passive,index in (gameEngine.getAvailablePassives)"
           :key="`passives_${index}`"
         >
           <button 
@@ -1362,7 +1362,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
         class="flex gap-2 flex-wrap justify-center"
       >
         <template
-          v-for="skill,index in (gameEngine.getAvailableSkills.toSorted(() => 0.5 - Math.random()).slice(0, 3))"
+          v-for="skill,index in gameEngine.getAvailableSkills"
           :key="`skills_${index}`"
         >
           <button 
