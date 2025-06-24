@@ -1014,7 +1014,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="space-y-3"
+        class="flex flex-wrap gap-6 items-center justify-center"
       >
         <template
           v-for="skill,index in char.skills"
@@ -1141,7 +1141,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="space-y-3"
+        class="flex flex-wrap gap-6 items-center justify-center"
       >
         <template
           v-for="passive,index in char.passives"
@@ -1185,7 +1185,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       </button>
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="flex gap-2 flex-wrap justify-center"
+        class="flex flex-wrap gap-6 items-center justify-center"
       >
         <template
           v-for="skill,index in char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD)"
