@@ -15,7 +15,7 @@ export const routes: IRoute[] = [
   {
     path: '/game-state',
     name: 'Game',
-    title: 'New Game',
+    title: 'Game',
     component: Game
   },
   {

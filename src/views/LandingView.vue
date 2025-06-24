@@ -29,7 +29,7 @@
         @click="() => router.push('/game-state')"
       >
         <FluidElement class="w-fit !p-2 mx-auto mt-2">
-          Start a new Run
+          Start / Continue a Run
         </FluidElement>
       </button>
     </FluidElement>
