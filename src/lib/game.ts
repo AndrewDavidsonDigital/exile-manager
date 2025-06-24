@@ -1,5 +1,5 @@
-import type { IAffix, IBaseAffix } from './affixTypes';
-import { allAffixes } from '@/data/affixes';
+import type { IBaseAffix } from './affixTypes';
+import { AffixLevelTiers, allAffixes } from '@/data/affixes';
 import type { AffixValue } from './affixTypes';
 import { 
   AffixCategory,
@@ -9,6 +9,7 @@ import {
   MonsterTypes,
   TIER_SEPARATOR,
   type ExileClassType, 
+  type IAffix, 
   type ICharacterStats, 
   type IClassStatRanges, 
   type IMitigation, 
@@ -196,7 +197,7 @@ interface IBaseTemporalEffect {
   remaining: number;
 }
 
-export interface IUpgrades{
+interface IUpgrades{
   skills: number,
   passives: number,
   stats: number,
@@ -544,7 +545,7 @@ export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase
   const allowedAffixes = allAffixes.filter((affix: IAffix) => 
     affix.allowedTiers.includes(tier) 
       && affix.allowedBases.includes(type)
-      && iLevel >= (affix?.minILevel ||0) && iLevel < (affix?.maxILevel || Infinity)
+      && iLevel >= (AffixLevelTiers.get(affix.tier)?.minILevel ||0) && iLevel < (AffixLevelTiers.get(affix.tier)?.maxILevel || Infinity)
   );
 
   // console.log(`given iLevel: [${iLevel}]`, allowedAffixes);

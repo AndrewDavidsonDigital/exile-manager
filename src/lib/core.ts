@@ -2,7 +2,6 @@
 // -------------------------------GAME CONFIG-------------------------------------
 // -------------------------------------------------------------------------------
 
-
 /**
  * Represents the difficulty settings for the game
  */
@@ -72,6 +71,7 @@ export enum ExileClass {
   CHAOS_MAGE= 'Chaos Mage',
   REAVER = 'Reaver',
 };
+
 /**
  * Represents the available character classes in the game
  */
@@ -375,6 +375,20 @@ export function baseDamageFunction(areaMulti:number, tierMulti:number, difficult
 // -----------------------------------AFFIXES-------------------------------------
 // -------------------------------------------------------------------------------
 
+export enum AffixTiers {
+  ONE = 1,
+  TWO,
+  THREE,
+  FOUR,
+  FIVE,
+  SIX,
+  SEVEN,
+  EIGHT,
+  NINE,
+  TEN,
+  ELEVEN,
+}
+
 export const TIER_SEPARATOR = '_-_';
 
 export function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes){
@@ -447,7 +461,53 @@ export enum AffixCategory {
   CRAFTING = 'crafting'
 }
 
-
+/**
+ * Represents an affix that can be applied to an item
+ */
+export interface IAffix {
+  /** Unique identifier for the affix in format {type}_{category}_{tier} */
+  id: string;
+  /** Display name of the affix */
+  name: string;
+  /** Type of affix (embedded, prefix, or suffix) */
+  type: AffixType;
+  /** Category of the affix (attack, defense, etc.) */
+  category: AffixCategory;
+  /** Flag to denote if affix is singleValued then it should be a multiplicative affix */
+  isMultiplicative?: boolean;
+  /** Tier level of the affix (higher tiers are more powerful) */
+  tier: AffixTiers;
+  /** Minimum possible value for this affix */
+  minValue: number;
+  /** Maximum possible value for this affix */
+  maxValue: number;
+  /** Description template with {value} placeholder for the actual value */
+  description: string;
+  /** Tags for filtering and categorization */
+  tags: string[];
+  /** Item tiers that this affix can appear on */
+  allowedTiers: ItemTierType[];
+  /** Item bases that this affix can appear on */
+  allowedBases: ItemBase[];
+  /** Optional mutations that this affix is compatible with */
+  allowedMutations?: ItemMutationType[];
+  /** Optional requirements for using this affix */
+  requirements?: {
+    /** Minimum character level required */
+    level?: number;
+    /** Required attribute values */
+    attributes?: {
+      /** Required fortitude value - Mental and physical endurance */
+      fortitude?: number;
+      /** Required fortune value - Luck and chance-based outcomes */
+      fortune?: number;
+      /** Required wrath value - Combat prowess and rage */
+      wrath?: number;
+      /** Required affinity value - Connection to magical forces */
+      affinity?: number;
+    };
+  };
+}
 
 // -------------------------------------------------------------------------------
 // -----------------------------------LEVELS--------------------------------------
@@ -655,3 +715,4 @@ export enum AddLevelCondition {
   NOT_EXISTING = 0,
   NO_MORE_THAN_TWO,
 }
+

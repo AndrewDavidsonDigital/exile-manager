@@ -1,4 +1,4 @@
-import { type ItemTierType, type ItemMutationType, type ItemBase, AffixTypes, AffixType, AffixCategory } from './core';
+import { AffixTypes } from './core';
 import type { OneOf } from './typescript';
 
 /**
@@ -183,56 +183,4 @@ export type AffixValue = OneOf<[AdditiveValue, MultiplicativeValue, RangeValue]>
  */
 export function isAffixRange(value: AdditiveValue | MultiplicativeValue| RangeValue ): value is RangeValue {
   return value.type === AffixTypes.RANGE;
-}
-
-/**
- * Represents an affix that can be applied to an item
- */
-export interface IAffix {
-  /** Unique identifier for the affix in format {type}_{category}_{tier} */
-  id: string;
-  /** Display name of the affix */
-  name: string;
-  /** Type of affix (embedded, prefix, or suffix) */
-  type: AffixType;
-  /** Category of the affix (attack, defense, etc.) */
-  category: AffixCategory;
-  /** Flag to denote if affix is singleValued then it should be a multiplicative affix */
-  isMultiplicative?: boolean;
-  /** Tier level of the affix (higher tiers are more powerful) */
-  tier: number;
-  /** Minimum possible value for this affix */
-  minValue: number;
-  /** Maximum possible value for this affix */
-  maxValue: number;
-  /** Description template with {value} placeholder for the actual value */
-  description: string;
-  /** Tags for filtering and categorization */
-  tags: string[];
-  /** Item tiers that this affix can appear on */
-  minILevel?: number,
-  /** Item tiers that this affix can appear on */
-  maxILevel?: number,
-  /** Item tiers that this affix can appear on */
-  allowedTiers: ItemTierType[];
-  /** Item bases that this affix can appear on */
-  allowedBases: ItemBase[];
-  /** Optional mutations that this affix is compatible with */
-  allowedMutations?: ItemMutationType[];
-  /** Optional requirements for using this affix */
-  requirements?: {
-    /** Minimum character level required */
-    level?: number;
-    /** Required attribute values */
-    attributes?: {
-      /** Required fortitude value - Mental and physical endurance */
-      fortitude?: number;
-      /** Required fortune value - Luck and chance-based outcomes */
-      fortune?: number;
-      /** Required wrath value - Combat prowess and rage */
-      wrath?: number;
-      /** Required affinity value - Connection to magical forces */
-      affinity?: number;
-    };
-  };
 }

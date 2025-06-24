@@ -1,7 +1,7 @@
 import { test, beforeEach, vi, expect } from 'vitest';
-import { allAffixes } from './affixes';
+import { AffixLevelTiers, allAffixes } from './affixes';
 import { _cloneDeep } from '@/lib/object';
-import type { IAffix } from '@/lib/affixTypes';
+import type { IAffix } from '@/lib/core';
 
 
 beforeEach(() => {
@@ -27,21 +27,22 @@ test('Ensure there are no duplicate id\'s in our affixes data', () => {
 
 test('Ensure there maxILevel if defined is always greater than minILevel if defined', () => {
   // Filter affixes that have both minILevel and maxILevel defined
-  const affixesWithLevels = allAffixes.filter(affix => 
-    affix.minILevel !== undefined && affix.maxILevel !== undefined
-  );
+  const affixesWithLevels = allAffixes.filter(affix => {
+    const aMinMax = AffixLevelTiers.get(affix.tier);
+    return aMinMax?.minILevel !== undefined && aMinMax.maxILevel !== undefined
+  });
 
   // Collect all violations
   const violations = affixesWithLevels.filter(affix => {
-    const minLevel = affix.minILevel as number;
-    const maxLevel = affix.maxILevel as number;
+    const minLevel = AffixLevelTiers.get(affix.tier)?.minILevel as number;
+    const maxLevel = AffixLevelTiers.get(affix.tier)?.maxILevel as number;
     return maxLevel <= minLevel;
   });
 
   // If we found any violations, create a detailed error message
   if (violations.length > 0) {
     const errorMessage = violations.map(affix => 
-      `Affix "${affix.name}" (${affix.id}): minILevel=${affix.minILevel}, maxILevel=${affix.maxILevel}`
+      `Affix "${affix.name}" (${affix.id}): minILevel=${AffixLevelTiers.get(affix.tier)?.minILevel}, maxILevel=${AffixLevelTiers.get(affix.tier)?.maxILevel}`
     ).join('\n');
     
     throw new Error(`Found ${violations.length} affixes where maxILevel is not greater than minILevel:\n${errorMessage}`);
