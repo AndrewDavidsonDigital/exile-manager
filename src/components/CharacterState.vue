@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ICooldown, type ILoot, type ISkill, type ITemporalEffect } from '@/lib/game';
-import { AffixCategory, AffixSubCategory, AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
+import { AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
-import { BaseItemAffix, isAffixRange, type AffixValue, type IBaseAffix } from '@/lib/affixTypes';
+import { BaseItemAffix, isAffixRange, type AffixValue, type IBaseAffix, type IItemAffix } from '@/lib/affixTypes';
 import { allAffixesById } from '@/data/affixes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
@@ -217,7 +217,7 @@ const consolidateBaseAffixes = (affixes: Array<{ id: string; affixType: BaseItem
   return retval;
 };
 
-const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>) => {
+const consolidateAffixes = (affixes: Array<IItemAffix>) => {
   const consolidated = new Map<string, {
     value: AffixValue;
     originalAffix: IAffix;
@@ -229,30 +229,55 @@ const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory
     const originalAffix = allAffixesById.get(affix.id);
     if (!originalAffix) return;
 
+    const multiplier =  1 + (((affix.saturation || 1) -1) / 4 );
+
+    // console.log('Multi: ', multiplier, ' \taffix: ',affix);
+
     if (consolidated.has(key)) {
-      consolidated.get(key)!.value = combineAffixes(_cloneDeep(consolidated.get(key)!.value), affix.value);
+      consolidated.get(key)!.value = combineAffixes(_cloneDeep(consolidated.get(key)!.value), affixMultiplier(multiplier, affix.value));
     } else {
       consolidated.set(key, {
-        value: affix.value,
-        originalAffix
+        value: affixMultiplier(multiplier, affix.value),
+        originalAffix,
       });
     }
   });
 
+
   return Array.from(consolidated.entries()).map(([_key, { value, originalAffix }]) => ({
     ...originalAffix,
     id: `${originalAffix.type}_${originalAffix.subCategory ? originalAffix.subCategory : originalAffix.category}_-1`, // Create new ID with tier -1
-    value
+    value,
   }));
 };
+
+function affixMultiplier(multiplier: number, value :AffixValue):AffixValue{
+  if (multiplier === 1){
+    return value;
+  }
+  const retval:AffixValue = {...value};
+
+  switch (retval.type) {
+    case AffixTypes.RANGE:
+      retval.minValue *= multiplier;
+      retval.minValue *= multiplier;      
+      break;
+  
+    default:
+      retval.value *= multiplier;
+      break;
+  }
+
+  return retval;
+}
 
 const groupedAffixes = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return { embedded: [], prefix: [], suffix: [], base: [] };
   
   const affixes = {
-    embedded: [] as Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>,
-    prefix: [] as Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>,
-    suffix: [] as Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>,
+    embedded: [] as Array<IItemAffix>,
+    prefix: [] as Array<IItemAffix>,
+    suffix: [] as Array<IItemAffix>,
     base: [] as Array<{ id: string; affixType: BaseItemAffix; value: AffixValue }>
   };
 
@@ -271,9 +296,9 @@ const groupedAffixes = computed(() => {
       
       // Add regular affixes if they exist
       if (item.itemDetails.affixes) {
-        affixes.embedded.push(...item.itemDetails.affixes.embedded);
-        affixes.prefix.push(...item.itemDetails.affixes.prefix);
-        affixes.suffix.push(...item.itemDetails.affixes.suffix);
+        affixes.embedded.push(...withCounters(item.itemDetails.affixes.embedded));
+        affixes.prefix.push(...withCounters(item.itemDetails.affixes.prefix));
+        affixes.suffix.push(...withCounters(item.itemDetails.affixes.suffix));
       }
     }
   });
@@ -287,6 +312,28 @@ const groupedAffixes = computed(() => {
     base: consolidateBaseAffixes(affixes.base)
   };
 });
+
+function withCounters(affixes: IItemAffix[]): IItemAffix[]{
+  const counters = new Map<string, number>();
+
+  affixes.forEach(afx => {
+    const id = afx.id.slice(0, afx.id.lastIndexOf('_'));
+    if (counters.has(id)){
+      let newCounter = counters.get(id) || 1;
+      counters.set(id, ++newCounter);
+    }else{
+      counters.set(id, 1);
+    }
+  });
+
+  
+  affixes.forEach(afx => afx.saturation = counters.get(afx.id.slice(0, afx.id.lastIndexOf('_'))));
+
+  // console.log(counters.entries());
+  // console.log(affixes);
+
+  return affixes;
+}
 
 function handleIncreaseStat(stat: Attributes){
   if (char === ErrorNumber.NOT_FOUND) return;

@@ -1,4 +1,4 @@
-import type { AffixValue, IBaseAffix } from '@/lib/affixTypes';
+import type { AffixValue, IBaseAffix, IItemAffix } from '@/lib/affixTypes';
 import { BaseItemAffix, BASE_ITEM_AFFIX_CONFIG } from './affixTypes';
 import { AffixTypes } from './core';
 
@@ -60,3 +60,15 @@ export function getAffixByType(affixType: BaseItemAffix): IBaseAffix | undefined
   }
   return undefined;
 }
+
+
+export function affixSaturation(affix: IItemAffix, affixGroup: IItemAffix[]): number {
+  return affixGroup.filter(el => el.id.slice(0, el.id.lastIndexOf('_')) === affix.id.slice(0, affix.id.lastIndexOf('_'))).length;
+}
+
+
+export function resolveAffixMultiplierValue(affix: IItemAffix, affixCollection: IItemAffix[]){
+  return (1 + (affixSaturation(affix, affixCollection) - 1)/AFFIX_SATURATION_BONUS_RATE);
+}
+
+const AFFIX_SATURATION_BONUS_RATE = 4;

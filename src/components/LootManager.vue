@@ -8,12 +8,13 @@ import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './elements/ModalDialog.vue';
-import { IconRefreshCC } from './icons';
+import { IconLink, IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
 import { allItemTiers, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
 import RomanNumeral from './elements/RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
 import SwitchToggle from './elements/SwitchToggle.vue';
+import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
 
 const gameEngine = useGameEngine();
 const adventuringEngine = useAdventuringStore();
@@ -548,7 +549,7 @@ const canCompare = computed(() => {
     </FluidElement>
 
     <!-- Loot Details Side Panel -->
-    <FluidElement class="w-full md:w-1/3 flex flex-col gap-2">
+    <FluidElement class="w-full md:w-1/4 flex flex-col gap-2">
       <div class="flex justify-between">
         <h2 class="text-lg w-fit">
           Item Details
@@ -611,7 +612,7 @@ const canCompare = computed(() => {
         </div>
         
         <template v-if="selectedLoot?.itemDetails">
-          <div>
+          <div class="[&>div]:min-h-6 [&>div>*]:h-fit [&>div>*]:my-auto">
             <div class="flex justify-between">
               <p class="text-sm w-fit">
                 Tier: <span
@@ -629,9 +630,9 @@ const canCompare = computed(() => {
             </div>
             <div
               v-if="selectedLoot.itemDetails?.baseDetails"
-              class="text-sm text-amber-200 capitalize"
+              class="text-sm text-amber-200 capitalize inline-flex"
             >
-              {{ selectedLoot.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(selectedLoot.itemDetails.baseDetails.value as AffixValue) }}
+              <span>{{ selectedLoot.itemDetails.baseDetails.name }}: {{ formatBaseAffixValue(selectedLoot.itemDetails.baseDetails.value as AffixValue) }}</span>
             </div>
             <div
               v-for="affix, aIndex in selectedLoot.itemDetails.affixes.embedded"
@@ -639,10 +640,19 @@ const canCompare = computed(() => {
               class="text-sm text-gray-400 inline-flex justify-between w-full"
             >
               <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                {{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" />
+                <span :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.embedded) > 1 ? formatAffixDescription(affix).split(TIER_SEPARATOR)[0] + '  ' + resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.embedded).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, selectedLoot.itemDetails.affixes.embedded)).split(TIER_SEPARATOR)[0] }}</span>
+                <span
+                  class="flex" 
+                  :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.embedded) > 1 ? resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.embedded).toFixed(2)+'x' : '' }`"
+                ><IconLink
+                  v-if="affixSaturation(affix, selectedLoot.itemDetails.affixes.embedded) > 1"
+                  class="scale-75 text-teal-300"
+                /><RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" /></span>
               </template>
               <template v-else>
-                {{ formatAffixDescription(affix) }}
+                <span :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.embedded) > 1 ? formatAffixDescription(affix) + '  ' + resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.embedded).toFixed(2)+'x' : ''}`">
+                  {{ formatAffixDescription(affix, affixSaturation(affix, selectedLoot.itemDetails.affixes.embedded)) }}
+                </span>
               </template>
             </div>
             <div
@@ -651,10 +661,19 @@ const canCompare = computed(() => {
               class="text-sm text-blue-400 inline-flex justify-between w-full"
             >
               <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                {{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" />
+                <span :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.prefix) > 1 ? formatAffixDescription(affix).split(TIER_SEPARATOR)[0] + '  ' + resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.prefix).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, selectedLoot.itemDetails.affixes.prefix)).split(TIER_SEPARATOR)[0] }}</span>
+                <span
+                  class="flex"
+                  :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.prefix) > 1 ? resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.prefix).toFixed(2)+'x' : '' }`"
+                ><IconLink
+                  v-if="affixSaturation(affix, selectedLoot.itemDetails.affixes.prefix) > 1"
+                  class="scale-75 text-teal-300"
+                /><RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" /></span>
               </template>
               <template v-else>
-                {{ formatAffixDescription(affix) }}
+                <span :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.prefix) > 1 ? formatAffixDescription(affix) + '  ' + resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.prefix).toFixed(2)+'x' : ''}`">
+                  {{ formatAffixDescription(affix, affixSaturation(affix, selectedLoot.itemDetails.affixes.prefix)) }}
+                </span>
               </template>
             </div>
             <div
@@ -663,10 +682,19 @@ const canCompare = computed(() => {
               class="text-sm text-green-400 inline-flex justify-between w-full"
             >
               <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
-                {{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }} <RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" />
+                <span :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.suffix) > 1 ? formatAffixDescription(affix).split(TIER_SEPARATOR)[0] + '  ' + resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.suffix).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, selectedLoot.itemDetails.affixes.suffix)).split(TIER_SEPARATOR)[0] }}</span>
+                <span
+                  class="flex" 
+                  :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.suffix) > 1 ? resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.suffix).toFixed(2)+'x' : '' }`"
+                ><IconLink
+                  v-if="affixSaturation(affix, selectedLoot.itemDetails.affixes.suffix) > 1"
+                  class="scale-75 text-teal-300"
+                /><RomanNumeral :count="Number(formatAffixDescription(affix).split(TIER_SEPARATOR)[1])" /></span>
               </template>
               <template v-else>
-                {{ formatAffixDescription(affix) }}
+                <span :title="`${affixSaturation(affix, selectedLoot.itemDetails.affixes.suffix) > 1 ? formatAffixDescription(affix) + '  ' + resolveAffixMultiplierValue(affix, selectedLoot.itemDetails.affixes.suffix).toFixed(2)+'x' : ''}`">
+                  {{ formatAffixDescription(affix, affixSaturation(affix, selectedLoot.itemDetails.affixes.suffix)) }}
+                </span>
               </template>
             </div>
           </div>
@@ -704,7 +732,7 @@ const canCompare = computed(() => {
 
 
         <!-- Equip Button -->
-        <section class="flex justify-between">
+        <section class="flex justify-between gap-1">
           <div class="flex flex-col gap-2">
             <button
               v-if="canCompare"

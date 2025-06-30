@@ -354,7 +354,6 @@ export type ItemMutationType =
   | 'cursed'        //
 ;
 
-
 /**
  * Represents the damage configuration for a monster type
  */
@@ -478,6 +477,10 @@ export enum AffixSubCategory {
   FORTITUDE = 'fortitude',
   /** Attribute Affixes relating affinity */
   AFFINITY = 'affinity',
+  /** Attribute Affixes relating affinity */
+  REGEN_LIFE = 'healthRegen',
+  /** Attribute Affixes relating affinity */
+  REGEN_MANA = 'manaRegen',
 }
 
 

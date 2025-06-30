@@ -5,6 +5,8 @@ import type { AffixValue } from '@/lib/affixTypes';
 import RomanNumeral from './elements/RomanNumeral.vue';
 import { TIER_SEPARATOR } from '@/lib/core';
 import { inject } from 'vue';
+import { IconLink } from './icons';
+import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
 
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
@@ -29,6 +31,7 @@ function unequipItem() {
   if (!props.item) return;
   $emit('unequip');
 }
+
 </script>
 
 <template>
@@ -38,7 +41,7 @@ function unequipItem() {
       { 'opacity-50 pointer-events-none': !item },
       { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
     ]"
-    :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --accessory-${slotName};`]"
+    :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --gear-${slotName};`]"
     @touchend="() => activeBrush === 'none' && alertStats()"
     @click="() => item && unequipItem()"
     @keydown.enter="() => item && unequipItem()"
@@ -53,7 +56,7 @@ function unequipItem() {
     <div
       v-if="item"
       class="tooltip"
-      :style="`position-anchor: --accessory-${slotName};`"
+      :style="`position-anchor: --gear-${slotName};`"
     >
       <div class="flex flex-col gap-1">
         <p class="font-bold">
@@ -81,13 +84,20 @@ function unequipItem() {
           >
             <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
               <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-              <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+              <span :title="`${affixSaturation(affix, item.itemDetails.affixes.embedded) > 1 ? formatAffixDescription(affix).split(TIER_SEPARATOR)[0] + '  ' + resolveAffixMultiplierValue(affix, item.itemDetails.affixes.embedded).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, item.itemDetails.affixes.embedded)).split(TIER_SEPARATOR)[0] }}</span>
             </template>
             <template v-else>
               <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-              <span>{{ formatAffixDescription(affix) }}</span>
+              <span :title="`${affixSaturation(affix, item.itemDetails.affixes.embedded) > 1 ? formatAffixDescription(affix) + '  ' + resolveAffixMultiplierValue(affix, item.itemDetails.affixes.embedded).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, item.itemDetails.affixes.embedded)) }}</span>
             </template>
-            <span class="text-right opacity-50 text-amber-200">e</span>
+            <span
+              class="text-amber-200/50 flex justify-end"
+              :title="`${affixSaturation(affix, item.itemDetails.affixes.embedded) > 1 ? resolveAffixMultiplierValue(affix, item.itemDetails.affixes.embedded).toFixed(2)+'x' : '' }`"
+            >
+              <IconLink
+                v-if="affixSaturation(affix, item.itemDetails.affixes.embedded) > 1"
+                class="scale-50 text-teal-300"
+              />e</span>
           </div>
           <div
             v-for="affix,idx in item.itemDetails.affixes.prefix"
@@ -96,13 +106,20 @@ function unequipItem() {
           >
             <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
               <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-              <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+              <span :title="`${affixSaturation(affix, item.itemDetails.affixes.prefix) > 1 ? formatAffixDescription(affix).split(TIER_SEPARATOR)[0] + '  ' + resolveAffixMultiplierValue(affix, item.itemDetails.affixes.prefix).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, item.itemDetails.affixes.prefix)).split(TIER_SEPARATOR)[0] }}</span>
             </template>
             <template v-else>
               <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-              <span>{{ formatAffixDescription(affix) }}</span>
+              <span :title="`${affixSaturation(affix, item.itemDetails.affixes.prefix) > 1 ? formatAffixDescription(affix) + '  ' + resolveAffixMultiplierValue(affix, item.itemDetails.affixes.prefix).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, item.itemDetails.affixes.prefix)) }}</span>
             </template>
-            <span class="text-right opacity-50 text-amber-200">p</span>
+            <span
+              class="text-amber-200/50 flex justify-end"
+              :title="`${affixSaturation(affix, item.itemDetails.affixes.prefix) > 1 ? resolveAffixMultiplierValue(affix, item.itemDetails.affixes.prefix).toFixed(2)+'x' : '' }`"
+            >
+              <IconLink
+                v-if="affixSaturation(affix, item.itemDetails.affixes.prefix) > 1"
+                class="scale-50 text-teal-300"
+              />p</span>
           </div>
           <div
             v-for="affix,idx in item.itemDetails.affixes.suffix"
@@ -111,13 +128,22 @@ function unequipItem() {
           >
             <template v-if="formatAffixDescription(affix).split(TIER_SEPARATOR).length > 1">
               <span class="text-left opacity-50 text-amber-200"><RomanNumeral :count="Number(affix.id.split('_')[2])" /></span>
-              <span>{{ formatAffixDescription(affix).split(TIER_SEPARATOR)[0] }}</span>
+              <span :title="`${affixSaturation(affix, item.itemDetails.affixes.suffix) > 1 ? formatAffixDescription(affix).split(TIER_SEPARATOR)[0] + '  ' + resolveAffixMultiplierValue(affix, item.itemDetails.affixes.suffix).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, item.itemDetails.affixes.suffix)).split(TIER_SEPARATOR)[0] }}</span>
             </template>
             <template v-else>
               <span class="text-left opacity-50 text-amber-200">{{ affix.id.split('_')[2] }}</span>
-              <span>{{ formatAffixDescription(affix) }}</span>
+              <span :title="`${affixSaturation(affix, item.itemDetails.affixes.suffix) > 1 ? formatAffixDescription(affix) + '  ' + resolveAffixMultiplierValue(affix, item.itemDetails.affixes.suffix).toFixed(2)+'x' : ''}`">{{ formatAffixDescription(affix, affixSaturation(affix, item.itemDetails.affixes.suffix)) }}</span>
             </template>
-            <span class="text-right opacity-50 text-amber-200">s</span>
+            <span
+              class="text-amber-200/50 flex justify-end"
+              :title="`${affixSaturation(affix, item.itemDetails.affixes.suffix) > 1 ? resolveAffixMultiplierValue(affix, item.itemDetails.affixes.suffix).toFixed(2)+'x' : '' }`"
+            >
+              <IconLink
+                v-if="affixSaturation(affix, item.itemDetails.affixes.suffix) > 1"
+                class="scale-50 text-teal-300"
+              />
+              s
+            </span>
           </div>
         </template>
         <template v-else>

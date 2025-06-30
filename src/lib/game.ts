@@ -1,4 +1,4 @@
-import type { IBaseAffix } from './affixTypes';
+import type { IBaseAffix, IItemAffix } from './affixTypes';
 import { AffixLevelTiers, allAffixes, allAffixesById } from '@/data/affixes';
 import type { AffixValue } from './affixTypes';
 import { 
@@ -409,8 +409,8 @@ function generateAffixesOfType(
   affixType: AffixType,
   allowedAffixes: IAffix[],
   maxCount: number
-): Array<{ id: string; category: AffixCategory; value: AffixValue }> {
-  const generatedAffixes: Array<{ id: string; category: AffixCategory; value: AffixValue }> = [];
+): Array<IItemAffix> {
+  const generatedAffixes: Array<IItemAffix> = [];
   const typeAffixes = allowedAffixes.filter((affix: IAffix) => affix.type === affixType);
 
   for (let i = 0; i < maxCount; i++) {
@@ -420,11 +420,15 @@ function generateAffixesOfType(
     }
     if (typeAffixes.length > 0) {
       const randomAffix = randomlySelectAffixFromCollection(typeAffixes);
-      generatedAffixes.push({
+      const croppedAffix:IItemAffix = {
         id: randomAffix.id,
         category: randomAffix.category,
-        value: generateAffixValue(randomAffix)
-      });
+        value: generateAffixValue(randomAffix),
+      }
+      if (randomAffix.subCategory){
+        croppedAffix.subCategory = randomAffix.subCategory
+      }
+      generatedAffixes.push(croppedAffix);
     }
   }
 
@@ -442,11 +446,14 @@ function randomlySelectAffixFromCollection(affixCollection: IAffix[]){
  * @returns Formatted description string
  */
 function formatAffixCore(
-  affix: { id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue },
-  options: { showRange?: boolean } = {}
+  affix: IItemAffix,
+  options: { showRange?: boolean } = {},
+  saturationMultiplier?: number
 ): string {
   // Find the matching affix definition to get min/max values and original description
   let affixDef = allAffixesById.get(affix.id);
+
+  const multiplier =  1 + (((saturationMultiplier|| 1) -1) / 4 );
   
   // If not found and it's a tier -1 affix, try to find the original affix by type and category
   if (!affixDef && affix.id.endsWith('_-1')) {
@@ -472,7 +479,7 @@ function formatAffixCore(
 
   if (valuePlaceholderCount === 1 && !isAffixRange(affixValue)) {
     // If {value} appears once, replace it with the value
-    description = description.replace(/\{\s*value\s*\}/gi, affixValue.value.toString());
+    description = description.replace(/\{\s*value\s*\}/gi, Math.floor(affixValue.value * multiplier).toString());
   } else if (valuePlaceholderCount === 2) {
     if (isAffixRange(affixValue)) {
       // If showing range, replace first with value and second with maxValue
@@ -480,9 +487,9 @@ function formatAffixCore(
       description = description.replace(/\{\s*value\s*\}/gi, (_match) => {
         if (!replacedOnce) {
           replacedOnce = true;
-          return affixValue.minValue.toString();
+          return Math.floor(affixValue.minValue * multiplier).toString();
         } else {
-          return affixValue.maxValue.toString();
+          return Math.floor(affixValue.maxValue * multiplier).toString();
         }
       });
 
@@ -509,8 +516,8 @@ function formatAffixCore(
  * @param affix The affix object containing id, category, and value (the rolled value).
  * @returns Formatted description string.
  */
-export function formatAffixDescription(affix: { id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }): string {
-  return formatAffixCore(affix, { showRange: true });
+export function formatAffixDescription(affix: IItemAffix, saturationMultiplier?: number): string {
+  return formatAffixCore(affix, { showRange: true }, saturationMultiplier);
 }
 
 /**
@@ -518,7 +525,7 @@ export function formatAffixDescription(affix: { id: string; category: AffixCateg
  * @param affix The affix object containing id, category, and value (the total value).
  * @returns Formatted description string.
  */
-export function formatConsolidatedAffix(affix: { id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }): string {
+export function formatConsolidatedAffix(affix: IItemAffix): string {
   return formatAffixCore(affix, { showRange: false });
 }
 
@@ -530,21 +537,9 @@ export function formatConsolidatedAffix(affix: { id: string; category: AffixCate
  */
 export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase, iLevel: number) {
   const affixes = {
-    embedded: [] as Array<{
-      id: string;
-      category: AffixCategory;
-      value: AffixValue;
-    }>,
-    prefix: [] as Array<{
-      id: string;
-      category: AffixCategory;
-      value: AffixValue;
-    }>,
-    suffix: [] as Array<{
-      id: string;
-      category: AffixCategory;
-      value: AffixValue;
-    }>
+    embedded: [] as Array<IItemAffix>,
+    prefix: [] as Array<IItemAffix>,
+    suffix: [] as Array<IItemAffix>
   };
 
   // Get the expected affix counts for this tier

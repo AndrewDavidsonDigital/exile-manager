@@ -17,9 +17,9 @@ import {
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
 import { BaseItemAffix } from '@/lib/affixTypes';
-import { allAffixes as affixDefinitions } from '@/data/affixes';
+import { allAffixesById } from '@/data/affixes';
 import { _cloneDeep } from '@/lib/object';
-import { getAffixValue, getAffixValueRange, resolveAverageOfRange } from '@/lib/affixUtils';
+import { getAffixValue, getAffixValueRange, resolveAffixMultiplierValue, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
 import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatMechanics';
 import { passives } from '@/data/passives';
@@ -246,51 +246,72 @@ export const useGameEngine = defineStore('gameEngine', {
           ...item.itemDetails.affixes.suffix
         ];
 
+        
+
         itemAffixes.forEach(affix => {
           // Look up the full affix definition to get the type
-          const affixDef = affixDefinitions.find(a => a.id === affix.id);
+          const affixDef = allAffixesById.get(affix.id);
           if (!affixDef) return;
 
-          // Use switch statement for better readability and maintainability
+          let multiplier = 1;
+
+          switch (affixDef.type) {
+            case AffixType.EMBEDDED:
+              multiplier = resolveAffixMultiplierValue(affix, item.itemDetails?.affixes.embedded || []);
+              break;
+            case AffixType.PREFIX:
+              multiplier = resolveAffixMultiplierValue(affix, item.itemDetails?.affixes.prefix || []);
+              break;
+            case AffixType.SUFFIX:
+              multiplier = resolveAffixMultiplierValue(affix, item.itemDetails?.affixes.suffix || []);
+              break;
+          
+            default:
+              break;
+          }
+
+          // console.log(`Multi: ${multiplier}`);
+          // console.log(`Cat: ${affix.category}`);
+
           switch (affix.category) {
             case AffixCategory.LIFE:
               if (affixDef.type === AffixType.PREFIX) {
-                retval.healthRegen += getAffixValue(affix);
+                retval.healthRegen += (getAffixValue(affix) * multiplier);
               } else if (affixDef.type === AffixType.SUFFIX) {
-                retval.health += getAffixValue(affix);
-                retval.maxHealth += getAffixValue(affix);
+                retval.health += (getAffixValue(affix) * multiplier);
+                retval.maxHealth += (getAffixValue(affix) * multiplier);
               }
               break;
             case AffixCategory.MANA:
               if (affixDef.type === AffixType.PREFIX) {
-                retval.manaRegen += getAffixValue(affix);
+                retval.manaRegen += (getAffixValue(affix) * multiplier);
               } else if (affixDef.type === AffixType.SUFFIX) {
-                retval.mana += getAffixValue(affix);
-                retval.maxMana += getAffixValue(affix);
+                retval.mana += (getAffixValue(affix) * multiplier);
+                retval.maxMana += (getAffixValue(affix) * multiplier);
               }
               break;
             case AffixCategory.ATTRIBUTE:
               // Check the affix tags to determine which attribute it affects
               if (affixDef.tags.includes('fortitude')) {
-                retval.attributes.fortitude += getAffixValue(affix);
+                retval.attributes.fortitude += (getAffixValue(affix) * multiplier);
               } else if (affixDef.tags.includes('fortune')) {
-                retval.attributes.fortune += getAffixValue(affix);
+                retval.attributes.fortune += (getAffixValue(affix) * multiplier);
               } else if (affixDef.tags.includes('wrath')) {
-                retval.attributes.wrath += getAffixValue(affix);
+                retval.attributes.wrath += (getAffixValue(affix) * multiplier);
               } else if (affixDef.tags.includes('affinity')) {
-                retval.attributes.affinity += getAffixValue(affix);
+                retval.attributes.affinity += (getAffixValue(affix) * multiplier);
               }
               break;
             case AffixCategory.ARMOR:
               // Physical damage from prefix, Armour Value from EMBEDDED, phys-resist as suffix
               if (affixDef.type === AffixType.EMBEDDED) {
-                localArmor += getAffixValue(affix);
+                localArmor += (getAffixValue(affix) * multiplier);
               } else if (affixDef.type === AffixType.PREFIX) {
-                retval.damage.physical += resolveAverageOfRange(getAffixValueRange(affix));
+                retval.damage.physical += (resolveAverageOfRange(getAffixValueRange(affix)) * multiplier);
               } else if (affixDef.type === AffixType.SUFFIX) {
                 const mitigation = retval.mitigation.find(m => m.key === 'physical');
                 if (mitigation) {
-                  mitigation.value += getAffixValue(affix);
+                  mitigation.value += (getAffixValue(affix) * multiplier);
                 }
               }
               break;
@@ -299,14 +320,14 @@ export const useGameEngine = defineStore('gameEngine', {
               if (affixDef.type === AffixType.SUFFIX) {
                 const mitigation = retval.mitigation.find(m => m.key === 'physical');
                 if (mitigation) {
-                  mitigation.value += getAffixValue(affix);
+                  mitigation.value += (getAffixValue(affix) * multiplier);
                 }
               }
               break;
             case AffixCategory.EVASION:
               // evasion only on embedded
               if (affixDef.type === AffixType.EMBEDDED) {
-                localEvasion += getAffixValue(affix);
+                localEvasion += (getAffixValue(affix) * multiplier);
               }
               break;
             case AffixCategory.ELEMENTAL:
@@ -316,48 +337,48 @@ export const useGameEngine = defineStore('gameEngine', {
                 if (affixDef.tags.includes('elemental') && affixDef.tags.includes('resistance')){
                   const mitigationFire = retval.mitigation.find(m => m.key === 'elemental_fire');
                   if (mitigationFire) {
-                    mitigationFire.value += getAffixValue(affix);
+                    mitigationFire.value += (getAffixValue(affix) * multiplier);
                   }
                   const mitigationCold = retval.mitigation.find(m => m.key === 'elemental_cold');
                   if (mitigationCold) {
-                    mitigationCold.value += getAffixValue(affix);
+                    mitigationCold.value += (getAffixValue(affix) * multiplier);
                   }
                   const mitigationLightning = retval.mitigation.find(m => m.key === 'elemental_lightning');
                   if (mitigationLightning) {
-                    mitigationLightning.value += getAffixValue(affix);
+                    mitigationLightning.value += (getAffixValue(affix) * multiplier);
                   }
 
                 } else if (affixDef.tags.includes('fire')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_fire');
                   if (mitigation) {
-                    mitigation.value += getAffixValue(affix);
+                    mitigation.value += (getAffixValue(affix) * multiplier);
                   }
                 } else if (affixDef.tags.includes('cold')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_cold');
                   if (mitigation) {
-                    mitigation.value += getAffixValue(affix);
+                    mitigation.value += (getAffixValue(affix) * multiplier);
                   }
                 } else if (affixDef.tags.includes('lightning')) {
                   const mitigation = retval.mitigation.find(m => m.key === 'elemental_lightning');
                   if (mitigation) {
-                    mitigation.value += getAffixValue(affix);
+                    mitigation.value += (getAffixValue(affix) * multiplier);
                   }
                 }
               } else {
                 // Handle elemental damage
                 if (affixDef.tags.includes('fire')) {
-                  retval.damage.elemental.fire += resolveAverageOfRange(getAffixValueRange(affix));
+                  retval.damage.elemental.fire += (resolveAverageOfRange(getAffixValueRange(affix)) * multiplier);
                 } else if (affixDef.tags.includes('cold')) {
-                  retval.damage.elemental.cold += resolveAverageOfRange(getAffixValueRange(affix));
+                  retval.damage.elemental.cold += (resolveAverageOfRange(getAffixValueRange(affix)) * multiplier);
                 } else if (affixDef.tags.includes('lightning')) {
-                  retval.damage.elemental.lightning  += resolveAverageOfRange(getAffixValueRange(affix));
+                  retval.damage.elemental.lightning  += (resolveAverageOfRange(getAffixValueRange(affix)) * multiplier);
                 }
               }
               break;
               case AffixCategory.CRITICAL:
                 // evasion only on PREFIX
                 if (affixDef.type === AffixType.PREFIX) {
-                  retval.criticalStrike += getAffixValue(affix);
+                  retval.criticalStrike += (getAffixValue(affix) * multiplier);
                 }
                 break;
           }
@@ -1008,6 +1029,10 @@ export const useGameEngine = defineStore('gameEngine', {
     addLoot(amount: number, areaLevel: number, levelMultiplier: number, lootTags?: LootType[]){
       if (!this.character) return;
       logger(`Adding ${amount} loot items for ${this.character.name}`);
+
+      if (areaLevel === -1){
+        areaLevel = this.character.level;
+      }
 
       // Initialize loot array if it doesn't exist
       if (!this.character.loot) {

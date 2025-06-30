@@ -1,4 +1,4 @@
-import { AffixTypes } from './core';
+import { AffixCategory, AffixSubCategory, AffixTypes } from './core';
 import type { OneOf } from './typescript';
 
 /**
@@ -7,6 +7,14 @@ import type { OneOf } from './typescript';
 export type AdditiveValue = {
   type: AffixTypes.ADDITIVE;
   value: number;
+}
+
+export interface IItemAffix {
+  id: string;
+  category: AffixCategory;
+  subCategory?: AffixSubCategory;
+  saturation?: number;
+  value: AffixValue;
 }
 
 /**

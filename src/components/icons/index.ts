@@ -11,6 +11,7 @@ import IconMap from './IconMap.vue';
 import IconTreasureChest from './IconTreasureChest.vue';
 import IconVillage from './IconVillage.vue';
 import IconCog from './IconCog.vue';
+import IconLink from './IconLink.vue';
 
 export {
   IconPlay,
@@ -19,6 +20,7 @@ export {
   IconRepeat,
   IconRefreshCC,
   IconCog,
+  IconLink,
 
   IconPassiveTree,
   IconSkills,
