@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
 import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ICooldown, type ILoot, type ISkill, type ITemporalEffect } from '@/lib/game';
-import { AffixCategory, AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
+import { AffixCategory, AffixSubCategory, AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
 import { BaseItemAffix, isAffixRange, type AffixValue, type IBaseAffix } from '@/lib/affixTypes';
-import { allAffixes } from '@/data/affixes';
+import { allAffixesById } from '@/data/affixes';
 import { _cloneDeep } from '@/lib/object';
 import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './elements/FluidElement.vue';
@@ -217,15 +217,16 @@ const consolidateBaseAffixes = (affixes: Array<{ id: string; affixType: BaseItem
   return retval;
 };
 
-const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory; value: AffixValue }>) => {
+const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>) => {
   const consolidated = new Map<string, {
     value: AffixValue;
     originalAffix: IAffix;
   }>();
   
   affixes.forEach(affix => {
-    const key = affix.id.split('_')[1]; // Get the category part of the ID
-    const originalAffix = allAffixes.find(a => a.id === affix.id);
+    const key = affix.id.split('_').slice(0,2).join('_'); // Get the category part of the ID
+    // console.log(`consolidateAffixes: id: '${affix.id}' Key: ${key}`)
+    const originalAffix = allAffixesById.get(affix.id);
     if (!originalAffix) return;
 
     if (consolidated.has(key)) {
@@ -240,7 +241,7 @@ const consolidateAffixes = (affixes: Array<{ id: string; category: AffixCategory
 
   return Array.from(consolidated.entries()).map(([_key, { value, originalAffix }]) => ({
     ...originalAffix,
-    id: `${originalAffix.type}_${originalAffix.category}_-1`, // Create new ID with tier -1
+    id: `${originalAffix.type}_${originalAffix.subCategory ? originalAffix.subCategory : originalAffix.category}_-1`, // Create new ID with tier -1
     value
   }));
 };
@@ -249,9 +250,9 @@ const groupedAffixes = computed(() => {
   if (char === ErrorNumber.NOT_FOUND) return { embedded: [], prefix: [], suffix: [], base: [] };
   
   const affixes = {
-    embedded: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
-    prefix: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
-    suffix: [] as Array<{ id: string; category: AffixCategory; value: AffixValue }>,
+    embedded: [] as Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>,
+    prefix: [] as Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>,
+    suffix: [] as Array<{ id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }>,
     base: [] as Array<{ id: string; affixType: BaseItemAffix; value: AffixValue }>
   };
 

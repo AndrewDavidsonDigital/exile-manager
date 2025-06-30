@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { trace } from '@/lib/logging';
-import { toggleScrollLock } from '@/lib/ui';
+  import { toggleScrollLock } from '@/lib/ui';
   import { ref, watch } from 'vue';
 
   const LOGGING_PREFIX = '▫️Modal:\t';

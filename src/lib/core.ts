@@ -460,6 +460,26 @@ export enum AffixCategory {
   /** Affixes relating crafting @deprecated not yet implemented */
   CRAFTING = 'crafting'
 }
+/**
+ * Represents the different categories of affixes
+ */
+export enum AffixSubCategory {
+  /** Affixes relating fire damage, both offensively and defensibly */
+  FIRE = 'fire',
+  /** Affixes relating cold damage, both offensively and defensibly */
+  COLD = 'cold',
+  /** Affixes relating lightning damage, both offensively and defensibly */
+  LIGHTNING = 'lightning',
+  /** Attribute Affixes relating wrath */
+  WRATH = 'wrath',
+  /** Attribute Affixes relating fortune */
+  FORTUNE = 'fortune',
+  /** Attribute Affixes relating fortitude */
+  FORTITUDE = 'fortitude',
+  /** Attribute Affixes relating affinity */
+  AFFINITY = 'affinity',
+}
+
 
 /**
  * Represents an affix that can be applied to an item
@@ -473,6 +493,7 @@ export interface IAffix {
   type: AffixType;
   /** Category of the affix (attack, defense, etc.) */
   category: AffixCategory;
+  subCategory?: AffixSubCategory;
   /** Flag to denote if affix is singleValued then it should be a multiplicative affix */
   isMultiplicative?: boolean;
   /** Tier level of the affix (higher tiers are more powerful) */

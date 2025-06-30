@@ -1,8 +1,9 @@
 import type { IBaseAffix } from './affixTypes';
-import { AffixLevelTiers, allAffixes } from '@/data/affixes';
+import { AffixLevelTiers, allAffixes, allAffixesById } from '@/data/affixes';
 import type { AffixValue } from './affixTypes';
 import { 
   AffixCategory,
+  AffixSubCategory,
   AffixType,
   AffixTypes,
   Attributes,
@@ -90,16 +91,19 @@ export interface IItem {
     embedded: Array<{
       id: string;
       category: AffixCategory;
+      subCategory?: AffixSubCategory;
       value: AffixValue;
     }>;
     prefix: Array<{
       id: string;
       category: AffixCategory;
+      subCategory?: AffixSubCategory;
       value: AffixValue;
     }>;
     suffix: Array<{
       id: string;
       category: AffixCategory;
+      subCategory?: AffixSubCategory;
       value: AffixValue;
     }>;
   }
@@ -438,17 +442,21 @@ function randomlySelectAffixFromCollection(affixCollection: IAffix[]){
  * @returns Formatted description string
  */
 function formatAffixCore(
-  affix: { id: string; category: AffixCategory; value: AffixValue },
+  affix: { id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue },
   options: { showRange?: boolean } = {}
 ): string {
   // Find the matching affix definition to get min/max values and original description
-  let affixDef = allAffixes.find(a => a.id === affix.id);
+  let affixDef = allAffixesById.get(affix.id);
   
   // If not found and it's a tier -1 affix, try to find the original affix by type and category
   if (!affixDef && affix.id.endsWith('_-1')) {
-    const [type, category] = affix.id.split('_');
-    affixDef = allAffixes.find(a => a.type === type && a.category === category);
-    // console.log(`finding affix by cat:'${category}, type: '${type}'`);
+
+    const tempIdArray = affix.id.split('_');
+    tempIdArray[tempIdArray.length - 1] = '1';
+    const reconstructedId = tempIdArray.join('_');
+    affixDef = allAffixesById.get(reconstructedId);
+
+    // console.log(`finding affix by reconstruction:'${reconstructedId}'`);
   }
   
   if (!affixDef) {
@@ -501,7 +509,7 @@ function formatAffixCore(
  * @param affix The affix object containing id, category, and value (the rolled value).
  * @returns Formatted description string.
  */
-export function formatAffixDescription(affix: { id: string; category: AffixCategory; value: AffixValue }): string {
+export function formatAffixDescription(affix: { id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: true });
 }
 
@@ -510,7 +518,7 @@ export function formatAffixDescription(affix: { id: string; category: AffixCateg
  * @param affix The affix object containing id, category, and value (the total value).
  * @returns Formatted description string.
  */
-export function formatConsolidatedAffix(affix: { id: string; category: AffixCategory; value: AffixValue }): string {
+export function formatConsolidatedAffix(affix: { id: string; category: AffixCategory; subCategory?: AffixSubCategory; value: AffixValue }): string {
   return formatAffixCore(affix, { showRange: false });
 }
 
