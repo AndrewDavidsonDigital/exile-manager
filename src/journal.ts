@@ -255,6 +255,6 @@ export const entries: IEntry[] = [
   {
     title: 'Mana',
     description: 'Your current and maximum mana points. Used to fuel spells and special abilities.',
-    tags: ['resource', 'mana', 'spell', 'NYI'],
+    tags: ['resource', 'mana', 'spell'],
   },
 ]

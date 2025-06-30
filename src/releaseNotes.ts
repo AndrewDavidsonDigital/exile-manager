@@ -18,6 +18,21 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.1.6',
+    isBreaking: true,
+    requiresPurge: true,
+    highlights: [
+      'Engine performance tweaks',
+      'Game options persistence between sessions',
+      'Add Affix Synergy system, items with multiple of the same affixes will get a multiplier to those affixes',
+      'Fix bug where-by a user could refresh the Passives offered to them',
+      'Fix bug where-by a user could refresh the Skills offered to them',
+      'Added support for event based level generation. . . follow that lanky turtle to raid its stores',
+    ],
+    commit: '',
+    compare: 'v0.1.5...v0.1.6',
+  },
+  {
     version: '0.1.5',
     highlights: [
       'Settings menu',
@@ -25,7 +40,7 @@ export const releases: IRelease[] = [
       'Health/Mana Bars for mobile',
       'Toggleable Health/Mana Bars for desktop',
     ],
-    commit: '',
+    commit: '394274e2559fad7aa679bd5ca9119c91e0909960',
     compare: 'v0.1.4...v0.1.5',
   },
   {
