@@ -12,11 +12,12 @@ import IconTreasureChest from './IconTreasureChest.vue';
 import IconVillage from './IconVillage.vue';
 import IconCog from './IconCog.vue';
 import IconLink from './IconLink.vue';
+import IconChevron from './IconChevron.vue';
 
 export {
   IconPlay,
   IconPause,
-
+  IconChevron,
   IconRepeat,
   IconRefreshCC,
   IconCog,

@@ -1,27 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" 
-  width="700" height="300"
-  fill="teal" 
+  width="24" height="24"
+  fill="none" 
   stroke="currentColor"
-  stroke-width="4"
-  stroke-linecap="round"
-  style="background: black;"
+  stroke-width="2"
+  stroke-linecap="round" 
+  stroke-linejoin="round" 
+  class="active"
 >
-<svg width="660" height="220">
-<defs>
-  <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#05a"/>
-    <stop offset="50%" stop-color="#a55"/>
-    <stop offset="100%" stop-color="#0a5"/>
-  </linearGradient>
-</defs>
-
-<rect 
-  x="10" 
-  y="10" 
-  width="600" 
-  height="200" 
-  stroke="url(#linear)" 
-/>
+  <line x1="13" y1="17" x2="18" y2="12" class="chev1 local-rotate-90"/>
+  <line x1="18" y1="12" x2="13" y2="7" class="chev2 -local-rotate-90"/>
+  <line x1="6" y1="17" x2="11" y2="12" class="chev3 local-rotate-90"/>
+  <line x1="11" y1="12" x2="6" y2="7" class="chev4 -local-rotate-90"/>
 </svg>
+<style>
+  :root {
+    --center-x: 12px;
+    --center-y: 12px;
+    --dx: 3.5px;
+    --dy: 2.5px;
+  }
 
-</svg>
+  svg.active {
+  .local-rotate-90 {
+    transform: rotate(90deg);
+  }
+  .-local-rotate-90 {
+    transform: rotate(-90deg);
+  }
+  }
+  .chev1 {
+    transform-origin: calc(var(--center-x) + var(--dx)) calc(var(--center-y) + var(--dy));
+  }
+  .chev2 {
+    transform-origin: calc(var(--center-x) + var(--dx)) calc(var(--center-y) - var(--dy));
+  }
+  .chev3 {
+    transform-origin: calc(var(--center-x) - var(--dx)) calc(var(--center-y) + var(--dy));
+  }
+  .chev4 {
+    transform-origin: calc(var(--center-x) - var(--dx)) calc(var(--center-y) - var(--dy));
+  }
+  line {
+    transition: transform 0.3s;
+  }
+</style>

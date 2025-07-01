@@ -1,0 +1,75 @@
+<!-- eslint-disable prettier/prettier -->
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24"
+    height="24"
+    fill="none" 
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round" 
+    stroke-linejoin="round"
+  >
+    <line
+      x1="13"
+      y1="17"
+      x2="18"
+      y2="12"
+      class="chev1 local-rotate-90"
+    />
+    <line
+      x1="18"
+      y1="12"
+      x2="13"
+      y2="7"
+      class="chev2 -local-rotate-90"
+    />
+    <line
+      x1="6"
+      y1="17"
+      x2="11"
+      y2="12"
+      class="chev3 local-rotate-90"
+    />
+    <line
+      x1="11"
+      y1="12"
+      x2="6"
+      y2="7"
+      class="chev4 -local-rotate-90"
+    />
+  </svg>
+</template>
+
+<style scoped>
+  svg {
+    --center-x: 12px;
+    --center-y: 12px;
+    --dx: 3.5px;
+    --dy: 2.5px;
+  }
+
+  svg.active {
+  .local-rotate-90 {
+    transform: rotate(90deg);
+  }
+  .-local-rotate-90 {
+    transform: rotate(-90deg);
+  }
+  }
+  .chev1 {
+    transform-origin: calc(var(--center-x) + var(--dx)) calc(var(--center-y) + var(--dy));
+  }
+  .chev2 {
+    transform-origin: calc(var(--center-x) + var(--dx)) calc(var(--center-y) - var(--dy));
+  }
+  .chev3 {
+    transform-origin: calc(var(--center-x) - var(--dx)) calc(var(--center-y) + var(--dy));
+  }
+  .chev4 {
+    transform-origin: calc(var(--center-x) - var(--dx)) calc(var(--center-y) - var(--dy));
+  }
+  line {
+    transition: transform 0.3s;
+  }
+</style>

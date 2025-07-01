@@ -8,7 +8,7 @@ import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './elements/ModalDialog.vue';
-import { IconLink, IconRefreshCC } from './icons';
+import { IconChevron, IconLink, IconRefreshCC } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
 import { allItemTiers, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
 import RomanNumeral from './elements/RomanNumeral.vue';
@@ -21,6 +21,8 @@ const adventuringEngine = useAdventuringStore();
 const selectedLoot = ref<ILoot | undefined>();
 const lootFilter = ref<ItemBase | undefined>(undefined);
 const tierFilter = ref<ItemTierType | undefined>(undefined);
+const collapseTierFilters = ref(false);
+const collapseEquipmentFilters = ref(false);
 const character = computed(() => gameEngine.getCharacter);
 const activeTab = ref<ManageLootTabType>('inventory');
 const showCompareModal = ref(false);
@@ -405,20 +407,47 @@ const canCompare = computed(() => {
             All Types
           </FluidElement>
         </button>
-        <button
-          v-for="type in allItemTypes"
-          :key="type"
+        <button>
+          <FluidElement class="w-fit !p-1 md:hidden">
+            <IconChevron
+              :class="[
+                { 'active' : collapseEquipmentFilters }
+              ]"
+              @click="collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined;"
+            />
+          </FluidElement>
+        </button>
+        <div
+          class="w-fit transition-all duration-300 overflow-clip flex gap-2 flex-wrap md:flex-nowrap max-h-20"
           :class="[
-            { 'opacity-50': lootFilter !== type },
-            { 'pointer-events-none': lootFilter === type }
+            { '!w-0' : collapseEquipmentFilters }
           ]"
-          @click="lootFilter = type"
         >
-          <FluidElement
-            class="w-fit !p-1"
-            :title="type"
+          <button
+            v-for="type in allItemTypes"
+            :key="type"
+            :class="[
+              { 'opacity-50': lootFilter !== type },
+              { 'pointer-events-none': lootFilter === type }
+            ]"
+            @click="lootFilter = type"
           >
-            {{ itemTypeEmojiMap[type] }}
+            <FluidElement
+              class="w-fit !p-1"
+              :title="type"
+            >
+              {{ itemTypeEmojiMap[type] }}
+            </FluidElement>
+          </button>
+        </div>
+        <button>
+          <FluidElement class="w-fit !p-1 hidden md:block">
+            <IconChevron
+              :class="[
+                { 'active' : collapseEquipmentFilters }
+              ]"
+              @click="collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined;"
+            />
           </FluidElement>
         </button>
       </div>
@@ -436,21 +465,48 @@ const canCompare = computed(() => {
             All Tiers
           </FluidElement>
         </button>
-        <button
-          v-for="tier in allItemTiers"
-          :key="tier"
+        <button>
+          <FluidElement class="w-fit !p-1 md:hidden">
+            <IconChevron
+              :class="[
+                { 'active' : collapseTierFilters }
+              ]"
+              @click="collapseTierFilters = !collapseTierFilters; tierFilter = undefined;"
+            />
+          </FluidElement>
+        </button>
+        <div
+          class="w-fit transition-all duration-300 overflow-clip flex gap-2 flex-wrap md:flex-nowrap max-h-20"
           :class="[
-            { 'opacity-30': tierFilter !== tier },
-            { 'pointer-events-none': tierFilter === tier }
+            { '!w-0' : collapseTierFilters }
           ]"
-          @click="tierFilter = tier"
         >
-          <FluidElement
-            class="w-fit !p-1"
-            :title="tier"
-            :style="{ color: getTierColor(tier, true) }"
+          <button
+            v-for="tier in allItemTiers"
+            :key="tier"
+            :class="[
+              { 'opacity-30': tierFilter !== tier },
+              { 'pointer-events-none': tierFilter === tier }
+            ]"
+            @click="tierFilter = tier"
           >
-            {{ tier.charAt(0).toUpperCase() + tier.slice(1) }}
+            <FluidElement
+              class="w-fit !p-1"
+              :title="tier"
+              :style="{ color: getTierColor(tier, true) }"
+            >
+              {{ tier.charAt(0).toUpperCase() + tier.slice(1) }}
+            </FluidElement>
+          </button>
+        </div>
+        <button>
+          <FluidElement class="w-fit !p-1 hidden md:block">
+            <IconChevron
+              :class="[
+                { 'active' : collapseTierFilters }
+              ]"
+              @click="collapseTierFilters = !collapseTierFilters; tierFilter = undefined;"
+            />
           </FluidElement>
         </button>
       </div>
@@ -774,6 +830,7 @@ const canCompare = computed(() => {
         </section>
       </div>
     </FluidElement>
+
     <ModalDialog
       id="compareModal"
       :show="showCompareModal"
