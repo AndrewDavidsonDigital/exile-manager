@@ -61,7 +61,7 @@ import { resolveLabelFromKey } from '@/lib/language';
           :key="`settings_config_${index}-${confIndex}`"
           class="hidden md:block"
         >
-          <span class="flex justify-between gap-2 items-center md:max-w-1/3">
+          <span class="flex justify-between gap-2 items-center md:max-w-1/2">
             <p class="ml-4">{{ resolveLabelFromKey(config) }}{{ configuration.ui.healthManaBars ? 'Use Bars' : 'Use Text' }}</p>
             <SwitchToggle
               v-model="configuration.ui.healthManaBars"

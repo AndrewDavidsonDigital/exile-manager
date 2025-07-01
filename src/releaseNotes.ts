@@ -22,6 +22,7 @@ export const releases: IRelease[] = [
     isBreaking: true,
     requiresPurge: true,
     highlights: [
+      'Fix bug where if the starting skill was a world skill, you were never able to select a new skill on level-up',
       'Engine performance tweaks',
       'Game options persistence between sessions',
       'Add Affix Synergy system, items with multiple of the same affixes will get a multiplier to those affixes',

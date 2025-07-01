@@ -32,7 +32,7 @@ function update() {
       dark:bg-slate-600 dark:outline-emerald-400 
       bg-slate-400 outline-blue-600 
       outline rounded-full 
-      w-8 h-4 p-0.5 
+      min-w-8 w-8 h-4 p-0.5 
       flex relative 
       transition-all duration-300 ease-in
       cursor-pointer
