@@ -134,7 +134,7 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         exileHealth = 1;
         combatLog.push(
           `\nYou narrowly escape with your life, losing ${lootLossPercent}% of your loot in the process!\n` +
-          `Returning to town with 1 HP...`
+          `Escaping with 1 HP...`
         );
 
         // need to fully exist here.

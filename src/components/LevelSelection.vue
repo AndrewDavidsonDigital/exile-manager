@@ -92,7 +92,7 @@ function sortLevel(a: ILevel, b: ILevel){
         @click="isCollapsed = !isCollapsed"
       >
         <h2 class="mr-auto md:mx-auto">
-          Select Level <span
+          Select Destination <span
             class="duration-300 ease-in-out transition-all inline-flex w-fit "
             :class="[
               { 'rotate-90': isCollapsed }

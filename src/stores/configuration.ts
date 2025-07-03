@@ -58,12 +58,12 @@ export const useConfigurationStore = defineStore('configuration', {
   state: () => {
     const configState = useConfig();
     const savedState = configState.get();
-    
+
     // Initialize state from storage if it exists
     if (savedState) {
       return savedState as IConfiguration;
     }
-    
+
     return _cloneDeep(DEFAULT_STATE) as IConfiguration;
   },
 

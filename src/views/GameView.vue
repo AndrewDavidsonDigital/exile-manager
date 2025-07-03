@@ -15,9 +15,12 @@
   import { LevelType, type ILevel } from '@/lib/core';
   import { IconCog, IconHelm, IconMap, IconTreasureChest, IconVillage } from '@/components/icons';
   import { useConfigurationStore } from '@/stores/configuration';
-import { CUSTOM_LEVELS } from '@/data/levels';
+  import { CUSTOM_LEVELS } from '@/data/levels';
+  import TownManager from '@/components/TownManager.vue';
+  import { useWorldEngine } from '@/stores/world';
 
   const gameEngine = useGameEngine();
+  const worldEngine = useWorldEngine();
   const adventuringStore = useAdventuringStore();
   const configurationStore = useConfigurationStore();
   const hasCharacter = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND);
@@ -30,6 +33,14 @@ import { CUSTOM_LEVELS } from '@/data/levels';
   const isCharPaneVisible = ref<boolean>(true);
   const cheatsToggle = ref<boolean>(false);
 
+  const modalShown = ref<boolean>(false);
+
+  const enableCheats = import.meta.env.DEV;
+  
+  type TabType = 'adventuring' | 'loot' | 'town';
+
+  const REPORT_DOM_ID = '_activity-report';
+
   const hasLevelUpRewards = computed(
     () => 
       gameEngine.getCharacter !== ErrorNumber.NOT_FOUND 
@@ -41,32 +52,17 @@ import { CUSTOM_LEVELS } from '@/data/levels';
       : false
   );
 
-  const enableCheats = import.meta.env.DEV;
-  
-  type TabType = 'adventuring' | 'loot' | 'town';
-  const modalShown = ref<boolean>(false);
-
-  const REPORT_DOM_ID = '_activity-report';
-
-  function startAdventuring() {
-    if (selectedLevel.value) {
-      adventuringStore.startAdventuring(selectedLevel.value, reportingStyle.value);
-    }
-    // if (window.innerWidth > 768){
-    //   setTimeout(
-    //     ()=>{
-    //       document.getElementById(REPORT_DOM_ID)?.scrollIntoView({behavior: 'smooth'});
-    //     },
-    //     500
-    //   )
-    // }
-  }
-
   watch(isCharAlive, (newVal) => {
     if (newVal === false && hasCharacter.value){
       modalShown.value = true;
     }
   });
+
+  function startAdventuring() {
+    if (selectedLevel.value) {
+      adventuringStore.startAdventuring(selectedLevel.value, reportingStyle.value);
+    }
+  }
 
   function scrollIntoView(){
     document.querySelector("#_activity-report")?.scroll({ top:0, behavior :'smooth' })
@@ -141,6 +137,7 @@ import { CUSTOM_LEVELS } from '@/data/levels';
           </FluidElement>
         </button>
         <button
+          v-if="worldEngine.isTownUnlocked"
           class="transition-all duration-200"
           :class="[
             { '-translate-y-4 opacity-75' : activeTab !== 'town' },
@@ -148,10 +145,8 @@ import { CUSTOM_LEVELS } from '@/data/levels';
           @click="activeTab = 'town'"
         >
           <FluidElement class="w-fit !pt-6">
-            <span class="hidden md:inline">Goto Town - NYI</span>
-            <span class="md:hidden"><IconVillage class="opacity-50 mx-auto" /><span
-              class="text-sm"
-            >(NYI)</span></span>
+            <span class="hidden md:inline">Goto Town</span>
+            <span class="md:hidden"><IconVillage class="opacity-50 mx-auto" /></span>
           </FluidElement>
         </button>
         <span>
@@ -251,7 +246,7 @@ import { CUSTOM_LEVELS } from '@/data/levels';
         </article>
         <article v-show="activeTab === 'town'">
           <FluidElement class="w-full">
-            TOWN
+            <TownManager />
           </FluidElement>
         </article>
       </section>
@@ -372,7 +367,7 @@ import { CUSTOM_LEVELS } from '@/data/levels';
     </template>
     <template v-else>
       <CharacterCreation
-        @character-created="() => adventuringStore.reset()"
+        @character-created="() => {adventuringStore.reset(); selectedLevel = undefined}"
       />
     </template>
   </section>

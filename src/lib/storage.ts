@@ -5,6 +5,7 @@ export type StorageKeys =
     'exileManagerEngine_logging'  
   | 'exileManagerEngine_config'  
   | 'exileManagerEngine_state'
+  | 'exileManagerEngine_worldState'
 ;
 
 /**
@@ -100,5 +101,39 @@ export function useGameState() {
      * Removes the game state from storage
      */
     'remove': () => remove('exileManagerEngine_state'),
+  }
+}
+/**
+ * Hook for managing the state of the world in localStorage
+ * @returns An object with functions to get and set game state
+ */
+export function useWorldState() {
+  return {
+    /**
+     * Retrieves the game state from storage
+     * @returns Parsed game state object or null if not found
+     */
+    'get': () => {
+      const state = get('exileManagerEngine_worldState');
+      return state ? JSON.parse(state) : null;
+    },
+    /**
+     * Sets the game state as a string
+     * @param value - The string value to store
+     */
+    'set': (value: string) => set('exileManagerEngine_worldState', value),
+    /**
+     * Sets the game state as an object (automatically stringifies)
+     * @param value - The object to store
+     */
+    '$set': (value: object) => set('exileManagerEngine_worldState', JSON.stringify(value)),
+    /**
+     * Clears the game state by setting it to an empty object
+     */
+    'clear': () => set('exileManagerEngine_worldState', '{}'),
+    /**
+     * Removes the game state from storage
+     */
+    'remove': () => remove('exileManagerEngine_worldState'),
   }
 }
