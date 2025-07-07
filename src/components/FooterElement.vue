@@ -50,7 +50,15 @@
         Release Notes: {{ gameEngine.getVersions.game }}
       </RouterLink>
     </div>
-    <div>© {{ (new Date()).getFullYear() }}</div>
+    <div>
+      © {{ (new Date()).getFullYear() }}
+      <RouterLink
+        to="/"
+        class="truncate duration-500 hover:text-orange-400"
+      >
+        Top
+      </RouterLink>
+    </div>
     <div>
       Contact: 
       <a 
