@@ -14,13 +14,15 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, calculateDamageTick, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType, BaseStats, AddLevelCondition } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType, BaseStats, AddLevelCondition, TownUnlockable } from '@/lib/core';
 import { CUSTOM_LEVELS, ENCOUNTERS, levels } from '@/data/levels';
 import { _cloneDeep } from '@/lib/object';
+import { useWorldEngine } from './world';
 
 
-export const useAdventuringStore = defineStore('adventuring', () => {
+  export const useAdventuringStore = defineStore('adventuring', () => {
   const gameEngine = useGameEngine();
+  const worldEngine = useWorldEngine();
   const isAdventuring = ref(false);
   const adventureIntervalId = ref<ReturnType<typeof setInterval> | ErrorNumber.NOT_FOUND>();
   const adventureInterval = ref<number>(0);
@@ -679,6 +681,46 @@ export const useAdventuringStore = defineStore('adventuring', () => {
         encounterIcon = '🔎';
         break;
       }
+
+      case LevelEncounters.RUINS_0: {
+
+        encounter.description += `You are unable to make out anything from this rubble`
+
+        encounterType = 'Generic';
+        encounterIcon = '❔';
+
+        break;
+      }
+
+      case LevelEncounters.RUINS_1: {
+        if (worldEngine.isTownFeatureKnown(TownUnlockable.SMITH)){
+          encounter.description += `You are unable to make out anything from this rubble`
+          encounterIcon = '❔';
+          encounterType = 'Generic';
+        }else{
+          encounter.description += `From the rumble and scattered tools this ruin appears to be of a forge`
+          encounterIcon = '🛠️';
+          encounterType = 'Safe';
+          worldEngine.knowAboutTownFeature(TownUnlockable.SMITH);
+        }
+        break;
+      }
+
+      case LevelEncounters.RUINS_2: {
+        if (worldEngine.isTownFeatureKnown(TownUnlockable.ARCANUM)){
+          encounter.description += `You are unable to make out anything from this rubble`
+          encounterIcon = '❔';
+          encounterType = 'Generic';
+        }else{
+          encounter.description += `You are presume from the strewn tattered parchment that this was once an Arcanum`
+          encounterIcon = '✨';
+          encounterType = 'Safe';
+          worldEngine.knowAboutTownFeature(TownUnlockable.ARCANUM);
+        }
+        break;
+      }
+
+/************************ CUSTOM EVENTS ************************/
       
       // custom Roiden event Good
       case LevelEncounters.CUSTOM_A: {
@@ -790,6 +832,18 @@ export const useAdventuringStore = defineStore('adventuring', () => {
     );
   }
 
+  function processLevelCompletionEvents(levelId: string){
+    switch (levelId) {
+      case 'init_ruins_2':
+        logger('Found ruins enable town-camp');
+        worldEngine.unlockTown();
+        break;
+    
+      default:
+        break;
+    }
+  }
+
   function doAdventuring(selectedLevel: ILevel, loggingDetail = false) {
     if (adventureInterval.value <= 0) {
     
@@ -827,6 +881,8 @@ export const useAdventuringStore = defineStore('adventuring', () => {
             break;
           }
         }
+
+        processLevelCompletionEvents(selectedLevel._identifier);
 
         // Find the next level based on the selected rule's identifier
         if (selectedRule){

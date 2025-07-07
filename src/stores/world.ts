@@ -2,21 +2,38 @@ import { trace } from '@/lib/logging';
 import { defineStore } from 'pinia';
 import { _cloneDeep } from '@/lib/object';
 import { useWorldState } from '@/lib/storage';
-import { WorldUnlockable } from '@/lib/core';
+import { TownUnlockable, WorldUnlockable } from '@/lib/core';
 
 const LOGGING_PREFIX = '🗺️ World Engine:\t';
 
 function getDefaultState():IWorldState{
   const retval: IWorldState = {
-    unlocked: new Map([
-      [WorldUnlockable.TOWN, false],
-    ]),
+    unlocked: {
+      [WorldUnlockable.TOWN]: false,
+    },
+    townUnlocks: {
+      [TownUnlockable.SMITH]: false,
+      [TownUnlockable.ARCANUM]: false,
+    },
+    knownTownUnlocks: {
+      [TownUnlockable.SMITH]: false,
+      [TownUnlockable.ARCANUM]: false,
+    }
   };
   return retval;
 }
 
+type WorldUnlocks = {
+  [key in WorldUnlockable]: boolean;
+};
+type TownUnlocks = {
+  [key in TownUnlockable]: boolean;
+};
+
 interface IWorldState {
-  unlocked: Map<WorldUnlockable,boolean>;
+  unlocked: WorldUnlocks;
+  townUnlocks: TownUnlocks;
+  knownTownUnlocks: TownUnlocks;
 }
 
 export const useWorldEngine = defineStore('world', {
@@ -35,7 +52,7 @@ export const useWorldEngine = defineStore('world', {
   getters: {
     isTownUnlocked(): boolean{
       logger('Checking if town is unlocked')
-      return this.unlocked.get(WorldUnlockable.TOWN) || false;
+      return this.unlocked[WorldUnlockable.TOWN] || false;
     },
   },
 
@@ -49,19 +66,35 @@ export const useWorldEngine = defineStore('world', {
     },
     restart(){
       logger('Restarting world state');
-      this.unlocked.set(WorldUnlockable.TOWN, false);
+      this.unlocked[WorldUnlockable.TOWN] = false;
       this.saveState();
     },
     init() {
       logger(`Initializing with world state`);
-      this.unlocked.set(WorldUnlockable.TOWN, false);
+      this.unlocked[WorldUnlockable.TOWN] = false;
       this.saveState();
     },
     unlockTown() {
-      logger(`Initializing with world state`);
-      this.unlocked.set(WorldUnlockable.TOWN, true);
+      logger(`Unlock the World-Feature Town`);
+      this.unlocked[WorldUnlockable.TOWN] = true;
       this.saveState();
     },
+    unlockTownFeature(townUnlock: TownUnlockable) {
+      logger(`Unlock the Town-Feature ${townUnlock}`);
+      this.townUnlocks[townUnlock] = true;
+      this.saveState();
+    },
+    knowAboutTownFeature(townUnlock: TownUnlockable) {
+      logger(`Know about the Town ${townUnlock}`);
+      this.knownTownUnlocks[townUnlock] = true;
+      this.saveState();
+    },
+    isTownFeatureKnown(townUnlock: TownUnlockable){
+      return this.knownTownUnlocks[townUnlock] || false;
+    },
+    isTownFeatureUnlocked(townUnlock: TownUnlockable){
+      return this.townUnlocks[townUnlock] || false;
+    }
   },
 
 });

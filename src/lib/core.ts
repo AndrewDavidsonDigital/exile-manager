@@ -619,6 +619,10 @@ export enum LevelEncounters {
   TREASURE,
   CORRUPTED,
 
+  RUINS_0,
+  RUINS_1, // Smithy
+  RUINS_2, // Arcanum
+
   CUSTOM_A,
   CUSTOM_B,
   CUSTOM_C,
@@ -747,4 +751,9 @@ export enum AddLevelCondition {
 
 export enum WorldUnlockable {
   TOWN = 'town',
+}
+
+export enum TownUnlockable {
+  SMITH = 'Smithy',
+  ARCANUM = 'Arcanum',
 }

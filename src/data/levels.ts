@@ -455,12 +455,18 @@ export const levels: ILevel[] = [
         ]
       },
     ],
-    completionRules: [],
+    completionRules: [
+      {
+        _identifier: 'init_ruins_1',
+        weighting: 100,
+        limits: 1,
+      }
+    ],
     lootTags: ['armor'],
     areaLuckDelta: 0.5,
     encounterBase: 4,
     encounterRangeDeltas: 2,
-    monsterTypes: [MonsterTypes.ABOMINATION, MonsterTypes.ELEMENTAL],
+    monsterTypes: [MonsterTypes.ABOMINATION,],
     encounters: [
       {
         type: LevelEncounters.COMBAT,
@@ -469,6 +475,298 @@ export const levels: ILevel[] = [
       {
         type: LevelEncounters.RECOVERY,
         weighting: 20,
+      },
+    ]
+  }, {
+    _identifier: 'init_ruins_1',
+    areaLevel: 4,
+    description: "Having fended off the attack, you look towards whence they came",
+    name: "Inland",
+    preface: 'Explore ',
+    dynamicCompletions: [],
+    completionRules: [
+      {
+        _identifier: 'init_ruins_2',
+        weighting: 100,
+        limits: 1,
+      }
+    ],
+    lootTags: [],
+    areaLuckDelta: 0.5,
+    encounterBase: 3,
+    encounterRangeDeltas: 0,
+    monsterTypes: [],
+    encounters: [
+      {
+        type: LevelEncounters.TRAP,
+        weighting: 20,
+      },
+      {
+        type: LevelEncounters.RECOVERY,
+        weighting: 60,
+      },
+      {
+        type: LevelEncounters.CORRUPTED,
+        weighting: 20,
+      },
+    ]
+  }, {
+    _identifier: 'init_ruins_2',
+    areaLevel: 4,
+    description: "The initial vegetation gives wave to what can only be described as ruins",
+    name: "Ruins",
+    preface: 'Survey the ',
+    dynamicCompletions: [],
+    completionRules: [
+      {
+        _identifier: 'init_ruins_3',
+        weighting: 100,
+      }
+    ],
+    lootTags: [],
+    areaLuckDelta: 0.5,
+    encounterBase: 6,
+    encounterRangeDeltas: 0,
+    monsterTypes: [],
+    encounters: [
+      {
+        type: LevelEncounters.TRAP,
+        weighting: 20,
+      },
+      {
+        type: LevelEncounters.RECOVERY,
+        weighting: 60,
+      },
+      {
+        type: LevelEncounters.CORRUPTED,
+        weighting: 20,
+      },
+    ]
+  }, {
+    _identifier: 'init_ruins_3',
+    areaLevel: 5,
+    description: "The layout of these ruins indicate that it was some form settlement",
+    name: "Ruined Town",
+    preface: 'Investigate the ',
+    dynamicCompletions: [
+      {
+        _identifier: 'init_cave',
+        type: DynamicZone.CAVE,
+        areaLevelDelta: 2,
+        limits: 3,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 45,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_island',
+        type: DynamicZone.ISLAND,
+        areaLevelDelta: 1,
+        limits: 3,
+        weighting: 10,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 55,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 10,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_rift',
+        type: DynamicZone.RIFT,
+        areaLevelDelta: 1,
+        limits: 2,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 2.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 40,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.RECOVERY,
+            weighting: 25,
+          },
+          {
+            type: LevelEncounters.CORRUPTED,
+            weighting: 15,
+          },
+        ]
+      },
+    ],
+    completionRules: [
+      {
+        _identifier: 'init_ruins_4',
+        weighting: 50,
+      }
+    ],
+    lootTags: [],
+    areaLuckDelta: 0.75,
+    encounterBase: 6,
+    encounterRangeDeltas: 2,
+    monsterTypes: [],
+    encounters: [
+      {
+        type: LevelEncounters.TRAP,
+        weighting: 5,
+      },
+      {
+        type: LevelEncounters.RUINS_0,
+        weighting: 60,
+      },
+      {
+        type: LevelEncounters.RUINS_1,
+        weighting: 17.5,
+      },
+      {
+        type: LevelEncounters.RUINS_2,
+        weighting: 17.5,
+      },
+    ]
+  },{
+    _identifier: 'init_ruins_4',
+    areaLevel: 5,
+    description: "The initial vegetation gives wave to what can only be described as ruins",
+    name: "Surrounding Area",
+    preface: 'Explore the ',
+    dynamicCompletions: [
+      {
+        _identifier: 'init_cave',
+        type: DynamicZone.CAVE,
+        areaLevelDelta: 2,
+        limits: 3,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 45,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_island',
+        type: DynamicZone.ISLAND,
+        areaLevelDelta: 1,
+        limits: 3,
+        weighting: 10,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 1.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 55,
+          },
+          {
+            type: LevelEncounters.CUSTOM_C,
+            weighting: 1,
+          },
+          {
+            type: LevelEncounters.TRAP,
+            weighting: 10,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 25,
+          },
+        ]
+      },
+      {
+        _identifier: 'init_rift',
+        type: DynamicZone.RIFT,
+        areaLevelDelta: 1,
+        limits: 2,
+        weighting: 15,
+        areaLevelAnchor: DynamicZoneLevelAnchor.CHARACTER,
+        areaLuckDelta: 2.5,
+        encounters: [
+          {
+            type: LevelEncounters.COMBAT,
+            weighting: 40,
+          },
+          {
+            type: LevelEncounters.TREASURE,
+            weighting: 20,
+          },
+          {
+            type: LevelEncounters.RECOVERY,
+            weighting: 25,
+          },
+          {
+            type: LevelEncounters.CORRUPTED,
+            weighting: 15,
+          },
+        ]
+      },
+    ],
+    completionRules: [],
+    lootTags: [],
+    areaLuckDelta: 0.75,
+    encounterBase: 6,
+    encounterRangeDeltas: 2,
+    monsterTypes: [],
+    encounters: [
+      {
+        type: LevelEncounters.TRAP,
+        weighting: 20,
+      },
+      {
+        type: LevelEncounters.RECOVERY,
+        weighting: 20,
+      },
+      {
+        type: LevelEncounters.COMBAT,
+        weighting: 60,
       },
     ]
   }
@@ -505,6 +803,27 @@ export const ENCOUNTERS: IEncounter[] = [
     minLevel: 0,
     alignment: 'neutral'
   },
+  {
+    type: LevelEncounters.RUINS_0,
+    description: '',
+    minLevel: 0,
+    alignment: 'neutral'
+  },
+  {
+    type: LevelEncounters.RUINS_1,
+    description: '',
+    minLevel: 0,
+    alignment: 'neutral'
+  },
+  {
+    type: LevelEncounters.RUINS_2,
+    description: '',
+    minLevel: 0,
+    alignment: 'neutral'
+  },
+
+
+  /************* Custom Events *************/
   {
     type: LevelEncounters.CUSTOM_A,
     description: 'You meet a fickle fisherman, Roiden, who serves up some of his catch',
