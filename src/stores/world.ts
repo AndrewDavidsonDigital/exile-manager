@@ -18,7 +18,27 @@ function getDefaultState():IWorldState{
     knownTownUnlocks: {
       [TownUnlockable.SMITH]: false,
       [TownUnlockable.ARCANUM]: false,
-    }
+    },
+    townConfigurations: {
+      [TownUnlockable.SMITH]: [
+        {
+          key: 'autoSalvage',
+          name: 'Auto Salvage',
+          state: false,
+        },
+        {
+          key: 'bulkSalvage',
+          name: 'Bulk Salvage',
+          state: false,
+        }],
+      [TownUnlockable.ARCANUM]: [
+        {
+          key: 'bulkIdentify',
+          name: 'Bulk Identify',
+          state: false,
+        }
+      ],
+    },
   };
   return retval;
 }
@@ -29,11 +49,21 @@ type WorldUnlocks = {
 type TownUnlocks = {
   [key in TownUnlockable]: boolean;
 };
+type TownConfig = {
+  [key in TownUnlockable]: IUnlock[];
+};
+
+interface IUnlock {
+  key: string;
+  name: string;
+  state: boolean;
+}
 
 interface IWorldState {
   unlocked: WorldUnlocks;
   townUnlocks: TownUnlocks;
   knownTownUnlocks: TownUnlocks;
+  townConfigurations: TownConfig;
 }
 
 export const useWorldEngine = defineStore('world', {

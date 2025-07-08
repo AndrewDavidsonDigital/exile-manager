@@ -882,19 +882,19 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                   <span
                     title="Physical Resist"
                     class="text-slate-400"
-                  >{{ Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'physical')?.value || 0) }}%</span>
+                  >{{ Math.floor(Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'physical')?.value || 0)) }}%</span>
                   <span
                     title="Cold Resist"
                     class="text-blue-300"
-                  >{{ Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_cold')?.value || 0) }}%</span>
+                  >{{ Math.floor(Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_cold')?.value || 0)) }}%</span>
                   <span
                     title="Fire Resist"
                     class="text-red-300"
-                  >{{ Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_fire')?.value || 0) }}%</span>
+                  >{{ Math.floor(Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_fire')?.value || 0)) }}%</span>
                   <span
                     title="Lightning Resist"
                     class="text-amber-300"
-                  >{{ Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_lightning')?.value || 0) }}%</span>
+                  >{{ Math.floor(Math.min(BaseStats.BASE_MAX_RESISTANCE, gameEngine.getCombatStats.mitigation.find(el => el.key === 'elemental_lightning')?.value || 0)) }}%</span>
                 </span>
               </div>
 

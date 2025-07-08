@@ -712,6 +712,39 @@ export function generateRandomId(): string {
 }
 
 /**
+ * Injects a random subset of letters from the given word into random positions of the given id string.
+ * The first and last characters of the id are never replaced.
+ * @param word The word to inject letters from (e.g., 'smithy')
+ * @param id The base id to inject into (e.g., from generateRandomId())
+ * @returns The id with a random spattering of letters from the word
+ */
+export function smearWordIntoId(word: string): string {
+  const id = generateRandomId();
+  if (!word || !id || id.length < 3) return id;
+
+  // Randomly select a subset of unique letters from the word (at least 1, at most word.length)
+  const wordLetters = Array.from(new Set(word.split('')));
+  const numToInject = Math.max(1, Math.floor(Math.random() * wordLetters.length));
+  // Pick the first numToInject letters in order
+  const lettersToInject = wordLetters.slice(0, numToInject);
+
+  // Get possible positions (excluding first and last)
+  const possiblePositions = Array.from({ length: id.length - 2 }, (_, i) => i + 1);
+  // Shuffle and pick positions for injection
+  const shuffledPositions = possiblePositions.sort(() => Math.random() - 0.5);
+  const positionsToInject = shuffledPositions.slice(0, lettersToInject.length).sort((a, b) => a - b);
+
+  // Convert id to array for mutation
+  const idArr = id.split('');
+  for (let i = 0; i < lettersToInject.length; i++) {
+    idArr[positionsToInject[i]] = lettersToInject[i];
+  }
+
+  return idArr.join('');
+}
+
+
+/**
  * Generates a fallback unique ID when crypto.randomUUID() is not available
  * Uses timestamp, random numbers, and Math.random() to create a unique string
  * @returns {string} A unique string ID

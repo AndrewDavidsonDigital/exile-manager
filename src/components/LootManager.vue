@@ -15,8 +15,10 @@ import RomanNumeral from './elements/RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
 import SwitchToggle from './elements/SwitchToggle.vue';
 import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
+import { useWorldEngine } from '@/stores/world';
 
 const gameEngine = useGameEngine();
+const worldEngine = useWorldEngine();
 const adventuringEngine = useAdventuringStore();
 const selectedLoot = ref<ILoot | undefined>();
 const lootFilter = ref<ItemBase | undefined>(undefined);
@@ -296,7 +298,10 @@ const canCompare = computed(() => {
             </FluidElement>
           </button>
         </div>
-        <div class="flex flex-col gap-1">
+        <div
+          v-if="worldEngine.townConfigurations.Smithy.find(el => el.key === 'autoSalvage')?.state" 
+          class="flex flex-col gap-1"
+        >
           <span
             class="ml-2 lg:mx-auto opacity-80"
             :class="[
@@ -330,6 +335,7 @@ const canCompare = computed(() => {
         </div>
         <div class="flex gap-2">
           <button
+            v-if="worldEngine.townConfigurations.Arcanum.find(el => el.key === 'bulkIdentify')?.state"
             :class="[
               { 'grayscale pointer-events-none': !gameEngine.getAffordIdAll }
             ]"
@@ -340,6 +346,7 @@ const canCompare = computed(() => {
             </FluidElement>
           </button>
           <button
+            v-if="worldEngine.townConfigurations.Smithy.find(el => el.key === 'bulkSalvage')?.state"
             :class="[
               { 'grayscale pointer-events-none': (gameEngine.character?.loot.length || 0) <= 0 }
             ]"
