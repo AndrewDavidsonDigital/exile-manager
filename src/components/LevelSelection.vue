@@ -25,7 +25,7 @@ const isCollapsed = ref(false);
 const hideLowLevel = ref(true);
 
 
-const lastInfinite = computed( () => props.levels.findLastIndex(level => !level.maxUses));
+const lastInfinite = computed( () => props.levels.findLastIndex(level => !level.maxUses && level.areaLevel !== -1));
 
 
 watch(lastUpdated, () => {
@@ -96,7 +96,7 @@ function sortLevel(a: ILevel, b: ILevel){
         @click="isCollapsed = !isCollapsed"
       >
         <h2 class="mr-auto md:mx-auto">
-          Select Destination <span
+          Destination <span
             class="duration-300 ease-in-out transition-all inline-flex w-fit "
             :class="[
               { 'rotate-90': isCollapsed }
@@ -154,7 +154,7 @@ function sortLevel(a: ILevel, b: ILevel){
             <div
               v-if="resolveBackground(level) === BackgroundTypes.WAVE"
               class="wave z-0"
-              :style="`--wave-animation-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
+              :style="`--wave-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;`"
             >
               <span></span>
               <span></span>
@@ -164,7 +164,7 @@ function sortLevel(a: ILevel, b: ILevel){
               v-else-if="resolveBackground(level) === BackgroundTypes.FIREFLIES"
               class="relative"
               :style="
-                `--firefly-animation-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;` +
+                `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
                   `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;`
               "
             >
@@ -177,7 +177,7 @@ function sortLevel(a: ILevel, b: ILevel){
             <div
               v-else-if="resolveBackground(level) === BackgroundTypes.STARS"
               class="relative"
-              :style="`--star-rise-animation-delay: ${(Math.random() * 3) * 2000 * (Math.random() * 3) % 1200}ms;`"
+              :style="`--star-rise-animation-delay: ${(Math.random() * 3) * 3000 * (Math.random() * 3) % 2000}ms;`"
               :data-star-pivot="`${Math.random() > 0.5}`"
             >
               <div 
