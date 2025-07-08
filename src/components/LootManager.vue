@@ -530,13 +530,13 @@ const canCompare = computed(() => {
           <button 
             v-for="(loot, index) in character.loot"
             :key="`loot_${index}`"
+            :class="[
+              { 'opacity-20 grayscale pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
+            ]"
             @click="e => { selectLoot(loot, (e as MouseEventWithAudio)); }"
           >
             <FluidElement
               class="w-fit !p-2 !border cursor-pointer loot-item"
-              :class="[
-                { 'opacity-20 grayscale pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
-              ]"
               :style="{
                 '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
               }"
@@ -559,13 +559,13 @@ const canCompare = computed(() => {
           <button
             v-for="(loot, index) in gameEngine.stash"
             :key="`stash_${index}`"
+            :class="[
+              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
+            ]"
             @click="e => { selectLoot(loot, (e as MouseEventWithAudio)); }"
           >
             <FluidElement
               class="w-fit !p-2 !border cursor-pointer loot-item"
-              :class="[
-                { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
-              ]"
               :style="{
                 '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
               }"
@@ -596,7 +596,7 @@ const canCompare = computed(() => {
       <div class="flex gap-2 mt-4">
         <button
           v-if="activeTab === 'inventory'"
-            
+
           :disabled="!selectedLoot"
           :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
           @click="stashSelectedLoot"
