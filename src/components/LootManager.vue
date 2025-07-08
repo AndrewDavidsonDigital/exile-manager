@@ -343,7 +343,7 @@ const canCompare = computed(() => {
             :class="[
               { 'grayscale pointer-events-none': (gameEngine.character?.loot.length || 0) <= 0 }
             ]"
-            @click="gameEngine.attemptSalvageAll()"
+            @click="gameEngine.attemptSalvageAll(); selectedLoot = undefined"
           >
             <FluidElement class="w-fit !p-2">
               {{ `[❌]` }}
