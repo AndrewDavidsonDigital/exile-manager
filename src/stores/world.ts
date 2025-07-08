@@ -60,7 +60,7 @@ export const useWorldEngine = defineStore('world', {
     /**
      * Saves the current world state to storage
      */
-    saveState() {
+    saveState(_cascade = true) {
       logger('Saving world state');
       useWorldState().$set(this.$state);
     },

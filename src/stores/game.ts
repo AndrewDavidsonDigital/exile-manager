@@ -1278,7 +1278,7 @@ export const useGameEngine = defineStore('gameEngine', {
     /**
      * Saves the current game state to storage
      */
-    saveState() {
+    saveState(_cascade = true) {
       logger('Saving game state');
       useGameState().$set(this.$state);
     },

@@ -1,17 +1,17 @@
 <script setup lang="ts">
   import { RouterView, useRoute } from 'vue-router'
-  import AudioEngine from './AudioEngine.vue';
+  import AudioEngine from './core/AudioEngine.vue';
   import NavigationElement from './components/elements/NavigationElement.vue';
   import { useBgmEngine } from './stores/audio';
   import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
   import { trace } from './lib/logging';
   import { useConfigurationStore } from './stores/configuration';
-  
   import bgmTrack from '@/assets/audio/bgm_track.mp3';
   import GameBanner from './components/GameBanner.vue';
   import FooterElement from './components/FooterElement.vue';
-import { toggleScrollLock } from './lib/ui';
-import OptionSettings from './components/OptionSettings.vue';
+  import { toggleScrollLock } from './lib/ui';
+  import OptionSettings from './components/OptionSettings.vue';
+import StateSync from './core/StateSync.vue';
 
   const configuration = useConfigurationStore();
   const currentRoute = useRoute();
@@ -22,6 +22,7 @@ import OptionSettings from './components/OptionSettings.vue';
 
   const DEBOUNCE_INTERVAL = 500;
   const debounceLast = ref<number>(Date.now());
+
   const ctrlPressed = ref(false);
   provide(/* key */ 'ctrlPressed', /* value */ ctrlPressed);
   
@@ -70,12 +71,13 @@ import OptionSettings from './components/OptionSettings.vue';
       scrollRoot ? toggleScrollLock(false, scrollRoot ) : null;
       console.warn('CLOSE SETTINGS');
     }
-  })
+  });
 
 </script>
 
 <template>
   <AudioEngine />
+  <StateSync />
   <main class="bg-slate-800 text-green-500 min-h-screen min-w-full max-w-content flex flex-col">
     <GameBanner v-if="currentRoute.name !== 'home'" />
     <NavigationElement />
