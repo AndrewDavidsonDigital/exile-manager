@@ -65,16 +65,21 @@
     :id="props.id"
     ref="dialogRef"
     class="
+      relative
       items-center m-auto
       p-[5vw]
       backdrop-blur-[5px] !outline-none
 
       border border-emerald-800
       backdrop:bg-slate-800/80
-      bg-slate-800 rounded-xl
+      bg-slate-800 rounded-2xl rounded-tl-none rounded-br-none
 
+      before:border before:border-emerald-800 before:rounded-xl
+      before:m-1 before:size-[calc(100%-0.5rem)] before:absolute before:top-0 before:left-0
+
+      backdrop:transition-all backdrop:duration-1000
       transition-all duration-1000
-      z-dialog
+      [&>*]:z-10
 
       hidden
       opacity-0
