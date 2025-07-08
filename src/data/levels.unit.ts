@@ -1,6 +1,7 @@
 import { test, beforeEach, vi, assert } from 'vitest';
 import { levels } from './levels';
 import { _cloneDeep } from '@/lib/object';
+import { LevelEncounters } from '@/lib/core';
 
 
 beforeEach(() => {
@@ -46,3 +47,19 @@ test('Ensure all levels have unique _identifiers', () => {
       identifiers.indexOf(id) !== identifiers.lastIndexOf(id)
     ).join(', ')}`);
 });
+
+test('Ensure all levels with a combat encounter have monster types defined', () => {
+  const levelsWithCombatMissingMonsters = levels.filter(level =>
+    level.encounters.some(encounter => encounter.type === LevelEncounters.COMBAT) &&
+    (!level.monsterTypes || level.monsterTypes.length === 0)
+  );
+
+  assert.equal(
+    levelsWithCombatMissingMonsters.length,
+    0,
+    levelsWithCombatMissingMonsters.length > 0
+      ? `Levels with combat encounters missing monsterTypes: ${levelsWithCombatMissingMonsters.map(l => l._identifier).join(', ')}`
+      : undefined
+  );
+});
+

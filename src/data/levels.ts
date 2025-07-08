@@ -634,7 +634,7 @@ export const levels: ILevel[] = [
     completionRules: [
       {
         _identifier: 'init_ruins_4',
-        weighting: 50,
+        weighting: 100,
       }
     ],
     lootTags: [],
@@ -663,7 +663,7 @@ export const levels: ILevel[] = [
   },{
     _identifier: 'init_ruins_4',
     areaLevel: 5,
-    description: "The initial vegetation gives wave to what can only be described as ruins",
+    description: "The town occupies a small clearing in an area of dense overgrowth",
     name: "Surrounding Area",
     preface: 'Explore the ',
     dynamicCompletions: [
@@ -754,7 +754,7 @@ export const levels: ILevel[] = [
     areaLuckDelta: 0.75,
     encounterBase: 6,
     encounterRangeDeltas: 2,
-    monsterTypes: [],
+    monsterTypes: [MonsterTypes.BEAST, MonsterTypes.UNDEAD],
     encounters: [
       {
         type: LevelEncounters.TRAP,
