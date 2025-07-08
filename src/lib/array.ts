@@ -21,3 +21,21 @@ export function pluckKeys(collection: {[x:string]: any}, keys: string[] | readon
 
   return retval;
 }
+
+/**
+ * Helper method to randomly choose an element from a given array.
+ * @param collection The collection from which to randomly choose
+ * @param defaultValue specification for value to return when failure
+ * @returns the element at a random index if able to, `defaultValue` otherwise
+ */
+export function chooseRandom<T>(collection: Array<T>, defaultValue: T ): T{
+  if (collection.length === 0 ) return defaultValue;
+  try{
+    const randIndex = Math.floor(Math.random() * (collection.length - 0.5));
+    console.log(`resolving to index [${randIndex}] as value: `, collection[randIndex]);
+    return collection[randIndex];
+  }catch (e){
+    console.warn(`[chooseRandom] \tException when resolving random value from collection, ${(e as Error).name}`);
+    return defaultValue;
+  }
+}
