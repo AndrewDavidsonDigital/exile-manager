@@ -8,14 +8,15 @@ import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './elements/ModalDialog.vue';
-import { IconChevron, IconLink, IconRefreshCC } from './icons';
+import { IconChevron, IconLink, IconMoney, IconRefreshCC, IconSearch } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
-import { allItemTiers, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType } from '@/lib/core';
+import { allItemTiers, AudioKey, EVENT_AUDIO_KEY, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType, type MouseEventWithAudio } from '@/lib/core';
 import RomanNumeral from './elements/RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
 import SwitchToggle from './elements/SwitchToggle.vue';
 import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
 import { useWorldEngine } from '@/stores/world';
+import IconMoneyThree from './icons/IconMoneyThree.vue';
 
 const gameEngine = useGameEngine();
 const worldEngine = useWorldEngine();
@@ -34,18 +35,21 @@ type ManageLootTabType = 'inventory' | 'stash';
 type BrushMode = 'none' | 'identify' | 'delete';
 const activeBrush = ref<BrushMode>('none');
 
-const selectLoot = (loot: ILoot) => {
+const selectLoot = (loot: ILoot, e?: MouseEventWithAudio) => {
   if (activeBrush.value === 'none') {
     selectedLoot.value = loot;
+    e ? e[EVENT_AUDIO_KEY] = AudioKey.DEFAULT : null;
     return;
   }
 
   if (activeBrush.value === 'identify' && !loot.identified) {
     selectedLoot.value = loot;
     identifySelectedLoot();
+    e ? e[EVENT_AUDIO_KEY] = AudioKey.SCROLL : null;
   } else if (activeBrush.value === 'delete') {
     selectedLoot.value = loot;
     deleteSelectedLoot();
+    e ? e[EVENT_AUDIO_KEY] = AudioKey.GOLD : null;
   }
 };
 
@@ -337,12 +341,12 @@ const canCompare = computed(() => {
           <button
             v-if="worldEngine.townConfigurations.Arcanum.find(el => el.key === 'bulkIdentify')?.state"
             :class="[
-              { 'grayscale pointer-events-none': !gameEngine.getAffordIdAll }
+              { 'grayscale pointer-events-none': !gameEngine.getAffordIdAll || (character !== -1 && character.loot.filter(item => !item.identified).length === 0) }
             ]"
-            @click="gameEngine.attemptIdAll()"
+            @click="e => { gameEngine.attemptIdAll(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
           >
             <FluidElement class="w-fit !p-2">
-              {{ `[🔍]` }}
+              <IconSearch class="fill-teal-200 stroke-amber-900 " />
             </FluidElement>
           </button>
           <button
@@ -350,10 +354,10 @@ const canCompare = computed(() => {
             :class="[
               { 'grayscale pointer-events-none': (gameEngine.character?.loot.length || 0) <= 0 }
             ]"
-            @click="gameEngine.attemptSalvageAll(); selectedLoot = undefined"
+            @click="e => { gameEngine.attemptSalvageAll(); selectedLoot = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
           >
             <FluidElement class="w-fit !p-2">
-              {{ `[❌]` }}
+              <IconMoneyThree class="[&_.path-1]:stroke-orange-500/50 [&_.path-2]:stroke-orange-500/65 stroke-amber-600" />
             </FluidElement>
           </button>
         </div>
@@ -364,7 +368,7 @@ const canCompare = computed(() => {
               { 'opacity-50': activeBrush !== 'identify' },
               { 'pointer-events-none': activeBrush === 'identify' }
             ]"
-            @click="activeBrush = activeBrush === 'identify' ? 'none' : 'identify'"
+            @click="e => {activeBrush = activeBrush === 'identify' ? 'none' : 'identify'; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH;}"
           >
             <FluidElement
               class="w-fit !p-2"
@@ -378,18 +382,18 @@ const canCompare = computed(() => {
               { 'opacity-50': activeBrush !== 'delete' },
               { 'pointer-events-none': activeBrush === 'delete' }
             ]"
-            @click="activeBrush = activeBrush === 'delete' ? 'none' : 'delete'"
+            @click="e => {activeBrush = activeBrush === 'delete' ? 'none' : 'delete'; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH;}"
           >
             <FluidElement
               class="w-fit !p-2"
               title="Delete Brush"
             >
-              ❌
+              <IconMoney class="stroke-amber-600" />
             </FluidElement>
           </button>
           <button
             v-if="activeBrush !== 'none'"
-            @click="resetBrush"
+            @click="e => {resetBrush(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.DEFAULT;}"
           >
             <FluidElement
               class="w-fit !p-2"
@@ -447,13 +451,14 @@ const canCompare = computed(() => {
             </FluidElement>
           </button>
         </div>
-        <button>
+        <button
+          @click="e => {collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SWOOSH; }"
+        >
           <FluidElement class="w-fit !p-1 hidden md:block">
             <IconChevron
               :class="[
                 { 'active' : collapseEquipmentFilters }
               ]"
-              @click="collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined;"
             />
           </FluidElement>
         </button>
@@ -506,13 +511,14 @@ const canCompare = computed(() => {
             </FluidElement>
           </button>
         </div>
-        <button>
+        <button
+          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SWOOSH; }"
+        >
           <FluidElement class="w-fit !p-1 hidden md:block">
             <IconChevron
               :class="[
                 { 'active' : collapseTierFilters }
               ]"
-              @click="collapseTierFilters = !collapseTierFilters; tierFilter = undefined;"
             />
           </FluidElement>
         </button>
@@ -521,56 +527,62 @@ const canCompare = computed(() => {
       <!-- Loot List -->
       <div class="flex flex-wrap gap-2">
         <template v-if="activeTab === 'inventory' && character !== -1 && character.loot.length > 0">
-          <FluidElement
+          <button 
             v-for="(loot, index) in character.loot"
             :key="`loot_${index}`"
-            class="w-fit !p-2 !border cursor-pointer loot-item"
-            :class="[
-              { 'opacity-20 grayscale pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
-            ]"
-            :style="{
-              '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
-            }"
-            :data-cursed="loot._hidden.isCursed"
-            :data-corrupted="loot._hidden.isCorrupted"
-            :data-void-touched="loot._hidden.isVoidTouched"
-            :data-selected="selectedLoot === loot"
-            :data-identified="loot.identified"
-            :data-brush="activeBrush"
-            @click="selectLoot(loot)"
+            @click="e => { selectLoot(loot, (e as MouseEventWithAudio)); }"
           >
-            <div class="flex flex-col">
-              <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
-                <p>{{ loot.name }}</p>
+            <FluidElement
+              class="w-fit !p-2 !border cursor-pointer loot-item"
+              :class="[
+                { 'opacity-20 grayscale pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
+              ]"
+              :style="{
+                '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
+              }"
+              :data-cursed="loot._hidden.isCursed"
+              :data-corrupted="loot._hidden.isCorrupted"
+              :data-void-touched="loot._hidden.isVoidTouched"
+              :data-selected="selectedLoot === loot"
+              :data-identified="loot.identified"
+              :data-brush="activeBrush"
+            >
+              <div class="flex flex-col">
+                <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
+                  <p>{{ loot.name }}</p>
+                </div>
               </div>
-            </div>
-          </FluidElement>
+            </FluidElement>
+          </button>
         </template>
         <template v-else-if="activeTab === 'stash' && gameEngine.stash && gameEngine.stash.length > 0">
-          <FluidElement
+          <button
             v-for="(loot, index) in gameEngine.stash"
             :key="`stash_${index}`"
-            class="w-fit !p-2 !border cursor-pointer loot-item"
-            :class="[
-              { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
-            ]"
-            :style="{
-              '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
-            }"
-            :data-cursed="loot._hidden.isCursed"
-            :data-corrupted="loot._hidden.isCorrupted"
-            :data-void-touched="loot._hidden.isVoidTouched"
-            :data-selected="selectedLoot === loot"
-            :data-identified="loot.identified"
-            :data-brush="activeBrush"
-            @click="selectLoot(loot)"
+            @click="e => { selectLoot(loot, (e as MouseEventWithAudio)); }"
           >
-            <div class="flex flex-col">
-              <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
-                <p>{{ loot.name }}</p>
+            <FluidElement
+              class="w-fit !p-2 !border cursor-pointer loot-item"
+              :class="[
+                { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
+              ]"
+              :style="{
+                '--loot-border-color': getTierColor(loot.itemDetails?.tier, loot.identified)
+              }"
+              :data-cursed="loot._hidden.isCursed"
+              :data-corrupted="loot._hidden.isCorrupted"
+              :data-void-touched="loot._hidden.isVoidTouched"
+              :data-selected="selectedLoot === loot"
+              :data-identified="loot.identified"
+              :data-brush="activeBrush"
+            >
+              <div class="flex flex-col">
+                <div :class="{ 'item-content': true, 'blurred': !loot.identified }">
+                  <p>{{ loot.name }}</p>
+                </div>
               </div>
-            </div>
-          </FluidElement>
+            </FluidElement>
+          </button>
         </template>
         <p
           v-else
@@ -582,32 +594,31 @@ const canCompare = computed(() => {
 
       <!-- Action Buttons -->
       <div class="flex gap-2 mt-4">
-        <FluidElement
+        <button
           v-if="activeTab === 'inventory'"
-          class="w-fit !p-2"
-        >
-          <button
             
-            :disabled="!selectedLoot"
-            :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
-            @click="stashSelectedLoot"
+          :disabled="!selectedLoot"
+          :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
+          @click="stashSelectedLoot"
+        >
+          <FluidElement
+            class="w-fit !p-2"
           >
             Stash Selected
-          </button>
-        </FluidElement>
-        <FluidElement
-          v-else
-          class="w-fit !p-2 "
+          </FluidElement>
+        </button>
+        <button
+          v-else            
+          :disabled="!selectedLoot"
+          :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
+          @click="unstashSelectedLoot"
         >
-          <button
-            
-            :disabled="!selectedLoot"
-            :class="{ 'opacity-50 pointer-events-none': !selectedLoot }"
-            @click="unstashSelectedLoot"
+          <FluidElement
+            class="w-fit !p-2 "
           >
             Unstash Selected
-          </button>
-        </FluidElement>
+          </FluidElement>
+        </button>
       </div>
     </FluidElement>
 
@@ -620,13 +631,13 @@ const canCompare = computed(() => {
         <button
           v-if="selectedLoot"
           class="w-fit mt-auto"
-          @click="deleteSelectedLoot"
+          @click="e => { deleteSelectedLoot(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
         >
           <FluidElement
-            class="!p-1 mt-auto border-red-400 text-red-500"
+            class="!p-1 mt-auto border-red-400/50"
             title="Delete selected Item"
           >
-            ❌
+            <IconMoney class="stroke-amber-600" />
           </FluidElement>
         </button>
       </div>
@@ -636,8 +647,8 @@ const canCompare = computed(() => {
       >
         <button
           :disabled="!hasPrev"
-          class="disabled:pointer-events-none"
-          @click="resetBrush();selectLootNeighbour()"
+          class="disabled:pointer-events-none disabled:grayscale-100"
+          @click="resetBrush();selectLootNeighbour();"
         >
           <FluidElement class="!py-1 !px-2">
             {{ '<' }}
@@ -645,8 +656,8 @@ const canCompare = computed(() => {
         </button>
         <button
           :disabled="!hasNext"
-          class="disabled:pointer-events-none"
-          @click="resetBrush();selectLootNeighbour(true)"
+          class="disabled:pointer-events-none disabled:grayscale-100"
+          @click="resetBrush();selectLootNeighbour(true);"
         >
           <FluidElement class="!py-1 !px-2">
             {{ `>` }}
@@ -778,8 +789,8 @@ const canCompare = computed(() => {
           v-if="selectedLoot && !selectedLoot.identified"
           :disabled="!selectedLoot || !canAffordIdentification(selectedLoot)"
           class="mt-auto w-fit"
-          :class="{ 'opacity-50 pointer-events-none': !selectedLoot || !canAffordIdentification(selectedLoot) }"
-          @click="identifySelectedLoot"
+          :class="{ 'grayscale-100 pointer-events-none': !selectedLoot || !canAffordIdentification(selectedLoot) }"
+          @click="e => { identifySelectedLoot(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
         >
           <FluidElement class="w-fit !p-2 mt-auto">
             <div class="flex flex-col gap-2">
@@ -860,15 +871,15 @@ const canCompare = computed(() => {
         </button>
         <div
           v-if="selectedLoot && selectedLoot.identified && equippedItem"
-          class="grid grid-cols-[1fr_3fr_3fr] gap-4 items-start [&>*]:capitalize px-[3%] md:px-8 py-[2%] md:py-4 relative"
+          class="grid grid-cols-2 md:grid-cols-[1fr_3fr_3fr] gap-4 items-start [&>*]:capitalize px-[3%] md:px-8 py-[2%] md:py-4 relative"
         >
           <!-- Header -->
-          <span></span>
+          <span class="hidden md:block"></span>
           <span class="text-center text-slate-400">Selected Item</span>
           <span class="text-center text-slate-400">Equipped Item</span>
 
           <!-- Name -->
-          <span class="text-right opacity-50 my-auto md:my-0">Name</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Name</span>
           <p class="text-center">
             {{ selectedLoot?.name || '-' }}
           </p>
@@ -878,7 +889,7 @@ const canCompare = computed(() => {
 
           <!-- Mutations -->
           <template v-if="equippedItem?.itemDetails?.mutations?.length || selectedLoot?.itemDetails?.mutations?.length">
-            <span class="text-right my-auto md:my-0">Mutations</span>
+            <span class="hidden md:block text-right my-auto md:my-0">Mutations</span>
             <div>
               <template v-if="selectedLoot?.itemDetails?.mutations?.length">
                 <p
@@ -918,7 +929,7 @@ const canCompare = computed(() => {
           </template>
 
           <!-- iLevel -->
-          <span class="text-right opacity-50 my-auto md:my-0">Item Level</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Item Level</span>
           <p class="opacity-50 text-center">
             {{ selectedLoot?.iLvl || '-' }}
           </p>
@@ -927,7 +938,7 @@ const canCompare = computed(() => {
           </p>
 
           <!-- Tier -->
-          <span class="text-right opacity-50 my-auto md:my-0">Tier</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Tier</span>
           <p
             class="text-sm capitalize text-center"
             :style="{ color: getTierColor(selectedLoot?.itemDetails?.tier, true) }"
@@ -942,7 +953,7 @@ const canCompare = computed(() => {
           </p>
 
           <!-- BaseAffix -->
-          <span class="text-right opacity-50 my-auto md:my-0">Base Affix</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Base Affix</span>
           <p class="text-amber-200 text-sm md:px-[2vw]">
             {{ selectedLoot?.itemDetails?.baseDetails?.name }}:{{ formatBaseAffixValue(selectedLoot?.itemDetails?.baseDetails?.value as AffixValue) }}
           </p>
@@ -951,7 +962,7 @@ const canCompare = computed(() => {
           </p>
 
           <!-- Embedded Affix -->
-          <span class="text-right opacity-50 my-auto md:my-0">Embedded Affix</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Embedded Affix</span>
           <div class="flex flex-col gap-1 md:px-[2vw]">
             <template v-if="(selectedLoot?.itemDetails?.affixes.embedded.length || 0) > 0">
               <template
@@ -1000,7 +1011,7 @@ const canCompare = computed(() => {
           </div>
 
           <!-- Prefix -->
-          <span class="text-right opacity-50 my-auto md:my-0">Prefixes</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Prefixes</span>
           <div class="flex flex-col gap-1 md:px-[2vw]">
             <template v-if="(selectedLoot?.itemDetails?.affixes.prefix.length || 0) > 0">
               <template
@@ -1049,7 +1060,7 @@ const canCompare = computed(() => {
           </div>
 
           <!-- Suffix -->
-          <span class="text-right opacity-50 my-auto md:my-0">Suffix</span>
+          <span class="hidden md:block text-right opacity-50 my-auto md:my-0">Suffix</span>
           <div class="flex flex-col gap-1 md:px-[2vw]">
             <template v-if="(selectedLoot?.itemDetails?.affixes.suffix.length || 0) > 0">
               <template
@@ -1120,7 +1131,7 @@ const canCompare = computed(() => {
           </FluidElement>
         </button>
       </div>
-    </modaldialog>
+    </ModalDialog>
   </div>
 </template>
 

@@ -29,6 +29,8 @@ export const releases: IRelease[] = [
       'Fix bug where-by a user could refresh the Passives offered to them',
       'Fix bug where-by a user could refresh the Skills offered to them',
       'Added support for event based level generation. . . follow that lanky turtle to raid its stores',
+      'Add initial meta-progression with town and town unlocks (Bulk ID, Bulk Salvage, Auto-Salvage)',
+      'Add a couple more levels / destinations to logically uncover the town and then provide dynamic areas',
     ],
     commit: '',
     compare: 'v0.1.5...v0.1.6',

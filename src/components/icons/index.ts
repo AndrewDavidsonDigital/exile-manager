@@ -13,6 +13,9 @@ import IconVillage from './IconVillage.vue';
 import IconCog from './IconCog.vue';
 import IconLink from './IconLink.vue';
 import IconChevron from './IconChevron.vue';
+import IconMoney from './IconMoney.vue';
+import IconMoneyThree from './IconMoneyThree.vue';
+import IconSearch from './IconSearch.vue';
 
 export {
   IconPlay,
@@ -22,6 +25,9 @@ export {
   IconRefreshCC,
   IconCog,
   IconLink,
+  IconMoney,
+  IconMoneyThree,
+  IconSearch,
 
   IconPassiveTree,
   IconSkills,

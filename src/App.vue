@@ -6,13 +6,22 @@
   import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
   import { trace } from './lib/logging';
   import { useConfigurationStore } from './stores/configuration';
-  import bgmTrack from '@/assets/audio/bgm_track.mp3';
-  import clickTrack from '@/assets/audio/sfx/click.wav';
   import GameBanner from './components/GameBanner.vue';
   import FooterElement from './components/FooterElement.vue';
   import { toggleScrollLock } from './lib/ui';
   import OptionSettings from './components/OptionSettings.vue';
   import StateSync from './core/StateSync.vue';
+  import { AudioKey, EVENT_AUDIO_KEY, type MouseEventWithAudio } from './lib/core';
+  import { chooseRandom } from './lib/array';
+  
+  import bgmTrack from '@/assets/audio/bgm_track.m4a';
+  import clickTrack from '@/assets/audio/sfx/click.wav';
+  import swooshTrack from '@/assets/audio/sfx/swoosh.wav';
+  import goldTrack1 from '@/assets/audio/sfx/gold_1.wav';
+  import goldTrack2 from '@/assets/audio/sfx/gold_2.wav';
+  import scrollTrack1 from '@/assets/audio/sfx/scroll_1.wav';
+  import scrollTrack2 from '@/assets/audio/sfx/scroll_2.wav';
+  import scrollTrack3 from '@/assets/audio/sfx/scroll_3.wav';
 
   const configuration = useConfigurationStore();
   const currentRoute = useRoute();
@@ -20,6 +29,16 @@
   const LOGGING_PREFIX = '🎮 INIT:';
   const bgmEngine = useBgmEngine();
   const interactionEngine = useInteractionEngine();
+
+  const goldTracks = [
+    goldTrack1,
+    goldTrack2,
+  ];
+  const scrollTracks = [
+    scrollTrack1,
+    scrollTrack2,
+    scrollTrack3,
+  ];
   
 
   const DEBOUNCE_INTERVAL = 500;
@@ -44,21 +63,57 @@
       ctrlPressed.value = false;
     }
   }
+  function clickCallback(_e: MouseEvent){
+    console.log(` Click: `, _e);
+    if (Object.keys(_e).includes(EVENT_AUDIO_KEY)){
+      const e = _e as MouseEventWithAudio;
+      const key = e[EVENT_AUDIO_KEY];
+      switch (key) {
+        case AudioKey.GOLD:
+          interactionEngine.setTrack(chooseRandom(goldTracks, goldTrack1), true);
+          break;
+
+        case AudioKey.SCROLL:
+          interactionEngine.setTrack(chooseRandom(scrollTracks, scrollTrack1), true);
+          break;
+
+        case AudioKey.BRUSH:
+          interactionEngine.setTrack(clickTrack, true);
+          break;
+
+        case AudioKey.RESET:
+          interactionEngine.setTrack(clickTrack, true);
+          break;
+
+        case AudioKey.LOCK:
+          interactionEngine.setTrack(clickTrack, true);
+          break;
+
+        case AudioKey.SWOOSH:
+          interactionEngine.setTrack(swooshTrack, true);
+          break;
+
+        case AudioKey.DEFAULT:
+        default:
+          interactionEngine.setTrack(clickTrack, true);
+          break;
+      }
+    } else {
+      interactionEngine.setTrack(clickTrack, true);
+    }
+  }
 
   onUnmounted(() =>{
-    document.removeEventListener('click', (_e: MouseEvent) => {
-      interactionEngine.setTrack(clickTrack, true);
-    });
+    document.removeEventListener('click', (_e: MouseEvent) => clickCallback(_e));
 
     document.removeEventListener('keydown', keyDownCallback);
     document.removeEventListener('keyup', keyUpCallback);
   });
 
+
   onMounted(() => {
 
-    document.addEventListener('click', (_e: MouseEvent) => {
-      interactionEngine.setTrack(clickTrack, true);
-    });
+    document.addEventListener('click', (_e: MouseEvent) => clickCallback(_e));
 
     document.addEventListener('keydown', keyDownCallback);
     document.addEventListener('keyup', keyUpCallback);

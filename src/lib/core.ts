@@ -2,6 +2,22 @@
 // -------------------------------GAME CONFIG-------------------------------------
 // -------------------------------------------------------------------------------
 
+export const EVENT_AUDIO_KEY = '__audio';
+
+export enum AudioKey {
+  DEFAULT = 0,
+  GOLD,
+  SCROLL,
+  BRUSH,
+  LOCK,
+  SWOOSH,
+  RESET,
+}
+
+export type MouseEventWithAudio = MouseEvent &{
+  [EVENT_AUDIO_KEY]: AudioKey;
+}
+
 /**
  * Represents the difficulty settings for the game
  */
