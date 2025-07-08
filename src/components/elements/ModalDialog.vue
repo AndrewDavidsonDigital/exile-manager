@@ -72,8 +72,9 @@
 
       border border-emerald-800
       backdrop:bg-slate-800/80
-      bg-slate-800 rounded-2xl rounded-tl-none rounded-br-none
+      bg-slate-900 rounded-2xl rounded-tl-none rounded-br-none
 
+      before:bg-slate-800/75 
       before:border before:border-emerald-800 before:rounded-xl
       before:m-1 before:size-[calc(100%-0.5rem)] before:absolute before:top-0 before:left-0
 
