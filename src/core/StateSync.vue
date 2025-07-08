@@ -11,8 +11,8 @@
 
   gameEngine.$onAction((el)=> {
     const startTime = Date.now()
-    trace(`${LOGGING_PREFIX}Game: $onAction: \t${el.name}` );
-    trace(`${LOGGING_PREFIX}Game: args: \t${JSON.stringify(el.args)}` );
+    // trace(`${LOGGING_PREFIX}Game: $onAction: \t${el.name}` );
+    // trace(`${LOGGING_PREFIX}Game: args: \t${JSON.stringify(el.args)}` );
     el.onError((error) => {
       console.warn(
         `Failed "${el.name}" after ${Date.now() - startTime}ms.\nError: ${error}.`
@@ -28,14 +28,16 @@
         }
       })
     }
-    else { trace(`${LOGGING_PREFIX}Game: OTHER CALL: \t${el.name}` );}
+    else { 
+      // trace(`${LOGGING_PREFIX}Game: OTHER CALL: \t${el.name}` );
+    }
 
   });
 
   worldEngine.$onAction((el)=> {
     const startTime = Date.now()
-    trace(`${LOGGING_PREFIX}World: $onAction: \t${el.name}` );
-    trace(`${LOGGING_PREFIX}World: args: \t${JSON.stringify(el.args)}` );
+    // trace(`${LOGGING_PREFIX}World: $onAction: \t${el.name}` );
+    // trace(`${LOGGING_PREFIX}World: args: \t${JSON.stringify(el.args)}` );
     el.onError((error) => {
       console.warn(
         `Failed "${el.name}" after ${Date.now() - startTime}ms.\nError: ${error}.`
@@ -51,7 +53,9 @@
         }
       })
     }
-    else { trace(`${LOGGING_PREFIX}World: OTHER CALL: \t${el.name}` );}
+    else { 
+      // trace(`${LOGGING_PREFIX}World: OTHER CALL: \t${el.name}` );
+    }
 
   });
 
