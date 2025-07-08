@@ -2,22 +2,24 @@
   import { RouterView, useRoute } from 'vue-router'
   import AudioEngine from './core/AudioEngine.vue';
   import NavigationElement from './components/elements/NavigationElement.vue';
-  import { useBgmEngine } from './stores/audio';
+  import { useBgmEngine, useInteractionEngine } from './stores/audio';
   import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
   import { trace } from './lib/logging';
   import { useConfigurationStore } from './stores/configuration';
   import bgmTrack from '@/assets/audio/bgm_track.mp3';
+  import clickTrack from '@/assets/audio/sfx/click.wav';
   import GameBanner from './components/GameBanner.vue';
   import FooterElement from './components/FooterElement.vue';
   import { toggleScrollLock } from './lib/ui';
   import OptionSettings from './components/OptionSettings.vue';
-import StateSync from './core/StateSync.vue';
+  import StateSync from './core/StateSync.vue';
 
   const configuration = useConfigurationStore();
   const currentRoute = useRoute();
 
   const LOGGING_PREFIX = '🎮 INIT:';
   const bgmEngine = useBgmEngine();
+  const interactionEngine = useInteractionEngine();
   
 
   const DEBOUNCE_INTERVAL = 500;
@@ -44,11 +46,20 @@ import StateSync from './core/StateSync.vue';
   }
 
   onUnmounted(() =>{
+    document.removeEventListener('click', (_e: MouseEvent) => {
+      interactionEngine.setTrack(clickTrack, true);
+    });
+
     document.removeEventListener('keydown', keyDownCallback);
     document.removeEventListener('keyup', keyUpCallback);
   });
 
   onMounted(() => {
+
+    document.addEventListener('click', (_e: MouseEvent) => {
+      interactionEngine.setTrack(clickTrack, true);
+    });
+
     document.addEventListener('keydown', keyDownCallback);
     document.addEventListener('keyup', keyUpCallback);
     setTimeout(() => {

@@ -2,7 +2,7 @@
   import { useConfigurationStore } from '@/stores/configuration';
   import SwitchToggle from './elements/SwitchToggle.vue';
   import FluidElement from './elements/FluidElement.vue';
-import { resolveLabelFromKey } from '@/lib/language';
+  import { resolveLabelFromKey } from '@/lib/language';
 
   const configuration = useConfigurationStore();
 

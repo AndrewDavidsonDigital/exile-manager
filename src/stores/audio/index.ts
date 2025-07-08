@@ -1,7 +1,9 @@
 import { useBgmEngine } from "./bgmEngine";
+import {useInteractionEngine } from "./interactionEngine";
 
 export {
   useBgmEngine,
+  useInteractionEngine,
 };
 
 export type AudioState = 'off' | 'paused' | 'play';

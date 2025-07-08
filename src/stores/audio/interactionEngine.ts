@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { IAudioEngine } from '.';
 
-const LOGGING_PREFIX = '🍃 Audio (BGM) Engine:\t';
+const LOGGING_PREFIX = '🍃 Audio (Interaction) Engine:\t';
 const AUDIO_DELTA = 0.05;
 
 let retryCount = 0;
@@ -14,7 +14,7 @@ interface INavigator extends Navigator{
   getAutoplayPolicy: (a: HTMLElement) => FFMediaPolicy;
 }
 
-export const useBgmEngine = defineStore('bgmAudioEngine', {
+export const useInteractionEngine = defineStore('interactionAudioEngine', {
   state: () => {
     return { 
       domId: "-1",
