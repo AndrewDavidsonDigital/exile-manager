@@ -1026,7 +1026,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    addLoot(amount: number, areaLevel: number, levelMultiplier: number, lootTags?: LootType[]){
+    addLoot(amount: number, areaLevel: number, levelMultiplier: number, worldAutoSalvage:boolean, lootTags?: LootType[]){
       if (!this.character) return;
       logger(`Adding ${amount} loot items for ${this.character.name}`);
 
@@ -1052,7 +1052,7 @@ export const useGameEngine = defineStore('gameEngine', {
         const tier = generateItemTier(this.character.level);
 
         // automatic salvage logic
-        if (this.autoSalvage && (tier === this.autoSalvageTier || allItemTiers.indexOf(tier) < allItemTiers.indexOf(this.autoSalvageTier)))  {
+        if (worldAutoSalvage && this.autoSalvage && (tier === this.autoSalvageTier || allItemTiers.indexOf(tier) < allItemTiers.indexOf(this.autoSalvageTier)))  {
           const lootValue = ITEM_TIER_COSTS[tier] / 10;
 
           this.updateGold(lootValue);

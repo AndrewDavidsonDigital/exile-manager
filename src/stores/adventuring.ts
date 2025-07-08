@@ -553,7 +553,7 @@ import { useWorldEngine } from './world';
             // 30% chance for loot drop
             if (Math.random() < 0.3) {
               const areaDelta = level.areaLuckDelta || 1;
-              gameEngine.addLoot(1, level.areaLevel, areaDelta); // Add 1 loot item using existing function
+              gameEngine.addLoot(1, level.areaLevel, areaDelta, worldEngine.townConfigurations.Smithy.find(el => el.key === 'autoSalvage')?.state || false); // Add 1 loot item using existing function
             }
 
             // Gold reward based on monster exp and fortune
@@ -619,7 +619,7 @@ import { useWorldEngine } from './world';
         const oldLootCount = gameEngine.character?.loot.length || 0;
         // Use weighted item type based on level's loot tags
         const areaDelta = level.areaLuckDelta || 1;
-        gameEngine.addLoot(loot, level.areaLevel, areaDelta, level.lootTags); // Pass loot tags to addLoot
+        gameEngine.addLoot(loot, level.areaLevel, areaDelta, worldEngine.townConfigurations.Smithy.find(el => el.key === 'autoSalvage')?.state || false, level.lootTags); // Pass loot tags to addLoot
 
         if (gold > 0){
           encounter.description += `\n- ${gold} Gold`
