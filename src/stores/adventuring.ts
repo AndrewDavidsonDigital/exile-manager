@@ -807,7 +807,7 @@ import { useWorldEngine } from './world';
     return { encounter: encounter.description, encounterType: encounterType, encounterIcon: encounterIcon, abortConfig: abortConfig };
   }
 
-  function startAdventuring(selectedLevel: ILevel, loggingDetail = false) {
+  function startAdventuring(selectedLevel: ILevel, loggingDetail = false): void {
     isAdventuring.value = true;
     const { encounterBase, encounterRangeDeltas } = selectedLevel;
     const minEncounters = Math.max(0, encounterBase - encounterRangeDeltas);
@@ -832,7 +832,7 @@ import { useWorldEngine } from './world';
     );
   }
 
-  function processLevelCompletionEvents(levelId: string){
+  function processLevelCompletionEvents(levelId: string): void{
     switch (levelId) {
       case 'init_ruins_2':
         logger('Found ruins enable town-camp');
@@ -844,7 +844,7 @@ import { useWorldEngine } from './world';
     }
   }
 
-  function doAdventuring(selectedLevel: ILevel, loggingDetail = false) {
+  function doAdventuring(selectedLevel: ILevel, loggingDetail = false): void{
     if (adventureInterval.value <= 0) {
     
       const entry: IJournalEntry = {
@@ -1194,7 +1194,7 @@ import { useWorldEngine } from './world';
     }
   }
 
-  function reset() {
+  function reset(): void{
     adventureInterval.value = 0;
     adventureIntervalId.value = ErrorNumber.NOT_FOUND;
     adventureJournal.value = [];
@@ -1210,9 +1210,11 @@ import { useWorldEngine } from './world';
 });
 
 const LOGGING_PREFIX = '🥷 Adventure:\t';
-function logger(message: string) {
+
+function logger(message: string): void{
   trace(`${LOGGING_PREFIX}${message}`);
 }
+
 export function checkTriggerable(char: ICharacter, trigger: SkillTriggers): boolean{
   switch (trigger) {
     case SkillTriggers.ALWAYS:

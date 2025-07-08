@@ -27,7 +27,7 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
   },
 
   actions: {
-    init(domId: string) {
+    init(domId: string): void{
       const el = document.getElementById(domId);
       if (el && el.tagName === "AUDIO"){
         this.domId = domId;
@@ -36,19 +36,19 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
         this.el.volume = 0;
       }
     },
-    setVolumeMulti (value: number){
+    setVolumeMulti (value: number): void{
       if (!this.el) return; 
 
       this.volumeMultiplier = value;
     },
-    setVolume (value: number){
+    setVolume (value: number): void{
       if (!this.el) return; 
 
       this.volumeRaw = value;
       this.el.volume = value * this.volumeMultiplier;
     },
 
-    play(){
+    play(): void{
       if (!this.el) return;
       logger('attempting play()');
 
@@ -86,12 +86,12 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
         );
       }
     },
-    pause() {
+    pause(): void{
       if (!this.el) return;
 
       this.el.pause();
     },
-    playPause() {
+    playPause(): void{
       if (!this.el) return;
 
       if (this.el.paused){
@@ -100,13 +100,13 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
         this.pause();
       }
     },
-    restart() {
+    restart(): void{
       if (!this.el) return;
 
       this.el.currentTime = 0;
       this.play();
     },
-    setTrack(trackPath: string, play = false) {
+    setTrack(trackPath: string, play = false): void{
       if (!this.el) return;
 
       this.el.src = trackPath;
@@ -114,12 +114,12 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
         this.play();
       }
     },
-    stop() {
+    stop(): void{
       if (!this.el) return;
 
       this.fadeOut();
     },
-    fadeOut(){
+    fadeOut(): void{
       logger(`FadeOut Called`);
       if (!this.el) return;
 
@@ -135,7 +135,7 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
         this.el.pause();
       }
     },
-    fadeIn(start = false){
+    fadeIn(start = false): void{
       if (!this.el) return;
       logger(`FadeIn Called: ${this.el.volume.toFixed(4)}`);
       if (start){
@@ -153,17 +153,17 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
         )
       }
     },
-    volumeRefresh(){
+    volumeRefresh(): void{
       if (!this.el) return;
 
       this.el.volume = this.volumeRaw * this.volumeMultiplier;
     },
-    _volumeDown() {
+    _volumeDown(): void{
       if (!this.el) return;
 
       this.el.volume = Math.max((this.el.volume - AUDIO_DELTA), 0);
     },
-    _volumeUp() {
+    _volumeUp(): void{
       if (!this.el) return;
 
       this.el.volume = Math.min((this.el.volume + AUDIO_DELTA), (this.volumeRaw * this.volumeMultiplier));
@@ -172,6 +172,6 @@ export const useBgmEngine = defineStore('bgmAudioEngine', {
 })
 
 
-function logger(message: string){
+function logger(message: string): void{
   console.log(`${Date.now()} ${LOGGING_PREFIX}${message}`);
 }

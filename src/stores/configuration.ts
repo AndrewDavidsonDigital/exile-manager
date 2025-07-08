@@ -74,7 +74,7 @@ export const useConfigurationStore = defineStore('configuration', {
   },
 
   actions: {
-    init() {
+    init(): void {
       const existingSettings = useConfig().get() || null;
       if (existingSettings){
         const settings = JSON.parse(existingSettings);
@@ -89,15 +89,15 @@ export const useConfigurationStore = defineStore('configuration', {
     /**
      * Saves the current game state to storage
      */
-    saveState() {
+    saveState(): void {
       useConfig().$set(this.$state);
     },
-    save() {
+    save(): void {
       const localInstance = pluckKeys({...this}, CONFIG_KEYS);      
       useConfig().set(JSON.stringify(localInstance));
       this.saveState();
     },
-    updateAudio(subKey: keyof typeof this.audio, value: number){
+    updateAudio(subKey: keyof typeof this.audio, value: number): void{
       this.audio[subKey] = value;
       this.saveState();
     },

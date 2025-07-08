@@ -90,45 +90,45 @@ export const useWorldEngine = defineStore('world', {
     /**
      * Saves the current world state to storage
      */
-    saveState(_cascade = true) {
+    saveState(_cascade = true): void{
       logger('Saving world state');
       useWorldState().$set(this.$state);
     },
-    restart(){
+    restart(): void{
       logger('Restarting world state');
       this.unlocked[WorldUnlockable.TOWN] = false;
       this.saveState();
     },
-    init() {
+    init(): void{
       logger(`Initializing with world state`);
       this.unlocked[WorldUnlockable.TOWN] = false;
       this.saveState();
     },
-    unlockTown() {
+    unlockTown(): void{
       logger(`Unlock the World-Feature Town`);
       this.unlocked[WorldUnlockable.TOWN] = true;
       this.saveState();
     },
-    unlockTownFeature(townUnlock: TownUnlockable) {
+    unlockTownFeature(townUnlock: TownUnlockable): void{
       logger(`Unlock the Town-Feature ${townUnlock}`);
       this.townUnlocks[townUnlock] = true;
       this.saveState();
     },
-    knowAboutTownFeature(townUnlock: TownUnlockable) {
+    knowAboutTownFeature(townUnlock: TownUnlockable): void{
       logger(`Know about the Town ${townUnlock}`);
       this.knownTownUnlocks[townUnlock] = true;
       this.saveState();
     },
-    isTownFeatureKnown(townUnlock: TownUnlockable){
+    isTownFeatureKnown(townUnlock: TownUnlockable): boolean{
       return this.knownTownUnlocks[townUnlock] || false;
     },
-    isTownFeatureUnlocked(townUnlock: TownUnlockable){
+    isTownFeatureUnlocked(townUnlock: TownUnlockable): boolean{
       return this.townUnlocks[townUnlock] || false;
     }
   },
 
 });
 
-function logger(message: string) {
+function logger(message: string): void{
   trace(`${LOGGING_PREFIX}${message}`);
 }

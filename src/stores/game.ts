@@ -85,16 +85,16 @@ export const useGameEngine = defineStore('gameEngine', {
   },
 
   getters: {
-    isVersionSaveOutOfDate(): boolean{
+    isVersionSaveOutOfDate(): boolean {
       logger('Checking version')
       return this.version !== VERSION_NUMBER;
     },
-    hasRefreshes():boolean{
+    hasRefreshes():boolean {
       if (!(this.character && this.character.refreshes)) return false;
 
       return this.character.refreshes > 0
     },
-    getVersions(): {save: string;game:string}{
+    getVersions(): {save: string;game:string} {
       logger('Resolving version')
       return {
         'save' : this.version,
@@ -637,7 +637,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Initializes a new game run with the specified character
      * @param {ICharacter} character - The character to initialize the game with
      */
-    init(character: ICharacter) {
+    init(character: ICharacter): void {
       logger(`Initializing game with character: ${character.name} (${character.class})`);
       
       this.runs = 0;
@@ -665,31 +665,31 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    setAutoSalvage(enabled: boolean){
+    setAutoSalvage(enabled: boolean): void{
       this.autoSalvage = enabled;
       this.saveState();
     },
 
-    setAutoSalvageTier(tier: ItemTiers){
+    setAutoSalvageTier(tier: ItemTiers): void{
       this.autoSalvageTier = tier;
       this.saveState();
     },
-    addRefresh(){
+    addRefresh(): void{
       if(! this.character) return;
 
       this.character.refreshes += 1;
     },
 
-    refreshPassives(){
-      if (!this.character) return [];
+    refreshPassives(): void{
+      if (!this.character) return;
 
       if (this.character.refreshes !== undefined && this.character.refreshes > 0){
         this.character.refreshes -= 1;
         this.nextRewards.passives = [];
       }
     },
-    refreshSkills(){
-      if (!this.character) return [];
+    refreshSkills(): void{
+      if (!this.character) return;
 
       if (this.character.refreshes !== undefined && this.character.refreshes > 0){
         this.character.refreshes -= 1;
@@ -697,16 +697,15 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    addLocation(level: ILevel){
+    addLocation(level: ILevel): void{
       if (level && this.knownLocations){
         this.knownLocations.push(level);
       }
 
-
       this.saveState();
     },
 
-    addLocationIff(level: ILevel, condition: AddLevelCondition){
+    addLocationIff(level: ILevel, condition: AddLevelCondition): void{
       switch (condition) {
         case AddLevelCondition.NOT_EXISTING:{
           const existing = this.knownLocations.find(el => el._identifier === level._identifier);
@@ -720,7 +719,7 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    removeLocation(level: ILevel, force: boolean = false){
+    removeLocation(level: ILevel, force: boolean = false): void{
       if (this.knownLocations){
         const locationIndex =  this.knownLocations.findIndex(el => el._identifier === level._identifier);
         if (locationIndex !== -1 && (this.knownLocations[locationIndex].uses === 0 || force)){
@@ -729,19 +728,19 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    addTemporalEffect(effect: ITemporalEffect){
+    addTemporalEffect(effect: ITemporalEffect): void{
       if(!this.character) return;
       logger(`New temporal for: ${effect.name} with timing: ${effect.remaining} ${effect.timing}'s`);
       this.character.temporalEffects.push(effect);
     },
 
-    addCooldown(effect: ICooldown){
+    addCooldown(effect: ICooldown): void{
       if(!this.character) return;
       logger(`New cooldown for: ${effect.name} with timing: ${effect.remaining} ${effect.timing}'s`);
       this.character.cooldowns.push(effect);
     },
 
-    processGameTick(timing: SkillTiming){
+    processGameTick(timing: SkillTiming): void{
       if (!this.character) return;
       logger(`processGameTick(${timing})`);
 
@@ -803,7 +802,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    setSkillTrigger(mySkillIndex: number, trigger: SkillTriggers){
+    setSkillTrigger(mySkillIndex: number, trigger: SkillTriggers): void{
       if(!this.character)return;
       const skill = this.character.skills[mySkillIndex];
 
@@ -811,7 +810,7 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
-    addSkill(skillIdentifier: string){
+    addSkill(skillIdentifier: string): void{
       logger(`Attempting to add skill: [${skillIdentifier}]`);
       if(
           !this.character 
@@ -833,7 +832,7 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    addPassive(passiveIdentifier: string){
+    addPassive(passiveIdentifier: string): void{
       logger(`Attempting to add passive: [${passiveIdentifier}]`);
       if(
           !this.character 
@@ -858,14 +857,14 @@ export const useGameEngine = defineStore('gameEngine', {
      * Updates character stats
      * @param {Partial<ICharacterStats>} stats - The stats to update
      */
-    updateStats(stats: Partial<ICharacterStats>) {
+    updateStats(stats: Partial<ICharacterStats>): void{
       if (!this.character) return;
       logger(`Updating stats for ${this.character.name}`);
       this.character.stats = { ...this.character.stats, ...stats };
       this.saveState();
     },
 
-    increaseStat(stat: Attributes, change: number) {
+    increaseStat(stat: Attributes, change: number): void{
       if (!this.character) return;
       logger(`Updating stat(${stat}) by ${change}`);
       this.character.stats[stat] += change;
@@ -877,7 +876,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {number} amount - Amount of damage to take
      * @param {boolean} [applyReduction=true] - Whether to apply damage reduction from fortitude
      */
-    takeDamage(amount: number, applyReduction: boolean = true) {
+    takeDamage(amount: number, applyReduction: boolean = true): void{
       if (!this.character) return;
       amount = Math.floor(amount);
       logger(`Taking ${amount} damage`);
@@ -907,7 +906,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Heals the character's health
      * @param {number} amount - Amount of health to restore
      */
-    heal(amount: number, isPercent: boolean = false) {
+    heal(amount: number, isPercent: boolean = false): void{
       const stats = this.getCombatStats;
       if (!this.character || stats === ErrorNumber.NOT_FOUND) return;
       
@@ -925,7 +924,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Heals the character's health
      * @param {number} amount - Amount of health to restore
      */
-    recoverMana(amount: number, isPercent: boolean = false) {
+    recoverMana(amount: number, isPercent: boolean = false): void{
       const stats = this.getCombatStats;
       if (!this.character || stats === ErrorNumber.NOT_FOUND) return;
       
@@ -943,7 +942,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Updates character gold
      * @param {number} amount - Amount to add (can be negative)
      */
-    updateGold(amount: number, isGain = true) {
+    updateGold(amount: number, isGain = true): void{
       if (!this.character) return;
       logger(`Updating gold for ${this.character.name}: ${isGain? '' : '-'}${amount}`);
       if  (isGain){
@@ -958,7 +957,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Adds experience to the character and handles level up if needed
      * @param {number} amount - Amount of experience to add
      */
-    addExperience(amount: number) {
+    addExperience(amount: number): void{
       logger(`Adding ${amount} experience to ${this.character?.name}`);
       if (!this.character) return;
       
@@ -975,7 +974,7 @@ export const useGameEngine = defineStore('gameEngine', {
     /**
      * Handles character level up and attribute increases
      */
-    levelUp() {
+    levelUp(): void{
       if (!this.character) return;
       
       logger(`Leveling up ${this.character.name} to level ${this.character.level + 1}`);
@@ -1019,14 +1018,14 @@ export const useGameEngine = defineStore('gameEngine', {
       logger(`Character leveled up to ${this.character.level}`);
       this.saveState();
     },
-    addSpecificLoot(_loot: { type: string; amount: number }[]){
+    addSpecificLoot(_loot: { type: string; amount: number }[]): void{
       if (!this.character) return;
       logger(`Adding custom loot for char.`);
 
       this.saveState();
     },
 
-    addLoot(amount: number, areaLevel: number, levelMultiplier: number, worldAutoSalvage:boolean, lootTags?: LootType[]){
+    addLoot(amount: number, areaLevel: number, levelMultiplier: number, worldAutoSalvage:boolean, lootTags?: LootType[]): void{
       if (!this.character) return;
       logger(`Adding ${amount} loot items for ${this.character.name}`);
 
@@ -1093,7 +1092,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
       this.saveState();
     },
-    attemptSalvageAll() {
+    attemptSalvageAll(): void{
       logger('attemptSalvageAll');
       if (!this.character || this.character.loot.length <= 0) return;
 
@@ -1110,7 +1109,7 @@ export const useGameEngine = defineStore('gameEngine', {
         this.character.loot.splice(index, 1);
       }
     },
-    attemptIdAll() {
+    attemptIdAll(): void{
       logger('attemptIdAll');
       if (!this.getAffordIdAll || !this.character || this.character.loot.length <= 0) return;
 
@@ -1171,7 +1170,7 @@ export const useGameEngine = defineStore('gameEngine', {
       return true;
     },
 
-    identifyLoot(lootIndex: number) {
+    identifyLoot(lootIndex: number): void{
       if (!this.character || !this.character.loot[lootIndex]) return;
       logger(`Identifying loot[${lootIndex}]`);
       
@@ -1180,7 +1179,7 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    identifyStashItem(stashIndex: number) {
+    identifyStashItem(stashIndex: number): void{
       if (!this.stash || !this.stash[stashIndex]) return;
       logger(`Identifying stash item at index ${stashIndex}`);
       
@@ -1193,7 +1192,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Moves an item from inventory to stash
      * @param {number} lootIndex - Index of the item in inventory
      */
-    stashItem(lootIndex: number) {
+    stashItem(lootIndex: number): void{
       if (!this.stash || !this.character || !this.character.loot[lootIndex]) return;
       logger(`Stashing item at index ${lootIndex}`);
       
@@ -1207,7 +1206,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Moves an item from stash to inventory
      * @param {number} stashIndex - Index of the item in stash
      */
-    unstashItem(stashIndex: number) {
+    unstashItem(stashIndex: number): void{
       if (!this.stash || !this.character || !this.stash[stashIndex]) return;
       logger(`Unstashing item at index ${stashIndex}`);
       
@@ -1267,7 +1266,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * Increments the number of completed runs
      * @param {number} [value=1] - The number of runs to add (defaults to 1)
      */
-    incrementRuns(value: number = 1) {
+    incrementRuns(value: number = 1): void{
       logger(`New run(s): ${value}`);
       this.runs += value;
       this.saveState();
@@ -1278,7 +1277,7 @@ export const useGameEngine = defineStore('gameEngine', {
     /**
      * Saves the current game state to storage
      */
-    saveState(_cascade = true) {
+    saveState(_cascade = true): void{
       logger('Saving game state');
       useGameState().$set(this.$state);
     },
@@ -1289,7 +1288,7 @@ export const useGameEngine = defineStore('gameEngine', {
      * @param {boolean} fromStash - Whether the item is from stash
      * @param {boolean} isRightRing - Whether the item is from stash
      */
-    equipItem(item: ILoot, fromStash: boolean = false, isRightRing = false) {
+    equipItem(item: ILoot, fromStash: boolean = false, isRightRing = false): void{
       if (!this.character || !item.itemDetails || (!this.stash && fromStash)) return;
       logger(`Equipping item: ${item.name}${fromStash ? ' from stash' : ''}`);
       
@@ -1344,7 +1343,7 @@ export const useGameEngine = defineStore('gameEngine', {
       
       this.saveState();
     },
-    migrateSave(){
+    migrateSave(): void{
       logger('Running: migrateSave');
       logger('Ensure we are only running this on a miss-match');
       if (!this.isVersionSaveOutOfDate){
@@ -1411,7 +1410,7 @@ export const useGameEngine = defineStore('gameEngine', {
   },
 });
 
-function logger(message: string) {
+function logger(message: string): void{
   trace(`${LOGGING_PREFIX}${message}`);
 }
 
