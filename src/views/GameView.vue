@@ -58,17 +58,17 @@
     }
   });
 
-  function startAdventuring() {
+  function startAdventuring(): void {
     if (selectedLevel.value) {
       adventuringStore.startAdventuring(selectedLevel.value, reportingStyle.value);
     }
   }
 
-  function scrollIntoView(){
+  function scrollIntoView(): void{
     document.querySelector("#_activity-report")?.scroll({ top:0, behavior :'smooth' })
   }
 
-  function toggleSettings(){
+  function toggleSettings(): void{
     configurationStore.isOpen  = !configurationStore.isOpen;
   }
 

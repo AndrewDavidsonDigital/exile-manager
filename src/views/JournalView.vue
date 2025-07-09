@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import FluidElement from '@/components/elements/FluidElement.vue';
-import PillElement from '@/components/elements/PillElement.vue';
+  import PillElement from '@/components/elements/PillElement.vue';
   import { entries } from '@/journal';
   import type { IEntry } from '@/journal';
-import { ErrorNumber } from '@/lib/typescript';
+  import { ErrorNumber } from '@/lib/typescript';
   import { computed, ref } from 'vue';
 
   const searchQuery = ref('');
@@ -18,7 +18,7 @@ import { ErrorNumber } from '@/lib/typescript';
     return Array.from(tags).sort();
   });
 
-  const filterEntries = (entries: IEntry[]) => {
+  const filterEntries = (entries: IEntry[]): IEntry[] => {
     return entries.filter(entry => {
       const matchesSearch = searchQuery.value === '' || 
         entry.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
@@ -39,7 +39,7 @@ import { ErrorNumber } from '@/lib/typescript';
     filterEntries(entries.filter(el => (el.tags.includes('NYI'))))
   );
 
-  const toggleTag = (tag: string) => {
+  const toggleTag = (tag: string): void => {
     const index = selectedTags.value.indexOf(tag);
     if (index === ErrorNumber.NOT_FOUND) {
       selectedTags.value.push(tag);
@@ -48,7 +48,7 @@ import { ErrorNumber } from '@/lib/typescript';
     }
   };
 
-  const toggleTagsExpanded = () => {
+  const toggleTagsExpanded = (): void => {
     isTagsExpanded.value = !isTagsExpanded.value;
   };
 </script>

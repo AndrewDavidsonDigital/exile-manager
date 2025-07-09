@@ -48,7 +48,7 @@
   provide(/* key */ 'ctrlPressed', /* value */ ctrlPressed);
   
 
-  function keyDownCallback(e: KeyboardEvent){
+  function keyDownCallback(e: KeyboardEvent): void{
     if (Date.now() - DEBOUNCE_INTERVAL > debounceLast.value){
       if(e.ctrlKey){
         // console.log(Date.now(), '____', e);
@@ -57,13 +57,13 @@
       }
     }
   }
-  function keyUpCallback(e: KeyboardEvent){
+  function keyUpCallback(e: KeyboardEvent): void{
     if(e.key === 'Control'){
       // console.log(`RUNNNN`,  Date.now(), '____', e);
       ctrlPressed.value = false;
     }
   }
-  function clickCallback(_e: MouseEvent){
+  function clickCallback(_e: MouseEvent): void{
     console.log(` Click: `, _e);
     if (Object.keys(_e).includes(EVENT_AUDIO_KEY)){
       const e = _e as MouseEventWithAudio;

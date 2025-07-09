@@ -3,10 +3,10 @@
   import { releases } from '@/releaseNotes';
 
   const gitBaseUrl = "https://github.com/AndrewDavidsonDigital/exile-manager/"
-  function resolveCommitUrl(commitHash: string){
+  function resolveCommitUrl(commitHash: string): string{
     return `${gitBaseUrl}commit/${commitHash}`;
   }
-  function resolveCompareUrl(commitHash: string){
+  function resolveCompareUrl(commitHash: string): string{
     return `${gitBaseUrl}compare/${commitHash}`;
   }
 </script>

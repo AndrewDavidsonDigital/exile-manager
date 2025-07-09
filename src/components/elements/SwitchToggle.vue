@@ -12,7 +12,7 @@ const $emit = defineEmits<{
 
 const model = defineModel();
 
-function update() {
+function update(): void {
   model.value = !(model.value);
   $emit('updated');
 }

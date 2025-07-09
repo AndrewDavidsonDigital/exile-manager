@@ -45,7 +45,7 @@
    * wrapper function for onClose, so when closed NON-programmatically (backdrop click)
    * that the events are are emitted correctly
    */
-  function cascadeBackdropClose(){
+  function cascadeBackdropClose(): void{
     // console.log(`---- ${Date.now()}`);
     // console.log('close--->  current_state: ', props.show);
     if (props.show){
