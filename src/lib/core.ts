@@ -18,7 +18,7 @@ export enum AudioKey {
   RESET,
 }
 
-export type MouseEventWithAudio = MouseEvent &{
+export type EventWithAudio = TouchEvent & MouseEvent & KeyboardEvent & Event &{
   [EVENT_AUDIO_KEY]: AudioKey;
 }
 
@@ -101,6 +101,11 @@ export type ExileClassType =
 | ExileClass.REAVER
 ;
 
+export const exileClassCritSkillName: Record<ExileClass, string> = {
+  [ExileClass.SPELLSWORD]: 'Elemental Barrage',
+  [ExileClass.CHAOS_MAGE]: 'Abyssal Embrace',
+  [ExileClass.REAVER]: 'Blood Reap',
+};
 
 /**
  * Represents a damage mitigation value for a specific type
@@ -482,6 +487,10 @@ export enum AffixCategory {
  * Represents the different categories of affixes
  */
 export enum AffixSubCategory {
+  /** Affixes relating to dodge */
+  DODGE = 'dodge',
+  /** Affixes relating deflection */
+  DEFLECTION = 'deflection',
   /** Affixes relating fire damage, both offensively and defensibly */
   FIRE = 'fire',
   /** Affixes relating cold damage, both offensively and defensibly */

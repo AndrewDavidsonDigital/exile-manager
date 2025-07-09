@@ -21,11 +21,11 @@ import { allAffixesById } from '@/data/affixes';
 import { _cloneDeep } from '@/lib/object';
 import { getAffixValue, getAffixValueRange, resolveAffixMultiplierValue, resolveAverageOfRange } from '@/lib/affixUtils';
 import { allItemTypes, slotMap, generateItemLevel, getWeightedItemType, generateItemTier, resolveBaseAffixFromTypeAndTier } from '@/lib/itemUtils';
-import { calculateDeflectionAttempts, calculateDodgeChance } from '@/lib/combatMechanics';
+import { calculateDeflectionAttempts, calculateDodgeChance, getAdditionalEvasionForDodgeIncrease, getArmourForDeflectionCount } from '@/lib/combatMechanics';
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, generateRandomId, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition, exileClassCritSkillName, ExileClass, smearWordIntoId } from '@/lib/core';
 import { levels } from '@/data/levels';
 import { nextTick } from 'vue';
 
@@ -539,32 +539,120 @@ export const useGameEngine = defineStore('gameEngine', {
       //------------------------------------------------
       /* effects from mobs (poison, lower resists) . . .  */
 
+      // additive
       this.character.temporalEffects.forEach(eff => {
-        switch (eff.effect.target) {
-          case Attributes.WRATH:
-            retval.attributes.wrath = Math.floor(resolveAffixChange(retval.attributes.wrath, eff.effect.change, eff.effect.type));
-            break;
-          
-          case Attributes.HEALTH: 
-            retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
-            retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
-            break;
+        if (eff.effect.type !== AffixTypes.MULTIPLICATIVE){
+          switch (eff.effect.target) {
+            case Attributes.WRATH:
+              retval.attributes.wrath = Math.floor(resolveAffixChange(retval.attributes.wrath, eff.effect.change, eff.effect.type));
+              break;
+            
+            case Attributes.HEALTH: 
+              retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
+              retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
+              break;
 
-          case AffixCategory.PHYSICAL:
-            retval.damage.physical = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type));
+            case AffixCategory.PHYSICAL:
+              retval.damage.physical = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type));
 
-            break;
-          
-          case AffixCategory.ELEMENTAL:{
-            const value = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type)) / 3;
-            retval.damage.elemental.fire = Math.floor(retval.damage.elemental.fire +value);
-            retval.damage.elemental.cold = Math.floor(retval.damage.elemental.cold +value);
-            retval.damage.elemental.lightning = Math.floor(retval.damage.elemental.lightning +value);
-            break;
+              break;
+            
+            case AffixCategory.ELEMENTAL:{
+              const value = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type)) / 3;
+              retval.damage.elemental.fire = Math.floor(retval.damage.elemental.fire +value);
+              retval.damage.elemental.cold = Math.floor(retval.damage.elemental.cold +value);
+              retval.damage.elemental.lightning = Math.floor(retval.damage.elemental.lightning +value);
+              break;
+            }
+
+            default:
+              break;
           }
+        }
+      });
+
+      // multiplicative
+      this.character.temporalEffects.forEach(eff => {
+        if (eff.effect.type === AffixTypes.MULTIPLICATIVE){
+          switch (eff.effect.target) {
+            case Attributes.WRATH:
+              retval.attributes.wrath = Math.floor(resolveAffixChange(retval.attributes.wrath, eff.effect.change, eff.effect.type));
+              break;
+            
+            case Attributes.HEALTH: 
+              retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
+              retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
+              break;
+
+            case AffixCategory.PHYSICAL:
+              retval.damage.physical = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type));
+
+              break;
+            
+            case AffixCategory.ELEMENTAL:{
+              logger(`Temporal effect (x): ${JSON.stringify(eff)}`);
+              switch (eff.name) {
+                case exileClassCritSkillName[ExileClass.SPELLSWORD]:{
+                  const MIN_INCREASE_VALUE = 5;
+
+                  if (retval.damage.elemental.fire > 25){
+                    retval.damage.elemental.fire = Math.floor(resolveAffixChange(retval.damage.elemental.fire, eff.effect.change, eff.effect.type));
+                  } else {
+                    retval.damage.elemental.fire = Math.floor(retval.damage.elemental.fire + MIN_INCREASE_VALUE);
+                  }
+                  if (retval.damage.elemental.cold > 25){
+                    retval.damage.elemental.cold = Math.floor(resolveAffixChange(retval.damage.elemental.cold, eff.effect.change, eff.effect.type));
+                  } else {
+                    retval.damage.elemental.cold = Math.floor(retval.damage.elemental.cold + MIN_INCREASE_VALUE);
+                  }
+                  if (retval.damage.elemental.lightning > 25){
+                    retval.damage.elemental.lightning = Math.floor(resolveAffixChange(retval.damage.elemental.lightning, eff.effect.change, eff.effect.type));
+                  } else {
+                    retval.damage.elemental.lightning = Math.floor(retval.damage.elemental.lightning + MIN_INCREASE_VALUE);
+                  }
+                  
+                  break;
+                }
+              
+                default:
+                  break;
+              }
+              break;
+            }
+
+            case AffixCategory.DEFENSE:{
+              switch (eff.name) {
+                case `${exileClassCritSkillName[ExileClass.CHAOS_MAGE]} - Deflection`:{
+                  if (this.character){
+                    logger(`ABYSSAL: Deflection`);
+                    // give armour amount relative to 2 levels of deflection 
+                    // this.character.level
+                    logger(`ABYSSAL: Armour: ${localArmor}, adding: ${getArmourForDeflectionCount(eff.effect.change, this.character.level)}`);
+                    localArmor += getArmourForDeflectionCount(eff.effect.change, this.character.level);
+                  }
+                  break;
+                }
+
+                case `${exileClassCritSkillName[ExileClass.CHAOS_MAGE]} - Dodge`:{
+                  if (this.character){
+                    logger(`ABYSSAL: Dodge`);
+                    // give armour amount relative to 2 levels of deflection 
+                    // this.character.level
+                    logger(`ABYSSAL: Dodge: ${localEvasion}, adding: ${getAdditionalEvasionForDodgeIncrease(eff.effect.change, this.character.level, localEvasion)}`);
+
+                    localEvasion += getAdditionalEvasionForDodgeIncrease(eff.effect.change, this.character.level, localEvasion)
+                  }
+                  break;
+                }
+                default:
+                  break;
+              }
+              break;
+            }
 
           default:
             break;
+          }
         }
       });
 
@@ -728,9 +816,16 @@ export const useGameEngine = defineStore('gameEngine', {
       }
     },
 
-    addTemporalEffect(effect: ITemporalEffect): void{
+    addTemporalEffect(effect: ITemporalEffect, overwrite = false): void{
       if(!this.character) return;
       logger(`New temporal for: ${effect.name} with timing: ${effect.remaining} ${effect.timing}'s`);
+      if (overwrite){
+        const temp = this.character.temporalEffects.findIndex(el => el.name === effect.name);
+        if (temp !== -1){
+          this.character.temporalEffects[temp] = {...effect};
+          return;
+        }
+      }
       this.character.temporalEffects.push(effect);
     },
 
@@ -1061,7 +1156,8 @@ export const useGameEngine = defineStore('gameEngine', {
           continue;
         }
 
-        const id = generateRandomId(); // Temporary name until identified;
+        // const id = generateRandomId(); // Temporary name until identified;
+        const id = smearWordIntoId(type.split(' ')[0]); // Temporary name until identified;
         const iLevel = generateItemLevel(areaLevel);
         const newLoot: ILoot = {
           name: id,

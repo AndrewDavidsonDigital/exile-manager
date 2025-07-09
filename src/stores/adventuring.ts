@@ -14,10 +14,11 @@ import { generateGoldWithBias, generateNormalGold } from '@/lib/itemUtils';
 import { armorMitigation, calculateCriticalChance, calculateDamageTick, CRITICAL_STRIKE_CONSTANTS, EnemyTier } from '@/lib/combatMechanics';
 import { trace } from '@/lib/logging';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType, BaseStats, AddLevelCondition, TownUnlockable } from '@/lib/core';
+import { AffixCategory, Attributes, baseDamageFunction, MonsterTypes, resolveAffixChange, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers, type IDifficulty, type IJournalEntry, type ILevel, type IMitigation, type JournalEntryType, calculateScaledExperience, LevelEncounters, type IEncounter, DynamicZoneLevelAnchor, type LootType, DynamicZone, generateRandomId, LevelType, BaseStats, AddLevelCondition, TownUnlockable, ExileClass, AffixTypes, exileClassCritSkillName, AffixSubCategory } from '@/lib/core';
 import { CUSTOM_LEVELS, ENCOUNTERS, levels } from '@/data/levels';
 import { _cloneDeep } from '@/lib/object';
 import { useWorldEngine } from './world';
+import { chooseRandom } from '@/lib/array';
 
 
   export const useAdventuringStore = defineStore('adventuring', () => {
@@ -325,10 +326,66 @@ import { useWorldEngine } from './world';
             finalExileDamage = monsterHealth;
             criticalText = ' (EXECUTION!)';
           } else {
-            // Non-execution critical recovers health
-            const healthRecovery = Math.floor(exileStats.maxHealth * CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY);
-            exileHealth = Math.min(exileStats.maxHealth, exileHealth + healthRecovery);
-            criticalText = ` (CRITICAL! Recovered ${healthRecovery} health)`;
+            switch (char.class) {
+              case ExileClass.REAVER:{
+                // Non-execution critical recovers health
+                const healthRecovery = Math.floor(exileStats.maxHealth * CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY);
+                exileHealth = Math.min(exileStats.maxHealth, exileHealth + healthRecovery);
+                criticalText = ` (CRITICAL! Recovered ${healthRecovery} health)`;
+                
+                break;
+              }
+
+              case ExileClass.CHAOS_MAGE:{
+                // Non-execution critical grants flat defensive values
+                // 2 deflections and 15% dodge chance
+                const newBuff_A: ITemporalEffect = {
+                  effect: {
+                    target: AffixCategory.DEFENSE,
+                    subTarget: AffixSubCategory.DEFLECTION,
+                    change: 2,
+                    type: AffixTypes.MULTIPLICATIVE,
+                  },
+                  name: `${exileClassCritSkillName[ExileClass.CHAOS_MAGE]} - Deflection`,
+                  timing: SkillTiming.TURN,
+                  remaining: 10,
+                }
+                const newBuff_B: ITemporalEffect = {
+                  effect: {
+                    target: AffixCategory.DEFENSE,
+                    subTarget: AffixSubCategory.DODGE,
+                    change: 20,
+                    type: AffixTypes.MULTIPLICATIVE,
+                  },
+                  name: `${exileClassCritSkillName[ExileClass.CHAOS_MAGE]} - Dodge`,
+                  timing: SkillTiming.TURN,
+                  remaining: 10,
+                }
+                gameEngine.addTemporalEffect(chooseRandom([newBuff_A,newBuff_B], newBuff_A), true);
+                
+                break;
+              }
+
+              case ExileClass.SPELLSWORD:{
+                // Non-execution critical grants %based elemental damage increase
+                const newBuff: ITemporalEffect = {
+                  effect: {
+                    target: AffixCategory.ELEMENTAL,
+                    change: 20,
+                    type: AffixTypes.MULTIPLICATIVE,
+                  },
+                  name: exileClassCritSkillName[ExileClass.SPELLSWORD],
+                  timing: SkillTiming.TURN,
+                  remaining: 6,
+                }
+                gameEngine.addTemporalEffect(newBuff);
+                
+                break;
+              }
+            
+              default:
+                break;
+            }
             
             if (isSuperCritical) {
               skipMonsterTurn = true;
@@ -1220,21 +1277,23 @@ export function checkTriggerable(char: ICharacter, trigger: SkillTriggers): bool
     case SkillTriggers.ALWAYS:
       return true;
     
+    case SkillTriggers.CRITICAL_HEALTH:{
+      const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
+      return healPercentage < 20
+    }
+    
     case SkillTriggers.LOW_HEALTH:{
       const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
-      // console.log(`___\t currentHP: ${healPercentage}%`);
       return healPercentage < 40
     }
 
     case SkillTriggers.MED_HEALTH:{
       const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
-      // console.log(`___\t currentHP: ${healPercentage}%`);
       return healPercentage > 30 && healPercentage < 60
     }
 
     case SkillTriggers.HIGH_HEALTH:{
       const healPercentage = (char.stats.currentHealth / char.stats.health)*100;
-      // console.log(`___\t currentHP: ${healPercentage}%`);
       return healPercentage > 60
     }
 

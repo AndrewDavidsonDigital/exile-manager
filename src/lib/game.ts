@@ -132,6 +132,7 @@ export interface ILoot {
 
 export interface IStatBuff {
   target: AffixCategory | Attributes;
+  subTarget?: AffixSubCategory;
   change: number;
   type: AffixTypes.ADDITIVE | AffixTypes.MULTIPLICATIVE | AffixTypes.RANGE;
 }
