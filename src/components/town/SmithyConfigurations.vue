@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { useWorldEngine } from '@/stores/world';
   import SwitchToggle from '../elements/SwitchToggle.vue';
+  import { AudioKey, EVENT_AUDIO_KEY, type EventWithAudio } from '@/lib/core';
 
   const worldEngine = useWorldEngine();
 
@@ -13,10 +14,17 @@
       v-for="unlock, index in worldEngine.townConfigurations.Smithy"
       :key="`_smithy_unlocks_config_${index}`"
     >
-      <li class="grid grid-cols-2 gap-4 min-h-6 items-center ">
+      <li class="grid grid-cols-2 gap-4 min-h-6 items-center">
         <p class="text-right">
           {{ unlock.name }}
-        </p> <span><SwitchToggle
+          <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+        </p> <span
+          class="w-fit"
+          @click="e => (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH"
+          @touchend="e => (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH"
+          @keydown.enter="e => (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH"
+          @keydown.space="e => (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH"
+        ><SwitchToggle
           v-model="unlock.state"
           :class="`${unlock.state ? '' : 'grayscale-75'}`"
         /></span>

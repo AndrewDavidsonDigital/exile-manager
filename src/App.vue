@@ -11,7 +11,7 @@
   import { toggleScrollLock } from './lib/ui';
   import OptionSettings from './components/OptionSettings.vue';
   import StateSync from './core/StateSync.vue';
-  import { AudioKey, EVENT_AUDIO_KEY, type MouseEventWithAudio } from './lib/core';
+  import { AudioKey, EVENT_AUDIO_KEY, type EventWithAudio } from './lib/core';
   import { chooseRandom } from './lib/array';
   
   import bgmTrack from '@/assets/audio/bgm_track.m4a';
@@ -112,7 +112,7 @@
     console.log(` Click: `, _e);
     if ((lastSfx.value + MIN_SFX_INTERVAL) < Date.now()){
       if (Object.keys(_e).includes(EVENT_AUDIO_KEY)){
-        const e = _e as MouseEventWithAudio;
+        const e = _e as EventWithAudio;
         const key = e[EVENT_AUDIO_KEY];
         switch (key) {
           case AudioKey.GOLD:

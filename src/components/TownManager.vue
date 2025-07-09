@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { smearWordIntoId, TownUnlockable } from '@/lib/core';
+  import { AudioKey, EVENT_AUDIO_KEY, smearWordIntoId, TownUnlockable, type EventWithAudio } from '@/lib/core';
   import { computed, ref } from 'vue';
   import FluidElement from './elements/FluidElement.vue';
   import { useWorldEngine } from '@/stores/world';
@@ -9,6 +9,16 @@
   import { trace } from '@/lib/logging';
   import SmithyConfigurations from './town/SmithyConfigurations.vue';
   import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
+  import { useInteractionEngine } from '@/stores/audio';
+  import { chooseRandom } from '@/lib/array';
+
+  import scrollTrack1 from '@/assets/audio/sfx/scroll_1.m4a';
+  import scrollTrack2 from '@/assets/audio/sfx/scroll_2.m4a';
+  import scrollTrack3 from '@/assets/audio/sfx/scroll_3.m4a';
+
+  import smithTrack1 from '@/assets/audio/sfx/smith_1.m4a';
+  import smithTrack2 from '@/assets/audio/sfx/smith_2.m4a';
+  import smithTrack3 from '@/assets/audio/sfx/smith_3.m4a';
 
   const LOGGING_PREFIX = '🏠 Town:\t';
   function logger(message: string) {
@@ -20,6 +30,7 @@
 
   const worldEngine = useWorldEngine();
   const gameEngine = useGameEngine();
+  const interactionEngine = useInteractionEngine();
   const showFeatureUnlockModal = ref<boolean>(false);
   const showFeatureInteractModal = ref<boolean>(false);
   const selectedFeature = ref<ITownFeature | undefined>(undefined);
@@ -44,6 +55,18 @@
       runs: number;
     }
   }
+
+  
+  const scrollTracks = [
+    scrollTrack1,
+    scrollTrack2,
+    scrollTrack3,
+  ];
+  const smithTracks = [
+    smithTrack1,
+    smithTrack2,
+    smithTrack3,
+  ];
 
   const shopsBase = ref<ITownFeature[]>([
     {
@@ -88,7 +111,7 @@
   });
 
 
-  function featureClick(feature: ITownFeature): void{
+  function featureClick(feature: ITownFeature, event: MouseEvent): void{
     selectedFeature.value = feature;
 
     const isUnlocked = worldEngine.isTownFeatureUnlocked(feature.binding);
@@ -96,6 +119,19 @@
       showFeatureInteractModal.value = true;
     }else{
       showFeatureUnlockModal.value = true;
+    }
+
+    switch (feature.binding) {
+      case TownUnlockable.SMITH:
+        (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH;
+        break;
+
+      case TownUnlockable.ARCANUM:
+        (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;
+        break;
+    
+      default:
+        break;
     }
   }
 
@@ -132,10 +168,56 @@
     }
   }
 
-  function closeInteractModal(): void{
+  function closeInteractModal(event?: MouseEvent): void{
     showFeatureInteractModal.value = false;
+    switch (selectedFeature.value?.binding) {
+      case TownUnlockable.SMITH:
+        if (event){
+          (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH;
+        } else {
+          interactionEngine.setTrack(chooseRandom(smithTracks, smithTrack1), true);
+        }
+        break;
+
+      case TownUnlockable.ARCANUM:
+        if (event){
+          (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;
+        } else {
+          interactionEngine.setTrack(chooseRandom(scrollTracks, scrollTrack1), true);
+        }
+        break;
+    
+      default:
+        break;
+    }
     selectedFeature.value = undefined; 
     worldEngine.saveState();
+  }
+
+  function closeUnlockModal(event?: MouseEvent): void{
+    showFeatureUnlockModal.value = false;
+    switch (selectedFeature.value?.binding) {
+      case TownUnlockable.SMITH:
+        if (event){
+          (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH;
+        } else {
+          interactionEngine.setTrack(chooseRandom(smithTracks, smithTrack1), true);
+        }
+        break;
+
+      case TownUnlockable.ARCANUM:
+        if (event){
+          (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;
+        } else {
+          interactionEngine.setTrack(chooseRandom(scrollTracks, scrollTrack1), true);
+        }
+        break;
+    
+      default:
+        break;
+    }
+
+    selectedFeature.value = undefined;
   }
 
 </script>
@@ -148,7 +230,7 @@
       :class="[
         { 'pointer-events-none' : !(worldEngine.isTownFeatureKnown(shop.binding))}
       ]"
-      @click="featureClick(shop)"
+      @click="e => featureClick(shop, e)"
     >
       <FluidElement
         is-thin
@@ -168,7 +250,7 @@
     :id="UNLOCK_FEATURE_MODAL_ID"
     :show="showFeatureUnlockModal"
     class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
-    @close="showFeatureUnlockModal = false; selectedFeature = undefined"
+    @close="closeUnlockModal"
   >
     <section
       v-if="selectedFeature"
@@ -180,7 +262,7 @@
         </h3>
         <button
           class="absolute top-2 right-2 w-fit"
-          @click="showFeatureUnlockModal = false; selectedFeature = undefined"
+          @click="e => closeUnlockModal(e)"
         >
           <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-300 bg-transparent hover:text-amber-600 hover:border-amber-600 transition-colors duration-300">
             <div class="font-semibold">
@@ -217,6 +299,7 @@
       </div>
     </section>
   </ModalDialog>
+
   <ModalDialog
     :id="INTERACT_FEATURE_MODAL_ID"
     :show="showFeatureInteractModal"
@@ -233,7 +316,7 @@
         </h3>
         <button
           class="absolute top-2 right-2 w-fit"
-          @click="closeInteractModal"
+          @click="e => closeInteractModal(e)"
         >
           <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-300 bg-transparent hover:text-amber-600 hover:border-amber-600 transition-colors duration-300">
             <div class="font-semibold">

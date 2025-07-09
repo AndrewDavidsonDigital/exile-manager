@@ -10,7 +10,7 @@ import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './elements/ModalDialog.vue';
 import { IconChevron, IconLink, IconMoney, IconRefreshCC, IconSearch } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
-import { allItemTiers, AudioKey, EVENT_AUDIO_KEY, ItemTiers, TIER_SEPARATOR, ItemBase, type ItemTierType, type MouseEventWithAudio } from '@/lib/core';
+import { allItemTiers, AudioKey, EVENT_AUDIO_KEY, ItemTiers, TIER_SEPARATOR, ItemBase, type ItemTierType, type EventWithAudio } from '@/lib/core';
 import RomanNumeral from './elements/RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
 import SwitchToggle from './elements/SwitchToggle.vue';
@@ -35,7 +35,7 @@ type ManageLootTabType = 'inventory' | 'stash';
 type BrushMode = 'none' | 'identify' | 'delete';
 const activeBrush = ref<BrushMode>('none');
 
-const selectLoot = (loot: ILoot, e?: MouseEventWithAudio): void => {
+const selectLoot = (loot: ILoot, e?: EventWithAudio): void => {
   if (activeBrush.value === 'none') {
     selectedLoot.value = loot;
     e ? e[EVENT_AUDIO_KEY] = AudioKey.DEFAULT : null;
@@ -343,7 +343,7 @@ const canCompare = computed(() => {
             :class="[
               { 'grayscale pointer-events-none': !gameEngine.getAffordIdAll || (character !== -1 && character.loot.filter(item => !item.identified).length === 0) }
             ]"
-            @click="e => { gameEngine.attemptIdAll(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
+            @click="e => { gameEngine.attemptIdAll(); (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
           >
             <FluidElement class="w-fit !p-2">
               <IconSearch class="fill-teal-200 stroke-amber-900 " />
@@ -354,7 +354,7 @@ const canCompare = computed(() => {
             :class="[
               { 'grayscale pointer-events-none': (gameEngine.character?.loot.length || 0) <= 0 }
             ]"
-            @click="e => { gameEngine.attemptSalvageAll(); selectedLoot = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
+            @click="e => { gameEngine.attemptSalvageAll(); selectedLoot = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
           >
             <FluidElement class="w-fit !p-2">
               <IconMoneyThree class="[&_.path-1]:stroke-orange-500/50 [&_.path-2]:stroke-orange-500/65 stroke-amber-600" />
@@ -368,7 +368,7 @@ const canCompare = computed(() => {
               { 'opacity-50': activeBrush !== 'identify' },
               { 'pointer-events-none': activeBrush === 'identify' }
             ]"
-            @click="e => {activeBrush = activeBrush === 'identify' ? 'none' : 'identify'; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH;}"
+            @click="e => {activeBrush = activeBrush === 'identify' ? 'none' : 'identify'; (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH;}"
           >
             <FluidElement
               class="w-fit !p-2"
@@ -382,7 +382,7 @@ const canCompare = computed(() => {
               { 'opacity-50': activeBrush !== 'delete' },
               { 'pointer-events-none': activeBrush === 'delete' }
             ]"
-            @click="e => {activeBrush = activeBrush === 'delete' ? 'none' : 'delete'; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH;}"
+            @click="e => {activeBrush = activeBrush === 'delete' ? 'none' : 'delete'; (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH;}"
           >
             <FluidElement
               class="w-fit !p-2"
@@ -393,7 +393,7 @@ const canCompare = computed(() => {
           </button>
           <button
             v-if="activeBrush !== 'none'"
-            @click="e => {resetBrush(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.DEFAULT;}"
+            @click="e => {resetBrush(); (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.DEFAULT;}"
           >
             <FluidElement
               class="w-fit !p-2"
@@ -419,7 +419,7 @@ const canCompare = computed(() => {
           </FluidElement>
         </button>
         <button
-          @click="e => { collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
+          @click="e => { collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 md:hidden">
             <IconChevron
@@ -453,7 +453,7 @@ const canCompare = computed(() => {
           </button>
         </div>
         <button
-          @click="e => {collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
+          @click="e => {collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 hidden md:block">
             <IconChevron
@@ -479,7 +479,7 @@ const canCompare = computed(() => {
           </FluidElement>
         </button>
         <button
-          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
+          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 md:hidden">
             <IconChevron
@@ -514,7 +514,7 @@ const canCompare = computed(() => {
           </button>
         </div>
         <button
-          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
+          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 hidden md:block">
             <IconChevron
@@ -535,7 +535,7 @@ const canCompare = computed(() => {
             :class="[
               { 'opacity-20 grayscale pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
             ]"
-            @click="e => { selectLoot(loot, (e as MouseEventWithAudio)); }"
+            @click="e => { selectLoot(loot, (e as EventWithAudio)); }"
           >
             <FluidElement
               class="w-fit !p-2 !border cursor-pointer loot-item"
@@ -564,7 +564,7 @@ const canCompare = computed(() => {
             :class="[
               { 'opacity-20 pointer-events-none' : itemMatchesFilter(loot.type, loot.identified, loot.itemDetails?.tier) },
             ]"
-            @click="e => { selectLoot(loot, (e as MouseEventWithAudio)); }"
+            @click="e => { selectLoot(loot, (e as EventWithAudio)); }"
           >
             <FluidElement
               class="w-fit !p-2 !border cursor-pointer loot-item"
@@ -633,7 +633,7 @@ const canCompare = computed(() => {
         <button
           v-if="selectedLoot"
           class="w-fit mt-auto"
-          @click="e => { deleteSelectedLoot(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
+          @click="e => { deleteSelectedLoot(); (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
         >
           <FluidElement
             class="!p-1 mt-auto border-red-400/50"
@@ -792,7 +792,7 @@ const canCompare = computed(() => {
           :disabled="!selectedLoot || !canAffordIdentification(selectedLoot)"
           class="mt-auto w-fit"
           :class="{ 'grayscale-100 pointer-events-none': !selectedLoot || !canAffordIdentification(selectedLoot) }"
-          @click="e => { identifySelectedLoot(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
+          @click="e => { identifySelectedLoot(); (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
         >
           <FluidElement class="w-fit !p-2 mt-auto">
             <div class="flex flex-col gap-2">
@@ -822,7 +822,7 @@ const canCompare = computed(() => {
             <button
               v-if="selectedLoot && selectedLoot.identified"
               class="w-fit mt-auto hidden md:block"
-              @click="(e) => {(e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = (selectedLoot && [ItemBase.AMULET, ItemBase.RING].includes(selectedLoot.type)) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; equipSelectedLoot();}"
+              @click="(e) => {(e as EventWithAudio)[EVENT_AUDIO_KEY] = (selectedLoot && [ItemBase.AMULET, ItemBase.RING].includes(selectedLoot.type)) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; equipSelectedLoot();}"
             >
               <FluidElement class="!p-2 mt-auto">
                 Equip Item <span v-if="character !== ErrorNumber.NOT_FOUND">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
@@ -831,7 +831,7 @@ const canCompare = computed(() => {
             <button
               v-if="selectedLoot && selectedLoot.identified"
               class="w-fit mt-auto block md:hidden"
-              @click="(e) => { (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = selectedLoot && [ItemBase.AMULET, ItemBase.RING].includes(selectedLoot.type) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; equipSelectedLoot(true); }"
+              @click="(e) => { (e as EventWithAudio)[EVENT_AUDIO_KEY] = selectedLoot && [ItemBase.AMULET, ItemBase.RING].includes(selectedLoot.type) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; equipSelectedLoot(true); }"
             >
               <FluidElement class="!p-2 mt-auto">
                 Equip Item <span v-if="character !== ErrorNumber.NOT_FOUND">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
