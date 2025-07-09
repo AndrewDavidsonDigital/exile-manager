@@ -14,7 +14,7 @@ const char = gameEngine.getCharacter;
 type BrushMode = 'none' | 'unequip';
 const activeBrush = ref<BrushMode>('none');
 
-function alertStats(item: ILoot | undefined){
+function alertStats(item: ILoot | undefined): void{
   if (!item){
     return
   }
@@ -60,7 +60,7 @@ function alertStats(item: ILoot | undefined){
   alert(output);
 }
 
-function unequipItem(slot: keyof ICharacterEquipment) {
+function unequipItem(slot: keyof ICharacterEquipment): void {
   if (!char || char === ErrorNumber.NOT_FOUND) return;
 
   // Allow unequip if either CTRL is pressed or brush is active
@@ -84,7 +84,7 @@ function unequipItem(slot: keyof ICharacterEquipment) {
   }
 }
 
-const resetBrush = () => {
+const resetBrush = (): void => {
   activeBrush.value = 'none';
 };
 

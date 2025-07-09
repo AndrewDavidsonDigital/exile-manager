@@ -135,7 +135,7 @@ const healthColorClass = computed(() => {
   };
 });
 
-const getStatColor = (stat: string) => {
+const getStatColor = (stat: string): string => {
   switch (stat) {
     case 'fortitude': return 'text-yellow-400';
     case 'fortune': return 'text-purple-400';
@@ -145,7 +145,7 @@ const getStatColor = (stat: string) => {
   }
 };
 
-function combineAffixes( existingValue:AffixValue ,newValue: AffixValue){
+function combineAffixes( existingValue:AffixValue ,newValue: AffixValue) {
   if (existingValue.type !== newValue.type){
     return existingValue;
   }
@@ -335,7 +335,7 @@ function withCounters(affixes: IItemAffix[]): IItemAffix[]{
   return affixes;
 }
 
-function handleIncreaseStat(stat: Attributes){
+function handleIncreaseStat(stat: Attributes): void{
   if (char === ErrorNumber.NOT_FOUND) return;
 
   if (char.pendingRewards.stats > 0){
@@ -346,19 +346,19 @@ function handleIncreaseStat(stat: Attributes){
   showAddStatsModal.value = !showAddStatsModal.value
 }
 
-function handleWorldSkillsClick(){
+function handleWorldSkillsClick(): void{
   if (char === ErrorNumber.NOT_FOUND) return;
 
   showWorldSkillsModal.value = !showWorldSkillsModal.value
 }
 
-function handleStatsClick(){
+function handleStatsClick(): void{
   if (char === ErrorNumber.NOT_FOUND) return;
 
   showAddStatsModal.value = !showAddStatsModal.value
 }
 
-function handleSkillsClick(){
+function handleSkillsClick(): void{
   if (char === ErrorNumber.NOT_FOUND) return;
 
   if (char.pendingRewards.skills > 0){
@@ -368,7 +368,7 @@ function handleSkillsClick(){
   }
 }
 
-function handlePassivesClick(){
+function handlePassivesClick(): void{
   if (char === ErrorNumber.NOT_FOUND) return;
 
   if (char.pendingRewards.passives > 0){
@@ -378,7 +378,7 @@ function handlePassivesClick(){
   }
 }
 
-function handleAddPassive(identifier: string){
+function handleAddPassive(identifier: string): void{
   try{
     gameEngine.addPassive(identifier);
   } finally{
@@ -386,7 +386,7 @@ function handleAddPassive(identifier: string){
   }
 }
 
-function handleAddSkill(identifier: string){
+function handleAddSkill(identifier: string): void{
   try{
     gameEngine.addSkill(identifier);
   } finally{
@@ -394,7 +394,7 @@ function handleAddSkill(identifier: string){
   }
 }
 
-function handleActivateWorldSkill(skill: ISkill){
+function handleActivateWorldSkill(skill: ISkill): void{
   if (char === ErrorNumber.NOT_FOUND || !isAbleToAffordSkill(char, skill.cost)) return;
   // pay costs
   switch (skill.cost.resource) {

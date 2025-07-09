@@ -28,7 +28,7 @@ onMounted(() => {
   selectedClass.value = EXILE_CLASSES[randomIndex];
 });
 
-const createCharacter = () => {
+const createCharacter = (): void => {
   if (!characterName.value.trim()) return;
 
   const baseStats = { ...BASE_STATS };
@@ -66,7 +66,7 @@ const createCharacter = () => {
   $emit('character-created');
 };
 
-function generateName() {
+function generateName(): void {
   const randomIndex = Math.floor(Math.random() * FANTASY_NAMES.length);
   characterName.value = FANTASY_NAMES[randomIndex];
 }

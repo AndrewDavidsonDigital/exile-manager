@@ -88,7 +88,7 @@ import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
   });
 
 
-  function featureClick(feature: ITownFeature){
+  function featureClick(feature: ITownFeature): void{
     selectedFeature.value = feature;
 
     const isUnlocked = worldEngine.isTownFeatureUnlocked(feature.binding);
@@ -99,7 +99,7 @@ import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
     }
   }
 
-  function attemptRestore(feature: ITownFeature){
+  function attemptRestore(feature: ITownFeature): void{
     if (!feature.isRuined) return;
 
     showFeatureUnlockModal.value = false;
@@ -132,7 +132,7 @@ import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
     }
   }
 
-  function closeInteractModal(){
+  function closeInteractModal(): void{
     showFeatureInteractModal.value = false;
     selectedFeature.value = undefined; 
     worldEngine.saveState();

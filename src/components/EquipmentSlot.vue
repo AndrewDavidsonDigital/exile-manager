@@ -22,12 +22,12 @@ const $emit = defineEmits<{
   (_e: 'alertStats'): void;
 }>();
 
-function alertStats() {
+function alertStats(): void {
   if (!props.item) return;
   $emit('alertStats');
 }
 
-function unequipItem() {
+function unequipItem(): void {
   if (!props.item) return;
   $emit('unequip');
 }

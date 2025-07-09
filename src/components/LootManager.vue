@@ -35,7 +35,7 @@ type ManageLootTabType = 'inventory' | 'stash';
 type BrushMode = 'none' | 'identify' | 'delete';
 const activeBrush = ref<BrushMode>('none');
 
-const selectLoot = (loot: ILoot, e?: MouseEventWithAudio) => {
+const selectLoot = (loot: ILoot, e?: MouseEventWithAudio): void => {
   if (activeBrush.value === 'none') {
     selectedLoot.value = loot;
     e ? e[EVENT_AUDIO_KEY] = AudioKey.DEFAULT : null;
@@ -53,7 +53,7 @@ const selectLoot = (loot: ILoot, e?: MouseEventWithAudio) => {
   }
 };
 
-const identifySelectedLoot = () => {
+const identifySelectedLoot = (): void => {
   if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
   
   if (activeTab.value === 'inventory') {
@@ -69,7 +69,7 @@ const identifySelectedLoot = () => {
   }
 };
 
-const stashSelectedLoot = () => {
+const stashSelectedLoot = (): void => {
   if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
   
   const lootIndex = character.value.loot.findIndex(loot => loot === selectedLoot.value);
@@ -79,7 +79,7 @@ const stashSelectedLoot = () => {
   }
 };
 
-const unstashSelectedLoot = () => {
+const unstashSelectedLoot = (): void => {
   if (!gameEngine.stash || !selectedLoot.value) return;
   
   const stashIndex = gameEngine.stash.findIndex(loot => loot === selectedLoot.value);
@@ -89,7 +89,7 @@ const unstashSelectedLoot = () => {
   }
 };
 
-const equipSelectedLoot = (isMobile:boolean = false) => {
+const equipSelectedLoot = (isMobile:boolean = false): void => {
   if (!selectedLoot.value) return;
   gameEngine.equipItem(selectedLoot.value, activeTab.value === 'stash', !isLeftRing.value);
   if (!isMobile){
@@ -113,7 +113,7 @@ watch(isAdventuring, (newValue) => {
   }
 });
 
-const handleEquipmentSwap = () => {
+const handleEquipmentSwap = (): void => {
   if (!selectedLoot.value || !character.value || character.value === ErrorNumber.NOT_FOUND) return;
   
   const currentlyEquippedItem = equippedItem.value;
@@ -150,7 +150,7 @@ const canAffordIdentification = (loot: ILoot): boolean => {
   return character.value.gold >= getIdentificationCost(loot);
 };
 
-function itemMatchesFilter(type: ItemBase, isIdentified: boolean, tier?: ItemTierType) {
+function itemMatchesFilter(type: ItemBase, isIdentified: boolean, tier?: ItemTierType): boolean {
   if (lootFilter.value === undefined && tierFilter.value === undefined) {
     return false;
   }
@@ -170,7 +170,7 @@ function itemMatchesFilter(type: ItemBase, isIdentified: boolean, tier?: ItemTie
   return false;
 }
 
-function deleteSelectedLoot(){
+function deleteSelectedLoot(): void{
   const char = gameEngine.getCharacter;
   let toDeleteId = selectedLoot.value?._identifier;
 
@@ -240,7 +240,7 @@ const hasNext = computed(()=>{
 });
 
 
-function selectLootNeighbour(forwards: boolean = false){
+function selectLootNeighbour(forwards: boolean = false): void{
   console.log('selecting neighbour: next?:', forwards);
   const char = gameEngine.getCharacter;
   if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value)) || char === ErrorNumber.NOT_FOUND){
@@ -254,7 +254,7 @@ function selectLootNeighbour(forwards: boolean = false){
   }
 }
 
-const resetBrush = () => {
+const resetBrush = (): void => {
   activeBrush.value = 'none';
 };
 

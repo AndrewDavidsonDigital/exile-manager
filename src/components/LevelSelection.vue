@@ -33,7 +33,7 @@ watch(lastUpdated, () => {
   isCollapsed.value = false;
 })
 
-function startAdventuring(){  
+function startAdventuring(): void{  
   $emit('start-adventuring');
   isCollapsed.value = true;
 }
@@ -61,7 +61,7 @@ function resolveBackground(level: ILevel): BackgroundTypes {
   return BackgroundTypes.DEFAULT
 }
 
-function sortLevel(a: ILevel, b: ILevel){
+function sortLevel(a: ILevel, b: ILevel): number{
   if (a.areaLevel === -1 ){
     return 1;
   }

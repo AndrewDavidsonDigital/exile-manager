@@ -10,7 +10,7 @@
   const adventuringStore = useAdventuringStore();
   const router = useRouter();
 
-  function purgeData(){
+  function purgeData(): void{
     useGameState().remove();
     useWorldState().remove();
 
