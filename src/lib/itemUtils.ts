@@ -243,11 +243,11 @@ const baseAffixTierScalingMap: Record<ItemTierType, number> = {
 
 /**
  * Resolves a base affix for an item based on its type and tier
- * @param type The item type
  * @param tier The item tier
+ * @param type The item type
  * @returns The selected base affix configuration
  */
-export function resolveBaseAffixFromTypeAndTier(type: ItemBase, tier: ItemTierType, iLvl: number): IBaseAffix {
+export function resolveBaseAffixFromTypeAndTier(tier: ItemTierType, type: ItemBase, iLvl: number): IBaseAffix {
   // Map the item type to the corresponding config section
   const configSection = mapItemTypeToAffixCategory(type);
   

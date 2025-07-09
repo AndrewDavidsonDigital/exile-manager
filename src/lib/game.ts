@@ -1,5 +1,5 @@
 import type { IBaseAffix, IItemAffix } from './affixTypes';
-import { AffixLevelTiers, allAffixes, allAffixesById } from '@/data/affixes';
+import { AffixLevelTiers, allAffixes, allAffixesByAffixTier, allAffixesByBase, allAffixesById, allAffixesByTier, resolveAffixTierForILevel } from '@/data/affixes';
 import type { AffixValue } from './affixTypes';
 import { 
   AffixCategory,
@@ -25,7 +25,10 @@ import {
   type SkillTriggers,
 } from './core';
 import { isAffixRange } from './affixTypes';
+import { intersectSets } from './sets';
 
+
+const isDev = import.meta.env.DEV;
 
 /**
  * Represents a character's combat statistics and attributes
@@ -550,13 +553,40 @@ export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase
   const affixCounts = ITEM_TIER_INFO[tier].affixCount;
 
   // Filter affixes that are allowed for this tier
+  /** @deprecated */
   const allowedAffixes = allAffixes.filter((affix: IAffix) => 
     affix.allowedTiers.includes(tier) 
       && affix.allowedBases.includes(type)
       && iLevel >= (AffixLevelTiers.get(affix.tier)?.minILevel ||0) && iLevel < (AffixLevelTiers.get(affix.tier)?.maxILevel || Infinity)
   );
 
-  // console.log(`given iLevel: [${iLevel}]`, allowedAffixes);
+  const allAffixesByApplicableTiers = resolveAffixTierForILevel(iLevel)
+    .map(el => allAffixesByAffixTier.get(el))
+    .filter((el): el is Set<string> => el !== undefined)
+    .reduce(
+      (a,b) => a.union(b),
+      new Set<string>(),
+    )
+  ;
+
+  const allowedAffixIds = intersectSets(
+    allAffixesByTier.get(tier) || new Set<string>(), 
+    allAffixesByBase.get(type) || new Set<string>(),
+    allAffixesByApplicableTiers,
+  );
+  const allowedAffixes2 = Array.from(allowedAffixIds).map(id => allAffixesById.get(id)).filter(el => el)  as IAffix[];
+
+  if(
+       isDev
+    && tier !== 'basic' 
+    && JSON.stringify(allowedAffixes.toSorted((a,b) => a.id.localeCompare(b.id))) !== JSON.stringify(allowedAffixes2.toSorted((a,b) => a.id.localeCompare(b.id)))
+  ) {
+    // we are guarded here where this will only fire IF we are in a dev environment
+    // isDev === import.meta.env.DEV
+    // eslint-disable-next-line no-debugger
+    debugger;
+  }
+
 
   // Generate each type of affix using the helper function
   if (affixCounts.embedded > 0) {
@@ -572,4 +602,4 @@ export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase
   }
 
   return affixes;
-} 
+}

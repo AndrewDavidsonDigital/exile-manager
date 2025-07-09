@@ -1,5 +1,6 @@
-import { AffixCategory, AffixSubCategory, AffixTiers, AffixType, Attributes, ItemBase, type IAffix } from "@/lib/core";
+import { AffixCategory, AffixSubCategory, AffixTiers, AffixType, Attributes, type IAffix, ItemBase } from "@/lib/core";
 import { allItemTypes } from "@/lib/itemUtils";
+import type { ItemTierType } from '@/lib/core';
 
 
 export interface IAffixLevelConfig {
@@ -7,7 +8,7 @@ export interface IAffixLevelConfig {
   maxILevel: number,
 }
 
-export const AffixLevelTiers: Map<AffixTiers, IAffixLevelConfig> = new Map([
+export const AffixLevelTiers: Readonly<Map<AffixTiers, IAffixLevelConfig>> = new Map([
   [AffixTiers.ONE,    {minILevel: 0, maxILevel: 10}],
   [AffixTiers.TWO,    {minILevel: 5, maxILevel: 15}],
   [AffixTiers.THREE,  {minILevel: 10,maxILevel: 16}],
@@ -20,6 +21,24 @@ export const AffixLevelTiers: Map<AffixTiers, IAffixLevelConfig> = new Map([
   [AffixTiers.TEN,    {minILevel: 55,maxILevel: 75}],
   [AffixTiers.ELEVEN, {minILevel: 65,maxILevel: Infinity}],
 ])
+
+export function resolveAffixTierForILevel(iLevel: number): AffixTiers[] {
+  if (iLevel < 0) {
+    // Return the base tier for negative iLevels
+    return [AffixTiers.ONE];
+  }
+  const validTiers: AffixTiers[] = [];
+  for (const [tier, levelBands] of AffixLevelTiers.entries()) {
+    if (iLevel >= levelBands.minILevel && iLevel < levelBands.maxILevel) {
+      validTiers.push(tier);
+    }
+  }
+  // If no valid tiers found, return the base tier
+  if (validTiers.length === 0) {
+    return [AffixTiers.ONE];
+  }
+  return validTiers;
+}
 
 /**
  * List of all available embedded affixes
@@ -2604,7 +2623,6 @@ const suffixAffixes: IAffix[] = [
   }
 ];
 
-
 /**
  * Combined list of all affixes
  * @deprecated use allAffixesById where possible.
@@ -2615,8 +2633,38 @@ export const allAffixes: IAffix[] = [
   ...suffixAffixes
 ];
 
-
 /**
  * Combined list of all affixes, keyed by their id
  */
 export const allAffixesById: Map<string, IAffix> = new Map(allAffixes.map(el => [el.id, el]));
+
+/**
+ * Combined list of all affixes, keyed by their `ItemTierType`
+ */
+export const allAffixesByTier: Map<ItemTierType, Set<string>> = new Map();
+
+/**
+ * Combined list of all affixes, keyed by their `ItemBase`
+ */
+export const allAffixesByBase: Map<ItemBase, Set<string>> = new Map();
+
+/**
+ * Combined list of all affixes, keyed by their `AffixTiers` value
+ */
+export const allAffixesByAffixTier: Map<AffixTiers, Set<string>> = new Map();
+
+for (const affix of allAffixes) {
+  // By Tier
+  for (const tier of affix.allowedTiers) {
+    if (!allAffixesByTier.has(tier)) allAffixesByTier.set(tier, new Set());
+    allAffixesByTier.get(tier)!.add(affix.id);
+  }
+  // By Base
+  for (const base of affix.allowedBases) {
+    if (!allAffixesByBase.has(base)) allAffixesByBase.set(base, new Set());
+    allAffixesByBase.get(base)!.add(affix.id);
+  }
+  // By AffixTiers (enum)
+  if (!allAffixesByAffixTier.has(affix.tier)) allAffixesByAffixTier.set(affix.tier, new Set());
+  allAffixesByAffixTier.get(affix.tier)!.add(affix.id);
+}

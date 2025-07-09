@@ -635,7 +635,7 @@ export const useGameEngine = defineStore('gameEngine', {
     },
     /**
      * Initializes a new game run with the specified character
-     * @param {ICharacter} character - The character to initialize the game with
+     * @param character - The character to initialize the game with
      */
     init(character: ICharacter): void {
       logger(`Initializing game with character: ${character.name} (${character.class})`);
@@ -855,7 +855,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Updates character stats
-     * @param {Partial<ICharacterStats>} stats - The stats to update
+     * @param stats - The stats to update
      */
     updateStats(stats: Partial<ICharacterStats>): void{
       if (!this.character) return;
@@ -873,8 +873,8 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Takes damage from the character's health
-     * @param {number} amount - Amount of damage to take
-     * @param {boolean} [applyReduction=true] - Whether to apply damage reduction from fortitude
+     * @param amount - Amount of damage to take
+     * @param applyReduction - optional - Whether to apply damage reduction from fortitude
      */
     takeDamage(amount: number, applyReduction: boolean = true): void{
       if (!this.character) return;
@@ -904,7 +904,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Heals the character's health
-     * @param {number} amount - Amount of health to restore
+     * @param amount - Amount of health to restore
      */
     heal(amount: number, isPercent: boolean = false): void{
       const stats = this.getCombatStats;
@@ -922,7 +922,8 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Heals the character's health
-     * @param {number} amount - Amount of health to restore
+     * @param amount - Amount of health to restore (can be negative)
+     * @param isPercent optional - whether to treat the amount as percentile increase
      */
     recoverMana(amount: number, isPercent: boolean = false): void{
       const stats = this.getCombatStats;
@@ -940,7 +941,8 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Updates character gold
-     * @param {number} amount - Amount to add (can be negative)
+     * @param amount - Amount of health to restore (can be negative)
+     * @param isGain optional - whether to treat the amount as increase or decrease
      */
     updateGold(amount: number, isGain = true): void{
       if (!this.character) return;
@@ -955,7 +957,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Adds experience to the character and handles level up if needed
-     * @param {number} amount - Amount of experience to add
+     * @param amount - Amount of experience to add
      */
     addExperience(amount: number): void{
       logger(`Adding ${amount} experience to ${this.character?.name}`);
@@ -1119,8 +1121,8 @@ export const useGameEngine = defineStore('gameEngine', {
     },
     /**
      * Internal helper method to handle item identification logic
-     * @param {ILoot} loot - The item to identify
-     * @returns {boolean} Whether identification was successful
+     * @param loot - The item to identify
+     * @returns Whether identification was successful
      */
     _identifyItem(loot: ILoot): boolean {
       if (loot.identified) return false;
@@ -1137,18 +1139,15 @@ export const useGameEngine = defineStore('gameEngine', {
 
       // Deduct the cost
       this.character.gold -= totalCost;
-
-      // The type is already set when the loot was created
-      const type = loot.type;
       
       // Generate affixes based on tier
-      const affixes = generateAffixesForTierAndType(tier, type, loot.iLvl);
+      const affixes = generateAffixesForTierAndType(tier, loot.type, loot.iLvl);
       
       // Update item details with generated affixes
       loot.itemDetails = {
         tier,
         mutations: loot.itemDetails?.mutations || [],
-        baseDetails: resolveBaseAffixFromTypeAndTier(type, tier, loot.iLvl),
+        baseDetails: resolveBaseAffixFromTypeAndTier(tier, loot.type, loot.iLvl),
         affixes: {
           embedded: affixes.embedded,
           prefix: affixes.prefix,
@@ -1190,7 +1189,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Moves an item from inventory to stash
-     * @param {number} lootIndex - Index of the item in inventory
+     * @param lootIndex - Index of the item in inventory
      */
     stashItem(lootIndex: number): void{
       if (!this.stash || !this.character || !this.character.loot[lootIndex]) return;
@@ -1204,7 +1203,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Moves an item from stash to inventory
-     * @param {number} stashIndex - Index of the item in stash
+     * @param stashIndex - Index of the item in stash
      */
     unstashItem(stashIndex: number): void{
       if (!this.stash || !this.character || !this.stash[stashIndex]) return;
@@ -1218,8 +1217,8 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Removes a specified number of loot items from the Stash
-     * @param {number} lootCount - The number of loot items to remove, or percentage if asPercent is true
-     * @param {boolean} [asPercent=false] - Whether lootCount should be treated as a percentage of total loot
+     * @param lootCount - The number of loot items to remove, or percentage if asPercent is true
+     * @param asPercent optional - Whether lootCount should be treated as a percentage of total loot
      */
     removeStashLoot(lootCount:number, asPercent: boolean = false): number{
       if(!this.stash) return 0;
@@ -1241,8 +1240,8 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Removes a specified number of loot items from the character's inventory
-     * @param {number} lootCount - The number of loot items to remove, or percentage if asPercent is true
-     * @param {boolean} [asPercent=false] - Whether lootCount should be treated as a percentage of total loot
+     * @param lootCount - The number of loot items to remove, or percentage if asPercent is true
+     * @param asPercent optional - Whether lootCount should be treated as a percentage of total loot
      */
     removeLoot(lootCount:number, asPercent: boolean = false): number{
       if (!this.character) return 0;
@@ -1264,7 +1263,7 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Increments the number of completed runs
-     * @param {number} [value=1] - The number of runs to add (defaults to 1)
+     * @param value optional - The number of runs to add (defaults to 1)
      */
     incrementRuns(value: number = 1): void{
       logger(`New run(s): ${value}`);
@@ -1284,9 +1283,9 @@ export const useGameEngine = defineStore('gameEngine', {
 
     /**
      * Equips an item from inventory or stash
-     * @param {ILoot} item - The item to equip
-     * @param {boolean} fromStash - Whether the item is from stash
-     * @param {boolean} isRightRing - Whether the item is from stash
+     * @param item - The item to equip
+     * @param fromStash - Whether the item is from stash
+     * @param isRightRing - Whether the item is from stash
      */
     equipItem(item: ILoot, fromStash: boolean = false, isRightRing = false): void{
       if (!this.character || !item.itemDetails || (!this.stash && fromStash)) return;
