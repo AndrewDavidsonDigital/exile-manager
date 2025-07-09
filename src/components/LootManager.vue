@@ -10,7 +10,7 @@ import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './elements/ModalDialog.vue';
 import { IconChevron, IconLink, IconMoney, IconRefreshCC, IconSearch } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
-import { allItemTiers, AudioKey, EVENT_AUDIO_KEY, ItemTiers, TIER_SEPARATOR, type ItemBase, type ItemTierType, type MouseEventWithAudio } from '@/lib/core';
+import { allItemTiers, AudioKey, EVENT_AUDIO_KEY, ItemTiers, TIER_SEPARATOR, ItemBase, type ItemTierType, type MouseEventWithAudio } from '@/lib/core';
 import RomanNumeral from './elements/RomanNumeral.vue';
 import { useAdventuringStore } from '@/stores/adventuring';
 import SwitchToggle from './elements/SwitchToggle.vue';
@@ -453,7 +453,7 @@ const canCompare = computed(() => {
           </button>
         </div>
         <button
-          @click="e => {collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SWOOSH; }"
+          @click="e => {collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 hidden md:block">
             <IconChevron
@@ -514,7 +514,7 @@ const canCompare = computed(() => {
           </button>
         </div>
         <button
-          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SWOOSH; }"
+          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 hidden md:block">
             <IconChevron
@@ -822,7 +822,7 @@ const canCompare = computed(() => {
             <button
               v-if="selectedLoot && selectedLoot.identified"
               class="w-fit mt-auto hidden md:block"
-              @click="() => equipSelectedLoot()"
+              @click="(e) => {(e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = (selectedLoot && [ItemBase.AMULET, ItemBase.RING].includes(selectedLoot.type)) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; equipSelectedLoot();}"
             >
               <FluidElement class="!p-2 mt-auto">
                 Equip Item <span v-if="character !== ErrorNumber.NOT_FOUND">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>
@@ -831,7 +831,7 @@ const canCompare = computed(() => {
             <button
               v-if="selectedLoot && selectedLoot.identified"
               class="w-fit mt-auto block md:hidden"
-              @click="() => equipSelectedLoot(true)"
+              @click="(e) => { (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = selectedLoot && [ItemBase.AMULET, ItemBase.RING].includes(selectedLoot.type) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; equipSelectedLoot(true); }"
             >
               <FluidElement class="!p-2 mt-auto">
                 Equip Item <span v-if="character !== ErrorNumber.NOT_FOUND">{{ character.equipment[slotMap[selectedLoot.type]] ? "(replace)" : '' }}</span>

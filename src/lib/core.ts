@@ -10,7 +10,11 @@ export enum AudioKey {
   SCROLL,
   BRUSH,
   LOCK,
-  SWOOSH,
+  SWOOSH_UP,
+  SWOOSH_DOWN,
+  ARMOUR,
+  JEWELLERY,
+  SMITH,
   RESET,
 }
 
@@ -309,7 +313,6 @@ export enum ItemBase {
   SHOULDER = 'Shoulders',
   PANTS = 'Pants',
 };
-
 
 /**
  * Represents possible item types that can be equipped or found

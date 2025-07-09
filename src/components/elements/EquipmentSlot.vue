@@ -2,10 +2,10 @@
 import { getTierColor, formatBaseAffixValue } from '@/lib/itemUtils';
 import { formatAffixDescription, type ILoot } from '@/lib/game';
 import type { AffixValue } from '@/lib/affixTypes';
-import RomanNumeral from './elements/RomanNumeral.vue';
-import { TIER_SEPARATOR } from '@/lib/core';
+import RomanNumeral from './RomanNumeral.vue';
+import { AudioKey, EVENT_AUDIO_KEY, ItemBase, TIER_SEPARATOR, type MouseEventWithAudio } from '@/lib/core';
 import { inject } from 'vue';
-import { IconLink } from './icons';
+import { IconLink } from '../icons';
 import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
 
 
@@ -43,9 +43,7 @@ function unequipItem(): void {
     ]"
     :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --gear-${slotName};`]"
     @touchend="() => activeBrush === 'none' && alertStats()"
-    @click="() => item && unequipItem()"
-    @keydown.enter="() => item && unequipItem()"
-    @keydown.space="() => item && unequipItem()"
+    @click="(e) => {(e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = (item && [ItemBase.AMULET, ItemBase.RING].includes(item.type)) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; item && unequipItem();}"
   >
     <span class="text-sm text-gray-400 capitalize">
       <span 

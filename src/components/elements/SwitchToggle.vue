@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AudioKey, EVENT_AUDIO_KEY, type MouseEventWithAudio } from '@/lib/core';
+
 
 interface Props {
   class?: string;
@@ -38,7 +40,7 @@ function update(): void {
       cursor-pointer
     "
     :class="props.class"
-    @click="update"
+    @click="e => {update(); (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !model ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN;}"
   >
     <div 
       class="dark:bg-green-300 bg-blue-600 rounded-full w-3 h-3 absolute  transition-all duration-300"

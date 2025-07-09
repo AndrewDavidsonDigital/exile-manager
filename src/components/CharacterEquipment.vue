@@ -5,7 +5,8 @@ import { formatBaseAffixValue } from '@/lib/itemUtils';
 import { inject, ref } from 'vue';
 import type { AffixValue } from '@/lib/affixTypes';
 import { ErrorNumber } from '@/lib/typescript';
-import EquipmentSlot from './EquipmentSlot.vue';
+import EquipmentSlot from './elements/EquipmentSlot.vue';
+import { AudioKey, EVENT_AUDIO_KEY, type MouseEventWithAudio } from '@/lib/core';
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
 const gameEngine = useGameEngine();
@@ -102,7 +103,7 @@ const resetBrush = (): void => {
               { 'opacity-50': activeBrush !== 'unequip' },
               { 'pointer-events-none': activeBrush === 'unequip' }
             ]"
-            @click="activeBrush = activeBrush === 'unequip' ? 'none' : 'unequip'"
+            @click="e => { activeBrush = activeBrush === 'unequip' ? 'none' : 'unequip'; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.BRUSH ;}"
           >
             <div class="bg-gray-800/80 rounded-lg border p-2 w-fit">
               Unequip Brush

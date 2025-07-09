@@ -15,13 +15,35 @@
   import { chooseRandom } from './lib/array';
   
   import bgmTrack from '@/assets/audio/bgm_track.m4a';
-  import clickTrack from '@/assets/audio/sfx/click.wav';
-  import swooshTrack from '@/assets/audio/sfx/swoosh.wav';
-  import goldTrack1 from '@/assets/audio/sfx/gold_1.wav';
-  import goldTrack2 from '@/assets/audio/sfx/gold_2.wav';
-  import scrollTrack1 from '@/assets/audio/sfx/scroll_1.wav';
-  import scrollTrack2 from '@/assets/audio/sfx/scroll_2.wav';
-  import scrollTrack3 from '@/assets/audio/sfx/scroll_3.wav';
+
+  import clickTrack from '@/assets/audio/sfx/click.m4a';
+  import brushTrack from '@/assets/audio/sfx/brush.m4a';
+  import swooshDownTrack from '@/assets/audio/sfx/swoosh_down.m4a';
+  import swooshUpTrack from '@/assets/audio/sfx/swoosh_up.m4a';
+
+  import goldTrack1 from '@/assets/audio/sfx/gold_1.m4a';
+  import goldTrack2 from '@/assets/audio/sfx/gold_2.m4a';
+
+  import scrollTrack1 from '@/assets/audio/sfx/scroll_1.m4a';
+  import scrollTrack2 from '@/assets/audio/sfx/scroll_2.m4a';
+  import scrollTrack3 from '@/assets/audio/sfx/scroll_3.m4a';
+  
+  import smithTrack1 from '@/assets/audio/sfx/smith_1.m4a';
+  import smithTrack2 from '@/assets/audio/sfx/smith_2.m4a';
+  import smithTrack3 from '@/assets/audio/sfx/smith_3.m4a';
+
+  import armourTrack1 from '@/assets/audio/sfx/armour_1.m4a';
+  import armourTrack2 from '@/assets/audio/sfx/armour_2.m4a';
+  import armourTrack3 from '@/assets/audio/sfx/armour_3.m4a';
+  import armourTrack4 from '@/assets/audio/sfx/armour_4.m4a';
+  import armourTrack5 from '@/assets/audio/sfx/armour_5.m4a';
+
+  import jewelleryTrack1 from '@/assets/audio/sfx/jewellery_1.m4a';
+  import jewelleryTrack2 from '@/assets/audio/sfx/jewellery_2.m4a';
+  import jewelleryTrack3 from '@/assets/audio/sfx/jewellery_3.m4a';
+  import jewelleryTrack4 from '@/assets/audio/sfx/jewellery_4.m4a';
+  import jewelleryTrack5 from '@/assets/audio/sfx/jewellery_5.m4a';
+  import jewelleryTrack6 from '@/assets/audio/sfx/jewellery_6.m4a';
 
   const configuration = useConfigurationStore();
   const currentRoute = useRoute();
@@ -39,10 +61,33 @@
     scrollTrack2,
     scrollTrack3,
   ];
+  const smithTracks = [
+    smithTrack1,
+    smithTrack2,
+    smithTrack3,
+  ];
+  const armourTracks = [
+    armourTrack1,
+    armourTrack2,
+    armourTrack3,
+    armourTrack4,
+    armourTrack5,
+  ];
+  const jewelleryTracks = [
+    jewelleryTrack1,
+    jewelleryTrack2,
+    jewelleryTrack3,
+    jewelleryTrack4,
+    jewelleryTrack5,
+    jewelleryTrack6,
+  ];
   
 
   const DEBOUNCE_INTERVAL = 500;
   const debounceLast = ref<number>(Date.now());
+
+  const MIN_SFX_INTERVAL = 300;
+  const lastSfx = ref<number>(Date.now());
 
   const ctrlPressed = ref(false);
   provide(/* key */ 'ctrlPressed', /* value */ ctrlPressed);
@@ -65,41 +110,60 @@
   }
   function clickCallback(_e: MouseEvent): void{
     console.log(` Click: `, _e);
-    if (Object.keys(_e).includes(EVENT_AUDIO_KEY)){
-      const e = _e as MouseEventWithAudio;
-      const key = e[EVENT_AUDIO_KEY];
-      switch (key) {
-        case AudioKey.GOLD:
-          interactionEngine.setTrack(chooseRandom(goldTracks, goldTrack1), true);
-          break;
+    if ((lastSfx.value + MIN_SFX_INTERVAL) < Date.now()){
+      if (Object.keys(_e).includes(EVENT_AUDIO_KEY)){
+        const e = _e as MouseEventWithAudio;
+        const key = e[EVENT_AUDIO_KEY];
+        switch (key) {
+          case AudioKey.GOLD:
+            interactionEngine.setTrack(chooseRandom(goldTracks, goldTrack1), true);
+            break;
 
-        case AudioKey.SCROLL:
-          interactionEngine.setTrack(chooseRandom(scrollTracks, scrollTrack1), true);
-          break;
+          case AudioKey.SCROLL:
+            interactionEngine.setTrack(chooseRandom(scrollTracks, scrollTrack1), true);
+            break;
 
-        case AudioKey.BRUSH:
-          interactionEngine.setTrack(clickTrack, true);
-          break;
+          case AudioKey.BRUSH:
+            interactionEngine.setTrack(brushTrack, true);
+            break;
 
-        case AudioKey.RESET:
-          interactionEngine.setTrack(clickTrack, true);
-          break;
+          case AudioKey.RESET:
+            interactionEngine.setTrack(clickTrack, true);
+            break;
 
-        case AudioKey.LOCK:
-          interactionEngine.setTrack(clickTrack, true);
-          break;
+          case AudioKey.LOCK:
+            interactionEngine.setTrack(clickTrack, true);
+            break;
 
-        case AudioKey.SWOOSH:
-          interactionEngine.setTrack(swooshTrack, true);
-          break;
+          case AudioKey.SWOOSH_UP:
+            interactionEngine.setTrack(swooshUpTrack, true);
+            break;
 
-        case AudioKey.DEFAULT:
-        default:
-          interactionEngine.setTrack(clickTrack, true);
-          break;
+          case AudioKey.SWOOSH_DOWN:
+            interactionEngine.setTrack(swooshDownTrack, true);
+            break;
+
+          case AudioKey.ARMOUR:
+            interactionEngine.setTrack(chooseRandom(armourTracks, armourTrack1), true);
+            break;
+
+          case AudioKey.JEWELLERY:
+            interactionEngine.setTrack(chooseRandom(jewelleryTracks, jewelleryTrack1), true);
+            break;
+
+          case AudioKey.SMITH:
+            interactionEngine.setTrack(chooseRandom(smithTracks, smithTrack1), true);
+            break;
+
+          case AudioKey.DEFAULT:
+          default:
+            interactionEngine.setTrack(clickTrack, true);
+            break;
+        }
+      } else {
+        interactionEngine.setTrack(clickTrack, true);
       }
-    } else {
-      interactionEngine.setTrack(clickTrack, true);
+      lastSfx.value = Date.now();
     }
   }
 
