@@ -1,6 +1,7 @@
 import { CRITICAL_STRIKE_CONSTANTS, DEFLECTION_CONSTANTS, DODGE_CONSTANTS } from '@/lib/combatMechanics';
 import { asPercent } from '@/lib/string';
 import { ITEM_TIER_COSTS, ITEM_TIER_INFO } from '@/lib/game';
+import { ExileClass } from './lib/core';
 
 export enum TagsEnum {
   DAMAGE = 'damage',
@@ -142,11 +143,43 @@ export const entries: IEntry[] = [
   },
   {
     title: 'Critical Strike',
-    description: `An attack which has been rolled to be a crit has the following effects: if after dealing damage the enemy is bellow a dynamic health % threshold (depends on enemy tiers), then the enemy will instantly die, (think culling-strike). In the cases where the mob is not bellow the threshold then the character will recover ${asPercent(CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY)} of their life and have a flat ${asPercent(CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE)} to stun the enemy resulting in the enemies turn being skipped.`,
+    description: `An attack which has been rolled to be a crit has the following effects: if after dealing damage the enemy is bellow a dynamic health % threshold (depends on enemy tiers), then the enemy will instantly die, (think culling-strike). In the cases where the mob is not bellow the threshold then the appropriate class-specific critical effect will take place. There is also a flat ${asPercent(CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE)} for a super critical effect.`,
     tags: [
       TagsEnum.CRITICAL,
       TagsEnum.DAMAGE,
-      TagsEnum.LIFE
+    ],
+  },
+  {
+    title: 'Super Critical',
+    description: `A flat ${asPercent(CRITICAL_STRIKE_CONSTANTS.SUPER_CRIT_CHANCE)} to stun the enemy resulting in the enemies turn being skipped, that can only occur when rolled on a natural Crit`,
+    tags: [
+      TagsEnum.CRITICAL,
+      TagsEnum.DAMAGE,
+    ],
+  },
+  {
+    title: `Critical Hit - ${ExileClass.REAVER}`,
+    description: `When a ${ExileClass.REAVER} critically hits they will recover ${asPercent(CRITICAL_STRIKE_CONSTANTS.CRIT_HEALTH_RECOVERY)} of their life.`,
+    tags: [
+      TagsEnum.CRITICAL,
+      TagsEnum.LIFE,
+    ],
+  },
+  {
+    title: `Critical Hit - ${ExileClass.CHAOS_MAGE}`,
+    description: `When a ${ExileClass.CHAOS_MAGE} critically hits they will encase themselves in a protective layer of either 20% Dodge chance or 2 Deflection Stacks. These buffs cannot stack with themselves but can both be active at the same time`,
+    tags: [
+      TagsEnum.CRITICAL,
+      TagsEnum.DODGE,
+      TagsEnum.DEFLECTION,
+    ],
+  },
+  {
+    title: `Critical Hit - ${ExileClass.SPELLSWORD}`,
+    description: `When a ${ExileClass.SPELLSWORD} critically hits they will apply to themselves a stackable short-term (~6 turns) all elemental damage buff of either 5 or 20% increase of the current element value (whichever is greater)`,
+    tags: [
+      TagsEnum.CRITICAL,
+      TagsEnum.DAMAGE,
     ],
   },
   {

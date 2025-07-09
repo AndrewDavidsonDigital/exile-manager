@@ -17,7 +17,7 @@
       title: 'Class Based Crits',
       description: 'Critical strike effects should be different per class',
       priority: 'normal',
-      status: 'pending',
+      status: 'completed',
       keyPoints: [
         'Reaver crit should life-leech (as per current)',
         'Chaos Mage crit should: TBD, big volatile explosion???',
@@ -89,9 +89,9 @@
       title: 'Item System 2.5',
       description: 'Items affixes need some love.',
       priority: 'normal',
-      status: 'pending',
+      status: 'partial',
       keyPoints: [
-        'Add Synergy system',
+        'Add Synergy system ✔️',
         'Add ability for accessories to be stacked',
         'Add Disturbance system for accessories',
       ],

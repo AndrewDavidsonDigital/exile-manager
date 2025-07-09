@@ -31,6 +31,9 @@ export const releases: IRelease[] = [
       'Added support for event based level generation. . . follow that lanky turtle to raid its stores',
       'Add initial meta-progression with town and town unlocks (Bulk ID, Bulk Salvage, Auto-Salvage)',
       'Add a couple more levels / destinations to logically uncover the town and then provide dynamic areas',
+      'Add audio feedback for generic clicks',
+      'Add audio feedback for some specific / custom elements (e.g: identifying / selling )',
+      'Add support for Class-Specific critical hit effects'
     ],
     commit: '',
     compare: 'v0.1.5...v0.1.6',
