@@ -712,7 +712,7 @@ import { useWorldEngine } from './world';
           encounterIcon = '❔';
           encounterType = 'Generic';
         }else{
-          encounter.description += `You are presume from the strewn tattered parchment that this was once an Arcanum`
+          encounter.description += `You presume from the strewn tattered parchment that this was once an Arcanum`
           encounterIcon = '✨';
           encounterType = 'Safe';
           worldEngine.knowAboutTownFeature(TownUnlockable.ARCANUM);

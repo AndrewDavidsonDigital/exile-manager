@@ -7,8 +7,8 @@
   import { useGameEngine } from '@/stores/game';
   import { ErrorNumber } from '@/lib/typescript';
   import { trace } from '@/lib/logging';
-import SmithyConfigurations from './town/SmithyConfigurations.vue';
-import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
+  import SmithyConfigurations from './town/SmithyConfigurations.vue';
+  import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
 
   const LOGGING_PREFIX = '🏠 Town:\t';
   function logger(message: string) {
@@ -141,10 +141,13 @@ import ArcanumConfigurations from './town/ArcanumConfigurations.vue';
 </script>
 
 <template>
-  <div class="flex flex-col md:flex-row gap-4 h-full">
+  <div class="flex flex-col md:flex-row gap-4 h-full justify-around">
     <button
       v-for="shop,index in shops"
       :key="`shop_${index}`"
+      :class="[
+        { 'pointer-events-none' : !(worldEngine.isTownFeatureKnown(shop.binding))}
+      ]"
       @click="featureClick(shop)"
     >
       <FluidElement

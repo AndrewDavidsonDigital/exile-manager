@@ -418,20 +418,21 @@ const canCompare = computed(() => {
             All Types
           </FluidElement>
         </button>
-        <button>
+        <button
+          @click="e => { collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
+        >
           <FluidElement class="w-fit !p-1 md:hidden">
             <IconChevron
               :class="[
                 { 'active' : collapseEquipmentFilters }
               ]"
-              @click="collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined;"
             />
           </FluidElement>
         </button>
         <div
           class="w-fit transition-all duration-300 overflow-clip flex gap-2 flex-wrap md:flex-nowrap max-h-20"
           :class="[
-            { '!w-0' : collapseEquipmentFilters }
+            { '!w-0 !max-h-6' : collapseEquipmentFilters }
           ]"
         >
           <button
@@ -477,20 +478,21 @@ const canCompare = computed(() => {
             All Tiers
           </FluidElement>
         </button>
-        <button>
+        <button
+          @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as MouseEventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
+        >
           <FluidElement class="w-fit !p-1 md:hidden">
             <IconChevron
               :class="[
                 { 'active' : collapseTierFilters }
               ]"
-              @click="collapseTierFilters = !collapseTierFilters; tierFilter = undefined;"
             />
           </FluidElement>
         </button>
         <div
           class="w-fit transition-all duration-300 overflow-clip flex gap-2 flex-wrap md:flex-nowrap max-h-20"
           :class="[
-            { '!w-0' : collapseTierFilters }
+            { '!w-0 !max-h-6' : collapseTierFilters }
           ]"
         >
           <button
