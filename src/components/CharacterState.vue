@@ -16,6 +16,7 @@ import SwitchToggle from './elements/SwitchToggle.vue';
 import { ErrorNumber } from '@/lib/typescript';
 import { isAbleToAffordSkill, isOffCooldown } from '@/stores/adventuring';
 import { useConfigurationStore } from '@/stores/configuration';
+import { entries } from '@/journal';
 
 
 interface Props {
@@ -35,6 +36,8 @@ const healthPulseType = ref<'damage' | 'heal'>('damage');
 const manaPulseType = ref<'gain' | 'loss'>('gain');
 const showDetailedStats = ref(false);
 const showStats = ref(false);
+
+const characterClass = computed(() => char !== ErrorNumber.NOT_FOUND ? char.class : null);
 
 const showPassivesModal = ref<boolean>(false);
 const showNewPassivesModal = ref<boolean>(false);
@@ -861,7 +864,10 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                   )</span>
                 </span>
               </div>
-              <div class="ml-2  px-2">
+              <div
+                class="ml-2 px-2"
+                :title="characterClass ? entries.find(el => el.title === `Critical Hit - ${characterClass}`)?.description : undefined"
+              >
                 <span class="text-gray-400">Critical:</span>
                 <span 
                   class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start"
@@ -869,14 +875,20 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                   <span>~{{ calculateCriticalChance(gameEngine.getCombatStats.criticalStrike) }}%</span>
                 </span>
               </div>
-              <div class="ml-2  px-2">
+              <div class="ml-2 px-2">
                 <span class="text-gray-400">Mitigation:</span>
                 <span class="text-slate-400 ml-2 px-2 inline-flex gap-x-2 w-full justify-center md:justify-start">
-                  <span v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value">Dodge: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value || 0 }}%</span>
-                  <span v-if="gameEngine.getCombatStats.deflection">Deflect: {{ gameEngine.getCombatStats.deflection || 0 }}</span>
+                  <span 
+                    v-if="gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value"
+                    :title="entries.find(el => el.title.toLowerCase() === 'dodge')?.description"
+                  >Dodge: ~{{ gameEngine.getCombatStats.mitigation.find(el => el.key === 'evasion')?.value || 0 }}%</span>
+                  <span
+                    v-if="gameEngine.getCombatStats.deflection"
+                    :title="entries.find(el => el.title.toLowerCase() === 'deflection')?.description"
+                  >Deflect: {{ gameEngine.getCombatStats.deflection || 0 }}</span>
                 </span>
               </div>
-              <div class="ml-2  px-2">
+              <div class="ml-2 px-2">
                 <span class="text-gray-400">Resist:</span>
                 <span class="text-slate-400 ml-2 px-2 inline-flex gap-x-1 w-full justify-center md:justify-start">
                   <span
@@ -902,7 +914,10 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
                 v-for="stat in orderedStats"
                 :key="stat"
               >
-                <div class="ml-2  px-2">
+                <div
+                  class="ml-2 px-2"
+                  :title="entries.find(el => el.title.toLowerCase() === stat)?.description"
+                >
                   <span class="text-gray-400">{{ stat.charAt(0).toUpperCase() + stat.slice(1) }}:</span>
                   <span :class="[getStatColor(stat), 'ml-2']">{{ gameEngine.getCombatStats.attributes[stat] }}</span>
                 </div>

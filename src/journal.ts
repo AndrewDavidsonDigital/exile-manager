@@ -126,7 +126,7 @@ export const entries: IEntry[] = [
   },
   {
     title: 'Deflection',
-    description: `The number of re-roll attempts, capped at ${DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS}, that occur when considering the mobs initial hit.`,
+    description: `The number of re-roll attempts, capped at ${DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS}, that occur when considering the mobs initial hit. The lowest of these values is chosen.`,
     tags: [
       TagsEnum.DEFENSE,
       TagsEnum.DEFLECTION,
