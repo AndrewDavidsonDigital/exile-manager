@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import FluidElement from '@/components/elements/FluidElement.vue';
   import PillElement from '@/components/elements/PillElement.vue';
-  import { entries } from '@/journal';
+  import { entries, TagsEnum } from '@/journal';
   import type { IEntry } from '@/journal';
   import { ErrorNumber } from '@/lib/typescript';
   import { computed, ref } from 'vue';
@@ -32,11 +32,11 @@
   };
 
   const implementedEntries = computed(() => 
-    filterEntries(entries.filter(el => !(el.tags.includes('NYI'))))
+    filterEntries(entries.filter(el => !(el.tags.includes(TagsEnum.NYI))))
   );
   
   const pendingEntries = computed(() => 
-    filterEntries(entries.filter(el => (el.tags.includes('NYI'))))
+    filterEntries(entries.filter(el => (el.tags.includes(TagsEnum.NYI))))
   );
 
   const toggleTag = (tag: string): void => {
@@ -128,36 +128,22 @@
           class="
           max-w-[30rem] w-full 
           text-center 
-          grid grid-cols-1
+          grid grid-cols-1 gap-1
 
           transition-all duration-500
           hover:z-10
           hover:scale-125
         "
-          :class="[
-          // { '!border-cyan-500': feature.status === 'partial' },
-          // { '!border-red-400': feature.status === 'pending' },
-          ]"
         >
           <div class="flex justify-between w-full">
             <h3 class="text-xl text-left font-semibold">
               {{ term.title }}:
             </h3>
-          <!-- <h3
-            class="capitalize font-semibold"
-            :class="[
-              // { 'text-emerald-400': feature.status === 'completed' },
-              // { 'text-cyan-500': feature.status === 'partial' },
-              // { 'text-red-400': feature.status === 'pending' },
-            ]"
-          >
-            {{ term.status }}
-          </h3> -->
           </div>
           <p class="text-left">
             {{ term.description }}
           </p>
-          <div class="flex gap-2 justify-center">
+          <div class="flex gap-2 justify-center items-center my-1">
             <template
               v-for="tag, tIndex in term.tags"
               :key="`term_tIndex_${tIndex}-${index}`"
