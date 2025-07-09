@@ -25,7 +25,8 @@ const isCollapsed = ref(false);
 const hideLowLevel = ref(true);
 
 
-const lastInfinite = computed( () => props.levels.findLastIndex(level => !level.maxUses && level.areaLevel !== -1));
+const sortedLevels = computed( () => props.levels.toSorted((a,b) => sortLevel(a,b)));
+const lastInfinite = computed( () => sortedLevels.value.findLastIndex(level => !level.maxUses && level.areaLevel !== -1));
 
 
 watch(lastUpdated, () => {
@@ -114,11 +115,11 @@ function sortLevel(a: ILevel, b: ILevel){
       :class="{ 'max-h-0 !my-0 overflow-clip': isCollapsed, 'max-h-[1000px]': !isCollapsed }"
     >
       <template
-        v-for="level, index in levels.toSorted((a,b) => sortLevel(a,b))"
+        v-for="level, index in sortedLevels"
         :key="`level_button_${index}`"
       >
         <FluidElement 
-          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1 && index !== lastInfinite)"
+          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1) || index === lastInfinite"
           class="
             w-fit min-w-[15vw] md:min-w-[unset]
             !p-2 !border 
