@@ -17,6 +17,6 @@ export function _cloneDeep<Type>(from: Type): Type {
  * @param y Second object to compare with
  * @returns True if all children of `X` are in `Y` and `Y` has no other children
  */
-export function _isObjectEqual( x: object | undefined, y: object | undefined ):boolean{
+export function _isObjectEqual( x: object | undefined, y: object | undefined ): boolean{
   return JSON.stringify(x) === JSON.stringify(y) 
 }

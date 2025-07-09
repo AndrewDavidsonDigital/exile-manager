@@ -79,7 +79,7 @@ export const generateItemLevel = (normalizedLevel: number): number => {
  * Generate normally distributed random number between 400 and 4000, centered around 1500
  * @returns A random gold amount following a normal distribution
  */
-export const generateNormalGold = () => {
+export const generateNormalGold = (): number => {
   // Box-Muller transform for normal distribution
   const u1 = Math.random();
   const u2 = Math.random();

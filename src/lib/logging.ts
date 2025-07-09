@@ -7,7 +7,7 @@ interface ILoggingConfig {
 
 let loggingConfig: ILoggingConfig;
 
-function initLogging() {
+function initLogging(): void {
   const loggingStorage = useLogging();
   loggingConfig = JSON.parse((loggingStorage.get() || '{ "trace": true, "debug": true }')) as ILoggingConfig;
   loggingStorage.set(JSON.stringify(loggingConfig));
@@ -20,7 +20,7 @@ initLogging();
  * Logs a trace message with timestamp if trace logging is enabled
  * @param message - The message to log
  */
-export function trace(message: string){  
+export function trace(message: string): void{  
   if (loggingConfig.trace){
     console.log(`${Date.now()} ${message}`);
   }
@@ -30,7 +30,7 @@ export function trace(message: string){
  * Logs a debug message with timestamp if debug logging is enabled
  * @param message - The message to log
  */
-export function debug(message: string){  
+export function debug(message: string): void{  
   if (loggingConfig.debug){
     console.log(`${Date.now()} ${message}`);
   }

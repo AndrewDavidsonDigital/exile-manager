@@ -2605,9 +2605,6 @@ const suffixAffixes: IAffix[] = [
 ];
 
 
-// TODO: export this as a HashMap with ID as key
-// as we iterate over this ... ugh
-// new Map<string, IAffix>();
 /**
  * Combined list of all affixes
  * @deprecated use allAffixesById where possible.

@@ -122,7 +122,7 @@ export const DEFLECTION_CONSTANTS = {
 } as const;
 
 
-// 
+
 const affixLevelBand = 5;
 
 export function calculateDeflectionAttempts(armourValue: number, charLevel:number = 1): number{
@@ -135,7 +135,7 @@ export function calculateDeflectionAttempts(armourValue: number, charLevel:numbe
 }
 
 
-export function armorMitigation( damageFunction: () => number, armourValue: number, charLevel:number = 1){
+export function armorMitigation( damageFunction: () => number, armourValue: number, charLevel:number = 1): number{
   // console.log(`----------------------------------------`);
   // console.log(`armorMitigation: INIT: Armor: ${armourValue}`);
   // get number of recursions.
@@ -164,6 +164,6 @@ export function armorMitigation( damageFunction: () => number, armourValue: numb
   return baseDamage;
 }
 
-export function calculateDamageTick(dpt: number){
+export function calculateDamageTick(dpt: number): number{
   return Math.floor(dpt * (0.9 + Math.random() * 0.2));
 }

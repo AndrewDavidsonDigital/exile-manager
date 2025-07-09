@@ -435,7 +435,7 @@ function generateAffixesOfType(
   return generatedAffixes;
 }
 
-function randomlySelectAffixFromCollection(affixCollection: IAffix[]){
+function randomlySelectAffixFromCollection(affixCollection: IAffix[]): IAffix{
   return affixCollection[Math.floor(Math.random() * affixCollection.length)]
 }
 
@@ -532,10 +532,14 @@ export function formatConsolidatedAffix(affix: IItemAffix): string {
 /**
  * Generates appropriate affixes for an item based on its tier and type
  * @param tier The item's tier
- * @param _type NYI: The item's type (currently unused but kept for future use)
+ * @param type The item's type
  * @returns Object containing arrays of generated affixes with their roll values
  */
-export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase, iLevel: number) {
+export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase, iLevel: number): {
+  embedded: Array<IItemAffix>;
+  prefix: Array<IItemAffix>;
+  suffix: Array<IItemAffix>;
+} {
   const affixes = {
     embedded: [] as Array<IItemAffix>,
     prefix: [] as Array<IItemAffix>,

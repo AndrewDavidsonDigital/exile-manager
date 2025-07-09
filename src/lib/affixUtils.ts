@@ -41,7 +41,7 @@ export function getAffixValueRange(affix: { value: AffixValue }): { lower: numbe
  * @param valueRange The range object containing lower and upper bounds
  * @returns The rounded average of the range values
  */
-export function resolveAverageOfRange(valueRange: { lower: number, upper: number }){
+export function resolveAverageOfRange(valueRange: { lower: number, upper: number }): number {
   return Math.round((valueRange.lower + valueRange.upper)/2)
 }
 
@@ -67,7 +67,7 @@ export function affixSaturation(affix: IItemAffix, affixGroup: IItemAffix[]): nu
 }
 
 
-export function resolveAffixMultiplierValue(affix: IItemAffix, affixCollection: IItemAffix[]){
+export function resolveAffixMultiplierValue(affix: IItemAffix, affixCollection: IItemAffix[]): number{
   return (1 + (affixSaturation(affix, affixCollection) - 1)/AFFIX_SATURATION_BONUS_RATE);
 }
 

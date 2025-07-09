@@ -5,9 +5,12 @@ const terms = new Map<string, string>([
   ['healthmanabars','HP | Mana: '],
 ])
 
-export function resolveLabelFromKey(term :string){
-  if (terms.has(term.toLowerCase())){
-    return terms.get(term.toLowerCase());
+export function resolveLabelFromKey(term :string): string{
+  const lookup = terms.get(term.toLowerCase());
+
+  if (lookup) {
+    return lookup;
   }
+
   return term;
 }

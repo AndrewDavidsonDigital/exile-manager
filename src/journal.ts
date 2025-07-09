@@ -28,7 +28,7 @@ export type Tags =
  | 'spell'
  | 'movement'
  | 'crafting'
- ;
+;
 
 export interface IEntry {
   title: string;

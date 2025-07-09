@@ -6,7 +6,7 @@ export enum scrollDirection {
 }
 
 
-export function toggleScrollLock(allowScroll: boolean, el: HTMLElement, direction: scrollDirection = scrollDirection.Y){
+export function toggleScrollLock(allowScroll: boolean, el: HTMLElement, direction: scrollDirection = scrollDirection.Y): void{
   if(allowScroll){
     el.style[direction] = 'hidden';
   }else{

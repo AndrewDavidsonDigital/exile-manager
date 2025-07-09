@@ -4,7 +4,9 @@
  * @param keys The array of keys to extract
  * @returns A new object containing only the specified keys and their values
  */
-export function pluckKeys(collection: {[x:string]: any}, keys: string[] | readonly string[]){
+export function pluckKeys(collection: {[x:string]: any}, keys: string[] | readonly string[]): {
+  [x: string]: any;
+} {
   const retval: {[x:string]: any} = {};
 
   keys.forEach((key) => {
@@ -32,7 +34,7 @@ export function chooseRandom<T>(collection: Array<T>, defaultValue: T ): T{
   if (collection.length === 0 ) return defaultValue;
   try{
     const randIndex = Math.floor(Math.random() * (collection.length - 0.5));
-    console.log(`resolving to index [${randIndex}] as value: `, collection[randIndex]);
+    // console.log(`resolving to index [${randIndex}] as value: `, collection[randIndex]);
     return collection[randIndex];
   }catch (e){
     console.warn(`[chooseRandom] \tException when resolving random value from collection, ${(e as Error).name}`);

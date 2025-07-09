@@ -381,7 +381,7 @@ export interface IMonsterDamage {
 }
 
 
-export function baseDamageFunction(areaMulti:number, tierMulti:number, difficultyMulti:number ){
+export function baseDamageFunction(areaMulti:number, tierMulti:number, difficultyMulti:number ): number{
   return Math.floor((5 + Math.random() * 10) * areaMulti * tierMulti * difficultyMulti);
 }
 
@@ -406,7 +406,7 @@ export enum AffixTiers {
 
 export const TIER_SEPARATOR = '_-_';
 
-export function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes){
+export function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes): number{
   switch (direction) {
     case AffixTypes.ADDITIVE:
       return rawValue + delta;
