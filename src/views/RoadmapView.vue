@@ -14,14 +14,26 @@
 
   const features: IFeature[] = [
     {
+      title: 'Meta-Progression 1.0',
+      description: 'Flesh out the meta-progression system(s)?',
+      priority: 'normal',
+      status: 'pending',
+      keyPoints: [
+        'Add more town features / unlocks',
+        'Block stashing until you have found the warehouse',
+        'Limit stash size and add cap increases as a gold sync',
+        'Skill / Passive re-rolls maybe Arcanum gold sync (is this a per char on persistent base-line unlock???)',
+      ],
+    },
+    {
       title: 'Class Based Crits',
       description: 'Critical strike effects should be different per class',
       priority: 'normal',
       status: 'completed',
       keyPoints: [
         'Reaver crit should life-leech (as per current)',
-        'Chaos Mage crit should: TBD, big volatile explosion???',
-        'Spellsword crit should: temp buff for 2 turns of (+X or + X%) elemental type damage',
+        'Chaos Mage crit should: non-stackable defensive buff to either Deflection or Dodge',
+        'Spellsword crit should: stackable buff for n turns of (+X or + X%) elemental type damage',
       ],
     },
     {

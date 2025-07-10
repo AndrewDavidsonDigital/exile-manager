@@ -22,6 +22,7 @@ export const releases: IRelease[] = [
     isBreaking: true,
     requiresPurge: true,
     highlights: [
+      'Version 0.2 prep',
       'Fix bug where if the starting skill was a world skill, you were never able to select a new skill on level-up',
       'Engine performance tweaks',
       'Game options persistence between sessions',
