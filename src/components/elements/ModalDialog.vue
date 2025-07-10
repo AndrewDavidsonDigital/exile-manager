@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { trace } from '@/lib/logging';
-  import { toggleScrollLock } from '@/lib/ui';
+  import { SCROLL_ROOT_ID, toggleScrollLock } from '@/lib/ui';
   import { ref, watch } from 'vue';
 
   const LOGGING_PREFIX = '▫️Modal:\t';
@@ -18,7 +18,7 @@
 
 
   watch(() => props.show, (newValue) => {
-    let scrollRoot = document.getElementById('scrollRoot');
+    let scrollRoot = document.getElementById(SCROLL_ROOT_ID);
     if(newValue){
       dialogRef.value?.showModal();
       dialogRef.value?.blur();
@@ -39,7 +39,7 @@
       $emit('close');
       // console.log(`**** ${Date.now()}`);
     }
-  });
+});
 
   /**
    * wrapper function for onClose, so when closed NON-programmatically (backdrop click)
@@ -49,7 +49,7 @@
     // console.log(`---- ${Date.now()}`);
     // console.log('close--->  current_state: ', props.show);
     if (props.show){
-      let scrollRoot = document.getElementById('scrollRoot')
+      let scrollRoot = document.getElementById(SCROLL_ROOT_ID)
       if(scrollRoot){
         toggleScrollLock(false, scrollRoot);
       }

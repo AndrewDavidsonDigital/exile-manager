@@ -6,8 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exile Manager</title>
   </head>
-  <body class="overflow-x-clip max-w-screen overscroll-y-contain">
+  <body 
+    class='
+      overflow-x-clip overscroll-y-contain 
+      max-w-screen 
+      grid-area-stack 
+      [&[data-onboarding]_#onboarding\_canvas]:z-1000
+    '
+  >
     <div id="app"></div>
+    <canvas id="onboarding_canvas" class="size-full"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

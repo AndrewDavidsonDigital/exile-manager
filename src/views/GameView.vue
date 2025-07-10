@@ -18,6 +18,7 @@
   import { CUSTOM_LEVELS } from '@/data/levels';
   import TownManager from '@/components/TownManager.vue';
   import { useWorldEngine } from '@/stores/world';
+import { REPORT_DOM_ID } from '@/lib/ui';
 
   const gameEngine = useGameEngine();
   const worldEngine = useWorldEngine();
@@ -39,7 +40,6 @@
   
   type TabType = 'adventuring' | 'loot' | 'town';
 
-  const REPORT_DOM_ID = '_activity-report';
 
   const hasLevelUpRewards = computed(
     () => 
@@ -267,6 +267,7 @@
       </div>
       <div class="flex justify-center -mb-7 z-10">
         <button
+          data-onboarding-key="start-adventure"
           class="w-fit"
           :class="[
             {'pointer-events-none blur-xs': adventuringStore.isAdventuring || !isCharAlive || !selectedLevel || selectedLevel.uses === 0 }
@@ -303,6 +304,7 @@
       <FluidElement
         :id="REPORT_DOM_ID"
         class="h-full max-h-[50dvh] md:max-h-[30dvh] overflow-y-scroll scrollbar overflow-x-clip !pt-2"
+        data-onboarding-key="combat-logs"
       >
         <div
           class="flex gap-2 bg-neutral-900 sticky -top-3 px-5 -mx-5 py-1 border-b border-emerald-900"

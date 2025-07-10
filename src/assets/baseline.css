@@ -63,7 +63,8 @@ details > summary {
   animation-play-state: running;
 }
 
-.z-nav{
+.z-onboarding,
+.z-nav {
   z-index: 10000;
 }
 

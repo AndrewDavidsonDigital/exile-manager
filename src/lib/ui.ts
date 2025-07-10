@@ -13,3 +13,7 @@ export function toggleScrollLock(allowScroll: boolean, el: HTMLElement, directio
     el.style[direction] = '';
   }
 }
+
+export const SCROLL_ROOT_ID = 'scrollRoot'
+
+export const REPORT_DOM_ID = '_activity-report';;

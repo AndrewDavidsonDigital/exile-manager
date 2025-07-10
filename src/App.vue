@@ -8,7 +8,7 @@
   import { useConfigurationStore } from './stores/configuration';
   import GameBanner from './components/GameBanner.vue';
   import FooterElement from './components/FooterElement.vue';
-  import { toggleScrollLock } from './lib/ui';
+  import { SCROLL_ROOT_ID, toggleScrollLock } from './lib/ui';
   import OptionSettings from './components/OptionSettings.vue';
   import StateSync from './core/StateSync.vue';
   import { AudioKey, EVENT_AUDIO_KEY, type EventWithAudio } from './lib/core';
@@ -44,6 +44,7 @@
   import jewelleryTrack4 from '@/assets/audio/sfx/jewellery_4.m4a';
   import jewelleryTrack5 from '@/assets/audio/sfx/jewellery_5.m4a';
   import jewelleryTrack6 from '@/assets/audio/sfx/jewellery_6.m4a';
+import OnboardingEngine from './core/OnboardingEngine.vue';
 
   const configuration = useConfigurationStore();
   const currentRoute = useRoute();
@@ -193,7 +194,7 @@
   const showOptionsPanel = computed(() => configuration.isOpen);
 
   watch(showOptionsPanel, (newValue) => {
-    const scrollRoot = document.getElementById('scrollRoot')
+    const scrollRoot = document.getElementById(SCROLL_ROOT_ID)
     if(newValue){
       scrollRoot ? toggleScrollLock(true, scrollRoot ) : null;
       console.warn('OPEN OPTIONS');
@@ -206,6 +207,7 @@
 </script>
 
 <template>
+  <OnboardingEngine />
   <AudioEngine />
   <StateSync />
   <main class="bg-slate-800 text-green-500 min-h-screen min-w-full max-w-content flex flex-col">

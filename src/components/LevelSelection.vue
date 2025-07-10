@@ -77,6 +77,7 @@ function sortLevel(a: ILevel, b: ILevel): number{
   <FluidElement
     class="flex flex-col items-center scrollbar overflow-y-scroll overflow-x-clip max-h-[50dvh] md:max-h-[unset]"
     :class="props.class"
+    data-onboarding-key="level-selector"
   >
     <div 
       class="
@@ -119,7 +120,8 @@ function sortLevel(a: ILevel, b: ILevel): number{
         :key="`level_button_${index}`"
       >
         <FluidElement 
-          v-if="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1) || index === lastInfinite"
+          v-show="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1) || index === lastInfinite"
+          :data-onboarding-key="`level-selection-${index}`"
           class="
             w-fit min-w-[15vw] md:min-w-[unset]
             !p-2 !border 
