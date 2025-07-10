@@ -17,6 +17,7 @@ import { ErrorNumber } from '@/lib/typescript';
 import { isAbleToAffordSkill, isOffCooldown } from '@/stores/adventuring';
 import { useConfigurationStore } from '@/stores/configuration';
 import { entries } from '@/journal';
+import CloseButton from './elements/CloseButton.vue';
 
 
 interface Props {
@@ -1065,16 +1066,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
         Skills
       </h3>
-      <button
-        class="absolute top-2 right-2 w-fit"
-        @click="showSkillsModal = false"
-      >
-        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-          <div class="font-semibold text-slate-300">
-            X
-          </div>
-        </FluidElement>
-      </button>
+      <CloseButton @click="showSkillsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex flex-wrap gap-6 items-center justify-center"
@@ -1192,20 +1184,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Passives
       </h3>
-      <button
-        class="absolute top-2 right-2 w-fit"
-        @click="showPassivesModal = false"
-      >
-        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-          <div class="font-semibold text-slate-300">
-            X
-          </div>
-        </FluidElement>
-      </button>
+      <CloseButton @click="showPassivesModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex flex-wrap gap-6 items-center justify-center"
       >
+        <FluidElement
+          v-if="char.passives.length < 1"
+          class="p-3"
+        >
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <h4 class="text-lg font-medium capitalize">
+                No Known Passives
+              </h4>
+            </div>
+          </div>
+        </FluidElement>
         <template
           v-for="passive,index in char.passives"
           :key="`passives_${index}`"
@@ -1236,16 +1231,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Activate World Skill
       </h3>
-      <button
-        class="absolute top-2 right-2 w-fit"
-        @click="showWorldSkillsModal = false"
-      >
-        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-          <div class="font-semibold text-slate-300">
-            X
-          </div>
-        </FluidElement>
-      </button>
+      <CloseButton @click="showWorldSkillsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex flex-wrap gap-6 items-center justify-center"
@@ -1359,16 +1345,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Select a new Passive
       </h3>
-      <button
-        class="absolute top-2 right-2 w-fit"
-        @click="showNewPassivesModal = false"
-      >
-        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-          <div class="font-semibold text-slate-300">
-            X
-          </div>
-        </FluidElement>
-      </button>
+      <CloseButton @click="showNewPassivesModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
@@ -1421,16 +1398,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Select a new Skills
       </h3>
-      <button
-        class="absolute top-2 right-2 w-fit"
-        @click="showNewSkillsModal = false"
-      >
-        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-          <div class="font-semibold text-slate-300">
-            X
-          </div>
-        </FluidElement>
-      </button>
+      <CloseButton @click="showNewSkillsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"
@@ -1551,16 +1519,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
         Increase a single attribute
       </h3>
-      <button
-        class="absolute top-2 right-2 w-fit"
-        @click="showAddStatsModal = false"
-      >
-        <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-          <div class="font-semibold text-slate-300">
-            X
-          </div>
-        </FluidElement>
-      </button>
+      <CloseButton @click="showAddStatsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
         class="flex gap-2 flex-wrap justify-center"

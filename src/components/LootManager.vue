@@ -17,6 +17,7 @@ import SwitchToggle from './elements/SwitchToggle.vue';
 import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
 import { useWorldEngine } from '@/stores/world';
 import IconMoneyThree from './icons/IconMoneyThree.vue';
+import CloseButton from './elements/CloseButton.vue';
 
 const gameEngine = useGameEngine();
 const worldEngine = useWorldEngine();
@@ -861,16 +862,7 @@ const canCompare = computed(() => {
         <h2 class="text-lg font-bold mx-auto w-fit">
           Item Comparison
         </h2>
-        <button
-          class="absolute top-2 right-2 w-fit"
-          @click="showCompareModal = false"
-        >
-          <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-500 bg-transparent">
-            <div class="font-semibold text-slate-300">
-              X
-            </div>
-          </FluidElement>
-        </button>
+        <CloseButton @click="showCompareModal = false" />
         <div
           v-if="selectedLoot && selectedLoot.identified && equippedItem"
           class="grid grid-cols-2 md:grid-cols-[1fr_3fr_3fr] gap-4 items-start [&>*]:capitalize px-[3%] md:px-8 py-[2%] md:py-4 relative"

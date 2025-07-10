@@ -19,6 +19,7 @@
   import smithTrack1 from '@/assets/audio/sfx/smith_1.m4a';
   import smithTrack2 from '@/assets/audio/sfx/smith_2.m4a';
   import smithTrack3 from '@/assets/audio/sfx/smith_3.m4a';
+import CloseButton from './elements/CloseButton.vue';
 
   const LOGGING_PREFIX = '🏠 Town:\t';
   function logger(message: string) {
@@ -168,7 +169,7 @@
     }
   }
 
-  function closeInteractModal(event?: MouseEvent): void{
+  function closeInteractModal(event?: MouseEvent | Event): void{
     showFeatureInteractModal.value = false;
     switch (selectedFeature.value?.binding) {
       case TownUnlockable.SMITH:
@@ -194,7 +195,7 @@
     worldEngine.saveState();
   }
 
-  function closeUnlockModal(event?: MouseEvent): void{
+  function closeUnlockModal(event?: MouseEvent | Event): void{
     showFeatureUnlockModal.value = false;
     switch (selectedFeature.value?.binding) {
       case TownUnlockable.SMITH:
@@ -260,16 +261,7 @@
         <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
           Ruins: {{ selectedFeature.smearedName }}
         </h3>
-        <button
-          class="absolute top-2 right-2 w-fit"
-          @click="e => closeUnlockModal(e)"
-        >
-          <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-300 bg-transparent hover:text-amber-600 hover:border-amber-600 transition-colors duration-300">
-            <div class="font-semibold">
-              X
-            </div>
-          </FluidElement>
-        </button>
+        <CloseButton @click="e => closeUnlockModal(e)" />
       </div>
       <div>
         {{ selectedFeature.description.ruin }}
@@ -314,16 +306,7 @@
         <h3 class="text-xl font-bold w-fit mx-auto">
           {{ selectedFeature.name }}
         </h3>
-        <button
-          class="absolute top-2 right-2 w-fit"
-          @click="e => closeInteractModal(e)"
-        >
-          <FluidElement class="!rounded-full !py-0 !px-1.5 border-slate-400 text-slate-300 bg-transparent hover:text-amber-600 hover:border-amber-600 transition-colors duration-300">
-            <div class="font-semibold">
-              X
-            </div>
-          </FluidElement>
-        </button>
+        <CloseButton @click="e => closeInteractModal(e)" />
       </div>
       <div>
         {{ selectedFeature.description.repaired }}
