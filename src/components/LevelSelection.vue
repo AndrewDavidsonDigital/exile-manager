@@ -1,75 +1,88 @@
 <script setup lang="ts">
-import FluidElement from '@/components/elements/FluidElement.vue';
-import { BackgroundTypes, DynamicZone, LevelType, type ILevel } from '@/lib/core';
-import { computed, watch, ref } from 'vue';
-import SwitchToggle from './elements/SwitchToggle.vue';
-import { UNKNOWN_USES } from '@/data/levels';
+  import FluidElement from '@/components/elements/FluidElement.vue';
+  import { BackgroundTypes, DynamicZone, LevelType, type ILevel } from '@/lib/core';
+  import { computed, watch, ref } from 'vue';
+  import SwitchToggle from './elements/SwitchToggle.vue';
+  import { CUSTOM_LEVELS, UNKNOWN_USES } from '@/data/levels';
+import { useOnboardingEngine } from '@/stores/onboarding';
 
-interface Props {
-  levels: ILevel[];
-  class: string;
-  toggle: number;
-  characterLevel: number;
-  isAdventuring: boolean;
-  modelValue?: ILevel;
-}
-
-const props = defineProps<Props>();
-const $emit = defineEmits<{
-  'update:modelValue': [value: ILevel];
-  'start-adventuring': [];
-}>();
-
-const lastUpdated = computed( () => props.toggle);
-const isCollapsed = ref(false);
-const hideLowLevel = ref(true);
-
-
-const sortedLevels = computed( () => props.levels.toSorted((a,b) => sortLevel(a,b)));
-const lastInfinite = computed( () => sortedLevels.value.findLastIndex(level => !level.maxUses && level.areaLevel !== -1));
-
-
-watch(lastUpdated, () => {
-  isCollapsed.value = false;
-})
-
-function startAdventuring(): void{  
-  $emit('start-adventuring');
-  isCollapsed.value = true;
-}
-
-
-function resolveBackground(level: ILevel): BackgroundTypes {
-  if (!level.zone){
-    return BackgroundTypes.DEFAULT;
+  interface Props {
+    levels: ILevel[];
+    class: string;
+    toggle: number;
+    characterLevel: number;
+    isAdventuring: boolean;
+    modelValue?: ILevel;
   }
 
-  switch (level.zone) {
-    case DynamicZone.CAVE:
-      return BackgroundTypes.FIREFLIES
+  const props = defineProps<Props>();
+  const $emit = defineEmits<{
+    'update:modelValue': [value: ILevel];
+    'start-adventuring': [];
+  }>();
+
+  const lastUpdated = computed( () => props.toggle);
+  const isCollapsed = ref(false);
+  const hideLowLevel = ref(true);
+
+  const onboardingEngine = useOnboardingEngine();
+
+  const sortedLevels = computed( 
+    () => {
+      const baseSortedLevels = props.levels.toSorted((a,b) => sortLevel(a,b));
+      if (onboardingEngine.isOnboarding){
+        const tutorialLevel = CUSTOM_LEVELS.get('TUTORIAL');
+        if (tutorialLevel){
+          return [tutorialLevel].concat(baseSortedLevels);
+        }
+      }
+      return baseSortedLevels
+    }
+  );
+  const lastInfinite = computed( () => sortedLevels.value.findLastIndex(level => !level.maxUses && level.areaLevel !== -1));
+
+
+  watch(lastUpdated, () => {
+    isCollapsed.value = false;
+  })
+
+  function startAdventuring(): void{  
+    $emit('start-adventuring');
+    isCollapsed.value = true;
+  }
+
+
+  function resolveBackground(level: ILevel): BackgroundTypes {
+    if (!level.zone){
+      return BackgroundTypes.DEFAULT;
+    }
+
+    switch (level.zone) {
+      case DynamicZone.CAVE:
+        return BackgroundTypes.FIREFLIES
+        
+      case DynamicZone.ISLAND:
+        return BackgroundTypes.WAVE
       
-    case DynamicZone.ISLAND:
-      return BackgroundTypes.WAVE
+      case DynamicZone.RIFT:
+        return BackgroundTypes.STARS
     
-    case DynamicZone.RIFT:
-      return BackgroundTypes.STARS
-  
-    default:
-      break;
+      default:
+        break;
+    }
+
+    return BackgroundTypes.DEFAULT
   }
 
-  return BackgroundTypes.DEFAULT
-}
-
-function sortLevel(a: ILevel, b: ILevel): number{
-  if (a.areaLevel === -1 ){
-    return 1;
+  function sortLevel(a: ILevel, b: ILevel): number{
+    if (a.areaLevel === -1 ){
+      return 1;
+    }
+    if (b.areaLevel === -1 ){
+      return -1;
+    }
+    return a.areaLevel - b.areaLevel;
   }
-  if (b.areaLevel === -1 ){
-    return -1;
-  }
-  return a.areaLevel - b.areaLevel;
-}
 
 </script>
 

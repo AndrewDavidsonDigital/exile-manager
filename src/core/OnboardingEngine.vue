@@ -21,6 +21,7 @@
       onboardingEngine.ensureSizeIsBound();
     }else{
       delete document.body.dataset.onboarding;
+      onboardingEngine.ensureSizeIsBound();
     }
   });
 
@@ -42,10 +43,12 @@
 </script>
 <template>
   <section 
-    class="fixed !text-fuchsia-500 top-30 md:top-15 w-full"
+    class="fixed !text-fuchsia-500 md:top-15 w-full transition-all duration-200"
     :class="[
       { 'z-onboarding' : isOnboarding },
       { 'z-nav' : !isOnboarding },
+      { 'top-30' : onboardingEngine.isStepPositioningTop },
+      { 'bottom-[3dvh]' : !onboardingEngine.isStepPositioningTop },
     ]"
   >
     <div class="relative max-w-content mx-auto">
@@ -65,6 +68,9 @@
         <div class="flex gap-2 pt-10 mb-2 ">
           <button
             class="w-fit "
+            :class="[
+              { 'grayscale-100 pointer-events-none ' : onboardingEngine.activeTimerIds.length > 0 || onboardingEngine.currentStep === 0 },
+            ]"
             @click="onboardingEngine.progress(false)"
           >
             <FluidElement
@@ -77,6 +83,9 @@
           <button
             v-if="onboardingEngine.currentStep !== onboardingEngine.steps.length -1"
             class="w-fit "
+            :class="[
+              { 'grayscale-100 pointer-events-none ' : onboardingEngine.activeTimerIds.length > 0 },
+            ]"
             @click="onboardingEngine.progress()"
           >
             <FluidElement
@@ -89,6 +98,9 @@
           <button
             v-if="onboardingEngine.currentStep >= onboardingEngine.steps.length -1"
             class="w-fit"
+            :class="[
+              { 'grayscale-100 pointer-events-none ' : onboardingEngine.activeTimerIds.length > 0 },
+            ]"
             @click="completeOnboarding"
           >
             <FluidElement

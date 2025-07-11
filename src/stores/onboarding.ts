@@ -13,9 +13,14 @@ interface IOnboarding {
   activeTimerIds: number[];
 }
 
+enum AttachmentPoint {
+  BOTTOM = 'bottom',
+}
+
 interface IStep{
   targetDataAttribute: string;
   title?: string; 
+  attach?: AttachmentPoint; 
   description: string; 
   preAction?: () => void;
   customDelay?: number;
@@ -34,6 +39,7 @@ export const useOnboardingEngine = defineStore('onboarding', {
           targetDataAttribute: '[data-onboarding-key="level-selector"]',
           title: 'Select Destination',
           description: 'The standard game-loop involves selecting a destination to explore.',
+          attach: AttachmentPoint.BOTTOM,
         },
         {
           targetDataAttribute: '[data-onboarding-key="start-adventure"]',
@@ -66,7 +72,10 @@ export const useOnboardingEngine = defineStore('onboarding', {
     },
     getCurrentStep(): IStep{
       return this.steps[this.currentStep];
-    }
+    },
+    isStepPositioningTop(): boolean{
+      return this.steps[this.currentStep]?.attach !== AttachmentPoint.BOTTOM || false;
+    },
   },
 
   actions: {
@@ -208,14 +217,12 @@ function highlightElement(ctx: CanvasRenderingContext2D, targetQuery: string){
     
     logger(`HEIGHT: target element height delta [${deltaY}]`);
 
-    if (y < 0) {
-      const scrollRoot = document.querySelector("#scrollRoot");
-      if (scrollRoot) y = scrollRoot.scrollTop -y;
-    }
+    const scrollRoot = document.querySelector("#scrollRoot");
+    if (scrollRoot) y = scrollRoot.scrollTop + y;
 
     el.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-    const height = el.scrollHeight;
+    const height = el.clientHeight  ;
     logger(`HEIGHT: clearRect(${x}, ${y}, ${width}, ${height} )`);
     ctx.clearRect(x, y, width, height );
 

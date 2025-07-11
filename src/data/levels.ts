@@ -888,7 +888,37 @@ export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
         },
       ],
       type: LevelType.DEFAULT,
-    },]
+    },
+  ],
+  [ 'TUTORIAL',
+    {
+      _identifier: '__tutorial__20250711',
+      areaLevel: 0,
+      description: "Help me understand what this game even is.",
+      name: "Tutorialize me",
+      preface: 'Help ',
+      dynamicCompletions: [],
+      completionRules: [],
+      lootTags: ['currency'],
+      areaLuckDelta: 0.1,
+      encounterBase: 4,
+      encounterRangeDeltas: 1,
+      monsterTypes: [
+        MonsterTypes.HUMANOID,
+      ],
+      encounters: [
+        {
+          type: LevelEncounters.COMBAT,
+          weighting: 60,
+        },
+        {
+          type: LevelEncounters.RECOVERY,
+          weighting: 40,
+        },
+      ],
+      type: LevelType.DEFAULT,
+    }
+  ]
 ]) 
 
 export const UNKNOWN_USES: Set<string> = new Set([

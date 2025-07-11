@@ -73,8 +73,8 @@
       <template
         v-else
       >
-        <h3 class="text-lg uppercase">
-          {{ index }}
+        <h3 class="text-lg">
+          {{ resolveLabelFromKey(index) }}
         </h3>
         <span
           v-for="config,confIndex in Object.keys(configGroup as object)"
