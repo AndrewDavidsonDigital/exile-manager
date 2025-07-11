@@ -18,7 +18,7 @@
   import { CUSTOM_LEVELS } from '@/data/levels';
   import TownManager from '@/components/TownManager.vue';
   import { useWorldEngine } from '@/stores/world';
-import { REPORT_DOM_ID } from '@/lib/ui';
+  import { REPORT_DOM_ID } from '@/lib/ui';
 
   const gameEngine = useGameEngine();
   const worldEngine = useWorldEngine();

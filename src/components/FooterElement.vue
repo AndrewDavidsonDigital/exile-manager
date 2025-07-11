@@ -4,7 +4,7 @@
   import BgmBar from './BgmBar.vue';
   import { useAdventuringStore } from '@/stores/adventuring';
   import { useRouter } from 'vue-router';
-  import { useGameState, useWorldState } from '@/lib/storage';
+  import { useConfig, useGameState, useWorldState } from '@/lib/storage';
 
   const gameEngine = useGameEngine();
   const adventuringStore = useAdventuringStore();
@@ -13,6 +13,7 @@
   function purgeData(): void{
     useGameState().remove();
     useWorldState().remove();
+    useConfig().remove();
 
     router.go(0);
   }
@@ -29,6 +30,8 @@
       pb-4 pt-2 px-2 
       mx-auto 
       bg-neutral-800
+
+      z-10
 
       [&>*]:whitespace-nowrap
     "

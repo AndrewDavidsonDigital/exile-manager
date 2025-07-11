@@ -28,7 +28,7 @@ import { chooseRandom } from '@/lib/array';
   const adventureIntervalId = ref<ReturnType<typeof setInterval> | ErrorNumber.NOT_FOUND>();
   const adventureInterval = ref<number>(0);
   const adventureJournal = ref<IJournalEntry[]>([]);
-  const ADVENTURE_TICK_DELTA = 1500;
+  const ADVENTURE_TICK_DELTA = 1000;
 
   function generateEncounter(level: ILevel, loggingDetail = false): IEcounter {
     logger(`Generating encounter for level: ${level.name}-${level.areaLevel}, with logging: ${loggingDetail? 'verbose' : 'concise'}`);

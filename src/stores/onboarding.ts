@@ -44,7 +44,7 @@ export const useOnboardingEngine = defineStore('onboarding', {
         {
           targetDataAttribute: '[data-onboarding-key="combat-logs"]',
           preAction: () => {(document.querySelector("[data-onboarding-key='start-adventure']") as HTMLButtonElement | undefined)?.click()},
-          customDelay: 3000,
+          customDelay: 4000,
           shouldResize: true,
           title: 'Adventure Results',
           description: 'Your adventurer will navigate through a collection of events, related to the destination they are adventuring in, with the intermittent result being streamed into the combat logs',
@@ -197,6 +197,7 @@ function resetToBackdrop(ctx: CanvasRenderingContext2D): void{
 }
 
 function highlightElement(ctx: CanvasRenderingContext2D, targetQuery: string){
+  if (!targetQuery) return;
   
   const el = document.querySelector(targetQuery);
 

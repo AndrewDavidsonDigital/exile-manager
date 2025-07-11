@@ -12,7 +12,7 @@
   <section class="flex flex-col gap-2 justify-start">
     <button
       class="w-fit"
-      @click="configuration.isOpen = !configuration.isOpen"
+      @click="configuration.isOpen = !configuration.isOpen; configuration.save();"
     >
       <FluidElement class="py-2 px-3">
         Close
@@ -68,6 +68,29 @@
               @updated="configuration.saveState"
             ></SwitchToggle>
           </span>
+        </span>
+      </template>
+      <template
+        v-else
+      >
+        <h3 class="text-lg uppercase">
+          {{ index }}
+        </h3>
+        <span
+          v-for="config,confIndex in Object.keys(configGroup as object)"
+          :key="`settings_config_${index}-${confIndex}`"
+          class="hidden md:block"
+        >
+          <template v-if="typeof (configuration[index] as Record<string, boolean>)[config] === 'boolean'">
+
+            <span class="flex justify-between gap-2 items-center md:max-w-1/2">
+              <p class="ml-4">{{ resolveLabelFromKey(config) }}</p>
+              <SwitchToggle
+                v-model="(configuration[index] as Record<string, boolean>)[config]"
+                @updated="configuration.saveState();"
+              ></SwitchToggle>
+            </span>
+          </template>
         </span>
       </template>
     </template>

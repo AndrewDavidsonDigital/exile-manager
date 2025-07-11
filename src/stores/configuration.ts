@@ -5,13 +5,19 @@ import { defineStore } from 'pinia'
 
 const CONFIG_KEYS = Object.freeze([
   'audio',
-  'ui'
+  'ui',
+  'help'
 ]);
 
 export interface IConfiguration {
   audio: IAudioConfiguration;
   ui: IUiConfig;
   isOpen: boolean;
+  help: IHelpConfiguration
+}
+
+export interface IHelpConfiguration {
+  tutorial: boolean,
 }
 
 export interface ITextConfiguration {
@@ -38,6 +44,9 @@ const DEFAULT_STATE: IConfiguration = Object.freeze({
   ui:{
     healthManaBars: false,
   },
+  help: {
+    tutorial: true,
+  },
   isOpen: false,
 });
 
@@ -58,6 +67,9 @@ export const useConfigurationStore = defineStore('configuration', {
     getConfigurables(): Partial<IConfiguration>{
       return pluckKeys({...this}, CONFIG_KEYS) as Partial<IConfiguration>;
     },
+    showTutorial(): boolean{
+      return this.help.tutorial;
+    }
   },
 
   actions: {

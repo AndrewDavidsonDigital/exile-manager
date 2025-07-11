@@ -66,6 +66,10 @@ export function useConfig() {
     },
     'set': (value: string) => set('exileManagerEngine_config', value),
     '$set': (value: object) => set('exileManagerEngine_config', JSON.stringify(value)),
+    /**
+     * Removes the game state from storage
+     */
+    'remove': () => remove('exileManagerEngine_config'),
   }
 }
 

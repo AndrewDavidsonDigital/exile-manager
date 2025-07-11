@@ -44,7 +44,10 @@
   import jewelleryTrack4 from '@/assets/audio/sfx/jewellery_4.m4a';
   import jewelleryTrack5 from '@/assets/audio/sfx/jewellery_5.m4a';
   import jewelleryTrack6 from '@/assets/audio/sfx/jewellery_6.m4a';
-import OnboardingEngine from './core/OnboardingEngine.vue';
+
+  import OnboardingEngine from './core/OnboardingEngine.vue';
+  import { useGameEngine } from './stores/game';
+  import { ErrorNumber } from './lib/typescript';
 
   const configuration = useConfigurationStore();
   const currentRoute = useRoute();
@@ -52,6 +55,7 @@ import OnboardingEngine from './core/OnboardingEngine.vue';
   const LOGGING_PREFIX = '🎮 INIT:';
   const bgmEngine = useBgmEngine();
   const interactionEngine = useInteractionEngine();
+  const gameEngine = useGameEngine();
 
   const goldTracks = [
     goldTrack1,
@@ -207,7 +211,7 @@ import OnboardingEngine from './core/OnboardingEngine.vue';
 </script>
 
 <template>
-  <OnboardingEngine />
+  <OnboardingEngine v-if="currentRoute.name === 'Game' && gameEngine.getCharacter !== ErrorNumber.NOT_FOUND && configuration.showTutorial" />
   <AudioEngine />
   <StateSync />
   <main class="bg-slate-800 text-green-500 min-h-screen min-w-full max-w-content flex flex-col">

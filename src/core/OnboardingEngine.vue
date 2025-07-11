@@ -2,10 +2,12 @@
 <script setup lang="ts">
   import FluidElement from '@/components/elements/FluidElement.vue';
   import { SCROLL_ROOT_ID, toggleScrollLock } from '@/lib/ui';
+  import { useConfigurationStore } from '@/stores/configuration';
   import { useOnboardingEngine } from '@/stores/onboarding';
   import { computed, onMounted, watch, } from 'vue';
 
   const onboardingEngine = useOnboardingEngine();
+  const configurationEngine = useConfigurationStore();
 
   const isOnboarding = computed(() => onboardingEngine.isOnboarding);
 
@@ -25,6 +27,16 @@
   onMounted(() => {
     onboardingEngine.init();
   })
+
+  function completeOnboarding(){
+    onboardingEngine.stop(); 
+    setTimeout(
+      () => {
+        configurationEngine.help.tutorial = false;
+      },
+      50,
+    )
+  }
   
 
 </script>
@@ -77,7 +89,7 @@
           <button
             v-if="onboardingEngine.currentStep >= onboardingEngine.steps.length -1"
             class="w-fit"
-            @click="onboardingEngine.stop"
+            @click="completeOnboarding"
           >
             <FluidElement
               is-thin
