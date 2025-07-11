@@ -3,8 +3,8 @@
   import { BackgroundTypes, DynamicZone, LevelType, type ILevel } from '@/lib/core';
   import { computed, watch, ref } from 'vue';
   import SwitchToggle from './elements/SwitchToggle.vue';
-  import { CUSTOM_LEVELS, UNKNOWN_USES } from '@/data/levels';
-import { useOnboardingEngine } from '@/stores/onboarding';
+  import { CURRENT_TUTORIAL_LEVEL, CUSTOM_LEVELS, UNKNOWN_USES } from '@/data/levels';
+  import { useOnboardingEngine } from '@/stores/onboarding';
 
   interface Props {
     levels: ILevel[];
@@ -17,7 +17,7 @@ import { useOnboardingEngine } from '@/stores/onboarding';
 
   const props = defineProps<Props>();
   const $emit = defineEmits<{
-    'update:modelValue': [value: ILevel];
+    'update:modelValue': [value: ILevel | undefined];
     'start-adventuring': [];
   }>();
 
@@ -40,6 +40,11 @@ import { useOnboardingEngine } from '@/stores/onboarding';
     }
   );
   const lastInfinite = computed( () => sortedLevels.value.findLastIndex(level => !level.maxUses && level.areaLevel !== -1));
+
+  const isOnboarding = computed( () => onboardingEngine.isOnboarding);
+  watch(isOnboarding, () => {
+    $emit('update:modelValue', undefined);
+  });
 
 
   watch(lastUpdated, () => {
@@ -133,7 +138,7 @@ import { useOnboardingEngine } from '@/stores/onboarding';
         :key="`level_button_${index}`"
       >
         <FluidElement 
-          v-show="characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1) || index === lastInfinite"
+          v-show="level._identifier === CURRENT_TUTORIAL_LEVEL || ( characterLevel !== -1 && !(((level.areaLevel - characterLevel) < -1) && hideLowLevel && level.areaLevel !== -1) || index === lastInfinite)"
           :data-onboarding-key="`level-selection-${index}`"
           class="
             w-fit min-w-[15vw] md:min-w-[unset]

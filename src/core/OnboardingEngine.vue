@@ -47,8 +47,8 @@
     :class="[
       { 'z-onboarding' : isOnboarding },
       { 'z-nav' : !isOnboarding },
-      { 'top-30' : onboardingEngine.isStepPositioningTop },
-      { 'bottom-[3dvh]' : !onboardingEngine.isStepPositioningTop },
+      { 'top-30' : onboardingEngine.isStepPositioningTop || !isOnboarding },
+      { 'bottom-[3dvh]' : !onboardingEngine.isStepPositioningTop && isOnboarding },
     ]"
   >
     <div class="relative max-w-content mx-auto">
@@ -121,9 +121,12 @@
           is-thin
           class="!border-fuchsia-700 w-fit grayscale-75 max-w-160"
         >
-          <h2 class="text-xl saturate-200 brightness-200 contrast-200">
-            {{ onboardingEngine.getCurrentStep.title }}
+          <h2 class="text-2xl saturate-200 brightness-200 contrast-200">
+            {{ onboardingEngine.getCurrentStep?.chapter }}
           </h2>
+          <h3 class="text-xl saturate-200 brightness-200 contrast-200">
+            {{ onboardingEngine.getCurrentStep?.title }}
+          </h3>
           <p>{{ onboardingEngine.getCurrentStep.description }}</p>
         </FluidElement>
       </template>

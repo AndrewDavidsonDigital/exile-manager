@@ -853,6 +853,8 @@ export const ENCOUNTERS: IEncounter[] = [
   }
 ];
 
+export const CURRENT_TUTORIAL_LEVEL = '__tutorial__20250711'
+
 export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
   [ 'CUSTOM_C',
     {
@@ -892,11 +894,11 @@ export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
   ],
   [ 'TUTORIAL',
     {
-      _identifier: '__tutorial__20250711',
+      _identifier: CURRENT_TUTORIAL_LEVEL,
       areaLevel: 0,
       description: "Help me understand what this game even is.",
-      name: "Tutorialize me",
-      preface: 'Help ',
+      name: "run the tutorial",
+      preface: 'Lets ',
       dynamicCompletions: [],
       completionRules: [],
       lootTags: ['currency'],
@@ -916,7 +918,7 @@ export const CUSTOM_LEVELS: Map<string, ILevel> = new Map([
           weighting: 40,
         },
       ],
-      type: LevelType.DEFAULT,
+      type: LevelType.BONUS,
     }
   ]
 ]) 

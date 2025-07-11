@@ -26,7 +26,7 @@
   const configurationStore = useConfigurationStore();
   const hasCharacter = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND);
   const isCharAlive = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND && !(gameEngine.isDead));
-  const selectedLevel = ref<ILevel>();
+  const selectedLevel = ref<ILevel | undefined>();
   const levelDelta = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND ? gameEngine.getCharacter.level : 0);
   const activeTab = ref<TabType>('adventuring');
   const lastUpdate = ref<number>(Date.now());
@@ -82,10 +82,12 @@
         :class="[
           { '[&>button]:opacity-50 [&>button]:grayscale [&>button]:pointer-events-none' : adventuringStore.isAdventuring },
         ]"
+        data-onboarding-key="navigation-selector"
       >
         <span>
           <button
             class="transition-all duration-200"
+            data-onboarding-key="navigation-character-button"
             :class="[
               { '-translate-y-4 opacity-75' : !isCharPaneVisible },
             ]"
@@ -107,6 +109,7 @@
           :class="[
             { '-translate-y-4 opacity-75' : activeTab !== 'adventuring' },
           ]" 
+          data-onboarding-key="navigation-adventure-tab"
           @click="activeTab = 'adventuring'; lastUpdate = Date.now()"
         >
           <FluidElement class="w-fit !pt-6">
@@ -124,6 +127,7 @@
           :class="[
             { '-translate-y-4 opacity-75' : activeTab !== 'loot' },
           ]"
+          data-onboarding-key="navigation-looting-tab"
           @click="activeTab = 'loot'"
         >
           <FluidElement class="w-fit !pt-6">
@@ -155,6 +159,7 @@
             :class="[
               { '-translate-y-4 opacity-75' : !configurationStore.isOpen },
             ]"
+            data-onboarding-key="navigation-settings-button"
             @click="toggleSettings"
           >
             <FluidElement

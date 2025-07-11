@@ -19,12 +19,21 @@ enum AttachmentPoint {
 
 interface IStep{
   targetDataAttribute: string;
-  title?: string; 
+  chapter?: string; 
+  title: string; 
   attach?: AttachmentPoint; 
   description: string; 
   preAction?: () => void;
   customDelay?: number;
   shouldResize?: boolean;
+  sizeFutzing?: ISizeFutzing;
+}
+
+interface ISizeFutzing {
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
 }
 
 export const useOnboardingEngine = defineStore('onboarding', {
@@ -36,14 +45,60 @@ export const useOnboardingEngine = defineStore('onboarding', {
       activeTimerIds: [],
       steps: [
         {
+          targetDataAttribute: '[data-onboarding-key="navigation-selector"]',
+          chapter: 'Navigation',
+          title: 'Navigation Menu',
+          description: 'This is your main menu for navigating the game.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="navigation-character-button"]',
+          chapter: 'Navigation',
+          title: 'Show-Hide Character',
+          description: 'This button will either show or hide the character pane, (mostly useful on smaller devices), the button will also shimmer when you have an available upgrade.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="navigation-settings-button"]',
+          chapter: 'Navigation',
+          title: 'Open Settings',
+          description: 'This button will open the Settings flyout.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="navigation-adventure-tab"]',
+          chapter: 'Navigation',
+          title: 'Adventure Tab',
+          description: 'This button will change the display to the adventure tab, relating to mission progression. This is one to the main-game tabs.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="navigation-looting-tab"]',
+          chapter: 'Navigation',
+          title: 'Looting Tab',
+          description: 'This button will change the display to the Loot management tab, pertaining to equipping, selling identifying, etc. the loot you have accrued. This is one to the main-game tabs.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+
+
+        {
           targetDataAttribute: '[data-onboarding-key="level-selector"]',
+          chapter: 'Game Loop',
           title: 'Select Destination',
           description: 'The standard game-loop involves selecting a destination to explore.',
           attach: AttachmentPoint.BOTTOM,
         },
         {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination',
+          description: 'This is the tutorial level.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
           targetDataAttribute: '[data-onboarding-key="start-adventure"]',
           preAction: () => {(document.querySelector("[data-onboarding-key='level-selection-0'] button") as HTMLButtonElement | undefined)?.click()},
+          chapter: 'Game Loop',
           title: 'Go Adventuring',
           description: 'Once a level has been selected your adventurer will need to going out on the mission.',
         },
@@ -52,14 +107,96 @@ export const useOnboardingEngine = defineStore('onboarding', {
           preAction: () => {(document.querySelector("[data-onboarding-key='start-adventure']") as HTMLButtonElement | undefined)?.click()},
           customDelay: 4000,
           shouldResize: true,
+          chapter: 'Game Loop',
           title: 'Adventure Results',
           description: 'Your adventurer will navigate through a collection of events, related to the destination they are adventuring in, with the intermittent result being streamed into the combat logs',
         },
 
 
         {
+          targetDataAttribute: '[data-onboarding-key="character-pane"]',
+          chapter: 'Character',
+          title: 'Character Panel',
+          description: 'This is the Character panel where you can see all the information about your Exile.',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="health-mana-panel"]',
+          chapter: 'Character',
+          title: 'Health and Mana',
+          description: 'Health is the amount of damage your Exile can take, while mana is `main` the currency for using skills.',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="stats-panel-visual"]',
+          preAction: () => {
+            if(! ((document.querySelector("[data-onboarding-key='stats-panel-visual']") as HTMLElement | undefined)?.checkVisibility())){
+              (document.querySelector("[data-onboarding-key='stats-panel-button']") as HTMLButtonElement | undefined)?.click();
+            }
+          },
+          shouldResize: true,
+          customDelay: 1000,
+          chapter: 'Character',
+          title: 'Attributes and Stats',
+          description: 'Here is the breakdown of the Exile\'s current details, including any temporary buffs and changes from items, or passives',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="experience-panel"]',
+          chapter: 'Character',
+          title: 'Experience',
+          description: 'Any and all events that occur during an adventure will provide the Exile with experience, when this bar fills up, they will level-up and be able to select a reward',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-up-section"]',
+          chapter: 'Character',
+          title: 'Leveling Up',
+          description: 'Once you have level\'d up, depending on the new-level, you will be able to select either: a new Skill, a new Passive, or an attribute increase. ',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key-2="all-skills"]',
+          chapter: 'Character',
+          title: 'Skills',
+          description: 'The skills menu will either; if you have a level-up available, present you with a selection of possible new skills for you to choose 1 of. Other you will be able to manage all your current skills, turning them on / off',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="manage-skills"]',
+          chapter: 'Character',
+          title: 'Battle Skills',
+          description: 'Most skills are tagged as battle skills and will automatically be used when available, during combat encounters',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="world-skills"]',
+          chapter: 'Character',
+          title: 'World Skills',
+          description: 'Some skills are tagged as world skills and will be need to activated manually between runs',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="manage-passives"]',
+          chapter: 'Character',
+          title: 'Passives',
+          description: 'The passives menu will either; if you have a level-up available, present you with a selection of possible new passives for you to choose 1 of. Other you will be able to view all your current passives',
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="manage-attributes"]',
+          chapter: 'Character',
+          title: 'Attributes',
+          description: 'The attributes menu will only be available if you have the opportunity to enhance an attribute',
+        },
+
+
+        {
           targetDataAttribute: '',
+          chapter: 'Looting',
+          preAction: () => {(document.querySelector("[data-onboarding-key='navigation-looting-tab']") as HTMLButtonElement | undefined)?.click();},
+          customDelay: 500,
+          description: 'We\'ve now swapped to the looting tab.',
+        },
+
+
+        {
+          targetDataAttribute: '',
+          chapter: 'Tutorial Completed',
           title: 'Time to Roll',
+          preAction: () => {(document.querySelector("[data-onboarding-key='navigation-adventure-tab']") as HTMLButtonElement | undefined)?.click();},
+          customDelay: 500,
           description: 'You should now be relatively familiar with the basic game mechanics, remember you can always look up any / most terms, (yell at me if its not in there) in the help / journal',
         }
       ]
@@ -173,15 +310,16 @@ export const useOnboardingEngine = defineStore('onboarding', {
     activate(): void{
       logger(`Starting up onboarding canvas`);
       if (!this.el) return;
-      this.active = true;
       this.currentStep = -1;
-
+      
       const ctx = this.el.getContext('2d');
       if (ctx){
-
         resetToBackdrop(ctx);
       }
-      this.progress();
+      setTimeout(() => {
+        this.progress();
+        this.active = true;
+      },50)
     },
     ensureSizeIsBound(): void{
       logger(`Attempting to re-bind canvas's height and width to be full-screen`);
@@ -208,26 +346,33 @@ function resetToBackdrop(ctx: CanvasRenderingContext2D): void{
 function highlightElement(ctx: CanvasRenderingContext2D, targetQuery: string){
   if (!targetQuery) return;
   
-  const el = document.querySelector(targetQuery);
+  const elements = document.querySelectorAll(targetQuery);
 
-  if (el){
+  if (elements.length === 0) return;
+  elements.forEach(el => {
     logger(`HEIGHT: target element heights: rect(${el.getBoundingClientRect().y}) client(${el.clientHeight}) scroll(${el.scrollHeight})`, );
     const deltaY = el.clientHeight - el.scrollHeight;
     let { x, y, width } = el.getBoundingClientRect();
     
     logger(`HEIGHT: target element height delta [${deltaY}]`);
-
+    
+    const height = el.clientHeight  ;
     const scrollRoot = document.querySelector("#scrollRoot");
     if (scrollRoot) y = scrollRoot.scrollTop + y;
 
     el.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-    const height = el.clientHeight  ;
-    logger(`HEIGHT: clearRect(${x}, ${y}, ${width}, ${height} )`);
-    ctx.clearRect(x, y, width, height );
+    setTimeout(
+      () => {
+        logger(`HEIGHT: clearRect(${x}, ${y}, ${width}, ${height} )`);
+        ctx.clearRect(x, y, width, height );
 
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x-2, y-2, width+4, height+4 );
-  }
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x-2, y-2, width+4, height+4 );
+      },
+      50,
+    )
+
+  })
 }

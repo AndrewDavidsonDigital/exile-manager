@@ -451,6 +451,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
   <FluidElement
     class="!p-0 md:!p-5 !border-0 md:!border-2"
     :class="props.class"
+    data-onboarding-key="character-pane"
   >
     <div 
       class="
@@ -476,16 +477,23 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               Level {{ char.level }} {{ char.class }}
             </div>
           </div>
-          <div class="gap-2 hidden md:flex">
+          <div
+            class="gap-2 hidden md:flex"
+            data-onboarding-key="level-up-section"
+          >
             <button 
               v-if="hasWorldSkill"
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              data-onboarding-key="world-skills"
+              data-onboarding-key-2="all-skills"
               @click="handleWorldSkillsClick"
             >
               <IconWorldSkills class="opacity-50 hover:opacity-80" />
             </button>
             <button 
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              data-onboarding-key="manage-skills"
+              data-onboarding-key-2="all-skills"
               @click="handleSkillsClick"
             >
               <IconSkills
@@ -501,6 +509,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
             </button>
             <button
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              data-onboarding-key="manage-passives"
               @click="handlePassivesClick"
             >
               <IconPassiveTree 
@@ -517,6 +526,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
             <button
               v-if="char.pendingRewards.stats > 0"
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
+              data-onboarding-key="manage-attributes"
               @click="handleStatsClick"
             >
               <IconStatIncrease 
@@ -551,10 +561,13 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
 
         <div
           class="px-2 mx-auto flex gap-2 -mt-2 md:mt-0"
+          data-onboarding-key="level-up-section"
         >
           <div
             v-if="char.skills.filter(sk => sk.activationLayer === SkillActivationLayer.WORLD).length > 0"
             class="flex"
+            data-onboarding-key-2="all-skills"
+            data-onboarding-key="world-skills"
           >
             <span class="text-gray-400 hidden md:block">World Skills:</span>
             <button 
@@ -573,6 +586,8 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           <div
             v-if="char.skills.filter(sk => sk.activationLayer !== SkillActivationLayer.WORLD).length > 0 || char.pendingRewards.skills > 0"
             class="flex"
+            data-onboarding-key-2="all-skills"
+            data-onboarding-key="manage-skills"
           >
             <span class="text-gray-400 hidden md:block">Skills:</span>
             <button  
@@ -598,6 +613,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           </div>
           <div
             class="flex"
+            data-onboarding-key="manage-passives"
           >
             <span class="text-gray-400 hidden md:block">Passives:</span>
             <button
@@ -623,6 +639,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           </div>
           <div
             class="flex md:hidden"
+            data-onboarding-key="manage-attributes"
           >
             <button
               v-if="char.pendingRewards.stats > 0"
@@ -650,6 +667,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               gap-4 my-1
               text-sm
             "
+            data-onboarding-key="health-mana-panel"
           >
             <div 
               :title="`Regen: ${gameEngine.getCombatStats.healthRegen}`"
@@ -710,6 +728,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
               [&>div]:text-center md:[&>div]:text-left
             "
+            data-onboarding-key="health-mana-panel"
           >
             <div class="ml-2 px-2">
               <span class="text-gray-400">Health:</span>
@@ -742,10 +761,11 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
 
         <div
           class="
-          flex md:hidden justify-center
-          gap-2 mt-1
-          text-sm
-        "
+            flex md:hidden justify-center
+            gap-2 mt-1
+            text-sm
+          "
+          data-onboarding-key="health-mana-panel"
         >
           <div 
             :title="`Regen: ${gameEngine.getCombatStats.healthRegen}`"
@@ -796,9 +816,13 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
         </div>
 
         <!-- Stats Section -->
-        <div class="relative">
+        <div
+          class="relative"
+          data-onboarding-key="stats-panel"
+        >
           <button 
             class="md:hidden flex items-center gap-2 text-gray-400 hover:text-gray-300 mb-2"
+            data-onboarding-key="stats-panel-button"
             @click="showStats = !showStats"
           >
             <span 
@@ -828,6 +852,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
               [&>div]:grid [&>div]:grid-cols-[2fr_3fr]
               [&>div]:text-center md:[&>div]:text-left
             "
+              data-onboarding-key="stats-panel-visual"
             >
               <div class="ml-2 px-2">
                 <span class="text-gray-400">Damage:</span>
@@ -949,6 +974,7 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           before:translate-y-[calc(-1.25ch_+_50%)] before:md:translate-y-0 
         "
           :style="`--num:${Math.min(100, Math.round((char.experience / (char.level * 100)) * 100))};`"
+          data-onboarding-key="experience-panel"
         >
         </div>
 

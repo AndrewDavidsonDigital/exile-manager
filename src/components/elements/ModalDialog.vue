@@ -13,9 +13,7 @@
   const props = defineProps<Props>()
   const $emit = defineEmits(['open', 'close'])
 
-
   const dialogRef = ref<HTMLDialogElement>()
-
 
   watch(() => props.show, (newValue) => {
     let scrollRoot = document.getElementById(SCROLL_ROOT_ID);
