@@ -46,6 +46,8 @@ export const useOnboardingEngine = defineStore('onboarding', {
       steps: [
         {
           targetDataAttribute: '[data-onboarding-key="navigation-selector"]',
+          preAction: () => {(document.querySelector("[data-onboarding-key='navigation-adventure-tab']") as HTMLButtonElement | undefined)?.click()},
+          customDelay: 100,
           chapter: 'Navigation',
           title: 'Navigation Menu',
           description: 'This is your main menu for navigating the game.',
