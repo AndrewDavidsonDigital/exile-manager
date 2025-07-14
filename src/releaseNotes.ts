@@ -37,7 +37,7 @@ export const releases: IRelease[] = [
       'Fix bug where-by a user could refresh the Skills offered to them',
       'Fixed an issue where help tags where clickable through the void.'
     ],
-    commit: '',
+    commit: 'd456aaf1599d1f04c25daab8aa2ef9f96b357d93',
     compare: 'v0.1.5...v0.1.6',
   },
   {
