@@ -276,10 +276,18 @@ const canCompare = computed(() => {
 <template>
   <div class="flex flex-col md:flex-row gap-4 h-full">
     <!-- Main Loot List -->
-    <FluidElement class="flex-1 flex flex-col gap-2">
+    <FluidElement
+      class="flex-1 flex flex-col gap-2"
+      data-onboarding-key="loot-inventory"
+    >
       <!-- Tab Navigation -->
-      <div class="flex flex-col lg:flex-row justify-between gap-x-2 gap-y-4 mb-2">
-        <div class="flex gap-2">
+      <div
+        class="flex flex-col lg:flex-row justify-between gap-x-2 gap-y-4 mb-2" 
+      >
+        <div
+          class="flex gap-2"
+          data-onboarding-key="loot-inventory-tabs"
+        >
           <button
             :class="[
               { 'opacity-50': activeTab !== 'inventory' },
@@ -363,7 +371,10 @@ const canCompare = computed(() => {
           </button>
         </div>
         <!-- Brush Tools -->
-        <div class="flex gap-2">
+        <div
+          class="flex gap-2"
+          data-onboarding-key="loot-inventory-brushes"
+        >
           <button
             :class="[
               { 'opacity-50': activeBrush !== 'identify' },
@@ -407,7 +418,10 @@ const canCompare = computed(() => {
       </div>
 
       <!-- Filter Buttons -->
-      <div class="flex flex-wrap gap-1 mb-2">
+      <div
+        class="flex flex-wrap gap-1 mb-2"
+        data-onboarding-key="loot-inventory-filter-types"
+      >
         <button
           :class="[
             { 'opacity-50': lootFilter !== undefined },
@@ -420,6 +434,7 @@ const canCompare = computed(() => {
           </FluidElement>
         </button>
         <button
+          data-onboarding-key="loot-inventory-filter-types-collapse"
           @click="e => { collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 md:hidden">
@@ -467,7 +482,10 @@ const canCompare = computed(() => {
       </div>
 
       <!-- Tier Filter Buttons -->
-      <div class="flex flex-wrap gap-1 mb-4">
+      <div
+        class="flex flex-wrap gap-1 mb-4"
+        data-onboarding-key="loot-inventory-filter-tiers"
+      >
         <button
           :class="[
             { 'opacity-50': tierFilter !== undefined },
@@ -480,6 +498,7 @@ const canCompare = computed(() => {
           </FluidElement>
         </button>
         <button
+          data-onboarding-key="loot-inventory-filter-tiers-collapse"
           @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 md:hidden">
@@ -626,7 +645,10 @@ const canCompare = computed(() => {
     </FluidElement>
 
     <!-- Loot Details Side Panel -->
-    <FluidElement class="w-full md:w-1/4 flex flex-col gap-2">
+    <FluidElement
+      class="w-full md:w-1/4 flex flex-col gap-2"
+      data-onboarding-key="loot-detail"
+    >
       <div class="flex justify-between">
         <h2 class="text-lg w-fit">
           Item Details

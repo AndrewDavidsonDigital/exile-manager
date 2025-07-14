@@ -213,10 +213,16 @@
               @click="$emit('update:modelValue', level)"
             >
               <article class="flex flex-col w-full mx-auto items-center">
-                <p v-if="level.type === LevelType.DEFAULT">
+                <p
+                  v-if="level.type === LevelType.DEFAULT"
+                  :data-onboarding-key="`level-selection-${index}-name`"
+                >
                   {{ level.name }}
                 </p>
-                <p v-else>
+                <p
+                  v-else 
+                  :data-onboarding-key="`level-selection-${index}-name`"
+                >
                   <span
                     v-for="segment, nameInd in level.name.split(': ')"
                     :key="`naming_${index}-${nameInd}`"
@@ -230,36 +236,51 @@
                 </p>
                 <p
                   v-if="UNKNOWN_USES.has(level._identifier)"
+                  :data-onboarding-key="`level-selection-${index}-uses`"
                   class="text-amber-600 selection:!bg-amber-400/30"
                 >
                   ???
                 </p>
                 <p
                   v-else-if="level.uses !== undefined"
+                  :data-onboarding-key="`level-selection-${index}-uses`"
                   class="text-amber-600 selection:!bg-amber-400/30"
                 >
                   {{ level.uses }}
                 </p>
                 <p
                   v-else
+                  :data-onboarding-key="`level-selection-${index}-uses`"
                   class="text-amber-600/50 selection:!bg-amber-400/30"
                 >
                   ထ
                 </p>
-                <p class="text-sm opacity-50">
+                <p
+                  class="text-sm opacity-50" 
+                  :data-onboarding-key="`level-selection-${index}-description`"
+                >
                   {{ level.description }}
                 </p>
               </article>
               <article class="flex flex-col w-full mx-auto items-center">
                 <div class="flex justify-between w-full">
-                  <p class="text-sm opacity-50">
+                  <p
+                    class="text-sm opacity-50" 
+                    :data-onboarding-key="`level-selection-${index}-level`"
+                  >
                     lvl: {{ level.areaLevel !== -1 ? level.areaLevel : characterLevel + 2 }}
                   </p>
-                  <p class="text-sm opacity-50">
+                  <p
+                    class="text-sm opacity-50" 
+                    :data-onboarding-key="`level-selection-${index}-encounters`"
+                  >
                     ({{ level.encounterBase - level.encounterRangeDeltas }} - {{ level.encounterBase + level.encounterRangeDeltas }})
                   </p>
                 </div>
-                <div class="flex text-sm gap-2 mx-auto capitalize text-cyan-600 selection:!bg-cyan-400/30">
+                <div
+                  class="flex text-sm gap-2 mx-auto capitalize text-cyan-600 selection:!bg-cyan-400/30" 
+                  :data-onboarding-key="`level-selection-${index}-loot-bias`"
+                >
                   <p
                     v-for="tag,tIndex in level.lootTags" 
                     :key="`tags_${index}_${tIndex}`"
@@ -274,6 +295,7 @@
                     :class="[
                       { 'group-hover:!blur-none ' : (level.maxUses || 0) > (level.uses || 0) },
                     ]"
+                    :data-onboarding-key="`level-selection-${index}-enemies`"
                   >
                     <p
                       v-for="mob,mobIndex in level.monsterTypes" 
@@ -285,6 +307,7 @@
                   <div 
                     v-else
                     class="flex text-sm gap-2 mx-auto capitalize text-red-400"
+                    :data-onboarding-key="`level-selection-${index}-enemies`"
                   >
                     <p
                       v-for="mob,mobIndex in level.monsterTypes" 

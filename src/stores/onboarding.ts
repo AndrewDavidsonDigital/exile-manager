@@ -89,12 +89,62 @@ export const useOnboardingEngine = defineStore('onboarding', {
           title: 'Select Destination',
           description: 'The standard game-loop involves selecting a destination to explore.',
           attach: AttachmentPoint.BOTTOM,
+          shouldResize: true,
         },
         {
           targetDataAttribute: '[data-onboarding-key="level-selection-0"]',
           chapter: 'Game Loop',
           title: 'Tutorial Destination',
           description: 'This is the tutorial level.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-name"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Name',
+          description: 'The level Name, Usually descriptive of your current location',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-uses"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Uses',
+          description: 'The number of times this level can be re-run.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-description"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Description',
+          description: 'A small flavour text description about this location.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-level"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Area Level',
+          description: 'The level of the encounters, Usually you wont want to be running levels higher than your character level.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-encounters"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Encounters',
+          description: 'The number of encounters / events that will occur here.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-loot-bias"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Loot',
+          description: 'Any loot Biasing that this area has, i.e: an area might specialize in dropping weapons.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="level-selection-0-enemies"]',
+          chapter: 'Game Loop',
+          title: 'Tutorial Destination - Enemies',
+          description: 'A listing of known enemy types which can occur in combat events.',
           attach: AttachmentPoint.BOTTOM,
         },
         {
@@ -189,18 +239,84 @@ export const useOnboardingEngine = defineStore('onboarding', {
           chapter: 'Looting',
           preAction: () => {(document.querySelector("[data-onboarding-key='navigation-looting-tab']") as HTMLButtonElement | undefined)?.click();},
           customDelay: 500,
+          shouldResize: true,
           description: 'We\'ve now swapped to the looting tab.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="loot-inventory"]',
+          chapter: 'Looting',
+          title: 'Loot Inventory',
+          description: 'This is the inventory where you can see all the loot you have picked up.',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="loot-inventory-tabs"]',
+          chapter: 'Looting',
+          title: 'Inventory Tabs',
+          description: 'The inventory has 2 different tabs, one for personal loot, loot that is on you character, and a stash which is shared between all runs',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="loot-inventory-brushes"]',
+          chapter: 'Looting',
+          title: 'Inventory Brushes',
+          description: 'Given this is a game around items, we need a clean / and efficient way of dealing with them, instead of arduously manipulating items from the details panel, brushes allow you to action, effects (identify or sell) at the click of a button. (Think painting)',
+          attach: AttachmentPoint.BOTTOM,
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="loot-inventory-filter-types"]',
+          chapter: 'Looting',
+          title: 'Inventory Filters - Type',
+          description: 'As each item is equitable to a single location, (Hats go on Heads), there are filters to hide items which are NOT for the filtered location.',
+          attach: AttachmentPoint.BOTTOM,
+          
+          preAction: () => {
+            if(document.querySelector("[data-onboarding-key='loot-inventory-filter-types-collapse'] svg.active") as HTMLElement | undefined){
+              (document.querySelector("[data-onboarding-key='loot-inventory-filter-types-collapse']") as HTMLButtonElement | undefined)?.click();
+            }
+          },
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="loot-inventory-filter-tiers"]',
+          chapter: 'Looting',
+          title: 'Inventory Filters - Tier',
+          description: 'As each item is of a specific tier (Basic, Enhanced, etc.), You can easily filter to only see a specific sub-set of item tiers.',
+          
+          preAction: () => {
+            if(document.querySelector("[data-onboarding-key='loot-inventory-filter-tiers-collapse'] svg.active") as HTMLElement | undefined){
+              (document.querySelector("[data-onboarding-key='loot-inventory-filter-tiers-collapse']") as HTMLButtonElement | undefined)?.click();
+            }
+          },
+        },
+        {
+          targetDataAttribute: '[data-onboarding-key="loot-detail"]',
+          chapter: 'Looting',
+          title: 'Item Details',
+          description: 'When an item is selected, detailed information will be displayed here, as well as any actions to take on an individual item (equip, identify, compare, etc)',
         },
 
 
         {
           targetDataAttribute: '',
           chapter: 'Tutorial Completed',
-          title: 'Time to Roll',
+          title: 'Refresher',
           preAction: () => {(document.querySelector("[data-onboarding-key='navigation-adventure-tab']") as HTMLButtonElement | undefined)?.click();},
           customDelay: 500,
+          description: 'To some it up. This is game about items and progression. Run levels / missions to get items / experience, to run harder levels for better items / experience, rinse repeat.',
+        },
+        {
+          targetDataAttribute: '',
+          chapter: 'Tutorial Completed',
+          title: 'Wheres my button',
+          description: 'This tutorial can be re-enabled at any-time via the settings menu',
+        },
+        {
+          targetDataAttribute: '',
+          chapter: 'Tutorial Completed',
+          title: 'Time to Roll',
           description: 'You should now be relatively familiar with the basic game mechanics, remember you can always look up any / most terms, (yell at me if its not in there) in the help / journal',
-        }
+        },
       ]
     } as IOnboarding;
   },

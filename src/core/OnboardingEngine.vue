@@ -43,12 +43,12 @@
 </script>
 <template>
   <section 
-    class="fixed !text-fuchsia-500 md:top-15 w-full transition-all duration-200"
+    class="fixed !text-fuchsia-500 w-full transition-all duration-200"
     :class="[
       { 'z-onboarding' : isOnboarding },
       { 'z-nav' : !isOnboarding },
-      { 'top-30' : onboardingEngine.isStepPositioningTop || !isOnboarding },
-      { 'bottom-[3dvh]' : !onboardingEngine.isStepPositioningTop && isOnboarding },
+      { 'top-30 md:top-15' : onboardingEngine.isStepPositioningTop || !isOnboarding },
+      { 'bottom-[3dvh] md:bottom-[30dvh]' : !onboardingEngine.isStepPositioningTop && isOnboarding },
     ]"
     data-onboarding-engine
   >
