@@ -34,6 +34,7 @@
     setTimeout(
       () => {
         configurationEngine.help.tutorial = false;
+        configurationEngine.saveState();
       },
       50,
     )
