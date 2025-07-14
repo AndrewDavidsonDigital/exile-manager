@@ -30,7 +30,7 @@ import { levels } from '@/data/levels';
 import { nextTick } from 'vue';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.1.5';
+const VERSION_NUMBER = '0.1.6';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
