@@ -50,6 +50,7 @@
       { 'top-30' : onboardingEngine.isStepPositioningTop || !isOnboarding },
       { 'bottom-[3dvh]' : !onboardingEngine.isStepPositioningTop && isOnboarding },
     ]"
+    data-onboarding-engine
   >
     <div class="relative max-w-content mx-auto">
       <!-- Onboarding comp -->  

@@ -341,7 +341,7 @@ function logger(message: string): void{
 function resetToBackdrop(ctx: CanvasRenderingContext2D): void{
   
   ctx.reset();
-  ctx.fillStyle = 'oklch(27.9% 0.041 260.031 / 60%)';
+  ctx.fillStyle = 'oklch(27.9% 0.041 260.031 / 80%)';
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height );
 }
 

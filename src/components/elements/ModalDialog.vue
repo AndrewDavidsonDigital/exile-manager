@@ -23,7 +23,8 @@
       
       
       if(scrollRoot){
-        toggleScrollLock(true, scrollRoot);
+        scrollRoot.scrollIntoView({ behavior:'smooth', block: 'start' });
+        toggleScrollLock(true, scrollRoot);      
       }
 
       $emit('open');

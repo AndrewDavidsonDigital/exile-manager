@@ -79,7 +79,6 @@
         <span
           v-for="config,confIndex in Object.keys(configGroup as object)"
           :key="`settings_config_${index}-${confIndex}`"
-          class="hidden md:block"
         >
           <template v-if="typeof (configuration[index] as Record<string, boolean>)[config] === 'boolean'">
 

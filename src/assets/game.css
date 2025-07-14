@@ -4,3 +4,11 @@
   --loot-border-color-crystallized: rgb(21, 182, 194); 
   --loot-border-color-void: rgb(155, 47, 148); 
 }
+
+body[data-onboarding]>#app {
+  @apply !pointer-events-none !touch-none;
+
+  & [data-onboarding-engine]{
+    @apply !pointer-events-auto !touch-auto;
+  }
+}

@@ -5,8 +5,13 @@ export enum scrollDirection {
   BOTH = 'overflow',
 }
 
-
-export function toggleScrollLock(allowScroll: boolean, el: HTMLElement, direction: scrollDirection = scrollDirection.Y): void{
+/**
+ * Single Point of mutation for scrolling elements.
+ * @param allowScroll Representation of if we are adding locking classes (true) or removing (false) them
+ * @param el The HTML Element to lock
+ * @param direction Defaults to `scrollDirection.BOTH` as just y or x results in odd safari behavior.
+ */
+export function toggleScrollLock(allowScroll: boolean, el: HTMLElement, direction: scrollDirection = scrollDirection.BOTH): void{
   if(allowScroll){
     el.style[direction] = 'hidden';
   }else{
