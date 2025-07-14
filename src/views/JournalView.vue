@@ -55,7 +55,7 @@
 
 <template>
   <div class="flex flex-col items-center mx-auto">
-    <div class="w-full max-w-4xl mb-8 px-4 sticky top-5 bg-slate-700 rounded-b-lg border-2 border-emerald-800 z-50">
+    <div class="w-full max-w-4xl mb-8 px-4 sticky top-5 bg-slate-700 rounded-b-lg border-2 border-emerald-800 z-50 overflow-clip">
       <div class="my-4">
         <label
           for="search-terms"
@@ -90,10 +90,10 @@
           </svg>
         </button>
         <div
-          class="flex flex-wrap gap-2 justify-center transition-all duration-300 pb-2"
+          class="flex flex-wrap gap-2 justify-center transition-all duration-300"
           :class="[
             'md:flex',
-            isTagsExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'
+            isTagsExpanded ? 'max-h-96 opacity-100 pb-2' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'
           ]"
         >
           <button
