@@ -172,22 +172,11 @@
     }
   }
 
-  function testingCallback(_e: Event): void {
-    const exploded = {..._e}
-    console.log(exploded);
-    console.log(JSON.stringify(exploded));
-    // debugger
-    // alert(JSON.stringify(exploded));
-  }
-
   onUnmounted(() =>{
     document.removeEventListener('click', (_e: MouseEvent) => clickCallback(_e));
 
     document.removeEventListener('keydown', keyDownCallback);
     document.removeEventListener('keyup', keyUpCallback);
-    
-    
-    document.removeEventListener('scroll', testingCallback);
   });
 
 
@@ -197,8 +186,6 @@
 
     document.addEventListener('keydown', keyDownCallback);
     document.addEventListener('keyup', keyUpCallback);
-
-    document.addEventListener('scroll', testingCallback);
 
     setTimeout(() => {
       trace(`${LOGGING_PREFIX} starting BGM`);
