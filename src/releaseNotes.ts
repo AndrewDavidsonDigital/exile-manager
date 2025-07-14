@@ -23,18 +23,19 @@ export const releases: IRelease[] = [
     requiresPurge: true,
     highlights: [
       'Version 0.2 prep',
-      'Fix bug where if the starting skill was a world skill, you were never able to select a new skill on level-up',
       'Engine performance tweaks',
       'Game options persistence between sessions',
       'Add Affix Synergy system, items with multiple of the same affixes will get a multiplier to those affixes',
-      'Fix bug where-by a user could refresh the Passives offered to them',
-      'Fix bug where-by a user could refresh the Skills offered to them',
       'Added support for event based level generation. . . follow that lanky turtle to raid its stores',
       'Add initial meta-progression with town and town unlocks (Bulk ID, Bulk Salvage, Auto-Salvage)',
       'Add a couple more levels / destinations to logically uncover the town and then provide dynamic areas',
       'Add audio feedback for generic clicks',
       'Add audio feedback for some specific / custom elements (e.g: identifying / selling )',
-      'Add support for Class-Specific critical hit effects'
+      'Add support for Class-Specific critical hit effects',
+      'Fix bug where if the starting skill was a world skill, you were never able to select a new skill on level-up',
+      'Fix bug where-by a user could refresh the Passives offered to them',
+      'Fix bug where-by a user could refresh the Skills offered to them',
+      'Fixed an issue where help tags where clickable through the void.'
     ],
     commit: '',
     compare: 'v0.1.5...v0.1.6',

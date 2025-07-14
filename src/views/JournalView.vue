@@ -90,7 +90,7 @@
           </svg>
         </button>
         <div
-          class="flex flex-wrap gap-2 justify-center transition-all duration-300"
+          class="flex flex-wrap gap-2 justify-center transition-all duration-300 md:pb-2"
           :class="[
             'md:flex',
             isTagsExpanded ? 'max-h-96 opacity-100 pb-2' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'
