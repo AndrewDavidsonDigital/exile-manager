@@ -137,10 +137,23 @@ export interface IStatBuff {
   type: AffixTypes.ADDITIVE | AffixTypes.MULTIPLICATIVE | AffixTypes.RANGE;
 }
 
+export enum Rarity {
+  DEFAULT = 'DEFAULT',
+  UNCOMMON = 'UNCOMMON',
+  RARE = 'RARE',
+}
+
+export const RARITY_BIASING: Record<Rarity, number> = {
+  DEFAULT:  60,
+  UNCOMMON: 30,
+  RARE:     10,
+}
+
 export interface IPassive {
-  _identifier: string;      // unique identifier usually same as name, but immutable to allow for possible name changes 
-  name: string;
+  _identifier: Readonly<string>;      // unique identifier usually same as name, but immutable to allow for possible name changes 
+  name: Readonly<string>;
   effect: IStatBuff;
+  rarity: Rarity;
   minCharLevel?: number;
   requiredClass?: ExileClassType[];
 }

@@ -14,6 +14,7 @@ import {
   generateClassStats,
   ITEM_TIER_COSTS,
   generateAffixesForTierAndType,
+  RARITY_BIASING,
 } from '@/lib/game';
 import { useGameState } from '@/lib/storage';
 import { BaseItemAffix } from '@/lib/affixTypes';
@@ -25,9 +26,10 @@ import { calculateDeflectionAttempts, calculateDodgeChance, getAdditionalEvasion
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition, exileClassCritSkillName, ExileClass, smearWordIntoId } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition, exileClassCritSkillName, ExileClass, smearWordIntoId, AffixSubCategory } from '@/lib/core';
 import { levels } from '@/data/levels';
 import { nextTick } from 'vue';
+import { chooseWeightedRandom } from '@/lib/array';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
 const VERSION_NUMBER = '0.1.6';
@@ -145,15 +147,33 @@ export const useGameEngine = defineStore('gameEngine', {
       const charClass = this.character.class;
 
       if (this.nextRewards.passives.length === 0){
-        this.nextRewards.passives = passives.filter(
-          el => 
-             charLevel >= (el.minCharLevel || 0) 
-          && !(charPassives.find(f => f._identifier === el._identifier))
-          && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
-        ).toSorted(
-          () => 0.5 - Math.random()
-        ).slice(0, 3);
+        // Filter eligible passives
+        const eligible = passives.filter(
+          el => (
+            charLevel >= (el.minCharLevel || 0)
+            && !(charPassives.find(f => f._identifier === el._identifier))
+            && (!el.requiredClass || el.requiredClass && el.requiredClass.includes(charClass))
+          )
+        );
+        // Prepare weights based on rarity
+        const weights = eligible.map(el => RARITY_BIASING[el.rarity || 'DEFAULT']);
+        // Select up to 3 unique passives using weighted random
+        const selected: IPassive[] = [];
+        const usedIndexes = new Set<number>();
+        for (let i = 0; i < 3 && eligible.length > 0 && usedIndexes.size < eligible.length; i++) {
+          // Remove already selected
+          const pool = eligible.filter((_, idx) => !usedIndexes.has(idx));
+          const poolWeights = weights.filter((_, idx) => !usedIndexes.has(idx));
+          const chosen = chooseWeightedRandom(pool, poolWeights, null);
+          if (chosen) {
+            const chosenIdx = eligible.indexOf(chosen);
+            if (chosenIdx !== -1) usedIndexes.add(chosenIdx);
+            selected.push(chosen);
+          }
+        }
+        this.nextRewards.passives = selected;
       }
+
       return this.nextRewards.passives;
     },
     getAvailableSkills(): ISkill[]{
@@ -459,29 +479,46 @@ export const useGameEngine = defineStore('gameEngine', {
         }
         const target = passive.effect.target;
         switch (target) {
-          case 'affinity':
-          case 'fortitude':
-          case 'fortune':
-          case 'wrath':
+          case Attributes.AFFINITY:
+          case Attributes.FORTITUDE:
+          case Attributes.FORTUNE:
+          case Attributes.WRATH:
             retval.attributes[target] = resolveStatChangeFromPassive(retval.attributes[target] , passive.effect);
             
             break;
-          case 'health':
+          case Attributes.HEALTH:
             retval.health = resolveStatChangeFromPassive(retval.health , passive.effect);
             retval.maxHealth = resolveStatChangeFromPassive(retval.maxHealth , passive.effect);
 
             break;
-          case 'mana':
+          case Attributes.MANA:
             retval.mana = resolveStatChangeFromPassive(retval.mana , passive.effect);
             retval.maxMana = resolveStatChangeFromPassive(retval.maxMana , passive.effect);
 
             break;
-          case 'armor':            
+          case AffixCategory.ARMOR:
             localArmor = resolveStatChangeFromPassive(localArmor, passive.effect);
 
             break;
-          case 'evasion':
+          case AffixCategory.EVASION:
             localEvasion = resolveStatChangeFromPassive(localEvasion, passive.effect);
+
+            break;
+          case AffixCategory.DEFENSE:
+            if (passive.effect.subTarget){
+              switch (passive.effect.subTarget) {
+                case AffixSubCategory.DEFLECTION:
+                  localArmor += getArmourForDeflectionCount(passive.effect.change, this.character.level);
+                  
+                  break;
+                case AffixSubCategory.DODGE:
+                  localEvasion += getAdditionalEvasionForDodgeIncrease(passive.effect.change, this.character.level, localEvasion);
+                  break;
+              
+                default:
+                  break;
+              }
+            }
 
             break;
         
@@ -499,29 +536,29 @@ export const useGameEngine = defineStore('gameEngine', {
 
         const target = passive.effect.target;
         switch (target) {
-          case 'affinity':
-          case 'fortitude':
-          case 'fortune':
-          case 'wrath':
+          case Attributes.AFFINITY:
+          case Attributes.FORTITUDE:
+          case Attributes.FORTUNE:
+          case Attributes.WRATH:
             logger(`passive effecting: ${target}`);
             retval.attributes[target] = resolveStatChangeFromPassive(retval.attributes[target] , passive.effect);
             
             break;
-          case 'health':
+          case Attributes.HEALTH:
             retval.health = resolveStatChangeFromPassive(retval.health , passive.effect);
             retval.maxHealth = resolveStatChangeFromPassive(retval.maxHealth , passive.effect);
             
             break;
-          case 'mana':
+          case Attributes.MANA:
             retval.mana = resolveStatChangeFromPassive(retval.mana , passive.effect);
             retval.maxMana = resolveStatChangeFromPassive(retval.maxMana , passive.effect);
 
             break;
-          case 'armor':            
+          case AffixCategory.ARMOR:          
             localArmor = resolveStatChangeFromPassive(localArmor, passive.effect);
 
             break;
-          case 'evasion':
+          case AffixCategory.EVASION:
             localEvasion = resolveStatChangeFromPassive(localEvasion, passive.effect);
             
             break;

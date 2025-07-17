@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, type ICooldown, type ILoot, type ISkill, type ITemporalEffect } from '@/lib/game';
-import { AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, Rarity, type ICooldown, type ILoot, type ISkill, type IStatBuff, type ITemporalEffect } from '@/lib/game';
+import { AffixSubCategory, AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
 import { BaseItemAffix, isAffixRange, type AffixValue, type IBaseAffix, type IItemAffix } from '@/lib/affixTypes';
 import { allAffixesById } from '@/data/affixes';
@@ -18,6 +18,7 @@ import { isAbleToAffordSkill, isOffCooldown } from '@/stores/adventuring';
 import { useConfigurationStore } from '@/stores/configuration';
 import { entries } from '@/journal';
 import CloseButton from './elements/CloseButton.vue';
+import RomanNumeral from './elements/RomanNumeral.vue';
 
 
 interface Props {
@@ -444,6 +445,34 @@ function handleActivateWorldSkill(skill: ISkill): void{
 
 
 const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 0);
+
+
+function resolveDescriptionFromEffect(effect: IStatBuff){
+  let description = `${effect.target}`;
+  let direction = `${ effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }`;
+  if (effect.subTarget){
+    switch (effect.subTarget) {
+      case AffixSubCategory.DEFLECTION:
+        description = `Minimum Deflection`;
+        direction = '';
+        break;
+      case AffixSubCategory.DODGE:
+        description = `Base Dodge`;
+        direction = '% ';
+        break;
+    
+      default:
+        description = `${effect.subTarget}`
+        break;
+    }
+  }else {
+        description = `${effect.target}`
+  }
+
+  const change = `+${effect.change }${direction}`;
+
+  return change + description;
+}
 
 </script>
 
@@ -1231,17 +1260,50 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
           v-for="passive,index in char.passives"
           :key="`passives_${index}`"
         >
-          <FluidElement class="p-3">
-            <div class="flex flex-col gap-2">
-              <div class="flex justify-between items-center">
-                <h4 class="text-lg font-medium capitalize">
-                  {{ passive.name }}
-                </h4>
+          <FluidElement
+            class="duration-300 transition-all border-rarity"
+            :data-rarity="passive.rarity"
+            :class="[
+              { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
+            ]"
+          >
+            <article 
+              class="grid-area-stack size-full"
+              :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
+            >
+              <RomanNumeral
+                :count="passive.rarity === Rarity.RARE ? 3 : passive.rarity === Rarity.UNCOMMON ? 2 : 1"
+                class="ml-auto -mr-3 -mt-5 text-gray-500"
+                :class="[
+                  { '!text-amber-300' : passive.rarity === Rarity.RARE },
+                  { '!text-white/70' : passive.rarity === Rarity.UNCOMMON },
+                ]"
+              />
+              <div
+                v-if="passive.rarity === Rarity.RARE"
+                class="relative -translate-x-16 -translate-y-6"
+                :style="
+                  `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
+                    `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;`
+                "
+              >
+                <span 
+                  v-for="i in 15"
+                  :key="`firefly_${index}-${i}`"
+                  class="firefly"
+                ></span>
               </div>
-              <div class="text-sm text-gray-300 capitalize">
-                Effect: +{{ passive.effect.change }}{{ passive.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ passive.effect.target }}
+              <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                  <h4 class="text-lg font-medium capitalize">
+                    {{ passive.name }}
+                  </h4>
+                </div>
+                <div class="text-sm text-gray-300 capitalize">
+                  Effect: {{ resolveDescriptionFromEffect(passive.effect) }}
+                </div>
               </div>
-            </div>
+            </article>
           </FluidElement>
         </template>
       </div>
@@ -1385,18 +1447,49 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
             @click="handleAddPassive(passive._identifier)"
           >
             <FluidElement
-              class="p-3 hover:border-amber-400  duration-300 transition-all"
+              class="duration-300 transition-all border-rarity"
+              :data-rarity="passive.rarity"
+              :class="[
+                { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
+              ]"
             >
-              <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                  <h4 class="text-lg font-medium capitalize">
-                    {{ passive.name }}
-                  </h4>
+              <article 
+                class="grid-area-stack size-full"
+                :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
+              >
+                <RomanNumeral
+                  :count="passive.rarity === Rarity.RARE ? 3 : passive.rarity === Rarity.UNCOMMON ? 2 : 1"
+                  class="ml-auto -mr-3 -mt-5 text-gray-500"
+                  :class="[
+                    { '!text-amber-300' : passive.rarity === Rarity.RARE },
+                    { '!text-white/70' : passive.rarity === Rarity.UNCOMMON },
+                  ]"
+                />
+                <div
+                  v-if="passive.rarity === Rarity.RARE"
+                  class="relative -translate-x-16 -translate-y-6"
+                  :style="
+                    `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
+                      `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;`
+                  "
+                >
+                  <span 
+                    v-for="i in 15"
+                    :key="`firefly_${index}-${i}`"
+                    class="firefly"
+                  ></span>
                 </div>
-                <div class="text-sm text-gray-300 capitalize">
-                  Effect: +{{ passive.effect.change }}{{ passive.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ passive.effect.target }}
+                <div class="flex flex-col gap-2">
+                  <div class="flex justify-between items-center">
+                    <h4 class="text-lg font-medium capitalize">
+                      {{ passive.name }}
+                    </h4>
+                  </div>
+                  <div class="text-sm text-gray-300 capitalize">
+                    Effect: {{ resolveDescriptionFromEffect(passive.effect) }}
+                  </div>
                 </div>
-              </div>
+              </article>
             </FluidElement>
           </button>
         </template>
@@ -1588,6 +1681,8 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
     --pulse-color-mana-loss: rgba(124, 211, 255, 0.1);
     --level-up-color: rgb(255, 213, 0);
     --core-ui-border-color: oklch(20.8% 0.042 265.755);
+    
+    --shimmer-color: oklch(78.9% 0.154 211.53);
 
     @media (min-width: 768px) {
       --core-ui-border-color: transparent;
@@ -1673,6 +1768,61 @@ const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skil
       opacity: 0;
     }
   }
+
+  .border-rarity {
+    --rarity-colour: oklch(50.8% 0.118 165.612);
+    border-color: var(--rarity-colour) !important;
+    --shimmer-color: var(--rarity-colour);
+
+    &[data-rarity="RARE"] {
+      --rarity-colour: oklch(70.5% 0.213 47.604);
+    }
+
+    &[data-rarity="UNCOMMON"] {
+      --rarity-colour: oklch(71.5% 0.143 215.221);
+    }
+  }
+
+  @keyframes shimmer-border {
+    0% {
+      background-position: -50% 0;
+    }
+    100% {
+      background-position: 150% 0;
+    }
+  }
+
+  .animate-shimmer-border {
+    position: relative;
+    border: 2px solid transparent;
+  }
+
+  .animate-shimmer-border::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    padding: 4px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 25%,
+      color-mix(in srgb, var(--shimmer-color) 20%, transparent) 30%,
+      var(--shimmer-color) 40%,
+      var(--shimmer-color) 60%,
+      color-mix(in srgb, var(--shimmer-color) 20%, transparent) 70%,
+      transparent 75%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: shimmer-border 2s linear infinite forwards;
+  }
+
 
   @keyframes snake-border {
     0% {
