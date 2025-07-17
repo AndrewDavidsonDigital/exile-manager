@@ -41,3 +41,25 @@ export function chooseRandom<T>(collection: Array<T>, defaultValue: T ): T{
     return defaultValue;
   }
 }
+
+/**
+ * Helper method to randomly choose an element from a given array based on weights.
+ * @param collection The collection from which to randomly choose
+ * @param weights Array of weights corresponding to each element in the collection
+ * @param defaultValue specification for value to return when failure
+ * @returns the element at a weighted random index if able to, `defaultValue` otherwise
+ */
+export function chooseWeightedRandom<T>(collection: Array<T>, weights: number[], defaultValue: T): T {
+  if (collection.length === 0 || collection.length !== weights.length) return defaultValue;
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+  if (totalWeight === 0) return defaultValue;
+  const rand = Math.random() * totalWeight;
+  let cumulative = 0;
+  for (let i = 0; i < collection.length; i++) {
+    cumulative += weights[i];
+    if (rand < cumulative) {
+      return collection[i];
+    }
+  }
+  return defaultValue;
+}
