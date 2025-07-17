@@ -18,6 +18,14 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.2.0',
+    highlights: [
+      'Version 0.2',
+    ],
+    commit: '',
+    compare: 'v0.1.6...v0.2.0',
+  },
+  {
     version: '0.1.6',
     isBreaking: true,
     requiresPurge: true,
