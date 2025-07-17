@@ -17,14 +17,14 @@ const difficulty = gameEngine.getDifficulty;
           </div>
         </template>
       </div>
-      <FluidElement class="w-fit !p-2">
-        <button
-          class="size-full"
-          @click="() => gameEngine.restart()"
-        >
+      <button
+        class="w-fit"
+        @click="() => gameEngine.restart()"
+      >
+        <FluidElement class="size-full !p-2">
           Start a new Run
-        </button>
-      </FluidElement>
+        </FluidElement>
+      </button>
     </div>
     <div class="flex gap-2">
       <div class="flex flex-col gap-1">
