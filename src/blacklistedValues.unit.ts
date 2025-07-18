@@ -45,6 +45,28 @@ test('Ensure `allAffixes`, is only accessed via the the affixes test and its ins
   expect(finalList).toStrictEqual([]);
 })
 
+/**
+ * Ensure `debugger`, is never included in deployed coded
+ */
+test('Ensure `debugger`, is never included in deployed coded', () => {
+  const stringThatShouldNotExist = 'debugger';
+  const whiteListedFilesWindows: string[] = ['src\\blacklistedValues.unit.ts'];
+  const whiteListedFiles = [
+    ...whiteListedFilesWindows,
+    ...(whiteListedFilesWindows.map(e => e.replaceAll('\\','/')))
+  ];
+
+  const fileList = getFileList();
+
+  const filesWithBlackListedWord = readFileContents(fileList, stringThatShouldNotExist);
+
+  const finalList = filesWithBlackListedWord.filter(file => {
+    return (whiteListedFiles.indexOf(file) === -1)
+  });
+
+  expect(finalList).toStrictEqual([]);
+})
+
 
 function readFileContents(fileList: string[], blackListedString: string){
   const retval:string[] = [];
