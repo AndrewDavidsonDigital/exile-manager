@@ -159,6 +159,7 @@ export interface IPassive {
 export interface ISkill {
   _identifier: string;      // unique identifier usually same as name, but immutable to allow for possible name changes 
   name: string;
+  rarity: Rarity;
   target: SkillTarget;
   activationLayer: SkillActivationLayer;
   triggerStates: SkillTriggers[];

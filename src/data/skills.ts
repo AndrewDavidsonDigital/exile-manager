@@ -1,5 +1,5 @@
 import { AffixCategory, AffixTypes, Attributes, ExileClass, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, SkillTriggers } from "@/lib/core";
-import type { ISkill } from "@/lib/game";
+import { Rarity, type ISkill } from "@/lib/game";
 
 const NOT_ON_CREATION = 1;
 
@@ -7,6 +7,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Curse',
     name: 'Curse',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.ENEMY,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.ALWAYS],
@@ -28,6 +29,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Aid',
     name: 'Aid',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.WORLD,
     triggerStates: [SkillTriggers.NONE],
@@ -53,6 +55,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Enrage',
     name: 'Enrage',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.HIGH_HEALTH],
@@ -79,6 +82,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Bravery',
     name: 'Bravery',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.WORLD,
     triggerStates: [SkillTriggers.NONE],
@@ -105,6 +109,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Heal',
     name: 'Heal',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.LOW_HEALTH, SkillTriggers.MED_HEALTH],
@@ -126,6 +131,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Desperate Prayer',
     name: 'Desperate Prayer',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.CRITICAL_HEALTH, SkillTriggers.LOW_HEALTH],
@@ -148,6 +154,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Alloyed Blade',
     name: 'Alloyed Blade',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.ALWAYS],
@@ -174,6 +181,7 @@ export const skills: ISkill[] = [
   {
     _identifier: 'Elemental Fracture',
     name: 'Elemental Fracture',
+    rarity: Rarity.DEFAULT,
     target: SkillTarget.SELF,
     activationLayer: SkillActivationLayer.COMBAT,
     triggerStates: [SkillTriggers.ALWAYS],
