@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useGameEngine } from '@/stores/game';
-import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, Rarity, type ICooldown, type ILoot, type ISkill, type IStatBuff, type ITemporalEffect } from '@/lib/game';
+import { CLASS_ALIGNED_STATS, formatConsolidatedAffix, Rarity, type ICooldown, type ILoot, type IPassive, type ISkill, type ITemporalEffect } from '@/lib/game';
 import { AffixSubCategory, AffixTypes, attributeIncrease, Attributes, BaseStats, SkillActivationLayer, SkillResource, SkillTarget, SkillTiming, TIER_SEPARATOR, type IAffix } from '@/lib/core';
 import { computed, ref, watch } from 'vue';
 import { BaseItemAffix, isAffixRange, type AffixValue, type IBaseAffix, type IItemAffix } from '@/lib/affixTypes';
@@ -446,11 +446,12 @@ function handleActivateWorldSkill(skill: ISkill): void{
 
 const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 0);
 
-function resolveDescriptionFromEffect(effect: IStatBuff){
-  let description = `${effect.target}`;
-  let direction = `${ effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }`;
-  if (effect.subTarget){
-    switch (effect.subTarget) {
+function resolveDescriptionFromEffect(b: IPassive | ISkill){
+  let description = `${b.effect.target}`;
+  let direction = `${ b.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }`;
+  let ignoreChange = false;
+  if (b.effect.subTarget){
+    switch (b.effect.subTarget) {
       case AffixSubCategory.DEFLECTION:
         description = `Minimum Deflection`;
         direction = '';
@@ -459,20 +460,32 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
         description = `Base Dodge`;
         direction = '% ';
         break;
+      case AffixSubCategory.PHYSICAL:
+        description = b?.description || '';
+        direction = '';
+        ignoreChange = true;
+        break;
+      case AffixSubCategory.ELEMENTAL:
+        description = b?.description || '';
+        direction = '';
+        ignoreChange = true;
+        break;
     
       default:
-        description = `${effect.subTarget}`
+        description = `${b.effect.subTarget}`
         break;
     }
   }else {
-        description = `${effect.target}`
+        description = `${b.effect.target}`
   }
 
-  let change;
-  if (effect.type === AffixTypes.RANGE && typeof effect.change !== 'number' ){
-    change = `${effect.change.min * (effect.change.min > 0 ? 1 : -1)}  -  ${effect.change.max * (effect.change.max > 0 ? 1 : -1)}`
-  } else if(typeof effect.change === 'number'){
-    change = `${effect.change > 0 ? '+' : ''}${effect.change }${direction} `;
+  let change = '';
+  if (!ignoreChange){
+    if (b.effect.type === AffixTypes.RANGE && typeof b.effect.change !== 'number' ){
+      change = `${b.effect.change.min * (b.effect.change.min > 0 ? 1 : -1)}  -  ${b.effect.change.max * (b.effect.change.max > 0 ? 1 : -1)}`
+    } else if(typeof b.effect.change === 'number'){
+      change = `${b.effect.change > 0 ? '+' : ''}${b.effect.change }${direction} `;
+    }
   }
 
   return change + description;
@@ -891,7 +904,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                 <span class="text-gray-400">Damage:</span>
                 <span 
                   class="text-slate-400 ml-2 px-2"
-                ><span>~{{ gameEngine.getCombatStats.damagePerTick }} (
+                ><span>~{{ Math.floor(gameEngine.getCombatStats.damagePerTick) }} (
                   <span
                     title="Base"
                     class="text-slate-200"
@@ -899,27 +912,27 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                   <span
                     v-if="gameEngine.getCombatStats.damage.physical > 0"
                     title="Physical"
-                  >+<span class="text-slate-400">{{ gameEngine.getCombatStats.damage.physical }}</span></span>
+                  >+<span class="text-slate-400">{{ Math.floor(gameEngine.getCombatStats.damage.physical) }}</span></span>
                   <span
                     v-if="gameEngine.getCombatStats.damage.elemental.cold > 0"
                     title="Cold"
-                  >+<span class="text-blue-400">{{ gameEngine.getCombatStats.damage.elemental.cold }}</span></span>
+                  >+<span class="text-blue-400">{{ Math.floor(gameEngine.getCombatStats.damage.elemental.cold) }}</span></span>
                   <span
                     v-if="gameEngine.getCombatStats.damage.elemental.fire > 0"
                     title="Fire"
-                  >+<span class="text-red-400">{{ gameEngine.getCombatStats.damage.elemental.fire }}</span></span>
+                  >+<span class="text-red-400">{{ Math.floor(gameEngine.getCombatStats.damage.elemental.fire) }}</span></span>
                   <span
                     v-if="gameEngine.getCombatStats.damage.elemental.lightning > 0"
                     title="Lightning"
-                  >+<span class="text-amber-400">{{ gameEngine.getCombatStats.damage.elemental.lightning }}</span></span>
+                  >+<span class="text-amber-400">{{ Math.floor(gameEngine.getCombatStats.damage.elemental.lightning) }}</span></span>
                   <span
                     v-if="gameEngine.getCombatStats.damage.corruption.void > 0"
                     title="Void"
-                  >+<span class="text-purple-400">{{ gameEngine.getCombatStats.damage.corruption.void }}</span></span>
+                  >+<span class="text-purple-400">{{ Math.floor(gameEngine.getCombatStats.damage.corruption.void) }}</span></span>
                   <span
                     v-if="gameEngine.getCombatStats.damage.corruption.mental > 0"
                     title="Mental"
-                  >+<span class="text-pink-400">{{ gameEngine.getCombatStats.damage.corruption.mental }}</span></span>
+                  >+<span class="text-pink-400">{{ Math.floor(gameEngine.getCombatStats.damage.corruption.mental) }}</span></span>
                   )</span>
                 </span>
               </div>
@@ -1116,19 +1129,118 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
 
 
   <ModalDialog
+    :id="PASSIVES_MODAL_ID"
+    :show="showPassivesModal"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip relative"
+    @close="showPassivesModal = false"
+  >
+    <section
+      class="text-emerald-400 mx-auto pb-2 md:pt-6"
+      :class="[
+        {'pt-16': char !== ErrorNumber.NOT_FOUND && char.passives.length > 2},
+        {'pt-10': char !== ErrorNumber.NOT_FOUND && char.passives.length <= 2}
+      ]"
+    >
+      <h3 class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2">
+        Passives
+      </h3>
+      <CloseButton @click="showPassivesModal = false" />
+      <div
+        v-if="char !== ErrorNumber.NOT_FOUND"
+        class="flex flex-wrap gap-6 items-center justify-center scrollbar "
+        :class="[
+          {'overflow-y-scroll overflow-x-clip overscroll-y-contain md:overflow-visible max-h-[80dvh]': char.passives.length >= 2},
+        ]"
+      >
+        <FluidElement
+          v-if="char.passives.length < 1"
+          class="p-3"
+        >
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <h4 class="text-lg font-medium capitalize">
+                No Known Passives
+              </h4>
+            </div>
+          </div>
+        </FluidElement>
+        <template
+          v-for="passive,index in char.passives"
+          :key="`passives_${index}`"
+        >
+          <FluidElement
+            class="duration-300 transition-all border-rarity max-w-[calc(100%_-_2px)] md:max-w-52 last:-mb-10"
+            :data-rarity="passive.rarity"
+            :class="[
+              { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
+            ]"
+          >
+            <article 
+              class="grid-area-stack size-full"
+              :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
+            >
+              <RomanNumeral
+                :count="passive.rarity === Rarity.RARE ? 3 : passive.rarity === Rarity.UNCOMMON ? 2 : 1"
+                class="ml-auto -mr-3 -mt-5 text-gray-500"
+                :class="[
+                  { '!text-amber-300' : passive.rarity === Rarity.RARE },
+                  { '!text-white/70' : passive.rarity === Rarity.UNCOMMON },
+                ]"
+              />
+              <div
+                v-if="passive.rarity === Rarity.RARE"
+                class="relative -translate-x-16 -translate-y-6"
+                :style="
+                  `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
+                    `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;` +
+                    `--firefly-colour: red;`
+                "
+              >
+                <span 
+                  v-for="i in 15"
+                  :key="`firefly_${index}-${i}`"
+                  class="firefly"
+                ></span>
+              </div>
+              <div class="flex flex-col gap-2 z-1">
+                <div class="flex justify-between items-center">
+                  <h4 class="text-lg font-medium capitalize">
+                    {{ passive.name }}
+                  </h4>
+                </div>
+                <div class="text-sm text-gray-300 capitalize">
+                  Effect: {{ resolveDescriptionFromEffect(passive) }}
+                </div>
+              </div>
+            </article>
+          </FluidElement>
+        </template>
+      </div>
+    </section>
+  </ModalDialog>
+  <ModalDialog
     :id="SKILLS_MODAL_ID"
     :show="showSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip relative"
     @close="showSkillsModal = false"
   >
-    <section class="text-emerald-400 mx-auto">
-      <h3 class="text-xl font-bold mb-4 mx-auto w-fit">
+    <section
+      class="text-emerald-400 mx-auto pb-2 md:pt-6"
+      :class="[
+        {'pt-16': char !== ErrorNumber.NOT_FOUND && char.skills.length > 2},
+        {'pt-10': char !== ErrorNumber.NOT_FOUND && char.skills.length <= 2}
+      ]"
+    >
+      <h3 class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2">
         Skills
       </h3>
       <CloseButton @click="showSkillsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="flex flex-wrap gap-6 items-center justify-center"
+        class="flex flex-wrap gap-6 items-center justify-center scrollbar "
+        :class="[
+          {'overflow-y-scroll overflow-x-clip overscroll-y-contain md:overflow-visible max-h-[80dvh]': char.skills.length >= 2},
+        ]"
       >
         <template
           v-for="skill,index in char.skills"
@@ -1170,7 +1282,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                   class="firefly"
                 ></span>
               </div>
-              <div class="flex flex-col gap-2 z-10">
+              <div class="flex flex-col gap-2 z-1">
                 <h4
                   v-if="!isOffCooldown(char, skill._identifier)"
                   class="text-base font-medium capitalize mx-auto text-indigo-400"
@@ -1237,7 +1349,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                     </span>
                   </div>
                   <div class="text-sm text-gray-300 capitalize">
-                    Effect: {{ resolveDescriptionFromEffect(skill.effect) }}
+                    Effect: {{ resolveDescriptionFromEffect(skill) }}
                   </div>
                   <div class="flex flex-wrap gap-2 mt-2">
                     <span class="text-gray-400">Triggers:</span>
@@ -1264,100 +1376,28 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
     </section>
   </ModalDialog>
   <ModalDialog
-    :id="PASSIVES_MODAL_ID"
-    :show="showPassivesModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
-    @close="showPassivesModal = false"
-  >
-    <section class="text-emerald-400 mx-auto">
-      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
-        Passives
-      </h3>
-      <CloseButton @click="showPassivesModal = false" />
-      <div
-        v-if="char !== ErrorNumber.NOT_FOUND"
-        class="flex flex-wrap gap-6 items-center justify-center"
-      >
-        <FluidElement
-          v-if="char.passives.length < 1"
-          class="p-3"
-        >
-          <div class="flex flex-col gap-2">
-            <div class="flex justify-between items-center">
-              <h4 class="text-lg font-medium capitalize">
-                No Known Passives
-              </h4>
-            </div>
-          </div>
-        </FluidElement>
-        <template
-          v-for="passive,index in char.passives"
-          :key="`passives_${index}`"
-        >
-          <FluidElement
-            class="duration-300 transition-all border-rarity"
-            :data-rarity="passive.rarity"
-            :class="[
-              { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
-            ]"
-          >
-            <article 
-              class="grid-area-stack size-full"
-              :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
-            >
-              <RomanNumeral
-                :count="passive.rarity === Rarity.RARE ? 3 : passive.rarity === Rarity.UNCOMMON ? 2 : 1"
-                class="ml-auto -mr-3 -mt-5 text-gray-500"
-                :class="[
-                  { '!text-amber-300' : passive.rarity === Rarity.RARE },
-                  { '!text-white/70' : passive.rarity === Rarity.UNCOMMON },
-                ]"
-              />
-              <div
-                v-if="passive.rarity === Rarity.RARE"
-                class="relative -translate-x-16 -translate-y-6"
-                :style="
-                  `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
-                    `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;` +
-                    `--firefly-colour: red;`
-                "
-              >
-                <span 
-                  v-for="i in 15"
-                  :key="`firefly_${index}-${i}`"
-                  class="firefly"
-                ></span>
-              </div>
-              <div class="flex flex-col gap-2 z-10">
-                <div class="flex justify-between items-center">
-                  <h4 class="text-lg font-medium capitalize">
-                    {{ passive.name }}
-                  </h4>
-                </div>
-                <div class="text-sm text-gray-300 capitalize">
-                  Effect: {{ resolveDescriptionFromEffect(passive.effect) }}
-                </div>
-              </div>
-            </article>
-          </FluidElement>
-        </template>
-      </div>
-    </section>
-  </ModalDialog>
-  <ModalDialog
     :id="WORLD_SKILL_MODAL_ID"
     :show="showWorldSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip relative"
     @close="showWorldSkillsModal = false"
   >
-    <section class="text-emerald-400 mx-auto">
-      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
+    <section
+      class="text-emerald-400 mx-auto pb-2 md:pt-6"
+      :class="[
+        {'pt-16': char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 2},
+        {'pt-10': char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length <= 2}
+      ]"
+    >
+      <h3 class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2">
         Activate World Skill
       </h3>
       <CloseButton @click="showWorldSkillsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="flex flex-wrap gap-6 items-center justify-center"
+        class="flex flex-wrap gap-6 items-center justify-center scrollbar "
+        :class="[
+          {'overflow-y-scroll overflow-x-clip overscroll-y-contain md:overflow-visible max-h-[80dvh]': char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length >= 2},
+        ]"
       >
         <template
           v-for="skill,index in char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD)"
@@ -1467,7 +1507,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
     :id="NEW_PASSIVES_MODAL_ID"
     :show="showNewPassivesModal"
     disable-lite-dismiss
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip relative"
     @close="showNewPassivesModal = false"
   >
     <section class="text-emerald-400 mx-auto">
@@ -1477,14 +1517,14 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
       <CloseButton @click="showNewPassivesModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="flex gap-2 flex-wrap justify-center"
+        class="flex flex-wrap gap-6 items-center justify-center scrollbar overflow-y-scroll overflow-x-clip overscroll-y-contain md:overflow-visible max-h-[80dvh]"
       >
         <template
           v-for="passive,index in (gameEngine.getAvailablePassives)"
           :key="`passives_${index}`"
         >
           <button 
-            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5"
+            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5 max-w-[calc(100%_-_3rem)]"
             @click="handleAddPassive(passive._identifier)"
           >
             <FluidElement
@@ -1521,14 +1561,14 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                     class="firefly"
                   ></span>
                 </div>
-                <div class="flex flex-col gap-2 z-10">
+                <div class="flex flex-col gap-2 z-1">
                   <div class="flex justify-between items-center">
                     <h4 class="text-lg font-medium capitalize">
                       {{ passive.name }}
                     </h4>
                   </div>
                   <div class="text-sm text-gray-300 capitalize">
-                    Effect: {{ resolveDescriptionFromEffect(passive.effect) }}
+                    Effect: {{ resolveDescriptionFromEffect(passive) }}
                   </div>
                 </div>
               </article>
@@ -1552,24 +1592,26 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
   <ModalDialog
     :id="NEW_SKILLS_MODAL_ID"
     :show="showNewSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip relative"
     @close="showNewSkillsModal = false"
   >
-    <section class="text-emerald-400 mx-auto">
-      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
+    <section
+      class="text-emerald-400 mx-auto pt-16 pb-2 md:pt-6"
+    >
+      <h3 class="text-xl font-bold mb-4 fixed top-2 left-1/2 -translate-x-1/2 w-full text-center">
         Select a new Skills
       </h3>
       <CloseButton @click="showNewSkillsModal = false" />
       <div
         v-if="char !== ErrorNumber.NOT_FOUND"
-        class="flex gap-2 flex-wrap justify-center"
+        class="flex flex-wrap gap-6 items-center justify-center scrollbar overflow-y-scroll overflow-x-clip overscroll-y-contain md:overflow-visible max-h-[80dvh]"
       >
         <template
           v-for="skill,index in gameEngine.getAvailableSkills"
           :key="`skills_${index}`"
         >
           <button 
-            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5"
+            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5 max-w-[calc(100%_-_3rem)]"
             @click="handleAddSkill(skill._identifier)"
           >
             <FluidElement
@@ -1606,7 +1648,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                     class="firefly"
                   ></span>
                 </div>
-                <div class="flex flex-col gap-2 z-10">
+                <div class="flex flex-col gap-2 z-1">
                   <h4
                     v-if="!isOffCooldown(char, skill._identifier)"
                     class="text-base font-medium capitalize mx-auto text-indigo-400"
@@ -1670,7 +1712,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                       </span>
                     </div>
                     <div class="text-sm text-gray-300 capitalize">
-                      Effect: {{ resolveDescriptionFromEffect(skill.effect) }}
+                      Effect: {{ resolveDescriptionFromEffect(skill) }}
                     </div>
                     <div class="flex flex-wrap gap-2 mt-2">
                       <span class="text-gray-400">Triggers:</span>

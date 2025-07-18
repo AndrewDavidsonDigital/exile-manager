@@ -146,4 +146,28 @@ export const passives: IPassive[] = [
       type: AffixTypes.ADDITIVE
     }
   },
+  {
+    _identifier: 'Elementally Numb', 
+    name:'Elementally Numb', 
+    description: 'Physical Resistance also applies to each Elemental Resistances at 30%',
+    rarity: Rarity.RARE,
+    effect:{
+      target: AffixCategory.DEFENSE,
+      subTarget: AffixSubCategory.ELEMENTAL,
+      change: 30,
+      type: AffixTypes.ADDITIVE
+    }
+  },
+  {
+    _identifier: 'Prismatic Ward', 
+    name:'Prismatic Ward', 
+    description: 'Your lowest Elemental Resistance also applies to Physical Resistances at 75%',
+    rarity: Rarity.RARE,
+    effect:{
+      target: AffixCategory.DEFENSE,
+      subTarget: AffixSubCategory.PHYSICAL,
+      change: 75,
+      type: AffixTypes.ADDITIVE
+    }
+  },
 ]

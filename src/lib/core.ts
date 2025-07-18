@@ -505,6 +505,10 @@ export enum AffixSubCategory {
   DODGE = 'dodge',
   /** Affixes relating deflection */
   DEFLECTION = 'deflection',
+  /** Affixes relating to elemental conversion */
+  ELEMENTAL = 'elemental',
+  /** Affixes relating to physical conversion */
+  PHYSICAL = 'physical',
   /** Affixes relating fire damage, both offensively and defensibly */
   FIRE = 'fire',
   /** Affixes relating cold damage, both offensively and defensibly */

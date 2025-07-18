@@ -508,12 +508,39 @@ export const useGameEngine = defineStore('gameEngine', {
             if (passive.effect.subTarget){
               switch (passive.effect.subTarget) {
                 case AffixSubCategory.DEFLECTION:
-                  localArmor += getArmourForDeflectionCount(passive.effect.change, this.character.level);
-                  
+                  localArmor += getArmourForDeflectionCount(passive.effect.change, this.character.level);                  
                   break;
+
                 case AffixSubCategory.DODGE:
                   localEvasion += getAdditionalEvasionForDodgeIncrease(passive.effect.change, this.character.level, localEvasion);
                   break;
+
+                case AffixSubCategory.ELEMENTAL:{
+                  const physMitigation = retval.mitigation.find(m => m.key === 'physical');
+                  const mitigations = retval.mitigation.filter(el => ['elemental_lightning', 'elemental_fire', 'elemental_cold'].includes(el.key));
+                  if (physMitigation && mitigations.length > 0) {
+                    mitigations.forEach(eleMitigation => {
+                      eleMitigation.value += Math.floor(physMitigation.value * resolveStatChange(passive.effect.change) * 0.01);
+                    })
+                  }
+                  break;
+                }
+
+                case AffixSubCategory.PHYSICAL:{
+                  const mitigation = retval.mitigation.find(m => m.key === 'physical');
+                  const lowestEleResist = retval.mitigation.
+                    reduce((a,b) => {
+                      if (['elemental_lightning', 'elemental_fire', 'elemental_cold'].includes(b.key)){
+                        return Math.min(a, b.value);
+                      } else {
+                        return a;
+                      }
+                    } ,75);
+                  if (mitigation) {
+                    mitigation.value += Math.floor(lowestEleResist * resolveStatChange(passive.effect.change) * 0.01);
+                  }
+                  break;
+                }
               
                 default:
                   break;
