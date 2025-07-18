@@ -810,6 +810,11 @@ export const useGameEngine = defineStore('gameEngine', {
       this.saveState();
     },
 
+    trashLevel(level: ILevel){
+      const toRemove = this.knownLocations.findIndex(el => el._identifier === level._identifier);
+      this.knownLocations.splice(toRemove,1);
+    },
+
     setAutoSalvage(enabled: boolean): void{
       this.autoSalvage = enabled;
       this.saveState();

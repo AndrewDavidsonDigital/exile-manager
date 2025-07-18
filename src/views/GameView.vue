@@ -242,6 +242,7 @@
             :character-level="levelDelta"
             :is-adventuring="adventuringStore.isAdventuring"
             @start-adventuring="() => startAdventuring()"
+            @trash="(level) => gameEngine.trashLevel(level)"
           />
         </article>
         <article v-show="activeTab === 'loot'">

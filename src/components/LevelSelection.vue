@@ -19,6 +19,7 @@
   const $emit = defineEmits<{
     'update:modelValue': [value: ILevel | undefined];
     'start-adventuring': [];
+    'trash': [value: ILevel];
   }>();
 
   const lastUpdated = computed( () => props.toggle);
@@ -207,6 +208,19 @@
                 :class="`stars${i}`"
               ></div>
             </div>
+            <button 
+              v-if="!isAdventuring && level.uses !== undefined && level.uses <= 0"
+              class="ml-auto mb-auto text-red-500 z-100"
+              title="Somehow we've refreshed in the middle of a run and soft-locked this level"
+              @click="$emit('trash', level)"
+            >
+              <FluidElement
+                is-thin
+                class="border-red-500"
+              >
+                Trash
+              </FluidElement>
+            </button>
             <button
               class="flex flex-col mx-auto z-10 items-center justify-between"
               :disabled="isAdventuring"
