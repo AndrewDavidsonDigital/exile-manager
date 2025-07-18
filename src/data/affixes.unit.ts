@@ -104,3 +104,4 @@ test('Ensure that affix identifiers have only 3 segments  {slot}_{cat}_#', () =>
     throw new Error(`Found ${violations.length} affixes with incorrect name format:\n${errorMessage}`);
   }
 });
+

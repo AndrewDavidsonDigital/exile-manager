@@ -6,7 +6,7 @@ import fs from 'fs';
  */
 test('Ensure window.localStorage is not accessed outside of its scope `storage.ts` or this test', () => {
   const stringThatShouldNotExist = 'localStorage';
-  const whiteListedFilesWindows = ['src\\lib\\storage.ts', 'src\\lib\\storage.unit.ts'];
+  const whiteListedFilesWindows = ['src\\lib\\storage.ts', 'src\\blacklistedValues.unit.ts'];
   const whiteListedFiles = [
     ...whiteListedFilesWindows,
     ...(whiteListedFilesWindows.map(e => e.replaceAll('\\','/')))
@@ -22,6 +22,29 @@ test('Ensure window.localStorage is not accessed outside of its scope `storage.t
 
   expect(finalList).toStrictEqual([]);
 })
+
+/**
+ * Ensure `allAffixes`, is only accessed via the the affixes test and its instantiation
+ */
+test('Ensure `allAffixes`, is only accessed via the the affixes test and its instantiation', () => {
+  const stringThatShouldNotExist = 'allAffixes.';
+  const whiteListedFilesWindows = ['src\\data\\affixes.ts', 'src\\data\\affixes.unit.ts', 'src\\blacklistedValues.unit.ts'];
+  const whiteListedFiles = [
+    ...whiteListedFilesWindows,
+    ...(whiteListedFilesWindows.map(e => e.replaceAll('\\','/')))
+  ];
+
+  const fileList = getFileList();
+
+  const filesWithBlackListedWord = readFileContents(fileList, stringThatShouldNotExist);
+
+  const finalList = filesWithBlackListedWord.filter(file => {
+    return (whiteListedFiles.indexOf(file) === -1)
+  });
+
+  expect(finalList).toStrictEqual([]);
+})
+
 
 function readFileContents(fileList: string[], blackListedString: string){
   const retval:string[] = [];

@@ -2624,7 +2624,7 @@ const suffixAffixes: IAffix[] = [
 ];
 
 /**
- * Combined list of all affixes
+ * Combined list of all affixes only exported as needed within test cases.
  * @deprecated use allAffixesById where possible.
  */
 export const allAffixes: IAffix[] = [

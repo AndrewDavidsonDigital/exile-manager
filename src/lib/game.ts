@@ -1,5 +1,5 @@
 import type { IBaseAffix, IItemAffix } from './affixTypes';
-import { AffixLevelTiers, allAffixes, allAffixesByAffixTier, allAffixesByBase, allAffixesById, allAffixesByTier, resolveAffixTierForILevel } from '@/data/affixes';
+import { allAffixesByAffixTier, allAffixesByBase, allAffixesById, allAffixesByTier, resolveAffixTierForILevel } from '@/data/affixes';
 import type { AffixValue } from './affixTypes';
 import { 
   AffixCategory,
@@ -27,8 +27,6 @@ import {
 import { isAffixRange } from './affixTypes';
 import { intersectSets } from './sets';
 
-
-const isDev = import.meta.env.DEV;
 
 /**
  * Represents a character's combat statistics and attributes
@@ -567,13 +565,6 @@ export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase
   const affixCounts = ITEM_TIER_INFO[tier].affixCount;
 
   // Filter affixes that are allowed for this tier
-  /** @deprecated */
-  const allowedAffixes = allAffixes.filter((affix: IAffix) => 
-    affix.allowedTiers.includes(tier) 
-      && affix.allowedBases.includes(type)
-      && iLevel >= (AffixLevelTiers.get(affix.tier)?.minILevel ||0) && iLevel < (AffixLevelTiers.get(affix.tier)?.maxILevel || Infinity)
-  );
-
   const allAffixesByApplicableTiers = resolveAffixTierForILevel(iLevel)
     .map(el => allAffixesByAffixTier.get(el))
     .filter((el): el is Set<string> => el !== undefined)
@@ -588,18 +579,7 @@ export function generateAffixesForTierAndType(tier: ItemTierType, type: ItemBase
     allAffixesByBase.get(type) || new Set<string>(),
     allAffixesByApplicableTiers,
   );
-  const allowedAffixes2 = Array.from(allowedAffixIds).map(id => allAffixesById.get(id)).filter(el => el)  as IAffix[];
-
-  if(
-       isDev
-    && tier !== 'basic' 
-    && JSON.stringify(allowedAffixes.toSorted((a,b) => a.id.localeCompare(b.id))) !== JSON.stringify(allowedAffixes2.toSorted((a,b) => a.id.localeCompare(b.id)))
-  ) {
-    // we are guarded here where this will only fire IF we are in a dev environment
-    // isDev === import.meta.env.DEV
-    // eslint-disable-next-line no-debugger
-    debugger;
-  }
+  const allowedAffixes = Array.from(allowedAffixIds).map(id => allAffixesById.get(id)).filter(el => el)  as IAffix[];
 
 
   // Generate each type of affix using the helper function
