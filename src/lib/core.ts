@@ -414,13 +414,27 @@ export enum AffixTiers {
 
 export const TIER_SEPARATOR = '_-_';
 
-export function resolveAffixChange(rawValue: number,delta: number, direction: AffixTypes): number{
+export function resolveStatChange(value: number | IStatRange): number{
+  let delta: number;
+  if (typeof value !== 'number'){
+    delta = value.min;
+    delta += Math.floor(Math.random() * (value.max - value.min));
+    // console.log(`__--__ random: ${deltaValue} \t from: [${delta.min}-${delta.max}]`);
+  } else {
+    delta = value;
+  }
+  return delta
+}
+
+export function resolveAffixChange(rawValue: number, delta: number | IStatRange, direction: AffixTypes): number{
+  const deltaValue: number = resolveStatChange(delta);
+
   switch (direction) {
     case AffixTypes.ADDITIVE:
-      return rawValue + delta;
+      return rawValue + deltaValue;
       
     case AffixTypes.MULTIPLICATIVE:
-      return rawValue * (1 + delta/100);
+      return rawValue * (1 + deltaValue/100);
   
     default:
       break;

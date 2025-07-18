@@ -26,7 +26,7 @@ import { calculateDeflectionAttempts, calculateDodgeChance, getAdditionalEvasion
 import { passives } from '@/data/passives';
 import { skills } from '@/data/skills';
 import { ErrorNumber } from '@/lib/typescript';
-import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition, exileClassCritSkillName, ExileClass, smearWordIntoId, AffixSubCategory } from '@/lib/core';
+import { AffixCategory, AffixType, AffixTypes, allItemTiers, Attributes, DEFAULT_MITIGATION, DIFFICULTY_SETTINGS, BaseStats, ItemBase, ItemTiers, resolveAffixChange, SkillTiming, SkillTriggers, type DifficultyType, type ICharacterStats, type IDifficulty, type ILevel, type IMitigation, type LootType, AddLevelCondition, exileClassCritSkillName, ExileClass, smearWordIntoId, AffixSubCategory, resolveStatChange } from '@/lib/core';
 import { levels } from '@/data/levels';
 import { nextTick } from 'vue';
 import { chooseWeightedRandom } from '@/lib/array';
@@ -578,32 +578,50 @@ export const useGameEngine = defineStore('gameEngine', {
 
       // additive
       this.character.temporalEffects.forEach(eff => {
-        if (eff.effect.type !== AffixTypes.MULTIPLICATIVE){
-          switch (eff.effect.target) {
-            case Attributes.WRATH:
-              retval.attributes.wrath = Math.floor(resolveAffixChange(retval.attributes.wrath, eff.effect.change, eff.effect.type));
-              break;
-            
-            case Attributes.HEALTH: 
-              retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
-              retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
-              break;
+        if (this.character){
+          if (eff.effect.type !== AffixTypes.MULTIPLICATIVE){
+            switch (eff.effect.target) {
+              case Attributes.WRATH:
+                retval.attributes.wrath = Math.floor(resolveAffixChange(retval.attributes.wrath, eff.effect.change, eff.effect.type));
+                break;
+              
+              case Attributes.HEALTH: 
+                retval.health = Math.floor(resolveAffixChange(retval.health, eff.effect.change, eff.effect.type));
+                retval.maxHealth = Math.floor(resolveAffixChange(retval.maxHealth, eff.effect.change, eff.effect.type));
+                break;
 
-            case AffixCategory.PHYSICAL:
-              retval.damage.physical = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type));
+              case AffixCategory.PHYSICAL:
+                retval.damage.physical = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type));
 
-              break;
-            
-            case AffixCategory.ELEMENTAL:{
-              const value = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type)) / 3;
-              retval.damage.elemental.fire = Math.floor(retval.damage.elemental.fire +value);
-              retval.damage.elemental.cold = Math.floor(retval.damage.elemental.cold +value);
-              retval.damage.elemental.lightning = Math.floor(retval.damage.elemental.lightning +value);
-              break;
+                break;
+              
+              case AffixCategory.ELEMENTAL:{
+                const value = Math.floor(resolveAffixChange(retval.damage.physical, eff.effect.change, eff.effect.type)) / 3;
+                retval.damage.elemental.fire = Math.floor(retval.damage.elemental.fire +value);
+                retval.damage.elemental.cold = Math.floor(retval.damage.elemental.cold +value);
+                retval.damage.elemental.lightning = Math.floor(retval.damage.elemental.lightning +value);
+                break;
+              }
+              case AffixCategory.DEFENSE:
+                if (eff.effect.subTarget){
+                  switch (eff.effect.subTarget) {
+                    case AffixSubCategory.DEFLECTION:
+                      localArmor += getArmourForDeflectionCount(eff.effect.change, this.character.level);
+                      
+                      break;
+                    case AffixSubCategory.DODGE:
+                      localEvasion += getAdditionalEvasionForDodgeIncrease(eff.effect.change, this.character.level, localEvasion);
+                      break;
+                  
+                    default:
+                      break;
+                  }
+                }
+                break;
+
+              default:
+                break;
             }
-
-            default:
-              break;
           }
         }
       });
@@ -1555,12 +1573,24 @@ function resolveMitigation(_character: ICharacter): IMitigation[]{
 }
 
 function resolveStatChangeFromPassive(rawStatValue: number, delta: IStatBuff ): number{
+  let retval: number = rawStatValue;
   switch (delta.type) {
     case AffixTypes.ADDITIVE:
-      return rawStatValue + delta.change;
+      if(typeof delta.change === 'number')
+        retval = rawStatValue + delta.change;
+      break;
     case AffixTypes.MULTIPLICATIVE:
-      return rawStatValue * (1 + (delta.change / 100));
+      if(typeof delta.change === 'number')
+        retval = rawStatValue * (1 + (delta.change / 100));
+      break;
+    case AffixTypes.RANGE:
+      if(typeof delta.change !== 'number')
+        retval = rawStatValue + resolveStatChange(delta.change);
+      break;
     default:
-      return rawStatValue;
+      retval = rawStatValue;
+      break;
   }
+
+  return retval;
 }

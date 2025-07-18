@@ -1114,7 +1114,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
   <ModalDialog
     :id="SKILLS_MODAL_ID"
     :show="showSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip"
     @close="showSkillsModal = false"
   >
     <section class="text-emerald-400 mx-auto">
@@ -1131,99 +1131,135 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
           :key="`skills_${index}`"
         >
           <FluidElement
-            class="p-3"
+            class="duration-300 transition-all border-rarity"
+            :data-rarity="skill.rarity"
             :class="[
-              {'opacity-50': !(skill.isEnabled) || !isOffCooldown(char, skill._identifier)},
+              { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(skill.rarity) },
               {'!pointer-events-none': !isOffCooldown(char, skill._identifier)},
+              {'opacity-50': !(skill.isEnabled) || !isOffCooldown(char, skill._identifier)},
             ]"
           >
-            <div class="flex flex-col gap-2">
-              <h4
-                v-if="!isOffCooldown(char, skill._identifier)"
-                class="text-base font-medium capitalize mx-auto text-indigo-400"
+            <article 
+              class="grid-area-stack size-full"
+              :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
+            >
+              <RomanNumeral
+                :count="skill.rarity === Rarity.RARE ? 3 : skill.rarity === Rarity.UNCOMMON ? 2 : 1"
+                class="ml-auto -mr-3 -mt-5 text-gray-500"
+                :class="[
+                  { '!text-amber-300' : skill.rarity === Rarity.RARE },
+                  { '!text-white/70' : skill.rarity === Rarity.UNCOMMON },
+                ]"
+              />
+              <div
+                v-if="skill.rarity === Rarity.RARE"
+                class="relative -translate-x-12 -translate-y-6"
+                :style="
+                  `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
+                    `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;` +
+                    `--firefly-colour: red;`
+                "
               >
-                Cooldown Remaining {{ char.cooldowns.find(el => el._identifier === skill._identifier)?.remaining }} {{ skill.cooldown.timing }}'s
-              </h4>
-              <div class="flex justify-between items-center">
-                <span class="inline-flex items-baseline-last">
-                  <h4 class="text-lg font-medium capitalize">
-                    {{ skill.name }}:
-                  </h4>
-                  <span
-                    class="text-sm text-gray-400 capitalize ml-2"
-                    :class="[
-                      { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
-                      { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
-                      { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
-                    ]"
-                  >
-                    {{ skill.activationLayer }}
-                  </span>
-                </span>
-                <SwitchToggle
-                  v-model="skill.isEnabled"
-                />
+                <span 
+                  v-for="i in 15"
+                  :key="`firefly_${index}-${i}`"
+                  class="firefly"
+                ></span>
               </div>
-              <div class="flex flex-col gap-1 text-sm text-gray-300">
-                <div class="flex gap-4 justify-between">
-                  <span
-                    class="capitalize"
-                  >
-                    Target: <span 
+              <div class="flex flex-col gap-2 z-10">
+                <h4
+                  v-if="!isOffCooldown(char, skill._identifier)"
+                  class="text-base font-medium capitalize mx-auto text-indigo-400"
+                >
+                  Cooldown Remaining {{ char.cooldowns.find(el => el._identifier === skill._identifier)?.remaining }} {{ skill.cooldown.timing }}'s
+                </h4>
+                <div class="flex justify-between items-center">
+                  <span class="inline-flex items-baseline-last">
+                    <h4 class="text-lg font-medium capitalize">
+                      {{ skill.name }}:
+                    </h4>
+                    <span
+                      class="text-sm text-gray-400 capitalize ml-2"
                       :class="[
-                        { 'text-red-400': skill.target === SkillTarget.ENEMY },
-                        { 'text-teal-400': skill.target === SkillTarget.SELF },
+                        { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
+                        { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
+                        { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
                       ]"
-                    >{{ skill.target }}</span>
-                  </span>
-                  <span class="capitalize">
-                    Cost: <span
-                      :class="[
-                        { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
-                        { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
-                        { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
-                      ]"
-                    >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
-                  </span>
-                </div>
-                <div class="flex gap-4 justify-between">
-                  <span
-                    v-if="skill.duration"
-                    class="capitalize"
-                  >
-                    Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
-                  </span>
-                  <span class="capitalize">
-                    Cooldown: <span
-                      :class="[
-                        { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
-                        { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
-                      ]"
-                    >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                    >
+                      {{ skill.activationLayer }}
                     </span>
                   </span>
+                  <SwitchToggle
+                    v-model="skill.isEnabled"
+                  />
                 </div>
-                <div class="text-sm text-gray-300 capitalize">
-                  Effect: {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
-                </div>
-                <div class="flex flex-wrap gap-2 mt-2">
-                  <span class="text-gray-400">Triggers:</span>
-                  <button 
-                    v-for="trigger in skill.triggerStates" 
-                    :key="trigger"
-                    class="px-2 py-0.5 bg-gray-800 rounded-full capitalize border-transparent border text-emerald-400 duration-300 transition-all"
-                    :class="[
-                      { '!border-emerald-500' : skill.setTrigger === trigger },
-                      { 'opacity-50' : skill.setTrigger !== trigger },
-                      { 'pointer-events-none' : !(skill.isEnabled) },
-                    ]"
-                    @click="gameEngine.setSkillTrigger(index, trigger)"
-                  >
-                    {{ trigger }}
-                  </button>
+                <div class="flex flex-col gap-1 text-sm text-gray-300">
+                  <div class="flex gap-4 justify-between">
+                    <span
+                      class="capitalize"
+                    >
+                      Target: <span 
+                        :class="[
+                          { 'text-red-400': skill.target === SkillTarget.ENEMY },
+                          { 'text-teal-400': skill.target === SkillTarget.SELF },
+                        ]"
+                      >{{ skill.target }}</span>
+                    </span>
+                    <span class="capitalize">
+                      Cost: <span
+                        :class="[
+                          { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
+                          { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
+                          { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
+                        ]"
+                      >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
+                    </span>
+                  </div>
+                  <div class="flex gap-4 justify-between">
+                    <span
+                      v-if="skill.duration"
+                      class="capitalize"
+                    >
+                      Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
+                    </span>
+                    <span class="capitalize">
+                      Cooldown: <span
+                        :class="[
+                          { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
+                          { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
+                        ]"
+                      >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                      </span>
+                    </span>
+                  </div>
+                  <div class="text-sm text-gray-300 capitalize">
+                    Effect: 
+                    <template v-if="typeof skill.effect.change === 'number'">
+                      {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}
+                    </template>
+                    <template v-else>
+                      {{ skill.effect.change.min > 0 ? '+' : '-' }} ({{ skill.effect.change.min * (skill.effect.change.min > 0 ? 1 : -1) }} - {{ skill.effect.change.max * (skill.effect.change.max > 0 ? 1 : -1) }})
+                    </template>{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                  </div>
+                  <div class="flex flex-wrap gap-2 mt-2">
+                    <span class="text-gray-400">Triggers:</span>
+                    <button 
+                      v-for="trigger in skill.triggerStates" 
+                      :key="trigger"
+                      class="px-2 py-0.5 bg-gray-800 rounded-full capitalize border-transparent border text-emerald-400 duration-300 transition-all"
+                      :class="[
+                        { '!border-emerald-500' : skill.setTrigger === trigger },
+                        { 'opacity-50' : skill.setTrigger !== trigger },
+                        { 'pointer-events-none' : !(skill.isEnabled) },
+                      ]"
+                      @click="gameEngine.setSkillTrigger(index, trigger)"
+                    >
+                      {{ trigger }}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </article>
           </FluidElement>
         </template>
       </div>
@@ -1284,7 +1320,8 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                 class="relative -translate-x-16 -translate-y-6"
                 :style="
                   `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
-                    `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;`
+                    `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;` +
+                    `--firefly-colour: red;`
                 "
               >
                 <span 
@@ -1293,7 +1330,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                   class="firefly"
                 ></span>
               </div>
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-2 z-10">
                 <div class="flex justify-between items-center">
                   <h4 class="text-lg font-medium capitalize">
                     {{ passive.name }}
@@ -1399,7 +1436,13 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                   </span>
                 </div>
                 <div class="text-sm text-gray-300 capitalize">
-                  Effect: {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                  Effect: 
+                  <template v-if="typeof skill.effect.change === 'number'">
+                    {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}
+                  </template>
+                  <template v-else>
+                    {{ skill.effect.change.min > 0 ? '+' : '-' }} ({{ skill.effect.change.min * (skill.effect.change.min > 0 ? 1 : -1) }} - {{ skill.effect.change.max * (skill.effect.change.max > 0 ? 1 : -1) }})
+                  </template>{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
                 </div>
                 <div class="flex flex-wrap gap-2 mt-2">
                   <button
@@ -1470,7 +1513,8 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                   class="relative -translate-x-16 -translate-y-6"
                   :style="
                     `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
-                      `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;`
+                      `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;` +
+                      `--firefly-colour: red;`
                   "
                 >
                   <span 
@@ -1479,7 +1523,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                     class="firefly"
                   ></span>
                 </div>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-2 z-10">
                   <div class="flex justify-between items-center">
                     <h4 class="text-lg font-medium capitalize">
                       {{ passive.name }}
@@ -1531,86 +1575,130 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
             @click="handleAddSkill(skill._identifier)"
           >
             <FluidElement
-              class="p-3 hover:border-amber-400  duration-300 transition-all"
+              class="duration-300 transition-all border-rarity"
+              :data-rarity="skill.rarity"
+              :class="[
+                { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(skill.rarity) },
+              ]"
             >
-              <div class="flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                  <span class="inline-flex items-baseline-last">
-                    <h4 class="text-lg font-medium capitalize">
-                      {{ skill.name }}:
-                    </h4>
-                    <span
-                      class="text-sm text-gray-400 capitalize ml-2"
-                      :class="[
-                        { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
-                        { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
-                        { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
-                      ]"
-                    >
-                      {{ skill.activationLayer }}
-                    </span>
-                  </span>
+              <article 
+                class="grid-area-stack size-full"
+                :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
+              >
+                <RomanNumeral
+                  :count="skill.rarity === Rarity.RARE ? 3 : skill.rarity === Rarity.UNCOMMON ? 2 : 1"
+                  class="ml-auto -mr-3 -mt-5 text-gray-500"
+                  :class="[
+                    { '!text-amber-300' : skill.rarity === Rarity.RARE },
+                    { '!text-white/70' : skill.rarity === Rarity.UNCOMMON },
+                  ]"
+                />
+                <div
+                  v-if="skill.rarity === Rarity.RARE"
+                  class="relative -translate-x-12 -translate-y-6"
+                  :style="
+                    `--firefly-animation-delay: ${(Math.random() * 3) * 1500 * (Math.random() * 3) % 1500}ms;` +
+                      `--firefly-animation-delta: ${(Math.random() * 3) * 200 * (Math.random() * 3) % 200}ms;` +
+                      `--firefly-colour: red;`
+                  "
+                >
+                  <span 
+                    v-for="i in 15"
+                    :key="`firefly_${index}-${i}`"
+                    class="firefly"
+                  ></span>
                 </div>
-                <div class="flex flex-col gap-1 text-sm text-gray-300">
-                  <div class="flex gap-4 justify-between">
-                    <span
-                      class="capitalize"
-                    >
-                      Target: <span 
+                <div class="flex flex-col gap-2 z-10">
+                  <h4
+                    v-if="!isOffCooldown(char, skill._identifier)"
+                    class="text-base font-medium capitalize mx-auto text-indigo-400"
+                  >
+                    Cooldown Remaining {{ char.cooldowns.find(el => el._identifier === skill._identifier)?.remaining }} {{ skill.cooldown.timing }}'s
+                  </h4>
+                  <div class="flex justify-between items-center">
+                    <span class="inline-flex items-baseline-last">
+                      <h4 class="text-lg font-medium capitalize">
+                        {{ skill.name }}:
+                      </h4>
+                      <span
+                        class="text-sm text-gray-400 capitalize ml-2"
                         :class="[
-                          { 'text-red-400': skill.target === SkillTarget.ENEMY },
-                          { 'text-teal-400': skill.target === SkillTarget.SELF },
+                          { 'text-red-400': skill.activationLayer === SkillActivationLayer.COMBAT },
+                          { 'text-teal-400': skill.activationLayer === SkillActivationLayer.RESTING },
+                          { 'text-white': skill.activationLayer === SkillActivationLayer.WORLD },
                         ]"
-                      >{{ skill.target }}</span>
-                    </span>
-                    <span class="capitalize">
-                      Cost: <span
-                        :class="[
-                          { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
-                          { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
-                          { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
-                        ]"
-                      >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
-                    </span>
-                  </div>
-                  <div class="flex gap-4 justify-between">
-                    <span
-                      v-if="skill.duration"
-                      class="capitalize"
-                    >
-                      Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
-                    </span>
-                    <span class="capitalize">
-                      Cooldown: <span
-                        :class="[
-                          { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
-                          { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
-                        ]"
-                      >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                      >
+                        {{ skill.activationLayer }}
                       </span>
                     </span>
                   </div>
-                  <div class="text-sm text-gray-300 capitalize">
-                    Effect: {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
-                  </div>
-                  <div class="flex flex-wrap gap-2 mt-2">
-                    <span class="text-gray-400">Triggers:</span>
-                    <button 
-                      v-for="trigger in skill.triggerStates" 
-                      :key="trigger"
-                      class="px-2 py-0.5 bg-gray-800 rounded-full capitalize border-transparent border text-emerald-400 duration-300 transition-all"
-                      :class="[
-                        { '!border-emerald-500' : skill.setTrigger === trigger },
-                        { 'opacity-50' : skill.setTrigger !== trigger },
-                        { 'pointer-events-none' : !(skill.isEnabled) },
-                      ]"
-                      @click="gameEngine.setSkillTrigger(index, trigger)"
-                    >
-                      {{ trigger }}
-                    </button>
+                  <div class="flex flex-col gap-1 text-sm text-gray-300">
+                    <div class="flex gap-4 justify-between">
+                      <span
+                        class="capitalize"
+                      >
+                        Target: <span 
+                          :class="[
+                            { 'text-red-400': skill.target === SkillTarget.ENEMY },
+                            { 'text-teal-400': skill.target === SkillTarget.SELF },
+                          ]"
+                        >{{ skill.target }}</span>
+                      </span>
+                      <span class="capitalize">
+                        Cost: <span
+                          :class="[
+                            { 'text-red-300': skill.cost.resource === SkillResource.HEALTH },
+                            { 'text-blue-300': skill.cost.resource === SkillResource.MANA },
+                            { 'text-amber-300/70': skill.cost.resource === SkillResource.GOLD },
+                          ]"
+                        >{{ skill.cost.amount }} {{ skill.cost.resource }}</span>
+                      </span>
+                    </div>
+                    <div class="flex gap-4 justify-between">
+                      <span
+                        v-if="skill.duration"
+                        class="capitalize"
+                      >
+                        Duration: {{ skill.duration.count }} {{ skill.duration.timing }}{{ skill.duration.count > 1 ? 's': '' }}
+                      </span>
+                      <span class="capitalize">
+                        Cooldown: <span
+                          :class="[
+                            { 'text-red-400': skill.cooldown.timing === SkillTiming.RUN },
+                            { 'text-teal-400': skill.cooldown.timing === SkillTiming.TURN },
+                          ]"
+                        >{{ skill.cooldown.count }} {{ skill.cooldown.timing }}{{ skill.cooldown.count > 1 ? 's': '' }}
+                        </span>
+                      </span>
+                    </div>
+                    <div class="text-sm text-gray-300 capitalize">
+                      Effect: 
+                      <template v-if="typeof skill.effect.change === 'number'">
+                        {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}
+                      </template>
+                      <template v-else>
+                        {{ skill.effect.change.min > 0 ? '+' : '-' }} ({{ skill.effect.change.min * (skill.effect.change.min > 0 ? 1 : -1) }} - {{ skill.effect.change.max * (skill.effect.change.max > 0 ? 1 : -1) }})
+                      </template>{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                      <span class="text-gray-400">Triggers:</span>
+                      <button 
+                        v-for="trigger in skill.triggerStates" 
+                        :key="trigger"
+                        class="px-2 py-0.5 bg-gray-800 rounded-full capitalize border-transparent border text-emerald-400 duration-300 transition-all"
+                        :class="[
+                          { '!border-emerald-500' : skill.setTrigger === trigger },
+                          { 'opacity-50' : skill.setTrigger !== trigger },
+                          { 'pointer-events-none' : !(skill.isEnabled) },
+                        ]"
+                        @click="gameEngine.setSkillTrigger(index, trigger)"
+                      >
+                        {{ trigger }}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </article>
             </FluidElement>
           </button>
         </template>

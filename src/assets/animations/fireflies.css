@@ -7,6 +7,8 @@
 :root {
   --firefly-animation-delay: 0ms;
   --firefly-animation-delta: 0ms;
+
+  --firefly-colour: yellow;
 }
 
 :has(>.firefly-parent){
@@ -37,7 +39,7 @@
 .firefly::after {
   background: white;
   opacity: 0;
-  box-shadow: 0 0 0 0 yellow;
+  box-shadow: 0 0 0 0 var(--firefly-colour);
   animation: drift ease alternate infinite, flash ease infinite;
   animation-delay: calc(var(--firefly-animation-delay) + var(--firefly-animation-delta));
 }
@@ -1316,11 +1318,11 @@
 @keyframes flash {
   0%, 30%, 100% {
     opacity: 0;
-    box-shadow: 0 0 0 0 yellow;
+    box-shadow: 0 0 0 0 var(--firefly-colour);
   }
   5% {
     opacity: 1;
-    box-shadow: 0 0 2vh 0.4vh yellow;
+    box-shadow: 0 0 2vh 0.4vh var(--firefly-colour);
   }
 }
 

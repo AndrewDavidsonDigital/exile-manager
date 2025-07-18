@@ -14,6 +14,7 @@ import {
   type ICharacterStats, 
   type IClassStatRanges, 
   type IMitigation, 
+  type IStatRange, 
   type ItemBase, 
   type ItemMutationType, 
   type ItemTierType, 
@@ -127,11 +128,10 @@ export interface ILoot {
   }
 }
 
-
 export interface IStatBuff {
   target: AffixCategory | Attributes;
   subTarget?: AffixSubCategory;
-  change: number;
+  change: number | IStatRange;
   type: AffixTypes.ADDITIVE | AffixTypes.MULTIPLICATIVE | AffixTypes.RANGE;
 }
 

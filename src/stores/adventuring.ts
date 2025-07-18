@@ -262,6 +262,46 @@ import { chooseRandom } from '@/lib/array';
                   }
                   break;
                 }
+
+                case AffixCategory.DEFENSE: {
+                  if (selectedSkill.effect.subTarget && selectedSkill.duration){
+                    switch (selectedSkill.effect.subTarget) {
+                      case AffixSubCategory.DEFLECTION: {
+                        
+                        spellDescription = `Casting: ${selectedSkill.name}: buffing ${AffixSubCategory.DEFLECTION} damage by ${selectedSkill.effect.change} for ${selectedSkill.duration.count} ${selectedSkill.duration.timing}'s`;
+                        logger(spellDescription);
+                        const newBuff: ITemporalEffect = {
+                          effect: selectedSkill.effect,
+                          name: selectedSkill.name,
+                          timing: selectedSkill.duration.timing,
+                          remaining: selectedSkill.duration.count,
+                        }
+                        gameEngine.addTemporalEffect(newBuff);
+                        break;
+                      }
+                      case AffixSubCategory.DODGE: {
+                        
+                        spellDescription = `Casting: ${selectedSkill.name}: buffing ${AffixSubCategory.DODGE} damage by ${selectedSkill.effect.change} for ${selectedSkill.duration.count} ${selectedSkill.duration.timing}'s`;
+                        logger(spellDescription);
+                        const newBuff: ITemporalEffect = {
+                          effect: selectedSkill.effect,
+                          name: selectedSkill.name,
+                          timing: selectedSkill.duration.timing,
+                          remaining: selectedSkill.duration.count,
+                        }
+                        gameEngine.addTemporalEffect(newBuff);
+                        break;
+                      }
+                        
+                    
+                      default:
+                        break;
+                    }
+                  }
+
+                  break;
+                }
+
                 default:
                   break;
 

@@ -1,3 +1,5 @@
+import { resolveStatChange, type IStatRange } from "./core";
+
 /**
  * Represents the different tiers of enemies that can be encountered
  * BASIC: Standard enemies with normal stats
@@ -94,11 +96,12 @@ export function getEvasionForDodgeChance(desiredDodgeChance: number, level: numb
  * @param currentEvasion - The character's current evasion value.
  * @returns The additional evasion needed (0 if already at or above the required evasion for the increased chance).
  */
-export function getAdditionalEvasionForDodgeIncrease(desiredDodgeIncrease: number, level: number, currentEvasion: number): number {
+export function getAdditionalEvasionForDodgeIncrease(desiredDodgeIncrease: number | IStatRange, level: number, currentEvasion: number): number {
+  let delta = resolveStatChange(desiredDodgeIncrease);
   // Get current dodge chance
   const currentDodgeChance = calculateDodgeChance(currentEvasion, level);
   // Calculate target dodge chance
-  const targetDodgeChance = currentDodgeChance + desiredDodgeIncrease;
+  const targetDodgeChance = currentDodgeChance + delta;
   // Get required evasion for the target dodge chance
   const requiredEvasion = getEvasionForDodgeChance(targetDodgeChance, level);
   if (!isFinite(requiredEvasion)) return Infinity;
@@ -210,11 +213,12 @@ export function calculateDeflectionAttempts(armourValue: number, charLevel:numbe
  * @param charLevel - The character's level (default: 1).
  * @returns The required armour value for the given number of deflection attempts.
  */
-export function getArmourForDeflectionCount(count: number, charLevel: number = 1): number {
-  if (count < 1) return 0;
-  if (count > DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS) count = DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS;
+export function getArmourForDeflectionCount(count: number | IStatRange, charLevel: number = 1): number {
+  let delta = resolveStatChange(count);
+  if (delta < 1) return 0;
+  if (delta > DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS) delta = DEFLECTION_CONSTANTS.MAX_DEFLECTION_REPEATS;
   const normalizedArmorValue = 10 * Math.max(Math.floor(charLevel / affixLevelBand), 1);
-  return count * normalizedArmorValue;
+  return delta * normalizedArmorValue;
 }
 
 /**
