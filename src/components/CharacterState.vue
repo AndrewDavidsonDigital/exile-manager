@@ -469,7 +469,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
         description = `${effect.target}`
   }
 
-  const change = `+${effect.change }${direction}`;
+  const change = `+${effect.change }${direction} `;
 
   return change + description;
 }
@@ -1114,7 +1114,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
   <ModalDialog
     :id="SKILLS_MODAL_ID"
     :show="showSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
     @close="showSkillsModal = false"
   >
     <section class="text-emerald-400 mx-auto">
@@ -1232,7 +1232,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
   <ModalDialog
     :id="PASSIVES_MODAL_ID"
     :show="showPassivesModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
     @close="showPassivesModal = false"
   >
     <section class="text-emerald-400 mx-auto">
@@ -1312,7 +1312,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
   <ModalDialog
     :id="WORLD_SKILL_MODAL_ID"
     :show="showWorldSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
     @close="showWorldSkillsModal = false"
   >
     <section class="text-emerald-400 mx-auto">
@@ -1426,7 +1426,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
     :id="NEW_PASSIVES_MODAL_ID"
     :show="showNewPassivesModal"
     disable-lite-dismiss
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
     @close="showNewPassivesModal = false"
   >
     <section class="text-emerald-400 mx-auto">
@@ -1510,7 +1510,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
   <ModalDialog
     :id="NEW_SKILLS_MODAL_ID"
     :show="showNewSkillsModal"
-    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
+    class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-x-clip"
     @close="showNewSkillsModal = false"
   >
     <section class="text-emerald-400 mx-auto">
