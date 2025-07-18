@@ -769,6 +769,8 @@ export const useGameEngine = defineStore('gameEngine', {
       this.character = _cloneDeep(character); // Create a new object to ensure reactivity
       this.isDead = false;
 
+      // reset previous skills-list
+      this.nextRewards.skills = [];
       // auto select a skill
       const starters = this.getAvailableSkills;
       // logger(`${JSON.stringify(starters)}`);
