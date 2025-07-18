@@ -446,7 +446,6 @@ function handleActivateWorldSkill(skill: ISkill): void{
 
 const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 0);
 
-
 function resolveDescriptionFromEffect(effect: IStatBuff){
   let description = `${effect.target}`;
   let direction = `${ effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }`;
@@ -469,7 +468,12 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
         description = `${effect.target}`
   }
 
-  const change = `+${effect.change }${direction} `;
+  let change;
+  if (effect.type === AffixTypes.RANGE && typeof effect.change !== 'number' ){
+    change = `${effect.change.min * (effect.change.min > 0 ? 1 : -1)}  -  ${effect.change.max * (effect.change.max > 0 ? 1 : -1)}`
+  } else if(typeof effect.change === 'number'){
+    change = `${effect.change > 0 ? '+' : ''}${effect.change }${direction} `;
+  }
 
   return change + description;
 }
@@ -1233,13 +1237,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                     </span>
                   </div>
                   <div class="text-sm text-gray-300 capitalize">
-                    Effect: 
-                    <template v-if="typeof skill.effect.change === 'number'">
-                      {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}
-                    </template>
-                    <template v-else>
-                      {{ skill.effect.change.min > 0 ? '+' : '-' }} ({{ skill.effect.change.min * (skill.effect.change.min > 0 ? 1 : -1) }} - {{ skill.effect.change.max * (skill.effect.change.max > 0 ? 1 : -1) }})
-                    </template>{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                    Effect: {{ resolveDescriptionFromEffect(skill.effect) }}
                   </div>
                   <div class="flex flex-wrap gap-2 mt-2">
                     <span class="text-gray-400">Triggers:</span>
@@ -1672,13 +1670,7 @@ function resolveDescriptionFromEffect(effect: IStatBuff){
                       </span>
                     </div>
                     <div class="text-sm text-gray-300 capitalize">
-                      Effect: 
-                      <template v-if="typeof skill.effect.change === 'number'">
-                        {{ skill.effect.change > 0 ? '+' : '' }}{{ skill.effect.change }}
-                      </template>
-                      <template v-else>
-                        {{ skill.effect.change.min > 0 ? '+' : '-' }} ({{ skill.effect.change.min * (skill.effect.change.min > 0 ? 1 : -1) }} - {{ skill.effect.change.max * (skill.effect.change.max > 0 ? 1 : -1) }})
-                      </template>{{ skill.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }} {{ skill.effect.target }}
+                      Effect: {{ resolveDescriptionFromEffect(skill.effect) }}
                     </div>
                     <div class="flex flex-wrap gap-2 mt-2">
                       <span class="text-gray-400">Triggers:</span>
