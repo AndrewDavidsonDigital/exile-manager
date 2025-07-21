@@ -20,9 +20,15 @@ export const releases: IRelease[] = [
   {
     version: '0.2.0',
     highlights: [
-      'Version 0.2',
+      'Add audio pre-loader for sfx',
+      'Update a bunch documentation',
+      'Add visual representation for buff effects',
+      'Add toggles for logging tiers',
+      'Add support for skills and passives to have rarities and bias their chances',
+      'Flesh out some more skills and passives',
+      'Apply some performance tweaks',
     ],
-    commit: '',
+    commit: 'ba24b290f1f4799baea1eef6eb0d41edcc735971',
     compare: 'v0.1.6...v0.2.0',
   },
   {
