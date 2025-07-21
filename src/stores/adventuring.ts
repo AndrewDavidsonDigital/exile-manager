@@ -1255,7 +1255,7 @@ import { chooseRandom } from '@/lib/array';
         // need to remove limited location.
         gameEngine.removeLocation(selectedLevel);
       }
-      console.log('ESCAPED: ',tickResult);
+      // console.log('ESCAPED: ',tickResult);
     }
 
     const entry: IJournalEntry = {

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { IAudioEngine } from '.';
+import { trace } from '@/lib/logging';
 
 const LOGGING_PREFIX = '🍃 Audio (Interaction) Engine:\t';
 const AUDIO_DELTA = 0.05;
@@ -131,5 +132,5 @@ export const useInteractionEngine = defineStore('interactionAudioEngine', {
 
 
 function logger(message: string): void{
-  console.log(`${Date.now()} ${LOGGING_PREFIX}${message}`);
+  trace(`${LOGGING_PREFIX}${message}`);
 }

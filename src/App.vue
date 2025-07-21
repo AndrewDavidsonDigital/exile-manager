@@ -114,7 +114,7 @@
     }
   }
   function clickCallback(_e: MouseEvent): void{
-    console.log(` Click: `, _e);
+    // console.log(` Click: `, _e);
     if ((lastSfx.value + MIN_SFX_INTERVAL) < Date.now()){
       if (Object.keys(_e).includes(EVENT_AUDIO_KEY)){
         const e = _e as EventWithAudio;

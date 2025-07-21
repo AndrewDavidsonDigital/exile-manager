@@ -242,7 +242,7 @@ const hasNext = computed(()=>{
 
 
 function selectLootNeighbour(forwards: boolean = false): void{
-  console.log('selecting neighbour: next?:', forwards);
+  // console.log('selecting neighbour: next?:', forwards);
   const char = gameEngine.getCharacter;
   if((selectedItemIndex.value !== 0 && !(selectedItemIndex.value)) || char === ErrorNumber.NOT_FOUND){
     return;
