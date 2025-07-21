@@ -10,7 +10,7 @@ import { calculateCriticalChance } from '@/lib/combatMechanics';
 import FluidElement from './elements/FluidElement.vue';
 import { getAffixByType } from '@/lib/affixUtils';
 import { formatBaseAffixValue } from '@/lib/itemUtils';
-import { IconPassiveTree, IconRefreshCC, IconSkills, IconStatIncrease, IconWorldSkills } from './icons';
+import { IconBuffs, IconPassiveTree, IconRefreshCC, IconSkills, IconStatIncrease, IconWorldSkills } from './icons';
 import ModalDialog from './elements/ModalDialog.vue';
 import SwitchToggle from './elements/SwitchToggle.vue';
 import { ErrorNumber } from '@/lib/typescript';
@@ -19,6 +19,7 @@ import { useConfigurationStore } from '@/stores/configuration';
 import { entries } from '@/journal';
 import CloseButton from './elements/CloseButton.vue';
 import RomanNumeral from './elements/RomanNumeral.vue';
+import TooltipElement from './elements/TooltipElement.vue';
 
 
 interface Props {
@@ -446,6 +447,49 @@ function handleActivateWorldSkill(skill: ISkill): void{
 
 const hasWorldSkill = computed(() => char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 0);
 
+function resolveTemporalEffectDescription(temporal: ITemporalEffect){
+  let description = `${temporal.name}`;
+  let direction = `${ temporal.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }`;
+  let ignoreChange = false;
+  if (temporal.effect.subTarget){
+    switch (temporal.effect.subTarget) {
+      case AffixSubCategory.DEFLECTION:
+        description = `Minimum Deflection`;
+        direction = '';
+        break;
+      case AffixSubCategory.DODGE:
+        description = `Base Dodge`;
+        direction = '% ';
+        break;
+      case AffixSubCategory.PHYSICAL:
+        direction = '';
+        ignoreChange = true;
+        break;
+      case AffixSubCategory.ELEMENTAL:
+        direction = '';
+        ignoreChange = true;
+        break;
+    
+      default:
+        description = `${temporal.effect.subTarget}`
+        break;
+    }
+  }else {
+    description = `${temporal.effect.target}`
+  }
+
+  let change = '';
+  if (!ignoreChange){
+    if (temporal.effect.type === AffixTypes.RANGE && typeof temporal.effect.change !== 'number' ){
+      change = `${temporal.effect.change.min * (temporal.effect.change.min > 0 ? 1 : -1)}  -  ${temporal.effect.change.max * (temporal.effect.change.max > 0 ? 1 : -1)}`
+    } else if(typeof temporal.effect.change === 'number'){
+      change = `${temporal.effect.change > 0 ? '+' : ''}${temporal.effect.change }${direction} `;
+    }
+  }
+
+  return change + description;
+}
+
 function resolveDescriptionFromEffect(b: IPassive | ISkill){
   let description = `${b.effect.target}`;
   let direction = `${ b.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }`;
@@ -491,6 +535,20 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
   return change + description;
 }
 
+function formatBuffs(buffs: ITemporalEffect[]){
+  if (buffs.length <= 0) return '';
+
+  let retval = '';
+
+  buffs.forEach(buff => {
+
+    retval += `${buff.name}: +${buff.effect.change}${buff.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : ''} :  ${buff.remaining} ${buff.timing} `;
+
+  });
+
+  return retval;
+}
+
 </script>
 
 <template>
@@ -516,8 +574,38 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
       <template v-if="char !== ErrorNumber.NOT_FOUND && gameEngine.getCombatStats !== ErrorNumber.NOT_FOUND">
         <div class="flex justify-between">
           <div class="flex flex-col gap-2">
-            <div class="text-xl font-bold text-white capitalize">
-              {{ char.name }}
+            <div class="text-xl font-bold text-white capitalize inline-flex gap-2">
+              {{ char.name }} 
+              <span
+                v-if="char.temporalEffects.length > 0"
+                :title="formatBuffs(char.temporalEffects)"
+              >
+                <TooltipElement 
+                  :tooltip-key="`${Date.now()}`"
+                >
+                  <template #wrapper>
+                    <IconBuffs
+                      class="text-class"
+                    />
+                  </template>
+                  <template #tooltip>
+                    <section>
+                      <h4>Buffs:</h4>
+                      <template
+                        v-for="eff,idx in char.temporalEffects"
+                        :key="`_${idx}`"
+                      >
+                        <div class="grid grid-cols-[1fr_1fr_4rem] gap-2">
+                          <p class="text-sm !font-normal">{{ eff.name }}</p>
+                          <!-- <p class="text-sm !font-normal justify-self-end">+{{ eff.effect.change }}{{ eff.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }}</p> -->
+                          <p class="text-sm !font-normal justify-self-center">{{ resolveTemporalEffectDescription(eff) }}</p>
+                          <p class="text-sm !font-normal justify-self-end">{{ eff.remaining }} {{ eff.timing }}{{ eff.remaining === 1 ? '' : 's' }}</p>
+                        </div>
+                      </template>
+                    </section>
+                  </template>
+                </TooltipElement>
+              </span>
             </div>
             <div class="text-sm text-gray-300">
               Level {{ char.level }} {{ char.class }}

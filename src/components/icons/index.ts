@@ -16,6 +16,7 @@ import IconChevron from './IconChevron.vue';
 import IconMoney from './IconMoney.vue';
 import IconMoneyThree from './IconMoneyThree.vue';
 import IconSearch from './IconSearch.vue';
+import IconBuffs from './IconBuffs.vue';
 
 export {
   IconPlay,
@@ -28,6 +29,7 @@ export {
   IconMoney,
   IconMoneyThree,
   IconSearch,
+  IconBuffs,
 
   IconPassiveTree,
   IconSkills,
