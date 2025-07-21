@@ -1319,7 +1319,7 @@ function formatBuffs(buffs: ITemporalEffect[]){
         {'pt-10': char !== ErrorNumber.NOT_FOUND && char.skills.length <= 2}
       ]"
     >
-      <h3 class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2">
+      <h3 class="text-xl font-bold mb-4 w-full fixed top-2 left-1/2 -translate-x-1/2 text-center">
         Skills
       </h3>
       <CloseButton @click="showSkillsModal = false" />
@@ -1476,7 +1476,7 @@ function formatBuffs(buffs: ITemporalEffect[]){
         {'pt-10': char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length <= 2}
       ]"
     >
-      <h3 class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2">
+      <h3 class="text-xl font-bold mb-4 w-full fixed top-2 left-1/2 -translate-x-1/2 text-center">
         Activate World Skill
       </h3>
       <CloseButton @click="showWorldSkillsModal = false" />
