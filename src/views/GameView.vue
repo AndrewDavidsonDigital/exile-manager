@@ -79,10 +79,10 @@
         retval = 'oklch(60% 0.118 184.704)';
         break;
       case ExileClass.REAVER:
-        retval = 'oklch(90.1% 0.076 70.697)';
+        retval = 'oklch(70.4% 0.191 22.216)';
         break;
       case ExileClass.SPELLSWORD:
-        retval = 'oklch(40.8% 0.153 2.432)';
+        retval = 'oklch(82.8% 0.111 230.318)';
         break;
     
       default:
@@ -95,7 +95,7 @@
 
 <template>
   <section
-    class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)] relative "
+    class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)] relative"
     :style="`--text-class-colour: ${resolveClassBasedColours()};`"
   >
     <template v-if="hasCharacter">
