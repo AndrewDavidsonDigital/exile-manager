@@ -76,6 +76,7 @@ test('should use default config when storage is empty', () => {
   trace(message);
   debug(message);
   
-  expect(consoleSpy).toHaveBeenCalledTimes(2);
+  // default state is now both disabled
+  expect(consoleSpy).toHaveBeenCalledTimes(0);
   consoleSpy.mockRestore();
 }); 
