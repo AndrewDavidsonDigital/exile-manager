@@ -16,12 +16,12 @@ export const levels: ILevel[] = [
     completionRules: [
       {
         _identifier: 'init_reef_1',
-        weighting: 80,
+        weighting: 40,
         limits: 2,
       },
       {
         _identifier: 'init_reef_1_2',
-        weighting: 20,
+        weighting: 10,
         limits: 4,
       }
     ],
