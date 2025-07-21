@@ -535,20 +535,6 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
   return change + description;
 }
 
-function formatBuffs(buffs: ITemporalEffect[]){
-  if (buffs.length <= 0) return '';
-
-  let retval = '';
-
-  buffs.forEach(buff => {
-
-    retval += `${buff.name}: +${buff.effect.change}${buff.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : ''} :  ${buff.remaining} ${buff.timing} `;
-
-  });
-
-  return retval;
-}
-
 </script>
 
 <template>
@@ -578,11 +564,9 @@ function formatBuffs(buffs: ITemporalEffect[]){
               {{ char.name }} 
               <span
                 v-if="char.temporalEffects.length > 0"
-                :title="formatBuffs(char.temporalEffects)"
+                class="hidden md:block"
               >
-                <TooltipElement 
-                  :tooltip-key="`${Date.now()}`"
-                >
+                <TooltipElement :tooltip-key="`${Date.now()}`">
                   <template #wrapper>
                     <IconBuffs
                       class="text-class"
@@ -597,7 +581,6 @@ function formatBuffs(buffs: ITemporalEffect[]){
                       >
                         <div class="grid grid-cols-[1fr_1fr_4rem] gap-2">
                           <p class="text-sm !font-normal">{{ eff.name }}</p>
-                          <!-- <p class="text-sm !font-normal justify-self-end">+{{ eff.effect.change }}{{ eff.effect.type === AffixTypes.MULTIPLICATIVE ? '%' : '' }}</p> -->
                           <p class="text-sm !font-normal justify-self-center">{{ resolveTemporalEffectDescription(eff) }}</p>
                           <p class="text-sm !font-normal justify-self-end">{{ eff.remaining }} {{ eff.timing }}{{ eff.remaining === 1 ? '' : 's' }}</p>
                         </div>
@@ -1449,6 +1432,7 @@ function formatBuffs(buffs: ITemporalEffect[]){
                         { '!border-emerald-500' : skill.setTrigger === trigger },
                         { 'opacity-50' : skill.setTrigger !== trigger },
                         { 'pointer-events-none' : !(skill.isEnabled) },
+                        { '!pointer-events-none !cursor-default' : skill.triggerStates.length === 1 },
                       ]"
                       @click="gameEngine.setSkillTrigger(index, trigger)"
                     >
@@ -1812,6 +1796,7 @@ function formatBuffs(buffs: ITemporalEffect[]){
                           { '!border-emerald-500' : skill.setTrigger === trigger },
                           { 'opacity-50' : skill.setTrigger !== trigger },
                           { 'pointer-events-none' : !(skill.isEnabled) },
+                          { '!pointer-events-none !cursor-default' : skill.triggerStates.length === 1 },
                         ]"
                         @click="gameEngine.setSkillTrigger(index, trigger)"
                       >
