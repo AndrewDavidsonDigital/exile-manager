@@ -1257,7 +1257,7 @@ function formatBuffs(buffs: ITemporalEffect[]){
           :key="`passives_${index}`"
         >
           <FluidElement
-            class="duration-300 transition-all border-rarity max-w-[calc(100%_-_2px)] md:max-w-52 last:-mb-10"
+            class="duration-300 transition-all border-rarity max-w-[calc(100%_-_2px)] md:max-w-52 last:-mb-10 md:last:mb-0"
             :data-rarity="passive.rarity"
             :class="[
               { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
