@@ -14,36 +14,36 @@
   import { AudioKey, EVENT_AUDIO_KEY, type EventWithAudio } from './lib/core';
   import { chooseRandom } from './lib/array';
   
-  import bgmTrack from '@/assets/audio/bgm_track.m4a';
+  import bgmTrack from '/audio/bgm_track.m4a';
 
-  import clickTrack from '@/assets/audio/sfx/click.m4a';
-  import brushTrack from '@/assets/audio/sfx/brush.m4a';
-  import swooshDownTrack from '@/assets/audio/sfx/swoosh_down.m4a';
-  import swooshUpTrack from '@/assets/audio/sfx/swoosh_up.m4a';
+  import clickTrack from '/audio/sfx/click.m4a';
+  import brushTrack from '/audio/sfx/brush.m4a';
+  import swooshDownTrack from '/audio/sfx/swoosh_down.m4a';
+  import swooshUpTrack from '/audio/sfx/swoosh_up.m4a';
 
-  import goldTrack1 from '@/assets/audio/sfx/gold_1.m4a';
-  import goldTrack2 from '@/assets/audio/sfx/gold_2.m4a';
+  import goldTrack1 from '/audio/sfx/gold_1.m4a';
+  import goldTrack2 from '/audio/sfx/gold_2.m4a';
 
-  import scrollTrack1 from '@/assets/audio/sfx/scroll_1.m4a';
-  import scrollTrack2 from '@/assets/audio/sfx/scroll_2.m4a';
-  import scrollTrack3 from '@/assets/audio/sfx/scroll_3.m4a';
+  import scrollTrack1 from '/audio/sfx/scroll_1.m4a';
+  import scrollTrack2 from '/audio/sfx/scroll_2.m4a';
+  import scrollTrack3 from '/audio/sfx/scroll_3.m4a';
   
-  import smithTrack1 from '@/assets/audio/sfx/smith_1.m4a';
-  import smithTrack2 from '@/assets/audio/sfx/smith_2.m4a';
-  import smithTrack3 from '@/assets/audio/sfx/smith_3.m4a';
+  import smithTrack1 from '/audio/sfx/smith_1.m4a';
+  import smithTrack2 from '/audio/sfx/smith_2.m4a';
+  import smithTrack3 from '/audio/sfx/smith_3.m4a';
 
-  import armourTrack1 from '@/assets/audio/sfx/armour_1.m4a';
-  import armourTrack2 from '@/assets/audio/sfx/armour_2.m4a';
-  import armourTrack3 from '@/assets/audio/sfx/armour_3.m4a';
-  import armourTrack4 from '@/assets/audio/sfx/armour_4.m4a';
-  import armourTrack5 from '@/assets/audio/sfx/armour_5.m4a';
+  import armourTrack1 from '/audio/sfx/armour_1.m4a';
+  import armourTrack2 from '/audio/sfx/armour_2.m4a';
+  import armourTrack3 from '/audio/sfx/armour_3.m4a';
+  import armourTrack4 from '/audio/sfx/armour_4.m4a';
+  import armourTrack5 from '/audio/sfx/armour_5.m4a';
 
-  import jewelleryTrack1 from '@/assets/audio/sfx/jewellery_1.m4a';
-  import jewelleryTrack2 from '@/assets/audio/sfx/jewellery_2.m4a';
-  import jewelleryTrack3 from '@/assets/audio/sfx/jewellery_3.m4a';
-  import jewelleryTrack4 from '@/assets/audio/sfx/jewellery_4.m4a';
-  import jewelleryTrack5 from '@/assets/audio/sfx/jewellery_5.m4a';
-  import jewelleryTrack6 from '@/assets/audio/sfx/jewellery_6.m4a';
+  import jewelleryTrack1 from '/audio/sfx/jewellery_1.m4a';
+  import jewelleryTrack2 from '/audio/sfx/jewellery_2.m4a';
+  import jewelleryTrack3 from '/audio/sfx/jewellery_3.m4a';
+  import jewelleryTrack4 from '/audio/sfx/jewellery_4.m4a';
+  import jewelleryTrack5 from '/audio/sfx/jewellery_5.m4a';
+  import jewelleryTrack6 from '/audio/sfx/jewellery_6.m4a';
 
   import OnboardingEngine from './core/OnboardingEngine.vue';
   import { useGameEngine } from './stores/game';

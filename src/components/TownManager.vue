@@ -12,13 +12,13 @@
   import { useInteractionEngine } from '@/stores/audio';
   import { chooseRandom } from '@/lib/array';
 
-  import scrollTrack1 from '@/assets/audio/sfx/scroll_1.m4a';
-  import scrollTrack2 from '@/assets/audio/sfx/scroll_2.m4a';
-  import scrollTrack3 from '@/assets/audio/sfx/scroll_3.m4a';
+  import scrollTrack1 from '/audio/sfx/scroll_1.m4a';
+  import scrollTrack2 from '/audio/sfx/scroll_2.m4a';
+  import scrollTrack3 from '/audio/sfx/scroll_3.m4a';
 
-  import smithTrack1 from '@/assets/audio/sfx/smith_1.m4a';
-  import smithTrack2 from '@/assets/audio/sfx/smith_2.m4a';
-  import smithTrack3 from '@/assets/audio/sfx/smith_3.m4a';
+  import smithTrack1 from '/audio/sfx/smith_1.m4a';
+  import smithTrack2 from '/audio/sfx/smith_2.m4a';
+  import smithTrack3 from '/audio/sfx/smith_3.m4a';
 import CloseButton from './elements/CloseButton.vue';
 
   const LOGGING_PREFIX = '🏠 Town:\t';

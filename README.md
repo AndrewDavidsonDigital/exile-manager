@@ -64,15 +64,15 @@ Example BGM:
 
 | Reference | Source | Artist | Title |
 | ----------- | ----------- | ----------- | ----------- | 
-| `assets/audio/bgm_track.m4a` | Stellaris Digital Soundtrack | Paradox Interactive | Faster Than Light - Instrumental |
+| `audio/bgm_track.m4a` | Stellaris Digital Soundtrack | Paradox Interactive | Faster Than Light - Instrumental |
 
 
 Example SFX:
 
 | Reference | Source | Description |
 | ----------- | ----------- | ----------- |
-| `assets/audio/sfx/*` | Diablo-II | A lot of the clink and clack sound effects are pulled from Diablo-2 |
-| `assets/audio/sfx/*` (Others) | [Online Soundboard](https://www.myinstants.com) |  |
+| `audio/sfx/*` | Diablo-II | A lot of the clink and clack sound effects are pulled from Diablo-2 |
+| `audio/sfx/*` (Others) | [Online Soundboard](https://www.myinstants.com) |  |
 
 
 # Features Exert
