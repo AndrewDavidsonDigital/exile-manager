@@ -126,8 +126,8 @@
     }
   }
 
-  function attemptRestore(feature: ITownFeature, event?: MouseEvent | Event): void{
-    if (!feature.isRuined) return;
+  function attemptRestore(feature: ITownFeature | undefined, event?: MouseEvent | Event): void{
+    if (!feature || !feature.isRuined) return;
 
     showFeatureUnlockModal.value = false;
 
@@ -237,7 +237,7 @@
         You feel that you are skilled enough to restore this building, but at the cost of {{ selectedFeature.repairs.cost }} gold
         <button
           class="w-fit"
-          @click="(e) => attemptRestore(selectedFeature, e)"
+          @click="(e) => attemptRestore(selectedFeature, e)" 
         >
           <FluidElement is-thin>
             Restore

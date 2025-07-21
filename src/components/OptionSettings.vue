@@ -11,11 +11,6 @@
   const localLogging = ref<ILoggingConfig>();
   localLogging.value = getLogging();
 
-  // function updateLogging(key: LoggingConfigKeyType, newValue: boolean){
-  //   console.log(key, ' ', newValue);
-  //   updateLogging(key, newValue);
-  // }
-
 </script>
 
 <template>
