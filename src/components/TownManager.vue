@@ -19,10 +19,11 @@
   import smithTrack1 from '/audio/sfx/smith_1.m4a';
   import smithTrack2 from '/audio/sfx/smith_2.m4a';
   import smithTrack3 from '/audio/sfx/smith_3.m4a';
-import CloseButton from './elements/CloseButton.vue';
+  import CloseButton from './elements/CloseButton.vue';
 
   const LOGGING_PREFIX = '🏠 Town:\t';
-  function logger(message: string) {
+
+  function _logger(message: string) {
     trace(`${LOGGING_PREFIX}${message}`);
   }
 
@@ -35,8 +36,6 @@ import CloseButton from './elements/CloseButton.vue';
   const showFeatureUnlockModal = ref<boolean>(false);
   const showFeatureInteractModal = ref<boolean>(false);
   const selectedFeature = ref<ITownFeature | undefined>(undefined);
-  const restoreIntervalCount = ref<number>(-1);
-  const restoreIntervalId = ref<number>(-1);
 
   const char = computed(() => gameEngine.getCharacter !== ErrorNumber.NOT_FOUND ? gameEngine.character : undefined)
 
@@ -122,21 +121,12 @@ import CloseButton from './elements/CloseButton.vue';
       showFeatureUnlockModal.value = true;
     }
 
-    switch (feature.binding) {
-      case TownUnlockable.SMITH:
-        (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH;
-        break;
-
-      case TownUnlockable.ARCANUM:
-        (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;
-        break;
-    
-      default:
-        break;
+    if (feature.binding){
+      playTownAudio(feature.binding, event)
     }
   }
 
-  function attemptRestore(feature: ITownFeature): void{
+  function attemptRestore(feature: ITownFeature, event?: MouseEvent | Event): void{
     if (!feature.isRuined) return;
 
     showFeatureUnlockModal.value = false;
@@ -145,51 +135,18 @@ import CloseButton from './elements/CloseButton.vue';
       // actually attempt repairs.
 
       gameEngine.updateGold(feature.repairs.cost, false);
-      
       gameEngine.incrementRuns(feature.repairs.runs);
+      
+      worldEngine.unlockTownFeature(feature.binding);
 
-      restoreIntervalCount.value = feature.repairs.runs;
-
-      restoreIntervalId.value = setInterval(
-        () => {
-          if(restoreIntervalCount.value <= 0){
-            logger(`Repairs finished`);
-            clearInterval(restoreIntervalId.value);
-            worldEngine.unlockTownFeature(feature.binding);
-            restoreIntervalId.value = -1;
-            restoreIntervalCount.value = -1;
-          }else{
-            logger(`Repairs started: [${feature.repairs.runs - restoreIntervalCount.value + 1}/${feature.repairs.runs}]`);
-            restoreIntervalCount.value--;
-          }
-        }, 
-        500,
-      ) as unknown as number;
-
+      playTownAudio(feature.binding, event);
     }
   }
 
   function closeInteractModal(event?: MouseEvent | Event): void{
     showFeatureInteractModal.value = false;
-    switch (selectedFeature.value?.binding) {
-      case TownUnlockable.SMITH:
-        if (event){
-          (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH;
-        } else {
-          interactionEngine.setTrack(chooseRandom(smithTracks, smithTrack1), true);
-        }
-        break;
-
-      case TownUnlockable.ARCANUM:
-        if (event){
-          (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;
-        } else {
-          interactionEngine.setTrack(chooseRandom(scrollTracks, scrollTrack1), true);
-        }
-        break;
-    
-      default:
-        break;
+    if (selectedFeature.value?.binding){
+      playTownAudio(selectedFeature.value.binding, event)
     }
     selectedFeature.value = undefined; 
     worldEngine.saveState();
@@ -197,7 +154,16 @@ import CloseButton from './elements/CloseButton.vue';
 
   function closeUnlockModal(event?: MouseEvent | Event): void{
     showFeatureUnlockModal.value = false;
-    switch (selectedFeature.value?.binding) {
+    
+    if (selectedFeature.value?.binding){
+      playTownAudio(selectedFeature.value.binding, event)
+    }
+
+    selectedFeature.value = undefined;
+  }
+
+  function playTownAudio(binding: TownUnlockable, event?: MouseEvent | Event){
+    switch (binding) {
       case TownUnlockable.SMITH:
         if (event){
           (event as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SMITH;
@@ -217,8 +183,6 @@ import CloseButton from './elements/CloseButton.vue';
       default:
         break;
     }
-
-    selectedFeature.value = undefined;
   }
 
 </script>
@@ -273,7 +237,7 @@ import CloseButton from './elements/CloseButton.vue';
         You feel that you are skilled enough to restore this building, but at the cost of {{ selectedFeature.repairs.cost }} gold
         <button
           class="w-fit"
-          @click="attemptRestore(selectedFeature)"
+          @click="(e) => attemptRestore(selectedFeature, e)"
         >
           <FluidElement is-thin>
             Restore
@@ -323,7 +287,3 @@ import CloseButton from './elements/CloseButton.vue';
     </section>
   </ModalDialog>
 </template>
-
-<style scoped>
-  @reference "@/assets/main.css";
-</style> 
