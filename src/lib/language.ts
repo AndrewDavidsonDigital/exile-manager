@@ -5,6 +5,8 @@ const terms = new Map<string, string>([
   ['healthmanabars','HP | Mana: '],
   ['help','Help'],
   ['tutorial','Show Tutorial'],
+  ['trace','Trace logs'],
+  ['debug','Debugging logs'],
 ])
 
 export function resolveLabelFromKey(term :string): string{

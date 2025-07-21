@@ -1,16 +1,35 @@
 import { useLogging } from "./storage";
 
-interface ILoggingConfig {
+export interface ILoggingConfig {
   trace: boolean;
   debug: boolean;
 }
 
-let loggingConfig: ILoggingConfig;
+export type LoggingConfigKeyType = keyof ILoggingConfig;
+export const LoggingConfigKeys = ['trace', 'debug'] as  LoggingConfigKeyType[];
+
+let currentConfig: ILoggingConfig;
 
 function initLogging(): void {
   const loggingStorage = useLogging();
-  loggingConfig = JSON.parse((loggingStorage.get() || '{ "trace": true, "debug": true }')) as ILoggingConfig;
-  loggingStorage.set(JSON.stringify(loggingConfig));
+  currentConfig = JSON.parse((loggingStorage.get() || '{ "trace": false, "debug": false }')) as ILoggingConfig;
+  loggingStorage.set(JSON.stringify(currentConfig));
+}
+
+export function getLogging(): ILoggingConfig{
+  if (!currentConfig){
+    initLogging();
+  }
+  return currentConfig;
+}
+
+export function updateLogging(key: LoggingConfigKeyType, newValue: boolean): void {
+  const loggingStorage = useLogging();
+  if (!currentConfig){
+    initLogging();
+  }
+  currentConfig[key] = newValue;
+  loggingStorage.set(JSON.stringify(currentConfig));
 }
 
 // Initialize logging by default
@@ -21,7 +40,7 @@ initLogging();
  * @param message - The message to log
  */
 export function trace(message: string): void{  
-  if (loggingConfig.trace){
+  if (currentConfig.trace){
     console.log(`${Date.now()} ${message}`);
   }
 }
@@ -31,7 +50,7 @@ export function trace(message: string): void{
  * @param message - The message to log
  */
 export function debug(message: string): void{  
-  if (loggingConfig.debug){
+  if (currentConfig.debug){
     console.log(`${Date.now()} ${message}`);
   }
 }
@@ -43,6 +62,6 @@ export function debug(message: string): void{
 export const _testing = {
   initLogging,
   setConfig: (config: ILoggingConfig) => {
-    loggingConfig = config;
+    currentConfig = config;
   }
 };

@@ -3,8 +3,18 @@
   import SwitchToggle from './elements/SwitchToggle.vue';
   import FluidElement from './elements/FluidElement.vue';
   import { resolveLabelFromKey } from '@/lib/language';
+  import { getLogging, LoggingConfigKeys, updateLogging, type ILoggingConfig } from '@/lib/logging';
+  import { ref } from 'vue';
 
   const configuration = useConfigurationStore();
+
+  const localLogging = ref<ILoggingConfig>();
+  localLogging.value = getLogging();
+
+  // function updateLogging(key: LoggingConfigKeyType, newValue: boolean){
+  //   console.log(key, ' ', newValue);
+  //   updateLogging(key, newValue);
+  // }
 
 </script>
 
@@ -90,6 +100,23 @@
               ></SwitchToggle>
             </span>
           </template>
+        </span>
+      </template>
+    </template>
+    <h3 class="text-lg">
+      Logging
+    </h3>
+    <template v-if="localLogging">
+      <template 
+        v-for="loggingConfig,index in LoggingConfigKeys"
+        :key="`logging_settings_configGroup_${index}`"
+      >
+        <span class="flex justify-between gap-2 items-center md:max-w-1/2">
+          <p class="ml-4">{{ resolveLabelFromKey(loggingConfig) }}</p>
+          <SwitchToggle
+            v-model="(localLogging[loggingConfig])"
+            @updated="updateLogging(loggingConfig, localLogging[loggingConfig])"
+          ></SwitchToggle>
         </span>
       </template>
     </template>
