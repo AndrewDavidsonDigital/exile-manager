@@ -3,6 +3,12 @@
   --loot-border-color-corrupted: rgb(220 38 38);
   --loot-border-color-crystallized: rgb(21, 182, 194); 
   --loot-border-color-void: rgb(155, 47, 148); 
+
+  --text-class-colour: oklch(0.872 0.01 258.338);
+}
+
+.text-class{
+  color: var(--text-class-colour);
 }
 
 body[data-onboarding]>#app {

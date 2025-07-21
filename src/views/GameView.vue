@@ -12,7 +12,7 @@
   import ModalDialog from '@/components/elements/ModalDialog.vue';
   import SwitchToggle from '@/components/elements/SwitchToggle.vue';
   import { ErrorNumber } from '@/lib/typescript';
-  import { LevelType, type ILevel } from '@/lib/core';
+  import { ExileClass, LevelType, type ILevel } from '@/lib/core';
   import { IconCog, IconHelm, IconMap, IconTreasureChest, IconVillage } from '@/components/icons';
   import { useConfigurationStore } from '@/stores/configuration';
   import { CUSTOM_LEVELS } from '@/data/levels';
@@ -72,10 +72,32 @@
     configurationStore.isOpen  = !configurationStore.isOpen;
   }
 
+  function resolveClassBasedColours(){
+    let retval = 'oklch(0.872 0.01 258.338)'
+    switch (gameEngine.character?.class) {
+      case ExileClass.CHAOS_MAGE:
+        retval = 'oklch(60% 0.118 184.704)';
+        break;
+      case ExileClass.REAVER:
+        retval = 'oklch(90.1% 0.076 70.697)';
+        break;
+      case ExileClass.SPELLSWORD:
+        retval = 'oklch(40.8% 0.153 2.432)';
+        break;
+    
+      default:
+        break;
+    }
+    return retval;
+  }
+
 </script>
 
 <template>
-  <section class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)] relative">
+  <section
+    class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)] relative "
+    :style="`--text-class-colour: ${resolveClassBasedColours()};`"
+  >
     <template v-if="hasCharacter">
       <article
         class="flex gap-2 justify-center sticky top-4 z-1000 -mt-4 [&>button]:mb-auto"
