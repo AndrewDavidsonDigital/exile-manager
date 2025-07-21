@@ -89,7 +89,7 @@ Release notes UI can be [viewed here](https://exile-manager-andrew-davidsons-pro
 | Help | ![Done](./documentation/done.svg) | Need to have a help section or glossary of terms. (see: [Journal](https://exile-manager-andrew-davidsons-projects.vercel.app/journal)) |
 | Skills | ![Done](./documentation/done.svg) | Need to an array of skills with varying rarity and effects, both combat and non-combat related |
 | Passives | ![Done](./documentation/done.svg) | Need to an array of passives with varying rarity and effects |
-| Characters | ![Done](./documentation/done.svg) | Multiple classes or Characters should be playable. |
+| Characters | ![Done](./documentation/done.svg) | Multiple classes or Characters should be playable. (3/n) |
 | Character-Stats | ![Done](./documentation/done.svg) | Characters need to be representing a collection and configuration of basic RPG stats. |
 | Level-Up | ![Done](./documentation/done.svg) | The character should be able to level and receive updated stats and other bonuses |
 | Itemization | ![Done](./documentation/done.svg) | Items need to exist and be able to be segregated into different slots,and support different configurations of affix slots |
@@ -102,3 +102,8 @@ Release notes UI can be [viewed here](https://exile-manager-andrew-davidsons-pro
 | Dynamic Level Generation | ![Done](./documentation/done.svg) | Need a system where-by a dynamic level can be generated from a collection of mobs / loot / area-levels (bind to current char level or parent area level) / level-type / biassing values. (Think Vaal-side area's from POE) |
 | Meta-Progression | ![Partial](./documentation/partial.svg) | As a rogue-lite the game should have some carry-over system between chars, think unlocks or prestige |
 | A Story | ![Partial](./documentation/partial.svg) | There really should be a fleshed out story, using `Level-Progression` to loosely tie all the locations together |
+| Void Corruption - Damage | ![Pending](./documentation/incomplete.svg) | Need to define this as a mechanic and implement |
+| Mental Corruption - Damage | ![Pending](./documentation/incomplete.svg) | Need to define this as a mechanic and implement |
+| Corruption - Item | ![Pending](./documentation/incomplete.svg) | Need to define this as a mechanic and implement |
+| Cursed - Item | ![Pending](./documentation/incomplete.svg) | Need to define this as a mechanic and implement |
+| Void Touched - Item | ![Pending](./documentation/incomplete.svg) | Need to define this as a mechanic and implement |

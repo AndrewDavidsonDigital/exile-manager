@@ -1578,7 +1578,7 @@ export const useGameEngine = defineStore('gameEngine', {
       }
 
       logger(`merged-new-state: ${JSON.stringify(mutableNewState)}`);
-     
+
       useGameState().clear();
 
       // iterate over all our merged 
