@@ -32,7 +32,7 @@ import { nextTick } from 'vue';
 import { chooseWeightedRandom } from '@/lib/array';
 
 const LOGGING_PREFIX = '🎮 Game Engine:\t';
-const VERSION_NUMBER = '0.2.0';
+const VERSION_NUMBER = '0.2.1';
 
 const DEFAULT_STATE = <Readonly<IGameEngine>> {
   version: VERSION_NUMBER,
