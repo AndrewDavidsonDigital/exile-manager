@@ -1,5 +1,4 @@
 export const audioFiles = [
-  'bgm_track.m4a',
   'sfx/armour_1.m4a',
   'sfx/armour_2.m4a',
   'sfx/armour_3.m4a',
