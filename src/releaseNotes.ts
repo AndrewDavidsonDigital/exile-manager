@@ -18,6 +18,17 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.2.1',
+    highlights: [
+      'Tweak audio pre-loader logic',
+      'Version updates',
+      'Addition of Known-Issues page',
+      'Fix migration issue where all known locations were purged :O',
+    ],
+    commit: 'a2d0a7a9472513ec050f48bd45b5e8bb6a632f84',
+    compare: 'v0.2.0...v0.2.1',
+  },
+  {
     version: '0.2.0',
     highlights: [
       'Add audio pre-loader for sfx',
