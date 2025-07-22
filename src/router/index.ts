@@ -5,6 +5,7 @@ import Game from '@/views/GameView.vue';
 import ReleaseNotes from '@/views/ReleaseNotesView.vue';
 import RoadmapView from '@/views/RoadmapView.vue';
 import JournalView from '@/views/JournalView.vue';
+import KnownIssuesView from '@/views/KnownIssuesView.vue';
 
 export const routes: IRoute[] = [
   {
@@ -35,6 +36,12 @@ export const routes: IRoute[] = [
     name: 'releaseNotes',
     title: 'Release Notes',
     component: ReleaseNotes,
+  },
+  {
+    path: '/known-issues',
+    name: 'knownIssues',
+    title: 'Known Issues',
+    component: KnownIssuesView,
   },
 ];
 
