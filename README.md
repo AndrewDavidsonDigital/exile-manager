@@ -21,7 +21,7 @@ Future Roadmap [viewed here](https://exile-manager-andrew-davidsons-projects.ver
 
 | Thing | Version | Reasoning |
 | ----------- | ----------- | ----------- | 
-| Node | 22.X.Y +  | Compilation |
+| Node | 22.17.Y +  | Compilation |
 | Browser (Chrome) | 126.0.X.Y +  | Runtime |
 | Browser (Firefox) | 128.0 +  | Runtime |
 

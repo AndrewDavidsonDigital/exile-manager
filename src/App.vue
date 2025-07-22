@@ -86,7 +86,7 @@
     jewelleryTrack5,
     jewelleryTrack6,
   ];
-  
+
 
   const DEBOUNCE_INTERVAL = 500;
   const debounceLast = ref<number>(Date.now());
@@ -96,7 +96,7 @@
 
   const ctrlPressed = ref(false);
   provide(/* key */ 'ctrlPressed', /* value */ ctrlPressed);
-  
+
 
   function keyDownCallback(e: KeyboardEvent): void{
     if (Date.now() - DEBOUNCE_INTERVAL > debounceLast.value){
@@ -178,7 +178,6 @@
     document.removeEventListener('keydown', keyDownCallback);
     document.removeEventListener('keyup', keyUpCallback);
   });
-
 
   onMounted(() => {
 
