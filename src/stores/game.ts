@@ -1545,6 +1545,7 @@ export const useGameEngine = defineStore('gameEngine', {
       mutableNewState.stash = currentState.stash;
       mutableNewState.difficulty = currentState.difficulty;
       mutableNewState.isDead = currentState.isDead;
+      mutableNewState.knownLocations = currentState.knownLocations;
 
       // v0.1.0 - passives | skills char bindings
       if (mutableNewState.character && currentState.character && !Object.keys(currentState.character).includes('passives')){
