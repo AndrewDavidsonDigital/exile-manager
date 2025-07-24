@@ -344,7 +344,10 @@
             {{ reportingStyle ? "Detailed Combat logs" : "Condensed Logs" }}
           </p>
           <div class="content-center">
-            <SwitchToggle v-model="reportingStyle" />
+            <SwitchToggle
+              v-model="reportingStyle" 
+              :label="`Change reporting style to - ${reportingStyle ? 'Condensed Logs' : 'Detailed Combat logs' }`"
+            />
           </div>
         </div>
         <TransitionGroup
@@ -359,7 +362,7 @@
               class="ml-2 md:ml-4"
               :class="[
                 { 'text-amber-300': log.type === 'Treasure' },
-                { 'text-red-600': log.type === 'Danger' },
+                { 'text-red-500': log.type === 'Danger' },
                 { 'text-red-400': log.type === 'DangerLite' },
                 { 'text-blue-400': log.type === 'Generic' },
                 { 'text-teal-500': log.type === 'Safe' },

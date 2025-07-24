@@ -53,10 +53,12 @@
         <IconPlay
           class="size-6 transition-opacity duration-300"
           :class="{ 'opacity-0': isPaused }"
+          role="presentation"
         />
         <IconPause
           class="size-6 transition-opacity duration-300"
           :class="{ 'opacity-0': !isPaused }"
+          role="presentation"
         />
       </div>
       <span class="text-sm">{{ isPaused ? 'Paused' : `Playing: ${playingFile}` }}</span>
@@ -71,6 +73,7 @@
       :min="0"
       :max="1"
       :step="0.05"
+      aria-label="Audio volume slider"
       @input="() => bgmEngine.volumeRefresh()"
     />
   </div>

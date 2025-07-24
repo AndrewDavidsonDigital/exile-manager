@@ -11,6 +11,7 @@ export const routes: IRoute[] = [
   {
     path: '/',
     name: 'home',
+    title: '. /',
     component: Landing
   },
   {

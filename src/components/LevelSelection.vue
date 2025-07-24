@@ -127,7 +127,10 @@
       </button>
       
       <div class="content-center flex items-center gap-2 absolute top-2 md:top-0 right-4 md:right-0">
-        {{ hideLowLevel ? 'Hide' : 'Show' }} Low efficiency <SwitchToggle v-model="hideLowLevel" />
+        {{ hideLowLevel ? 'Hide' : 'Show' }} Low efficiency <SwitchToggle
+          v-model="hideLowLevel" 
+          :label="`${ hideLowLevel ? 'Hide' : 'Show' } Low efficiency missions`"
+        />
       </div>
     </div>
     <div 
@@ -160,7 +163,7 @@
             { 'pointer-events-none' : isAdventuring },
           ]"
         >
-          <article 
+          <div 
             class="grid-area-stack size-full"
             :class="[
               { 'wave-parent' : resolveBackground(level) === BackgroundTypes.WAVE },
@@ -224,6 +227,7 @@
             <button
               class="flex flex-col mx-auto z-10 items-center justify-between"
               :disabled="isAdventuring"
+              aria-label="Select this level"
               @click="$emit('update:modelValue', level)"
             >
               <article class="flex flex-col w-full mx-auto items-center">
@@ -244,6 +248,7 @@
                     :class="[
                       { 'blurred' : nameInd === 1 },
                     ]"
+                    role="presentation"
                   >
                     {{ segment }}{{ nameInd === 0 ? ': ' : '' }}
                   </span>
@@ -265,12 +270,12 @@
                 <p
                   v-else
                   :data-onboarding-key="`level-selection-${index}-uses`"
-                  class="text-amber-600/50 selection:!bg-amber-400/30"
+                  class="text-amber-600/90 selection:!bg-amber-400/30"
                 >
                   ထ
                 </p>
                 <p
-                  class="text-sm opacity-50" 
+                  class="text-sm opacity-70 text-emerald-400" 
                   :data-onboarding-key="`level-selection-${index}-description`"
                 >
                   {{ level.description }}
@@ -279,13 +284,13 @@
               <article class="flex flex-col w-full mx-auto items-center">
                 <div class="flex justify-between w-full">
                   <h4
-                    class="text-sm opacity-50" 
+                    class="text-sm opacity-70 text-emerald-400" 
                     :data-onboarding-key="`level-selection-${index}-level`"
                   >
                     lvl: {{ level.areaLevel !== -1 ? level.areaLevel : characterLevel + 2 }}
                   </h4>
                   <h4
-                    class="text-sm opacity-50" 
+                    class="text-sm opacity-70 text-emerald-400" 
                     :data-onboarding-key="`level-selection-${index}-encounters`"
                   >
                     ({{ level.encounterBase - level.encounterRangeDeltas }} - {{ level.encounterBase + level.encounterRangeDeltas }})
@@ -340,7 +345,7 @@
                 </template>
               </article>
             </button>
-          </article>
+          </div>
         </FluidElement>
       </template>
     </div>

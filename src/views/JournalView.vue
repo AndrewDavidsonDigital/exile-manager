@@ -102,7 +102,7 @@
             class="px-3 py-1 rounded-full text-sm transition-colors capitalize"
             :class="[
               selectedTags.includes(tag)
-                ? 'bg-emerald-600 text-white'
+                ? 'bg-emerald-600 text-slate-900'
                 : 'bg-slate-600 text-gray-300 hover:bg-slate-800'
             ]"
             @click="toggleTag(tag)"
@@ -177,25 +177,11 @@
 
           !border-red-400/50
         "
-          :class="[
-          // { '!border-cyan-500': feature.status === 'partial' },
-          // { '!border-red-400': feature.status === 'pending' },
-          ]"
         >
           <div class="flex justify-between w-full">
             <h3 class="text-xl text-left font-semibold">
               {{ term.title }}:
             </h3>
-          <!-- <h3
-            class="capitalize font-semibold"
-            :class="[
-              // { 'text-emerald-400': feature.status === 'completed' },
-              // { 'text-cyan-500': feature.status === 'partial' },
-              // { 'text-red-400': feature.status === 'pending' },
-            ]"
-          >
-            {{ term.status }}
-          </h3> -->
           </div>
           <p class="text-left">
             {{ term.description }}

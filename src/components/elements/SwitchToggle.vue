@@ -4,6 +4,7 @@ import { AudioKey, EVENT_AUDIO_KEY, type EventWithAudio } from '@/lib/core';
 
 interface Props {
   class?: string;
+  label?: string;
 }
 
 const props = defineProps<Props>();
@@ -22,7 +23,7 @@ function update(): void {
 </script>
 
 <template>
-  <label>
+  <label aria-hidden="true">
     <input
       v-model="model"
       type="checkbox"
@@ -30,9 +31,13 @@ function update(): void {
     >
   </label>
   <button 
+    role="presentation"
+    :aria-label="label"
     class="
       dark:bg-slate-600 dark:outline-emerald-400 
       bg-slate-400 outline-blue-600 
+      focus:!outline-amber-500
+      focus:[&>div]:!bg-amber-500
       outline rounded-full 
       min-w-8 w-8 h-4 p-0.5 
       flex relative 

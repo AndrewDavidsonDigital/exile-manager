@@ -45,7 +45,7 @@
         </ul>
         <p
           v-if="release.compare"
-          class="opacity-60 text-left"
+          class="text-teal-600 text-left"
         >
           Commits: <a
             :href="resolveCompareUrl(release.compare)"
@@ -55,7 +55,7 @@
         </p>
         <p
           v-else-if="release.commit"
-          class="opacity-60 text-left"
+          class="text-teal-600 text-left"
         >
           Commit: <a
             :href="resolveCommitUrl(release.commit)"

@@ -570,6 +570,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   <template #wrapper>
                     <IconBuffs
                       class="text-class"
+                      role="presentation"
                     />
                   </template>
                   <template #tooltip>
@@ -603,14 +604,19 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
               data-onboarding-key="world-skills"
               data-onboarding-key-2="all-skills"
+              aria-label="Display my world skills"
               @click="handleWorldSkillsClick"
             >
-              <IconWorldSkills class="opacity-50 hover:opacity-80" />
+              <IconWorldSkills
+                class="opacity-50 hover:opacity-80" 
+                role="presentation"
+              />
             </button>
             <button 
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
               data-onboarding-key="manage-skills"
               data-onboarding-key-2="all-skills"
+              aria-label="Display all my skills"
               @click="handleSkillsClick"
             >
               <IconSkills
@@ -618,6 +624,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   {'animate-colour-pulse': char.pendingRewards.skills > 0 && !showSkillsModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.skills)},
                 ]"
+                role="presentation"
                 :style="`
                   --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
                   --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
@@ -627,6 +634,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
             <button
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
               data-onboarding-key="manage-passives"
+              aria-label="Display all my passives"
               @click="handlePassivesClick"
             >
               <IconPassiveTree 
@@ -634,6 +642,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   {'animate-colour-pulse': char.pendingRewards.passives > 0 && !showPassivesModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.passives)},
                 ]"
+                role="presentation"
                 :style="`
                   --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
                   --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
@@ -644,6 +653,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               v-if="char.pendingRewards.stats > 0"
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause"
               data-onboarding-key="manage-attributes"
+              aria-label="Add a new character attribute"
               @click="handleStatsClick"
             >
               <IconStatIncrease 
@@ -651,6 +661,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   {'animate-colour-pulse': char.pendingRewards.stats > 0 && !showPassivesModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.stats)},
                 ]"
+                role="presentation"
                 :style="`
                   --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
                   --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
@@ -1085,7 +1096,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
           after_w-dynamic after:h-full after:rounded-full after:transition-all after:duration-500 after:ease-out
 
           before:absolute before:size-full before:my-auto
-          before_current-percent before:text-slate-300 before:z-10 
+          before_current-percent before:text-slate-100 before:z-10 
           before:text-center before:text-mlg
 
           before:translate-y-[calc(-1.25ch_+_50%)] before:md:translate-y-0 
@@ -1386,6 +1397,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   </span>
                   <SwitchToggle
                     v-model="skill.isEnabled"
+                    :label="`Enable / Disable - ${skill.name}`"
                   />
                 </div>
                 <div class="flex flex-col gap-1 text-sm text-gray-300">

@@ -26,6 +26,7 @@
           @keydown.space="e => (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL"
         ><SwitchToggle
           v-model="unlock.state"
+          :label="`Toggle - ${unlock.name}`"
           :class="`${unlock.state ? '' : 'grayscale-75'}`"
         /></span>
       </li>

@@ -8,7 +8,7 @@ import { formatAffixDescription } from '@/lib/game';
 import { getTierColor, allItemTypes, itemTypeEmojiMap, slotMap, formatBaseAffixValue } from '@/lib/itemUtils';
 import type { AffixValue } from '@/lib/affixTypes';
 import ModalDialog from './elements/ModalDialog.vue';
-import { IconChevron, IconLink, IconMoney, IconRefreshCC, IconSearch } from './icons';
+import { IconChevron, IconLink, IconMoney, IconRefreshCC, IconSearch, IconMoneyThree } from './icons';
 import { ErrorNumber } from '@/lib/typescript';
 import { allItemTiers, AudioKey, EVENT_AUDIO_KEY, ItemTiers, TIER_SEPARATOR, ItemBase, type ItemTierType, type EventWithAudio } from '@/lib/core';
 import RomanNumeral from './elements/RomanNumeral.vue';
@@ -16,7 +16,6 @@ import { useAdventuringStore } from '@/stores/adventuring';
 import SwitchToggle from './elements/SwitchToggle.vue';
 import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
 import { useWorldEngine } from '@/stores/world';
-import IconMoneyThree from './icons/IconMoneyThree.vue';
 import CloseButton from './elements/CloseButton.vue';
 
 const gameEngine = useGameEngine();
@@ -324,6 +323,7 @@ const canCompare = computed(() => {
           <div class="flex gap-2 w-fit h-fit items-center">
             <SwitchToggle
               v-model="gameEngine.autoSalvage" 
+              :label="`Enable / Disable - ${gameEngine.autoSalvage}`"
               :class="!gameEngine.autoSalvage ? 'opacity-50' : ''"
             />
             <label>
@@ -355,7 +355,10 @@ const canCompare = computed(() => {
             @click="e => { gameEngine.attemptIdAll(); (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.SCROLL;}"
           >
             <FluidElement class="w-fit !p-2">
-              <IconSearch class="fill-teal-200 stroke-amber-900 " />
+              <IconSearch
+                class="fill-teal-200 stroke-amber-900"
+                aria-label="Identify All Items"
+              />
             </FluidElement>
           </button>
           <button
@@ -366,7 +369,10 @@ const canCompare = computed(() => {
             @click="e => { gameEngine.attemptSalvageAll(); selectedLoot = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = AudioKey.GOLD;}"
           >
             <FluidElement class="w-fit !p-2">
-              <IconMoneyThree class="[&_.path-1]:stroke-orange-500/50 [&_.path-2]:stroke-orange-500/65 stroke-amber-600" />
+              <IconMoneyThree
+                class="[&_.path-1]:stroke-orange-500/50 [&_.path-2]:stroke-orange-500/65 stroke-amber-600" 
+                aria-label="Sell All Items"
+              />
             </FluidElement>
           </button>
         </div>
@@ -400,7 +406,10 @@ const canCompare = computed(() => {
               class="w-fit !p-2"
               title="Delete Brush"
             >
-              <IconMoney class="stroke-amber-600" />
+              <IconMoney
+                class="stroke-amber-600" 
+                aria-label="Sell Item"
+              />
             </FluidElement>
           </button>
           <button
@@ -435,6 +444,7 @@ const canCompare = computed(() => {
         </button>
         <button
           data-onboarding-key="loot-inventory-filter-types-collapse"
+          :aria-label="`${collapseEquipmentFilters ? 'Expand' : 'Collapses' } Equipment Filters`"
           @click="e => { collapseEquipmentFilters = !collapseEquipmentFilters; lootFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseEquipmentFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 md:hidden">
@@ -442,6 +452,7 @@ const canCompare = computed(() => {
               :class="[
                 { 'active' : collapseEquipmentFilters }
               ]"
+              :aria-label="`${collapseEquipmentFilters ? 'Expand' : 'Collapses' } Equipment Filters`"
             />
           </FluidElement>
         </button>
@@ -476,6 +487,7 @@ const canCompare = computed(() => {
               :class="[
                 { 'active' : collapseEquipmentFilters }
               ]"
+              :aria-label="`${collapseEquipmentFilters ? 'Expand' : 'Collapses' } Equipment Filters`"
             />
           </FluidElement>
         </button>
@@ -499,6 +511,7 @@ const canCompare = computed(() => {
         </button>
         <button
           data-onboarding-key="loot-inventory-filter-tiers-collapse"
+          :aria-label="`${collapseTierFilters ? 'Expand' : 'Collapses' } Item Tier Filters`"
           @click="e => { collapseTierFilters = !collapseTierFilters; tierFilter = undefined; (e as EventWithAudio)[EVENT_AUDIO_KEY] = !collapseTierFilters ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN; }"
         >
           <FluidElement class="w-fit !p-1 md:hidden">
@@ -506,6 +519,7 @@ const canCompare = computed(() => {
               :class="[
                 { 'active' : collapseTierFilters }
               ]"
+              :aria-label="`${collapseTierFilters ? 'Expand' : 'Collapses' } Item Tier Filters`"
             />
           </FluidElement>
         </button>
@@ -541,6 +555,7 @@ const canCompare = computed(() => {
               :class="[
                 { 'active' : collapseTierFilters }
               ]"
+              :aria-label="`${collapseTierFilters ? 'Expand' : 'Collapses' } Item Tier Filters`"
             />
           </FluidElement>
         </button>
@@ -662,7 +677,10 @@ const canCompare = computed(() => {
             class="!p-1 mt-auto border-red-400/50"
             title="Delete selected Item"
           >
-            <IconMoney class="stroke-amber-600" />
+            <IconMoney
+              class="stroke-amber-600" 
+              aria-label="Sell Item"
+            />
           </FluidElement>
         </button>
       </div>
@@ -799,12 +817,12 @@ const canCompare = computed(() => {
           </div>
         </template>
         <template v-else-if="selectedLoot">
-          <p class="text-sm opacity-50">
+          <p class="text-sm opacity-75 text-teal-500">
             Item not identified
           </p>
         </template>
         <template v-else>
-          <p class="text-sm opacity-50">
+          <p class="text-sm opacity-75 text-teal-500">
             Select an Item
           </p>
         </template>
@@ -819,7 +837,7 @@ const canCompare = computed(() => {
         >
           <FluidElement class="w-fit !p-2 mt-auto">
             <div class="flex flex-col gap-2">
-              <p class="text-sm opacity-50">
+              <p class="text-sm opacity-75 text-teal-500 italic">
                 Identification Cost: {{ selectedLoot ? getIdentificationCost(selectedLoot) : 0 }} gold
               </p>
               <span>

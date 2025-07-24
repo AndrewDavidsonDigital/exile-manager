@@ -238,7 +238,7 @@ const resetBrush = (): void => {
             />
           </div>
         </details>
-        <blockquote class="opacity-50 italic">
+        <blockquote class="opacity-75 italic">
           Un-equip item by holding CTRL
         </blockquote>
       </div>

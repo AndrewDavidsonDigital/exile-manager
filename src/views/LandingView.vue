@@ -25,7 +25,7 @@
         <li>Affix tier rolls will be banded relative to the item level of the item, both lower and upper</li>
       </ul>
       <button
-        class="size-full"
+        class="size-fit"
         @click="() => router.push('/game-state')"
       >
         <FluidElement class="w-fit !p-2 mx-auto mt-2">

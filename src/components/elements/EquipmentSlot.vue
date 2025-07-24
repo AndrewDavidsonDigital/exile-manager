@@ -145,7 +145,7 @@ function unequipItem(): void {
           </div>
         </template>
         <template v-else>
-          <p class="text-sm opacity-50">
+          <p class="text-sm opacity-75 text-teal-500">
             Item not identified
           </p>
         </template>

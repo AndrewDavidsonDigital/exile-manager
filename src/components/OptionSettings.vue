@@ -14,7 +14,7 @@
 </script>
 
 <template>
-  <article class="flex flex-col gap-2 justify-start">
+  <article class="flex flex-col gap-2 justify-start text-emerald-300">
     <div class="flex items-center gap-3">
       <h3 class="text-lg font-semibold text-slate-200 order-2">
         Options
@@ -55,6 +55,7 @@
                 :min="0"
                 :max="1"
                 :step="0.05"
+                :aria-label="`Audio volume slider: ${ resolveLabelFromKey(config) }`"
               />
             </label> 
           </li>
@@ -75,6 +76,7 @@
             <p class="ml-4">{{ resolveLabelFromKey(config) }}{{ configuration.ui.healthManaBars ? 'Use Bars' : 'Use Text' }}</p>
             <SwitchToggle
               v-model="configuration.ui.healthManaBars"
+              :label="`${resolveLabelFromKey(config)}`"
               @updated="configuration.saveState"
             ></SwitchToggle>
           </span>
@@ -96,6 +98,7 @@
               <p class="ml-4">{{ resolveLabelFromKey(config) }}</p>
               <SwitchToggle
                 v-model="(configuration[index] as Record<string, boolean>)[config]"
+                :label="`${resolveLabelFromKey(config)}`"
                 @updated="configuration.saveState();"
               ></SwitchToggle>
             </span>
@@ -115,6 +118,7 @@
           <p class="ml-4">{{ resolveLabelFromKey(loggingConfig) }}</p>
           <SwitchToggle
             v-model="(localLogging[loggingConfig])"
+            :label="`${resolveLabelFromKey(loggingConfig)}`"
             @updated="updateLogging(loggingConfig, localLogging[loggingConfig])"
           ></SwitchToggle>
         </span>

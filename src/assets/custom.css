@@ -22,6 +22,12 @@ input[type=range].thin-slider{
 input[type=range].thin-slider:focus,
 input[type=range].thin-slider:hover{
   @apply outline-none;
+  &::-webkit-slider-runnable-track,
+  &::-moz-range-thumb,
+  &::-moz-range-track,
+  &::-webkit-slider-thumb{
+    @apply !bg-amber-500;
+  }
 }
 
 input[type=range].thin-slider{
