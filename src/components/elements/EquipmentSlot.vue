@@ -166,6 +166,13 @@ function unequipItem(): void {
     justify-self: anchor-center;
   }
 
+  /* FF-hack to ensure scrolling is synced for anchors as anchor() is not in FF yet */
+  @-moz-document url-prefix(){
+    .tooltip {
+      @apply !absolute;
+    }
+  }
+
   .tooltip-parent:hover .tooltip {
     @apply block;
   }
