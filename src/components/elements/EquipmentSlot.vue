@@ -7,6 +7,7 @@ import { AudioKey, EVENT_AUDIO_KEY, ItemBase, TIER_SEPARATOR, type EventWithAudi
 import { inject } from 'vue';
 import { IconLink } from '../icons';
 import { affixSaturation, resolveAffixMultiplierValue } from '@/lib/affixUtils';
+import TooltipElement from './TooltipElement.vue';
 
 
 const ctrlPressed = inject<undefined | { value: boolean}>('ctrlPressed');
@@ -35,28 +36,33 @@ function unequipItem(): void {
 </script>
 
 <template>
-  <button 
-    class="bg-gray-800/80 rounded-lg border p-2 text-center relative tooltip-parent"
-    :class="[
-      { 'opacity-50 pointer-events-none': !item },
-      { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
-    ]"
-    :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --gear-${slotName};`]"
-    @touchend="() => activeBrush === 'none' && alertStats()"
-    @click="(e) => {(e as EventWithAudio)[EVENT_AUDIO_KEY] = (item && [ItemBase.AMULET, ItemBase.RING].includes(item.type)) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; item && unequipItem();}"
+  <TooltipElement
+    :tooltip-key="`--gear-${slotName};`"
   >
-    <span class="text-sm text-gray-400 capitalize">
-      <span 
-        :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
-      >{{ item ? item.itemDetails?.tier : '' }}</span>
-      {{ item ? item.type : slotName.replace(/([A-Z])/g, ' $1').trim() }}
-    </span>
-    <div
-      v-if="item"
-      class="tooltip"
-      :style="`position-anchor: --gear-${slotName};`"
-    >
-      <div class="flex flex-col gap-1">
+    <template #wrapper>
+      <button 
+        class="bg-gray-800/80 rounded-lg border p-2 text-center relative size-full"
+        :class="[
+          { 'opacity-50 pointer-events-none': !item },
+          { '!border-red-500': (ctrlPressed && item) || (activeBrush === 'unequip' && item) }
+        ]"
+        :style="[{ borderColor: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' },`anchor-name: --gear-${slotName};`]"
+        @touchend="() => activeBrush === 'none' && alertStats()"
+        @click="(e) => {(e as EventWithAudio)[EVENT_AUDIO_KEY] = (item && [ItemBase.AMULET, ItemBase.RING].includes(item.type)) ? AudioKey.JEWELLERY : AudioKey.ARMOUR; item && unequipItem();}"
+      >
+        <span class="text-sm text-gray-400 capitalize">
+          <span 
+            :style="[{ color: item ? getTierColor(item.itemDetails?.tier, item.identified) : 'rgb(75, 85, 99)' }]"
+          >{{ item ? item.itemDetails?.tier : '' }}</span>
+          {{ item ? item.type : slotName.replace(/([A-Z])/g, ' $1').trim() }}
+        </span>
+      </button>
+    </template>
+    <template #tooltip>
+      <div
+        v-if="item"
+        class="flex flex-col gap-1 text-center"
+      >
         <p class="font-bold">
           {{ item.name }}
         </p>
@@ -150,30 +156,6 @@ function unequipItem(): void {
           </p>
         </template>
       </div>
-    </div>
-  </button>
+    </template>
+  </TooltipElement>
 </template>
-
-<style scoped>
-  @reference "@/assets/main.css";
-
-  .tooltip {
-    @apply fixed hidden bg-gray-900 border border-gray-600/40 rounded-md;
-    @apply text-gray-200 text-sm whitespace-nowrap;
-    @apply p-2 z-50;
-    @apply cursor-default;
-    top: anchor(bottom);
-    justify-self: anchor-center;
-  }
-
-  /* FF-hack to ensure scrolling is synced for anchors as anchor() is not in FF yet */
-  @-moz-document url-prefix(){
-    .tooltip {
-      @apply !absolute;
-    }
-  }
-
-  .tooltip-parent:hover .tooltip {
-    @apply block;
-  }
-</style> 

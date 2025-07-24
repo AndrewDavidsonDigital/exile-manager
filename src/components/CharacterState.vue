@@ -566,7 +566,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                 v-if="char.temporalEffects.length > 0"
                 class="hidden md:block"
               >
-                <TooltipElement :tooltip-key="`${Date.now()}`">
+                <TooltipElement :tooltip-key="`char_buffs_${Date.now()}`">
                   <template #wrapper>
                     <IconBuffs
                       class="text-class"
