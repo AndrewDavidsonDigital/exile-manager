@@ -795,7 +795,7 @@ import { chooseRandom } from '@/lib/array';
           encounterIcon = '❔';
           encounterType = 'Generic';
         }else{
-          encounter.description += `From the rumble and scattered tools this ruin appears to be of a forge`
+          encounter.description += `From the rubble and scattered tools this ruin appears to be of a forge`
           encounterIcon = '🛠️';
           encounterType = 'Safe';
           worldEngine.knowAboutTownFeature(TownUnlockable.SMITH);
