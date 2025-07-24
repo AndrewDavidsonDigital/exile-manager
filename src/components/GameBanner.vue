@@ -7,13 +7,13 @@
 </script>
 
 <template>
-  <section class="flex gap-2 mx-auto">
+  <div class="flex gap-2 mx-auto">
     <span
       v-if="gameEngine.character"
       class="capitalize"
     >{{ gameEngine.character.name }} the {{ gameEngine.character.class }} ({{ gameEngine.character.level }}) - </span>{{ gameEngine.difficulty }}
-  </section>
-  <section 
+  </div>
+  <div 
     v-if="gameEngine.isVersionSaveOutOfDate"
     class="flex gap-2 mx-auto bg-amber-700 text-black text-lg w-full justify-center py-2"
   >
@@ -30,5 +30,5 @@
     >
       Attempt Migration
     </button>
-  </section>
+  </div>
 </template>

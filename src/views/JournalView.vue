@@ -116,7 +116,7 @@
     <h3 class="text-xl text-emerald-500">
       In Game Terms
     </h3>
-    <section class="flex flex-wrap justify-center my-auto mx-2 gap-2 pt-4 pb-2 max-w-content">
+    <article class="flex flex-wrap justify-center my-auto mx-2 gap-2 pt-4 pb-2 max-w-content">
       <h3 v-if="implementedEntries.length === 0">
         No results
       </h3>
@@ -153,11 +153,11 @@
           </div>
         </FluidElement>
       </template>
-    </section>
+    </article>
     <h3 class="text-xl">
       Not Yet Implemented
     </h3>
-    <section class="flex flex-wrap justify-center my-auto mx-2 gap-2 pt-4 pb-5 max-w-content">
+    <article class="flex flex-wrap justify-center my-auto mx-2 gap-2 pt-4 pb-5 max-w-content">
       <h3 v-if="pendingEntries.length === 0">
         No results
       </h3>
@@ -213,6 +213,6 @@
           </div>
         </FluidElement>
       </template>
-    </section>
+    </article>
   </div>
 </template>

@@ -8,7 +8,7 @@
 </script>
 
 <template>
-  <section>
+  <div>
     <!-- Arcanum Global Configs -->
     <ul
       v-for="unlock, index in worldEngine.townConfigurations.Arcanum"
@@ -30,5 +30,5 @@
         /></span>
       </li>
     </ul>
-  </section>
+  </div>
 </template>

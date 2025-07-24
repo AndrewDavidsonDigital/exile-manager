@@ -95,7 +95,7 @@ const resetBrush = (): void => {
   <div>
     <template v-if="char !== ErrorNumber.NOT_FOUND">
       <!-- Brush Tools -->
-      <section class="md:hidden flex flex-col gap-2">
+      <div class="md:hidden flex flex-col gap-2">
         <div class="flex justify-between gap-2 mb-2">
           <button
             class="w-fit"
@@ -183,9 +183,9 @@ const resetBrush = (): void => {
             />
           </div>
         </details>
-      </section>
+      </div>
 
-      <section class="hidden md:block">
+      <div class="hidden md:block">
         <!-- Equipment -->
         <details
           class="group"
@@ -241,7 +241,7 @@ const resetBrush = (): void => {
         <blockquote class="opacity-50 italic">
           Un-equip item by holding CTRL
         </blockquote>
-      </section>
+      </div>
     </template>
   </div>
 </template>

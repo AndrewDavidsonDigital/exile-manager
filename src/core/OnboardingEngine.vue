@@ -43,7 +43,7 @@
 
 </script>
 <template>
-  <section 
+  <div 
     class="fixed !text-fuchsia-500 w-full transition-all duration-200"
     :class="[
       { 'z-onboarding' : isOnboarding },
@@ -133,5 +133,5 @@
         </FluidElement>
       </template>
     </div>
-  </section>
+  </div>
 </template>

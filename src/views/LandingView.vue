@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <section class="flex flex-col items-center my-auto mx-2 z-10">
+  <article class="flex flex-col items-center my-auto mx-2 z-10">
     <FluidElement class="max-w-[32rem] text-center">
       <h2 class="capitalize text-lg mx-auto w-fit">
         Welcome adventurer
@@ -33,5 +33,5 @@
         </FluidElement>
       </button>
     </FluidElement>
-  </section>
+  </article>
 </template>

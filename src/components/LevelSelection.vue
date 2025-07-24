@@ -227,13 +227,13 @@
               @click="$emit('update:modelValue', level)"
             >
               <article class="flex flex-col w-full mx-auto items-center">
-                <p
+                <h4
                   v-if="level.type === LevelType.DEFAULT"
                   :data-onboarding-key="`level-selection-${index}-name`"
                 >
                   {{ level.name }}
-                </p>
-                <p
+                </h4>
+                <h4
                   v-else 
                   :data-onboarding-key="`level-selection-${index}-name`"
                 >
@@ -247,7 +247,7 @@
                   >
                     {{ segment }}{{ nameInd === 0 ? ': ' : '' }}
                   </span>
-                </p>
+                </h4>
                 <p
                   v-if="UNKNOWN_USES.has(level._identifier)"
                   :data-onboarding-key="`level-selection-${index}-uses`"
@@ -278,18 +278,18 @@
               </article>
               <article class="flex flex-col w-full mx-auto items-center">
                 <div class="flex justify-between w-full">
-                  <p
+                  <h4
                     class="text-sm opacity-50" 
                     :data-onboarding-key="`level-selection-${index}-level`"
                   >
                     lvl: {{ level.areaLevel !== -1 ? level.areaLevel : characterLevel + 2 }}
-                  </p>
-                  <p
+                  </h4>
+                  <h4
                     class="text-sm opacity-50" 
                     :data-onboarding-key="`level-selection-${index}-encounters`"
                   >
                     ({{ level.encounterBase - level.encounterRangeDeltas }} - {{ level.encounterBase + level.encounterRangeDeltas }})
-                  </p>
+                  </h4>
                 </div>
                 <div
                   class="flex text-sm gap-2 mx-auto capitalize text-cyan-600 selection:!bg-cyan-400/30" 

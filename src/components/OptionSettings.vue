@@ -14,15 +14,20 @@
 </script>
 
 <template>
-  <section class="flex flex-col gap-2 justify-start">
-    <button
-      class="w-fit"
-      @click="configuration.isOpen = !configuration.isOpen; configuration.save();"
-    >
-      <FluidElement class="py-2 px-3">
-        Close
-      </FluidElement>
-    </button>
+  <article class="flex flex-col gap-2 justify-start">
+    <div class="flex items-center gap-3">
+      <h3 class="text-lg font-semibold text-slate-200 order-2">
+        Options
+      </h3>
+      <button
+        class="w-fit order-1"
+        @click="configuration.isOpen = !configuration.isOpen; configuration.save();"
+      >
+        <FluidElement class="py-2 px-3">
+          Close
+        </FluidElement>
+      </button>
+    </div>
     <template
       v-for="configGroup,index in configuration.getConfigurables"
       :key="`settings_configGroup_${index}`"
@@ -115,5 +120,5 @@
         </span>
       </template>
     </template>
-  </section>
+  </article>
 </template> 

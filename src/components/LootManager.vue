@@ -831,7 +831,7 @@ const canCompare = computed(() => {
 
 
         <!-- Equip Button -->
-        <section class="flex justify-between gap-1">
+        <div class="flex justify-between gap-1">
           <div class="flex flex-col gap-2">
             <button
               v-if="canCompare"
@@ -870,7 +870,7 @@ const canCompare = computed(() => {
               Deselect Item
             </FluidElement>
           </button>
-        </section>
+        </div>
       </div>
     </FluidElement>
 

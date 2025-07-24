@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <section class="flex flex-col items-center m-2 pb-10 gap-2 overflow-y-scroll overflow-x-clip scrollbar max-h-[80dvh]">
+  <div class="flex flex-col items-center m-2 pb-10 gap-2 overflow-y-scroll overflow-x-clip scrollbar max-h-[80dvh]">
     <template
       v-for="issue, index in issues"
       :key="`issues_${index}`"
@@ -30,8 +30,8 @@
         </ul>
       </FluidElement>
     </template>
-  </section>
-  <section class="mask-b"></section>
+  </div>
+  <div class="mask-b"></div>
 </template>
 
 <style scoped>

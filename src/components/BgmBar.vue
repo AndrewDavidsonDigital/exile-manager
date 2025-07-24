@@ -44,7 +44,7 @@
 </script>
 
 <template>
-  <section class="flex items-center gap-2 text-emerald-500">
+  <div class="flex items-center gap-2 text-emerald-500">
     <button
       class="inline-flex"
       @click="bgmEngine.playPause()"
@@ -73,7 +73,7 @@
       :step="0.05"
       @input="() => bgmEngine.volumeRefresh()"
     />
-  </section>
+  </div>
 </template>
 
 <style scoped>

@@ -8,7 +8,7 @@
 </script>
 
 <template>
-  <section
+  <div
     class="tooltip-parent"
     :style="`anchor-name: --tooltip-${tooltipKey};`"
   >
@@ -21,7 +21,7 @@
         <slot name="tooltip"></slot>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>

@@ -220,9 +220,13 @@
     <section
       v-if="selectedFeature"
       class="text-emerald-400 mx-auto"
+      :aria-labelledby="`${UNLOCK_FEATURE_MODAL_ID}_heading`"
     >
       <div>
-        <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
+        <h3
+          :id="`${UNLOCK_FEATURE_MODAL_ID}_heading`" 
+          class="text-xl font-bold mb-4 w-fit mx-auto"
+        >
           Ruins: {{ selectedFeature.smearedName }}
         </h3>
         <CloseButton @click="e => closeUnlockModal(e)" />
@@ -265,9 +269,13 @@
     <section
       v-if="selectedFeature"
       class="text-emerald-400 mx-auto flex flex-col gap-y-2"
+      :aria-labelledby="`${INTERACT_FEATURE_MODAL_ID}_heading`"
     >
       <div>
-        <h3 class="text-xl font-bold w-fit mx-auto">
+        <h3
+          :id="`${INTERACT_FEATURE_MODAL_ID}_heading`"
+          class="text-xl font-bold w-fit mx-auto"
+        >
           {{ selectedFeature.name }}
         </h3>
         <CloseButton @click="e => closeInteractModal(e)" />

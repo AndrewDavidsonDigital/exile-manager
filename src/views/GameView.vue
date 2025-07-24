@@ -94,12 +94,12 @@
 </script>
 
 <template>
-  <section
+  <div
     class="flex flex-col items-center gap-2 my-2 [&>*]:max-w-content [&>*]:w-full mx-[min(3%,_2rem)] relative"
     :style="`--text-class-colour: ${resolveClassBasedColours()};`"
   >
     <template v-if="hasCharacter">
-      <article
+      <div
         class="flex gap-2 justify-center sticky top-4 z-1000 -mt-4 [&>button]:mb-auto"
         :class="[
           { '[&>button]:opacity-50 [&>button]:grayscale [&>button]:pointer-events-none' : adventuringStore.isAdventuring },
@@ -192,8 +192,8 @@
             </FluidElement>
           </button>
         </span>
-      </article>
-      <section
+      </div>
+      <div
         v-if="enableCheats && cheatsToggle"
         class="flex flex-col"
       >
@@ -246,14 +246,14 @@
             </FluidElement>
           </button>
         </div>
-      </section>
-      <section
+      </div>
+      <div
         class="grid-area-stack"
         :class="[
           { 'grayscale opacity-50 pointer-events-none' : adventuringStore.isAdventuring },
         ]"
       >
-        <article
+        <div
           v-show="activeTab === 'adventuring'"
         >
           <LevelSelection
@@ -266,18 +266,18 @@
             @start-adventuring="() => startAdventuring()"
             @trash="(level) => gameEngine.trashLevel(level)"
           />
-        </article>
-        <article v-show="activeTab === 'loot'">
+        </div>
+        <div v-show="activeTab === 'loot'">
           <FluidElement class="w-full">
             <LootManager />
           </FluidElement>
-        </article>
-        <article v-show="activeTab === 'town'">
+        </div>
+        <div v-show="activeTab === 'town'">
           <FluidElement class="w-full">
             <TownManager />
           </FluidElement>
-        </article>
-      </section>
+        </div>
+      </div>
       <div
         v-if="isCharPaneVisible"
         class="gap-2 grid grid-cols-1 md:grid-cols-[2fr_1fr]"
@@ -386,11 +386,11 @@
           </FluidElement>
         </button>
       </FluidElement>
-      <article
+      <div
         v-if="adventuringStore.adventureJournal.length > 2"
         class="mask-b -mt-2"
       >
-      </article>
+      </div>
       <FluidElement>
         <WorldState />
       </FluidElement>
@@ -400,7 +400,7 @@
         @character-created="() => {adventuringStore.reset(); selectedLevel = undefined}"
       />
     </template>
-  </section>
+  </div>
 
   <ModalDialog
     id="gameModal"
@@ -408,7 +408,10 @@
     class="backdrop:!bg-red-800"
     disable-lite-dismiss
   >
-    <section class="flex flex-col gap-2 text-emerald-200">
+    <article class="flex flex-col gap-2 text-emerald-200">
+      <h3 class="text-lg">
+        You have fallen
+      </h3>
       <div class="">
         <p>At level {{ gameEngine.character?.level }}</p>
         <p>{{ gameEngine.character?.name }} has perished hoarding {{ gameEngine.character?.loot.length }} valuables</p>
@@ -450,7 +453,7 @@
           Start a new Run
         </button>
       </FluidElement>
-    </section>
+    </article>
   </ModalDialog>
 </template>
 <style scoped>

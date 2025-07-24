@@ -573,7 +573,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                     />
                   </template>
                   <template #tooltip>
-                    <section>
+                    <article>
                       <h4>Buffs:</h4>
                       <template
                         v-for="eff,idx in char.temporalEffects"
@@ -585,7 +585,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                           <p class="text-sm !font-normal justify-self-end">{{ eff.remaining }} {{ eff.timing }}{{ eff.remaining === 1 ? '' : 's' }}</p>
                         </div>
                       </template>
-                    </section>
+                    </article>
                   </template>
                 </TooltipElement>
               </span>
@@ -1211,8 +1211,12 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
         {'pt-16': char !== ErrorNumber.NOT_FOUND && char.passives.length > 2},
         {'pt-10': char !== ErrorNumber.NOT_FOUND && char.passives.length <= 2}
       ]"
+      :aria-labelledby="`${PASSIVES_MODAL_ID}_heading`"
     >
-      <h3 class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2">
+      <h3 
+        :id="`${PASSIVES_MODAL_ID}_heading`"
+        class="text-xl font-bold mb-4 w-fit fixed top-2 left-1/2 -translate-x-1/2"
+      >
         Passives
       </h3>
       <CloseButton @click="showPassivesModal = false" />
@@ -1240,13 +1244,13 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
           :key="`passives_${index}`"
         >
           <FluidElement
-            class="duration-300 transition-all border-rarity max-w-[calc(100%_-_2px)] md:max-w-52 last:-mb-10 md:last:mb-0"
+            class="duration-300 transition-all border-rarity max-w-[calc(100%_-_2px)] md:max-w-64 last:-mb-10 md:last:mb-0"
             :data-rarity="passive.rarity"
             :class="[
               { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
             ]"
           >
-            <article 
+            <div 
               class="grid-area-stack size-full"
               :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
             >
@@ -1283,7 +1287,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   Effect: {{ resolveDescriptionFromEffect(passive) }}
                 </div>
               </div>
-            </article>
+            </div>
           </FluidElement>
         </template>
       </div>
@@ -1301,8 +1305,12 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
         {'pt-16': char !== ErrorNumber.NOT_FOUND && char.skills.length > 2},
         {'pt-10': char !== ErrorNumber.NOT_FOUND && char.skills.length <= 2}
       ]"
+      :aria-labelledby="`${SKILLS_MODAL_ID}_heading`"
     >
-      <h3 class="text-xl font-bold mb-4 w-full fixed top-2 left-1/2 -translate-x-1/2 text-center">
+      <h3 
+        :id="`${SKILLS_MODAL_ID}_heading`"
+        class="text-xl font-bold mb-4 w-full fixed top-2 left-1/2 -translate-x-1/2 text-center"
+      >
         Skills
       </h3>
       <CloseButton @click="showSkillsModal = false" />
@@ -1326,7 +1334,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               {'opacity-50': !(skill.isEnabled) || !isOffCooldown(char, skill._identifier)},
             ]"
           >
-            <article 
+            <div 
               class="grid-area-stack size-full"
               :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
             >
@@ -1441,7 +1449,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   </div>
                 </div>
               </div>
-            </article>
+            </div>
           </FluidElement>
         </template>
       </div>
@@ -1459,8 +1467,12 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
         {'pt-16': char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length > 2},
         {'pt-10': char !== ErrorNumber.NOT_FOUND && char.skills.filter(el => el.isEnabled && el.activationLayer === SkillActivationLayer.WORLD).length <= 2}
       ]"
+      :aria-labelledby="`${WORLD_SKILL_MODAL_ID}_heading`"
     >
-      <h3 class="text-xl font-bold mb-4 w-full fixed top-2 left-1/2 -translate-x-1/2 text-center">
+      <h3 
+        :id="`${WORLD_SKILL_MODAL_ID}_heading`"
+        class="text-xl font-bold mb-4 w-full fixed top-2 left-1/2 -translate-x-1/2 text-center"
+      >
         Activate World Skill
       </h3>
       <CloseButton @click="showWorldSkillsModal = false" />
@@ -1582,8 +1594,14 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
     class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset] overflow-clip relative"
     @close="showNewPassivesModal = false"
   >
-    <section class="text-emerald-400 mx-auto">
-      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
+    <section
+      class="text-emerald-400 mx-auto" 
+      :aria-labelledby="`${NEW_PASSIVES_MODAL_ID}_heading`"
+    >
+      <h3 
+        :id="`${NEW_PASSIVES_MODAL_ID}_heading`"
+        class="text-xl font-bold mb-4 w-fit mx-auto"
+      >
         Select a new Passive
       </h3>
       <CloseButton @click="showNewPassivesModal = false" />
@@ -1596,7 +1614,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
           :key="`passives_${index}`"
         >
           <button 
-            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5 max-w-[calc(100%_-_3rem)]"
+            class="hover:scale-125 duration-300 transition-all hover:z-10 mt-5 max-w-[calc(100%_-_3rem)] md:max-w-64"
             @click="handleAddPassive(passive._identifier)"
           >
             <FluidElement
@@ -1606,7 +1624,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                 { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(passive.rarity) },
               ]"
             >
-              <article 
+              <div 
                 class="grid-area-stack size-full"
                 :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
               >
@@ -1643,7 +1661,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                     Effect: {{ resolveDescriptionFromEffect(passive) }}
                   </div>
                 </div>
-              </article>
+              </div>
             </FluidElement>
           </button>
         </template>
@@ -1669,8 +1687,12 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
   >
     <section
       class="text-emerald-400 mx-auto pt-16 pb-2 md:pt-6"
+      :aria-labelledby="`${NEW_SKILLS_MODAL_ID}_heading`"
     >
-      <h3 class="text-xl font-bold mb-4 fixed top-2 left-1/2 -translate-x-1/2 w-full text-center">
+      <h3 
+        :id="`${NEW_SKILLS_MODAL_ID}_heading`"
+        class="text-xl font-bold mb-4 fixed top-2 left-1/2 -translate-x-1/2 w-full text-center"
+      >
         Select a new Skills
       </h3>
       <CloseButton @click="showNewSkillsModal = false" />
@@ -1693,7 +1715,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                 { 'animate-shimmer-border' : [Rarity.UNCOMMON, Rarity.RARE].includes(skill.rarity) },
               ]"
             >
-              <article 
+              <div 
                 class="grid-area-stack size-full"
                 :style="`--pulse-delay: ${(Math.random() * 3) * 500 * (Math.random() * 3) % 500}ms;`"
               >
@@ -1805,7 +1827,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                     </div>
                   </div>
                 </div>
-              </article>
+              </div>
             </FluidElement>
           </button>
         </template>
@@ -1829,8 +1851,14 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
     class="!p-[3%] md:!px-10 md:!pb-10 md:!pt-4 min-h-1/3 md:min-h-[unset] min-w-2/3 md:min-w-[unset]"
     @close="showAddStatsModal = false"
   >
-    <section class="text-emerald-400 mx-auto">
-      <h3 class="text-xl font-bold mb-4 w-fit mx-auto">
+    <section
+      class="text-emerald-400 mx-auto"
+      :aria-labelledby="`${ADD_STATS_MODAL_ID}_heading`"
+    >
+      <h3 
+        :id="`${ADD_STATS_MODAL_ID}_heading`"
+        class="text-xl font-bold mb-4 w-fit mx-auto"
+      >
         Increase a single attribute
       </h3>
       <CloseButton @click="showAddStatsModal = false" />

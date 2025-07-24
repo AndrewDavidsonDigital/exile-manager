@@ -9,6 +9,12 @@ const difficulty = gameEngine.getDifficulty;
 
 <template>
   <article class="flex flex-col gap-2">
+    <h4
+      class="hidden"
+      aria-hidden="false"
+    >
+      World State
+    </h4>
     <div class="flex justify-between">
       <div class="flex flex-col gap-1">
         <template v-if="difficulty !== ErrorNumber.NOT_FOUND">
