@@ -18,6 +18,16 @@ export interface IRelease {
 
 export const releases: IRelease[] = [
   {
+    version: '0.2.2',
+    highlights: [
+      'FF tweaks',
+      'Accessibility Tweaks',
+      'Fixing Typos',
+    ],
+    commit: '9221601ab302d01cf9e2816cd3c4674c52fb5a58',
+    compare: 'v0.2.1...v0.2.2',
+  },
+  {
     version: '0.2.1',
     highlights: [
       'Tweak audio pre-loader logic',
