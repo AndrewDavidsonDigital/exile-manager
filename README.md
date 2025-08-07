@@ -1,3 +1,5 @@
+[TOC]
+
 # Exiled Again
 
 This project is to create an interactive rogue-lite dungeon crawler, with a heavy dose of ARPG itemization and character building.
