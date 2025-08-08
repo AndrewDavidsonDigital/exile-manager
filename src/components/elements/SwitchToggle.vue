@@ -30,9 +30,7 @@ function update(): void {
       class="hidden"
     >
   </label>
-  <button 
-    role="presentation"
-    :aria-label="label"
+  <button
     class="
       dark:bg-slate-600 dark:outline-emerald-400 
       bg-slate-400 outline-blue-600 
@@ -44,6 +42,7 @@ function update(): void {
       transition-all duration-300 ease-in
       cursor-pointer
     "
+    :aria-label="props.label"
     :class="props.class"
     @click="e => {update(); (e as EventWithAudio)[EVENT_AUDIO_KEY] = !model ? AudioKey.SWOOSH_UP : AudioKey.SWOOSH_DOWN;}"
   >

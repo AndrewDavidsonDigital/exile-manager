@@ -248,7 +248,7 @@
                     :class="[
                       { 'blurred' : nameInd === 1 },
                     ]"
-                    role="presentation"
+                    aria-hidden="true"
                   >
                     {{ segment }}{{ nameInd === 0 ? ': ' : '' }}
                   </span>

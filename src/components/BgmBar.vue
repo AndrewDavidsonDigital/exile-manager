@@ -53,12 +53,13 @@
         <IconPlay
           class="size-6 transition-opacity duration-300"
           :class="{ 'opacity-0': isPaused }"
-          role="presentation"
+          
+          aria-hidden="true"
         />
         <IconPause
           class="size-6 transition-opacity duration-300"
           :class="{ 'opacity-0': !isPaused }"
-          role="presentation"
+          aria-hidden="true"
         />
       </div>
       <span class="text-sm">{{ isPaused ? 'Paused' : `Playing: ${playingFile}` }}</span>

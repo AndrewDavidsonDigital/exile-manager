@@ -570,7 +570,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   <template #wrapper>
                     <IconBuffs
                       class="text-class"
-                      role="presentation"
+                      aria-hidden="true"
                     />
                   </template>
                   <template #tooltip>
@@ -609,7 +609,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
             >
               <IconWorldSkills
                 class="opacity-50 hover:opacity-80" 
-                role="presentation"
+                aria-hidden="true"
               />
             </button>
             <button 
@@ -624,7 +624,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   {'animate-colour-pulse': char.pendingRewards.skills > 0 && !showSkillsModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.skills)},
                 ]"
-                role="presentation"
+                aria-hidden="true"
                 :style="`
                   --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
                   --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
@@ -642,7 +642,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   {'animate-colour-pulse': char.pendingRewards.passives > 0 && !showPassivesModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.passives)},
                 ]"
-                role="presentation"
+                aria-hidden="true"
                 :style="`
                   --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
                   --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
@@ -661,7 +661,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
                   {'animate-colour-pulse': char.pendingRewards.stats > 0 && !showPassivesModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.stats)},
                 ]"
-                role="presentation"
+                aria-hidden="true"
                 :style="`
                   --dynamic-colour-pulse-out: oklch(0.88 0.18 194.49);
                   --dynamic-colour-pulse-in: oklch(0.723 0.219 149.579);
@@ -703,7 +703,10 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               class="size-fit my-auto opacity-70 hover:scale-110 transition-all duration-300 hover:[&>svg]:!animation-pause md:hidden"
               @click="handleWorldSkillsClick"
             >
-              <IconWorldSkills class="opacity-50 hover:opacity-80" />
+              <IconWorldSkills
+                class="opacity-50 hover:opacity-80" 
+                aria-hidden="true"
+              />
             </button>
             <span 
               class="ml-2 place-self-center md:place-self-start" 
@@ -723,6 +726,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               @click="handleSkillsClick"
             >
               <IconSkills
+                aria-hidden="true"
                 :class="[
                   {'animate-colour-pulse': char.pendingRewards.skills > 0 && !showSkillsModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.skills)},
@@ -749,6 +753,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               @click="handlePassivesClick"
             >
               <IconPassiveTree 
+                aria-hidden="true"
                 :class="[
                   {'animate-colour-pulse': char.pendingRewards.passives > 0 && !showPassivesModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.passives)},
@@ -775,6 +780,7 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
               @click="handleStatsClick"
             >
               <IconStatIncrease 
+                aria-hidden="true"
                 :class="[
                   {'animate-colour-pulse': char.pendingRewards.stats > 0 && !showPassivesModal},
                   {'opacity-50 hover:opacity-80': !(char.pendingRewards.stats)},
@@ -1686,7 +1692,9 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
           class="hover:rotate-360 duration-3000 transition-all"
           @click="gameEngine.refreshPassives"
         >
-          <IconRefreshCC />
+          <IconRefreshCC 
+            aria-hidden="true"
+          />
         </button>
       </div>
     </section>
@@ -1852,7 +1860,9 @@ function resolveDescriptionFromEffect(b: IPassive | ISkill){
           class="hover:rotate-360 duration-3000 transition-all"
           @click="gameEngine.refreshSkills"
         >
-          <IconRefreshCC />
+          <IconRefreshCC 
+            aria-hidden="true"
+          />
         </button>
       </div>
     </section>

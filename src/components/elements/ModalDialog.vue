@@ -86,7 +86,6 @@
 
       backdrop:w-screen backdrop:h-screen
     "
-    role="presentation"
     :closedby="disableLiteDismiss ? 'closerequest' : 'any'"
     @close="cascadeBackdropClose"
   >
