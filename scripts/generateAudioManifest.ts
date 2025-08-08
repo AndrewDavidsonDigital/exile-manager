@@ -8,11 +8,11 @@ function getFileList(folderPath: string = './'){
   const rootFolderContents = fs.readdirSync(folderPath, { encoding: 'utf-8', recursive: true });
 
   const includableFileTypes = ['.m4a'];
-  const ingnorableFiles = ['node_modules', '.yarn', '.git', 'dist'];
+  const ignorableFiles = ['node_modules', '.yarn', '.git', 'dist'];
   const fileList = rootFolderContents.filter(el => {
     let shouldKeep = true;
 
-    ingnorableFiles.forEach(ignorable => {
+    ignorableFiles.forEach(ignorable => {
       if (el.includes(ignorable)){
         shouldKeep = false;
       }
