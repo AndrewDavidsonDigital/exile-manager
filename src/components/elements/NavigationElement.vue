@@ -81,6 +81,7 @@
                 { 'pointer-events-none cursor-default truncate !text-cyan-500' : value.path === currentRoute.path},
               ]"
               :title="value.title"
+              :tabindex="toggleMobile ? 0 : -1"
             >
               {{ value.title }}
             </RouterLink>
